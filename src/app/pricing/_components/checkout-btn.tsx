@@ -23,8 +23,8 @@ export function CheckoutBtn({ className }: { className: string }) {
   }
 
   return (
-    <button onClick={start} disabled={loading} className={className}>
-      {loading ? "Redirecting…" : "Start 14-day Trial →"}
+    <button disabled className={className} style={{ opacity: 0.5, cursor: "not-allowed" }}>
+      Coming Soon
     </button>
   );
 }

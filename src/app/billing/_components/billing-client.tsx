@@ -43,19 +43,11 @@ export function BillingClient({ plan, status, trialEndsAt, hasSubscription }: Pr
   if (!hasSubscription) {
     return (
       <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-8 text-center max-w-md mx-auto">
-        <p className="text-zinc-400 text-sm mb-2">No active subscription</p>
-        <h2 className="text-xl font-bold mb-4">Start your 14-day free trial</h2>
-        <p className="text-zinc-500 text-sm mb-6">
-          Full Classroom access — no credit card charged until your trial ends.
+        <p className="text-zinc-400 text-sm mb-2">Billing</p>
+        <h2 className="text-xl font-bold mb-4">Payments coming soon</h2>
+        <p className="text-zinc-500 text-sm">
+          Full platform access is currently free during our pilot. Subscription setup is in progress.
         </p>
-        <button
-          onClick={startCheckout}
-          disabled={loading}
-          className="w-full rounded-xl bg-blue-500 py-3 font-semibold text-white hover:bg-blue-400 disabled:opacity-40 transition"
-        >
-          {loading ? "Redirecting…" : "Start Free Trial →"}
-        </button>
-        <p className="text-xs text-zinc-600 mt-3">$149/month after trial. Cancel anytime.</p>
       </div>
     );
   }

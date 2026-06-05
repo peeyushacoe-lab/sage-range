@@ -45,7 +45,7 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
               <Link href="/labs"                  className="hover:text-zinc-100 transition-colors">Labs</Link>
               <Link href="/leaderboard"           className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
               <Link href="/analytics/instructor"  className="hover:text-zinc-100 transition-colors">Analytics</Link>
-              <Link href="/billing"               className="hover:text-white transition-colors text-zinc-300">Billing</Link>
+              {/* Billing hidden until payment is live */}
             </>
           )}
           {(role === "RECRUITER") && (
