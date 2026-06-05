@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  background: #0a0a0a;
+  color: #f4f4f5;
+  min-height: 100%;
+}
+
+@layer components {
+  .input-field {
+    @apply w-full rounded bg-black/40 border border-white/10 px-3 py-2 text-sm font-mono
+           focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30
+           bg-transparent text-zinc-100;
+  }
+}
