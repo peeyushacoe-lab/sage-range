@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { sendWelcomeEmail } from "@/lib/email";
+import { Prisma } from "@prisma/client";
 
 const ONBOARDING_COOKIE = "sage_onboarded";
 
@@ -20,25 +21,52 @@ export async function POST(req: Request) {
 
   const { role, displayName } = parsed.data;
 
-  // Fetch Clerk user + update metadata + check existing user — all in parallel.
-  const client = await clerkClient();
-  const [clerkUser, , existingUser] = await Promise.all([
-    client.users.getUser(userId),
+  // Get Clerk user + check existing DB user — update metadata separately so a Clerk
+  // API failure doesn't block account creation.
+  let email = "";
+  try {
+    const client = await clerkClient();
+    const [clerkUser, existingUser] = await Promise.all([
+      client.users.getUser(userId),
+      db.user.findUnique({ where: { clerkId: userId }, select: { id: true, email: true } }),
+    ]);
+
+    email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+
+    // Fire metadata update in background — non-blocking, not critical for routing
     client.users.updateUserMetadata(userId, {
       publicMetadata: { onboardingComplete: true, role },
-    }),
-    db.user.findUnique({ where: { clerkId: userId }, select: { id: true } }),
-  ]);
+    }).catch((e: unknown) => console.error("[onboarding] Clerk metadata update failed:", e));
 
-  const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+    // Handle email collision: if email exists under a different clerkId, re-link it
+    let user;
+    try {
+      user = await db.user.upsert({
+        where: { clerkId: userId },
+        update: { role, displayName },
+        create: { clerkId: userId, email, role, displayName },
+        select: { email: true },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        // Email already exists under different clerkId — re-link and update
+        user = await db.user.update({
+          where: { email },
+          data: { clerkId: userId, role, displayName },
+          select: { email: true },
+        });
+      } else {
+        throw e;
+      }
+    }
 
-  // Upsert handles both new sign-ups (user not yet in DB) and returning users
-  const user = await db.user.upsert({
-    where: { clerkId: userId },
-    update: { role, displayName },
-    create: { clerkId: userId, email, role, displayName },
-    select: { email: true },
-  });
+    if (!existingUser && user?.email) {
+      sendWelcomeEmail(user.email, displayName, role).catch(() => null);
+    }
+  } catch (e) {
+    console.error("[onboarding] Error:", e);
+    return NextResponse.json({ error: "internal" }, { status: 500 });
+  }
 
   const cookieOpts = {
     path: "/",
@@ -47,10 +75,6 @@ export async function POST(req: Request) {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
   };
-  // Send welcome email only on first onboarding — not on role changes or re-submissions.
-  if (!existingUser && user?.email) {
-    sendWelcomeEmail(user.email, displayName, role).catch(() => null);
-  }
 
   const res = NextResponse.json({ ok: true, role });
   res.cookies.set(ONBOARDING_COOKIE, "1", cookieOpts);
