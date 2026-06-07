@@ -90,11 +90,12 @@ export default function OnboardingPage() {
       });
       if (!res.ok) throw new Error("Failed");
 
-      // Force Clerk session refresh so middleware sees new publicMetadata
-      await user?.reload();
+      // Refresh Clerk session in background — dashboard reads role from DB, not Clerk metadata
+      user?.reload().catch(() => null);
       router.push("/dashboard");
     } catch {
       setError("Something went wrong. Try again.");
+    } finally {
       setSaving(false);
     }
   }

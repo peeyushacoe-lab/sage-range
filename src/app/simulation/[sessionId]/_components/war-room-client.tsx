@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import type { WorldState, CompanyProfile, PublicAction, Executive } from "@/lib/simulation/types";
 import { RightPanel } from "./right-panel";
+import { EvidencePanel } from "./evidence-panel";
+import { getEvidence } from "@/lib/simulation/runtime/evidence";
 
 type EventRow = { id: string; type: string; actor: string; payload: unknown; narrative: string | null; createdAt: string };
 type StageDefRow = { id: string; label: string; brief: string; threat: string; evidence: string[] } | null;
@@ -115,6 +117,10 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
   const [rightTab, setRightTab] = useState<"evidence" | "stakeholders" | "threats" | "alerts">("evidence");
   const feedRef = useRef<HTMLDivElement>(null);
 
+  // Track which evidence artifacts have been read (resets on stage change)
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const [trackedStage, setTrackedStage] = useState(initialData.session.currentStage);
+
   const refresh = useCallback(async () => {
     try {
       const res = await fetch(`/api/simulation/${sessionId}`);
@@ -139,6 +145,14 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
     if (feedRef.current) feedRef.current.scrollTop = feedRef.current.scrollHeight;
   }, [data.events.length]);
 
+  // Reset read state when the stage advances
+  useEffect(() => {
+    if (data.session.currentStage !== trackedStage) {
+      setReadIds(new Set());
+      setTrackedStage(data.session.currentStage);
+    }
+  }, [data.session.currentStage, trackedStage]);
+
   async function takeAction(actionId: string) {
     setPending(actionId);
     try {
@@ -160,6 +174,11 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
   const executives = data.executives ?? [];
   const roleActions = teamRole ? availableActions.filter((a) => actionMatchesRole(a, teamRole)) : availableActions;
   const advisoryActions = teamRole === "LEGAL" ? availableActions.filter((a) => !actionMatchesRole(a, teamRole)) : [];
+
+  // Evidence for current stage
+  const stageArtifacts = getEvidence(session.template.slug, session.currentStage, company.name);
+  // Check intersection with current stage's artifact IDs — prevents one-frame unlock flash on stage transition
+  const actionsUnlocked = stageArtifacts.length === 0 || stageArtifacts.some((a) => readIds.has(a.id));
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950 text-white">
@@ -277,32 +296,58 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
               </div>
             ) : (
               <div>
-                <p className="text-xs uppercase tracking-wider text-zinc-600 mb-3">Available Actions</p>
-                <div className="grid gap-2">
-                  {roleActions.length === 0 && advisoryActions.length === 0 && (
-                    <p className="text-zinc-600 text-sm italic">
-                      {teamRole ? "No actions available for your role. Coordinate with your IR Lead." : "Monitoring situation… Refresh incoming."}
+                {/* Investigation phase — appears when stage has evidence */}
+                {stageArtifacts.length > 0 && (
+                  <EvidencePanel
+                    artifacts={stageArtifacts}
+                    readIds={readIds}
+                    onRead={(id) => setReadIds((prev) => new Set([...prev, id]))}
+                  />
+                )}
+
+                {/* Action panel — locked until at least one artifact read */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="text-xs uppercase tracking-wider text-zinc-600">
+                      {actionsUnlocked ? "Response Actions" : "Response Actions"}
                     </p>
-                  )}
-                  {roleActions.map((a) => (
-                    <button
-                      key={a.id}
-                      onClick={() => takeAction(a.id)}
-                      disabled={!!pending}
-                      className="text-left rounded-lg border border-white/10 p-3 hover:border-sage-500/50 hover:bg-sage-500/5 transition disabled:opacity-50 group"
-                    >
-                      <p className="text-sm font-medium group-hover:text-sage-400 transition">
-                        {pending === a.id ? "Executing…" : a.label}
+                    {!actionsUnlocked && (
+                      <span className="text-[9px] font-bold text-zinc-700 border border-zinc-800 px-1.5 py-0.5 rounded tracking-widest">
+                        LOCKED
+                      </span>
+                    )}
+                    {actionsUnlocked && stageArtifacts.length > 0 && (
+                      <span className="text-[9px] font-bold text-sage-600 border border-sage-500/20 px-1.5 py-0.5 rounded tracking-widest">
+                        UNLOCKED
+                      </span>
+                    )}
+                  </div>
+                  <div className={`grid gap-2 transition-all ${!actionsUnlocked ? "opacity-30 pointer-events-none select-none" : ""}`}>
+                    {roleActions.length === 0 && advisoryActions.length === 0 && (
+                      <p className="text-zinc-600 text-sm italic">
+                        {teamRole ? "No actions available for your role. Coordinate with your IR Lead." : "Monitoring situation… Refresh incoming."}
                       </p>
-                      <p className="text-xs text-zinc-500 mt-0.5">{a.description}</p>
-                    </button>
-                  ))}
-                  {advisoryActions.map((a) => (
-                    <div key={a.id} className="rounded-lg border border-white/5 p-3 opacity-40">
-                      <p className="text-sm font-medium text-zinc-400">{a.label}</p>
-                      <p className="text-xs text-zinc-600 mt-0.5">Advisory only — action belongs to another role</p>
-                    </div>
-                  ))}
+                    )}
+                    {roleActions.map((a) => (
+                      <button
+                        key={a.id}
+                        onClick={() => takeAction(a.id)}
+                        disabled={!!pending || !actionsUnlocked}
+                        className="text-left rounded-lg border border-white/10 p-3 hover:border-sage-500/50 hover:bg-sage-500/5 transition disabled:opacity-50 group"
+                      >
+                        <p className="text-sm font-medium group-hover:text-sage-400 transition">
+                          {pending === a.id ? "Executing…" : a.label}
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-0.5">{a.description}</p>
+                      </button>
+                    ))}
+                    {advisoryActions.map((a) => (
+                      <div key={a.id} className="rounded-lg border border-white/5 p-3 opacity-40">
+                        <p className="text-sm font-medium text-zinc-400">{a.label}</p>
+                        <p className="text-xs text-zinc-600 mt-0.5">Advisory only — action belongs to another role</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
