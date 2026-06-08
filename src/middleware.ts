@@ -1,7 +1,10 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isProtectedRoute = createRouteMatcher([
+// Only PAGE routes are protected here — API routes handle their own auth (return 401/403).
+// Calling auth.protect() on API routes with dev Clerk keys on non-localhost domains causes
+// Clerk to rewrite the request to /404 before the route handler runs.
+const isProtectedPage = createRouteMatcher([
   "/dashboard(.*)",
   "/labs(.*)",
   "/recruiter(.*)",
@@ -10,14 +13,6 @@ const isProtectedRoute = createRouteMatcher([
   "/admin(.*)",
   "/analytics(.*)",
   "/billing(.*)",
-  "/api/stripe(.*)",
-  "/api/labs(.*)",
-  "/api/ai(.*)",
-  "/api/profile(.*)",
-  "/api/simulation(.*)",
-  "/api/admin(.*)",
-  "/api/user(.*)",
-  "/api/classroom(.*)",
   "/paths(.*)",
   "/classroom(.*)",
   "/competitions(.*)",
@@ -36,11 +31,14 @@ const isRecruiterBlocked = createRouteMatcher(["/labs(.*)", "/paths(.*)", "/comp
 const isInstructorBlocked = createRouteMatcher(["/competitions(.*)", "/paths(.*)", "/leaderboard(.*)", "/analytics/recruiter(.*)", "/recruiter(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Protect all app routes
-  if (isProtectedRoute(req)) await auth.protect();
+  // API routes pass through — each handler calls auth() and returns 401 if unauthenticated
+  if (isApi(req)) return NextResponse.next();
 
-  // Skip onboarding redirect for API routes and onboarding itself
-  if (isApi(req) || isOnboarding(req)) return NextResponse.next();
+  // Protect page routes (redirects to sign-in if not authenticated)
+  if (isProtectedPage(req)) await auth.protect();
+
+  // Skip onboarding redirect for onboarding page itself
+  if (isOnboarding(req)) return NextResponse.next();
 
   // Redirect authenticated users who haven't completed onboarding.
   // Clerk doesn't include publicMetadata in the JWT by default, so we also
