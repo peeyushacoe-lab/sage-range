@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import {
@@ -25,9 +24,6 @@ export async function GET(
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
   const { sessionId } = await params;
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const user = await getOrCreateAppUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 

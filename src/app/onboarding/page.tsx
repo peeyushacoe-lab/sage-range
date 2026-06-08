@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 
 type Role = "STUDENT" | "INSTRUCTOR" | "RECRUITER";
 
@@ -71,9 +71,9 @@ const ROLES: Array<{
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user } = useUser();
+  const { data: session } = useSession();
   const [selected, setSelected] = useState<Role | null>(null);
-  const [name, setName] = useState(user?.fullName ?? "");
+  const [name, setName] = useState(session?.user?.name ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,9 +89,6 @@ export default function OnboardingPage() {
         body: JSON.stringify({ role: selected, displayName: name.trim() }),
       });
       if (!res.ok) throw new Error("Failed");
-
-      // Refresh Clerk session in background — dashboard reads role from DB, not Clerk metadata
-      user?.reload().catch(() => null);
       router.push("/dashboard");
     } catch {
       setError("Something went wrong. Try again.");

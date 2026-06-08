@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 
@@ -20,8 +19,8 @@ const Body = z.object({
 });
 
 export async function PATCH(req: Request) {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });

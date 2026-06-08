@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 
@@ -14,8 +13,8 @@ function generateCertId(): string {
 }
 
 export async function GET() {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+
 
   const user = await getOrCreateAppUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -48,8 +47,8 @@ export async function GET() {
 }
 
 export async function POST() {
-  const { userId: clerkId } = await auth();
-  if (!clerkId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+
 
   const user = await getOrCreateAppUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });

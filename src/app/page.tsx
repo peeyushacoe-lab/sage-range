@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Show } from "@clerk/nextjs";
+import { auth } from "@/auth";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 
@@ -51,7 +51,9 @@ const HOW = [
   { role: "Recruiter",  color: "text-amber-400 border-amber-500/30", steps: ["Browse verified candidates", "Filter by simulation rating", "View MITRE skill coverage", "Bookmark and post jobs", "Download assessment reports"] },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  const isSignedIn = !!session?.user?.id;
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <MarketingNav />
@@ -73,28 +75,29 @@ export default function Home() {
           to verified talent assessment, for students, instructors, and the companies hiring them.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
-          <Show when="signed-out">
-            <Link
-              href="/sign-up"
-              className="rounded-xl bg-sage-500 px-7 py-3.5 font-semibold text-black hover:bg-sage-400 transition text-base"
-            >
-              Start training free →
-            </Link>
-            <Link
-              href="/pricing"
-              className="rounded-xl border border-white/15 px-7 py-3.5 font-medium text-zinc-300 hover:border-white/30 hover:text-white transition text-base"
-            >
-              View pricing
-            </Link>
-          </Show>
-          <Show when="signed-in">
+          {!isSignedIn ? (
+            <>
+              <Link
+                href="/sign-in"
+                className="rounded-xl bg-sage-500 px-7 py-3.5 font-semibold text-black hover:bg-sage-400 transition text-base"
+              >
+                Start training free →
+              </Link>
+              <Link
+                href="/pricing"
+                className="rounded-xl border border-white/15 px-7 py-3.5 font-medium text-zinc-300 hover:border-white/30 hover:text-white transition text-base"
+              >
+                View pricing
+              </Link>
+            </>
+          ) : (
             <Link
               href="/dashboard"
               className="rounded-xl bg-sage-500 px-7 py-3.5 font-semibold text-black hover:bg-sage-400 transition text-base"
             >
               Go to Dashboard →
             </Link>
-          </Show>
+          )}
         </div>
         <p className="text-xs text-zinc-600 mt-4">Free for students · No credit card required</p>
       </section>
@@ -188,25 +191,26 @@ export default function Home() {
           Students train free. Instructors run classrooms from $149/month. Enterprises get a verified talent pipeline.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
-          <Show when="signed-out">
-            <Link
-              href="/sign-up"
-              className="rounded-xl bg-sage-500 px-7 py-3.5 font-semibold text-black hover:bg-sage-400 transition"
-            >
-              Create free account →
-            </Link>
-            <Link
-              href="/contact"
-              className="rounded-xl border border-white/15 px-7 py-3.5 text-zinc-300 hover:text-white hover:border-white/30 transition"
-            >
-              Talk to us
-            </Link>
-          </Show>
-          <Show when="signed-in">
+          {!isSignedIn ? (
+            <>
+              <Link
+                href="/sign-in"
+                className="rounded-xl bg-sage-500 px-7 py-3.5 font-semibold text-black hover:bg-sage-400 transition"
+              >
+                Create free account →
+              </Link>
+              <Link
+                href="/contact"
+                className="rounded-xl border border-white/15 px-7 py-3.5 text-zinc-300 hover:text-white hover:border-white/30 transition"
+              >
+                Talk to us
+              </Link>
+            </>
+          ) : (
             <Link href="/dashboard" className="rounded-xl bg-sage-500 px-7 py-3.5 font-semibold text-black hover:bg-sage-400 transition">
               Go to Dashboard →
             </Link>
-          </Show>
+          )}
         </div>
       </section>
 

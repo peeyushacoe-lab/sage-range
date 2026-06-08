@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { buildWorldState } from "@/lib/simulation/engine";
@@ -11,9 +10,6 @@ export async function GET(
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
   const { sessionId } = await params;
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const me = await getOrCreateAppUser();
   if (!me || (me.role !== "INSTRUCTOR" && me.role !== "ADMIN")) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });

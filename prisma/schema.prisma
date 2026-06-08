@@ -36,7 +36,7 @@ enum AttemptStatus {
 
 model User {
   id          String   @id @default(cuid())
-  clerkId     String   @unique
+  externalId  String   @unique  // Keycloak subject (sub) claim
   email       String   @unique
   displayName  String?
   role         Role     @default(STUDENT)

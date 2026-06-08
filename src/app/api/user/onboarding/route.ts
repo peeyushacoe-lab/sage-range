@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendWelcomeEmail } from "@/lib/email";
 import { Prisma } from "@prisma/client";
@@ -13,56 +13,42 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });
 
   const { role, displayName } = parsed.data;
+  const externalId = session.user.id;
+  const email = session.user.email;
 
-  // Get Clerk user + check existing DB user — update metadata separately so a Clerk
-  // API failure doesn't block account creation.
-  let email = "";
+  if (!email) return NextResponse.json({ error: "no_email" }, { status: 400 });
+
+  let isNew = false;
   try {
-    const client = await clerkClient();
-    const [clerkUser, existingUser] = await Promise.all([
-      client.users.getUser(userId),
-      db.user.findUnique({ where: { clerkId: userId }, select: { id: true, email: true } }),
-    ]);
+    const existing = await db.user.findUnique({ where: { externalId }, select: { id: true } });
+    isNew = !existing;
 
-    email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
-
-    // Fire metadata update in background — non-blocking, not critical for routing
-    client.users.updateUserMetadata(userId, {
-      publicMetadata: { onboardingComplete: true, role },
-    }).catch((e: unknown) => console.error("[onboarding] Clerk metadata update failed:", e));
-
-    // Handle email collision: if email exists under a different clerkId, re-link it
-    let user;
     try {
-      user = await db.user.upsert({
-        where: { clerkId: userId },
+      await db.user.upsert({
+        where: { externalId },
         update: { role, displayName },
-        create: { clerkId: userId, email, role, displayName },
-        select: { email: true },
+        create: { externalId, email, role, displayName },
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-        // Email already exists under different clerkId — re-link and update
-        user = await db.user.update({
+        // Email collision under a different externalId — re-link
+        await db.user.update({
           where: { email },
-          data: { clerkId: userId, role, displayName },
-          select: { email: true },
+          data: { externalId, role, displayName },
         });
       } else {
         throw e;
       }
     }
 
-    if (!existingUser && user?.email) {
-      sendWelcomeEmail(user.email, displayName, role).catch(() => null);
-    }
+    if (isNew) sendWelcomeEmail(email, displayName, role).catch(() => null);
   } catch (e) {
     console.error("[onboarding] Error:", e);
     return NextResponse.json({ error: "internal" }, { status: 500 });

@@ -1,61 +1,54 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// Only PAGE routes are protected here — API routes handle their own auth (return 401/403).
-// Calling auth.protect() on API routes with dev Clerk keys on non-localhost domains causes
-// Clerk to rewrite the request to /404 before the route handler runs.
-const isProtectedPage = createRouteMatcher([
-  "/dashboard(.*)",
-  "/labs(.*)",
-  "/recruiter(.*)",
-  "/profile(.*)",
-  "/simulation(.*)",
-  "/admin(.*)",
-  "/analytics(.*)",
-  "/billing(.*)",
-  "/paths(.*)",
-  "/classroom(.*)",
-  "/competitions(.*)",
-  "/institution(.*)",
-  "/leaderboard(.*)",
-]);
+const PROTECTED_PAGES = [
+  "/dashboard", "/labs", "/recruiter", "/profile", "/simulation",
+  "/admin", "/analytics", "/billing", "/paths", "/classroom",
+  "/competitions", "/institution", "/leaderboard",
+];
 
-const isOnboarding = createRouteMatcher(["/onboarding(.*)"]);
+const STUDENT_BLOCKED  = ["/recruiter", "/analytics/recruiter", "/analytics/instructor"];
+const RECRUITER_BLOCKED = ["/labs", "/paths", "/competitions", "/analytics/instructor"];
+const INSTRUCTOR_BLOCKED = ["/competitions", "/paths", "/leaderboard", "/analytics/recruiter", "/recruiter"];
 
-// Students: no access to recruiter or instructor-only areas
-const isStudentBlocked = createRouteMatcher(["/recruiter(.*)", "/analytics/recruiter(.*)", "/analytics/instructor(.*)"]);
-// Recruiters: no access to student training content
-const isRecruiterBlocked = createRouteMatcher(["/labs(.*)", "/paths(.*)", "/competitions(.*)", "/analytics/instructor(.*)"]);
-// Instructors: no access to competitions, paths, leaderboard, recruiter areas
-const isInstructorBlocked = createRouteMatcher(["/competitions(.*)", "/paths(.*)", "/leaderboard(.*)", "/analytics/recruiter(.*)", "/recruiter(.*)"]);
+function startsWith(pathname: string, patterns: string[]): boolean {
+  return patterns.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
 
-export default clerkMiddleware(async (auth, req) => {
-  // Protect page routes (redirects to sign-in if not authenticated)
-  if (isProtectedPage(req)) await auth.protect();
+export default auth((req: NextRequest & { auth: { user?: { id?: string } } | null }) => {
+  const { pathname } = req.nextUrl;
+  const session = req.auth;
+  const isAuthed = !!session?.user?.id;
 
-  // Skip onboarding redirect for onboarding page itself
-  if (isOnboarding(req)) return NextResponse.next();
+  // Unauthenticated: redirect page routes to sign-in
+  if (!isAuthed && startsWith(pathname, PROTECTED_PAGES)) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/sign-in";
+    url.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(url);
+  }
 
-  // Redirect authenticated users who haven't completed onboarding.
-  // Clerk doesn't include publicMetadata in the JWT by default, so we also
-  // check a plain cookie that the onboarding API sets on success.
-  const { userId, sessionClaims } = await auth();
-  if (userId) {
-    const meta = sessionClaims?.publicMetadata as Record<string, unknown> | undefined;
+  // Redirect authenticated users who haven't finished onboarding
+  if (isAuthed && !pathname.startsWith("/onboarding") && !pathname.startsWith("/api")) {
     const onboarded = req.cookies.get("sage_onboarded")?.value === "1";
-    if (!meta?.onboardingComplete && !onboarded) {
-      return NextResponse.redirect(new URL("/onboarding", req.url));
+    if (!onboarded && startsWith(pathname, PROTECTED_PAGES)) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/onboarding";
+      return NextResponse.redirect(url);
     }
+  }
 
-    // Role-based page guards (read from cookie set at onboarding/fix-session)
+  // Role-based page guards
+  if (isAuthed) {
     const role = req.cookies.get("sage_role")?.value;
-    if (role === "STUDENT" && isStudentBlocked(req)) {
+    if (role === "STUDENT" && startsWith(pathname, STUDENT_BLOCKED)) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
-    if (role === "RECRUITER" && isRecruiterBlocked(req)) {
+    if (role === "RECRUITER" && startsWith(pathname, RECRUITER_BLOCKED)) {
       return NextResponse.redirect(new URL("/recruiter", req.url));
     }
-    if (role === "INSTRUCTOR" && isInstructorBlocked(req)) {
+    if (role === "INSTRUCTOR" && startsWith(pathname, INSTRUCTOR_BLOCKED)) {
       return NextResponse.redirect(new URL("/classroom", req.url));
     }
   }
@@ -64,12 +57,8 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  // Exclude /api and /trpc routes from clerkMiddleware entirely.
-  // The dev-browser redirect runs at the clerkMiddleware wrapper level, BEFORE the function
-  // body executes — so the isApi() guard never fires on production Vercel with dev keys.
-  // API handlers call auth() directly and handle their own 401s; they don't need this middleware.
+  // Exclude API, NextAuth, and static assets — those handle their own auth
   matcher: [
     "/((?!_next|api|trpc|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/__clerk/(.*)",
   ],
 };

@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { stripe, PLANS } from "@/lib/stripe";
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const me = await getOrCreateAppUser();
   if (!me) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
@@ -41,7 +37,7 @@ export async function POST(req: Request) {
       const customer = await stripe.customers.create({
         email: me.email,
         name: me.displayName ?? me.email,
-        metadata: { userId: me.id, clerkId: userId },
+        metadata: { userId: me.id },
       });
       customerId = customer.id;
       await db.user.update({

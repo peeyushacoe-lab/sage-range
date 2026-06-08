@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
+import { SessionProvider } from "next-auth/react";
 import { CookieConsent } from "@/components/cookie-consent";
 import "./globals.css";
 
@@ -22,10 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="antialiased">
-        <ClerkProvider appearance={{ variables: { colorPrimary: "#10b981" } }}>
+        <SessionProvider>
           {children}
           <CookieConsent />
-        </ClerkProvider>
+        </SessionProvider>
       </body>
     </html>
   );

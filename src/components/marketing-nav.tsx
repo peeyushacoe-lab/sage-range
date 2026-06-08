@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { Show } from "@clerk/nextjs";
+import { auth } from "@/auth";
 
-export function MarketingNav() {
+export async function MarketingNav() {
+  const session = await auth();
+  const isSignedIn = !!session?.user?.id;
+
   return (
     <header className="sticky top-0 z-40 border-b border-white/8 bg-zinc-950/90 backdrop-blur">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
@@ -20,25 +23,26 @@ export function MarketingNav() {
         </nav>
 
         <div className="flex items-center gap-3 text-sm shrink-0">
-          <Show when="signed-out">
-            <Link href="/sign-in" className="text-zinc-400 hover:text-white transition-colors">
-              Sign in
-            </Link>
-            <Link
-              href="/sign-up"
-              className="rounded-lg bg-sage-500 px-4 py-2 font-semibold text-black hover:bg-sage-400 transition-colors"
-            >
-              Get started
-            </Link>
-          </Show>
-          <Show when="signed-in">
+          {!isSignedIn ? (
+            <>
+              <Link href="/sign-in" className="text-zinc-400 hover:text-white transition-colors">
+                Sign in
+              </Link>
+              <Link
+                href="/sign-in"
+                className="rounded-lg bg-sage-500 px-4 py-2 font-semibold text-black hover:bg-sage-400 transition-colors"
+              >
+                Get started
+              </Link>
+            </>
+          ) : (
             <Link
               href="/dashboard"
               className="rounded-lg bg-sage-500 px-4 py-2 font-semibold text-black hover:bg-sage-400 transition-colors"
             >
               Dashboard
             </Link>
-          </Show>
+          )}
         </div>
       </div>
     </header>
