@@ -24,6 +24,12 @@ export async function POST(req: Request) {
   const lab = await db.lab.findUnique({ where: { id: parsed.data.labId } });
   if (!lab || !lab.published) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
+  // Check if this stage was already completed before the upsert (guards against double competition award)
+  const existingStageResponse = await db.labResponse.findUnique({
+    where: { userId_labId_stage: { userId: user.id, labId: parsed.data.labId, stage: parsed.data.stage } },
+  });
+  const isFirstStageCompletion = !existingStageResponse;
+
   const labResponse = await db.labResponse.upsert({
     where: {
       userId_labId_stage: {
@@ -43,31 +49,40 @@ export async function POST(req: Request) {
     },
   });
 
-  // Award competition points for active competitions that include this lab
-  try {
-    const now = new Date();
-    const activeEntries = await db.competitionEntry.findMany({
-      where: {
-        userId: user.id,
-        competition: {
-          published: true,
-          startDate: { lte: now },
-          endDate: { gte: now },
+  // Award competition points — only on first completion of this stage, with difficulty weighting
+  if (isFirstStageCompletion) {
+    try {
+      const DIFFICULTY_WEIGHT: Record<string, number> = { EASY: 1.0, MEDIUM: 1.5, HARD: 2.0, INSANE: 3.0 };
+      const allStages = TASK_STAGES[lab.slug] ?? [];
+      const stageCount = Math.max(allStages.length, 1);
+      const perStageBase = Math.round(lab.points / stageCount);
+      const weight = DIFFICULTY_WEIGHT[lab.difficulty] ?? 1.0;
+      const competitionPoints = Math.round(perStageBase * weight);
+
+      const now = new Date();
+      const activeEntries = await db.competitionEntry.findMany({
+        where: {
+          userId: user.id,
+          competition: {
+            published: true,
+            startDate: { lte: now },
+            endDate: { gte: now },
+          },
         },
-      },
-      include: { competition: true },
-    });
-    for (const entry of activeEntries) {
-      const slugs = entry.competition.labSlugs as string[];
-      if (slugs.includes(lab.slug)) {
-        await db.competitionEntry.update({
-          where: { id: entry.id },
-          data: { score: { increment: 10 } },
-        });
+        include: { competition: true },
+      });
+      for (const entry of activeEntries) {
+        const slugs = entry.competition.labSlugs as string[];
+        if (slugs.includes(lab.slug)) {
+          await db.competitionEntry.update({
+            where: { id: entry.id },
+            data: { score: { increment: competitionPoints } },
+          });
+        }
       }
+    } catch {
+      // Never fail the main request due to competition scoring errors
     }
-  } catch {
-    // Never fail the main request due to competition scoring errors
   }
 
   // Fire webhooks for classrooms where this student is enrolled and the lab is assigned

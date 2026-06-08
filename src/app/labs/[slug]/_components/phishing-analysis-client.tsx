@@ -3,6 +3,46 @@
 import { useState } from "react";
 import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
 
+// Each header row — suspicious ones must be clicked/examined before answer unlocks
+const EMAIL_HEADERS = [
+  {
+    field: "From",
+    value: '"Microsoft Support" <support@micr0soft-helpdesk.net>',
+    suspicious: true,
+    analysis: 'Domain uses "0" instead of "o" — typosquatting. Not affiliated with Microsoft.',
+  },
+  {
+    field: "To",
+    value: "security-team@company.com",
+    suspicious: false,
+    analysis: "Legitimate recipient address — no anomaly.",
+  },
+  {
+    field: "Reply-To",
+    value: "exfil47@protonmail.com",
+    suspicious: true,
+    analysis: "Replies go to an attacker-controlled ProtonMail account, not the sender domain.",
+  },
+  {
+    field: "Subject",
+    value: "Urgent: Security Alert — Verify Your Account Now",
+    suspicious: false,
+    analysis: "Urgency language is common in phishing, but this alone is not a technical indicator.",
+  },
+  {
+    field: "X-Mailer",
+    value: "PhishKit v3.2",
+    suspicious: true,
+    analysis: 'X-Mailer "PhishKit v3.2" identifies a commercial phishing toolkit — not a real email client.',
+  },
+  {
+    field: "Authentication-Results",
+    value: "spf=fail; dkim=none; dmarc=fail",
+    suspicious: true,
+    analysis: "SPF failed (sender IP not authorised), no DKIM signature, DMARC failed — all three authentication checks rejected this email.",
+  },
+];
+
 export function PhishingAnalysisClient({
   labId,
   completedStages: initial,
@@ -11,6 +51,7 @@ export function PhishingAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [examinedIds, setExaminedIds] = useState<Set<string>>(new Set());
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -32,11 +73,11 @@ export function PhishingAnalysisClient({
 
   function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "All of the above") {
+    if (t1Choice === "Three — SPF fail, Reply-To mismatch, and PhishKit X-Mailer") {
       setT1Error("");
       void saveStage("task_1");
     } else {
-      setT1Error("Incorrect. All three indicators together confirm the spoofed email.");
+      setT1Error("Not quite. Examine all the highlighted headers — each one is a separate, distinct indicator.");
     }
   }
 
@@ -66,54 +107,87 @@ export function PhishingAnalysisClient({
       {/* Task 1 — Header Forgery */}
       <TaskShell number={1} title="Header Forgery" unlocked completed={done("task_1")}>
         <p className="text-zinc-300 text-sm mb-3">
-          Phishing emails frequently forge the <code className="font-mono text-amber-300">From</code> header
-          to impersonate trusted brands. Email authentication headers reveal the deception.
+          Click each email header to examine it. Identify every suspicious indicator before the answer form unlocks.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4 space-y-1">
-          <p className="font-mono text-xs text-zinc-500 mb-2">Email headers:</p>
-          <p className="font-mono text-xs">
-            <span className="text-zinc-500">From:              </span>
-            <span className="text-amber-300">&quot;Microsoft Support&quot; &lt;support@micr0soft-helpdesk.net&gt;</span>
+
+        <div className="rounded-lg border border-white/8 overflow-hidden mb-4">
+          <p className="px-3 py-1.5 text-[10px] font-mono text-zinc-600 bg-zinc-900 border-b border-white/5 uppercase tracking-widest">
+            Raw Email Headers — click each row to examine
           </p>
-          <p className="font-mono text-xs">
-            <span className="text-zinc-500">Reply-To:          </span>
-            <span className="text-red-400">exfil47@protonmail.com</span>
-          </p>
-          <p className="font-mono text-xs">
-            <span className="text-zinc-500">X-Mailer:          </span>
-            <span className="text-red-400">PhishKit v3.2</span>
-          </p>
-          <p className="font-mono text-xs">
-            <span className="text-zinc-500">Authentication-Results: </span>
-            <span className="text-red-400">spf=fail; dkim=none</span>
-          </p>
+          {EMAIL_HEADERS.map((h) => {
+            const id = h.field;
+            const examined = examinedIds.has(id);
+            return (
+              <button
+                key={id}
+                onClick={() => !done("task_1") && setExaminedIds((prev) => new Set([...prev, id]))}
+                className={`w-full text-left px-3 py-2 border-b border-white/5 last:border-0 transition-all ${
+                  examined
+                    ? h.suspicious
+                      ? "bg-red-950/30"
+                      : "bg-zinc-900/60"
+                    : "hover:bg-white/3 cursor-pointer"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-xs text-zinc-500 shrink-0 w-36 pt-px">{h.field}:</span>
+                  <span className={`font-mono text-xs break-all ${examined && h.suspicious ? "text-red-300" : "text-zinc-300"}`}>
+                    {h.value}
+                  </span>
+                  {examined && h.suspicious && (
+                    <span className="shrink-0 text-[9px] font-bold text-red-400 border border-red-500/40 rounded px-1 py-px ml-auto">SUSPICIOUS</span>
+                  )}
+                  {examined && !h.suspicious && (
+                    <span className="shrink-0 text-[9px] font-bold text-zinc-500 border border-zinc-700 rounded px-1 py-px ml-auto">OK</span>
+                  )}
+                </div>
+                {examined && (
+                  <p className={`text-[10px] mt-1.5 leading-snug pl-[156px] ${h.suspicious ? "text-red-400" : "text-zinc-500"}`}>
+                    {h.analysis}
+                  </p>
+                )}
+              </button>
+            );
+          })}
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
-          <code className="text-amber-300 font-mono">micr0soft-helpdesk.net</code> uses a zero instead of an &apos;o&apos; — a classic typosquatting tactic.
-          The mismatched Reply-To and PhishKit X-Mailer header are additional red flags.
-        </p>
-        {!done("task_1") && (
-          <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What authentication failure indicates this is spoofed?</p>
-            <div className="flex flex-col gap-2">
-              {["SPF fail", "Missing DKIM", "Suspicious Reply-To", "All of the above"].map((opt) => (
-                <label key={opt} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="t1choice"
-                    value={opt}
-                    checked={t1Choice === opt}
-                    onChange={() => setT1Choice(opt)}
-                    className="accent-emerald-500"
-                  />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
-                </label>
-              ))}
-            </div>
-            <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
-          </form>
-        )}
+
+        {(() => {
+          const suspiciousIds = EMAIL_HEADERS.filter((h) => h.suspicious).map((h) => h.field);
+          const allSuspiciousExamined = suspiciousIds.every((id) => examinedIds.has(id));
+          const examinedCount = examinedIds.size;
+          return (
+            <>
+              {!allSuspiciousExamined && (
+                <p className="text-xs text-zinc-600 mb-3">
+                  {examinedCount === 0 ? "Click each header row to examine it." : `${examinedCount} examined — keep going, not all suspicious indicators found yet.`}
+                </p>
+              )}
+              {allSuspiciousExamined && !done("task_1") && (
+                <form onSubmit={submitT1} className="space-y-3 mt-2">
+                  <p className="text-sm text-zinc-300 font-medium">All suspicious headers identified. How many distinct indicators confirm this is spoofed?</p>
+                  <div className="flex flex-col gap-2">
+                    {["One — the SPF fail is enough", "Two — SPF and the Reply-To mismatch", "Three — SPF fail, Reply-To mismatch, and PhishKit X-Mailer", "All of the above"].map((opt) => (
+                      <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="t1choice"
+                          value={opt}
+                          checked={t1Choice === opt}
+                          onChange={() => setT1Choice(opt)}
+                          className="accent-emerald-500"
+                        />
+                        <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <SubmitBtn label="Submit" />
+                  {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+                </form>
+              )}
+            </>
+          );
+        })()}
+
         {done("task_1") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — all three indicators confirm spoofing. Flag: SAGE&#123;sp00f3d_3m41l_h34d3rs&#125;

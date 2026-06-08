@@ -114,7 +114,7 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
   const [data, setData] = useState(initialData);
   const [pending, setPending] = useState<string | null>(null);
   const [timer, setTimer] = useState(() => elapsed(initialData.session.startedAt));
-  const [rightTab, setRightTab] = useState<"evidence" | "stakeholders" | "threats" | "alerts">("evidence");
+  const [rightTab, setRightTab] = useState<"evidence" | "stakeholders" | "threats" | "alerts" | "decisions">("evidence");
   const feedRef = useRef<HTMLDivElement>(null);
 
   // Track which evidence artifacts have been read (resets on stage change)

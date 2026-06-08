@@ -7,7 +7,7 @@ type StageDefRow = { id: string; label: string; brief: string; threat: string; e
 type EmpStateData = { stressLevel: number; morale: number; confidenceInSOC: number; securityAwareness: number; insiderRisk: number };
 type OrgHealth = { panicIndex: number; trustInSOC: number; operationalStability: number; communicationIntegrity: number; insiderThreatRisk: number };
 
-type Tab = "evidence" | "stakeholders" | "threats" | "alerts";
+type Tab = "evidence" | "stakeholders" | "threats" | "alerts" | "decisions";
 
 const EXEC_ROLE_COLORS: Record<string, string> = {
   CISO: "text-sage-400 bg-sage-500/10 border-sage-500/30",
@@ -75,11 +75,13 @@ type Props = {
 };
 
 export function RightPanel({ tab, onTabChange, events, worldState, organizationHealth, employeeStates, company, stageDefinition, executives, personaId }: Props) {
+  const decisionEvents = events.filter((e) => e.type === "STUDENT_ACTION");
+
   const tabs: Array<{ id: Tab; label: string }> = [
     { id: "evidence", label: "Evidence" },
-    { id: "threats", label: "Threat Intel" },
+    { id: "decisions", label: "Decisions" },
+    { id: "threats", label: "Threats" },
     { id: "alerts", label: "Alerts" },
-    { id: "stakeholders", label: "Stakeholders" },
   ];
 
   // Derived data
@@ -109,6 +111,9 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
             )}
             {t.id === "alerts" && telemetryEvents.length > 0 && (
               <span className="ml-1 text-[8px] bg-amber-500/80 text-white rounded-full px-1">{telemetryEvents.length}</span>
+            )}
+            {t.id === "decisions" && decisionEvents.length > 0 && (
+              <span className="ml-1 text-[8px] bg-sage-500/80 text-white rounded-full px-1">{decisionEvents.length}</span>
             )}
           </button>
         ))}
@@ -295,6 +300,51 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
                   );
                 })}
               </div>
+            )}
+          </>
+        )}
+
+        {/* ── DECISIONS ───────────────────────────────────────────── */}
+        {tab === "decisions" && (
+          <>
+            {decisionEvents.length === 0 ? (
+              <p className="text-xs text-zinc-600 italic mt-4">No decisions taken yet. Each action you take will appear here with its score impact.</p>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/5">
+                  <p className="text-[10px] text-zinc-600 uppercase tracking-wider">Running Score</p>
+                  <p className="text-base font-bold text-sage-500 tabular-nums">{worldState.score} pts</p>
+                </div>
+                <div className="space-y-1.5">
+                  {decisionEvents.map((e, i) => {
+                    const p = e.payload as Record<string, unknown>;
+                    const label = p.label as string ?? e.type;
+                    const sc = (p.scoreChange as number) ?? 0;
+                    const isBlocker = p.stageBlocker === true;
+                    return (
+                      <div
+                        key={e.id}
+                        className={`rounded border px-2 py-1.5 text-xs ${
+                          isBlocker
+                            ? "border-sage-500/30 bg-sage-500/5"
+                            : "border-white/5 bg-white/2"
+                        }`}
+                      >
+                        <div className="flex items-start gap-1.5">
+                          <span className="text-[10px] text-zinc-600 shrink-0 tabular-nums mt-px w-4 text-right">{i + 1}.</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`leading-snug truncate ${isBlocker ? "text-sage-400" : "text-zinc-300"}`}>{label}</p>
+                            {isBlocker && <p className="text-[9px] text-sage-500 font-bold uppercase tracking-wider mt-0.5">Contained</p>}
+                          </div>
+                          <span className={`shrink-0 text-xs font-bold tabular-nums ${sc > 0 ? "text-sage-500" : sc < 0 ? "text-red-400" : "text-zinc-500"}`}>
+                            {sc > 0 ? `+${sc}` : sc}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </>
         )}

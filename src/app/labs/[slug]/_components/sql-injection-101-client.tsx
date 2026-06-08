@@ -102,9 +102,6 @@ function Task1({ onComplete, completed }: { onComplete: () => void; completed: b
           {output}
         </pre>
       )}
-      <p className="text-xs text-amber-500">
-        Hint: try <code className="font-mono">&apos; OR &apos;1&apos;=&apos;1</code> in either field.
-      </p>
     </div>
   );
 }
@@ -123,15 +120,22 @@ function isAuthBypass(s: string): boolean {
 // ---------------------------------------------------------------------------
 function Task2({ onComplete, completed }: { onComplete: () => void; completed: boolean }) {
   const [category, setCategory] = useState("");
-  const [output, setOutput] = useState<"idle" | "normal" | "union">("idle");
+  const [output, setOutput] = useState<"idle" | "normal" | "union" | "col_error">("idle");
   const query = `SELECT name, description FROM products WHERE category = '${category}'`;
 
   function search(e: React.FormEvent) {
     e.preventDefault();
     const lower = category.toLowerCase();
     if (lower.includes("union") && lower.includes("select")) {
-      setOutput("union");
-      if (!completed) onComplete();
+      // Count columns in UNION SELECT — must match 2 (name, description)
+      const selectPart = lower.split("union")[1] ?? "";
+      const cols = selectPart.split(",").length;
+      if (cols < 2) {
+        setOutput("col_error");
+      } else {
+        setOutput("union");
+        if (!completed) onComplete();
+      }
     } else {
       setOutput(PRODUCTS[lower] ? "normal" : "idle");
     }
@@ -159,6 +163,10 @@ function Task2({ onComplete, completed }: { onComplete: () => void; completed: b
         </div>
       )}
 
+      {output === "col_error" && (
+        <p className="text-xs font-mono text-red-400">[!] ERROR: The used SELECT statements have a different number of columns — UNION requires matching column counts.</p>
+      )}
+
       {output === "union" && (
         <div className="space-y-2">
           <p className="text-xs font-mono text-red-400">[!] UNION injection detected — extra rows appended</p>
@@ -169,10 +177,6 @@ function Task2({ onComplete, completed }: { onComplete: () => void; completed: b
           </div>
         </div>
       )}
-
-      <p className="text-xs text-amber-500">
-        Hint: try <code className="font-mono">electronics&apos; UNION SELECT email, password FROM users--</code>
-      </p>
     </div>
   );
 }
@@ -232,10 +236,6 @@ function Task3({ onComplete, completed }: { onComplete: () => void; completed: b
           <p className="text-sage-400">flag: SAGE&#123;bl1nd_bl00l3an_sqli_m4st3r&#125;</p>
         </div>
       )}
-      <div className="text-xs text-amber-500 space-y-1">
-        <p>Hint — true: <code className="font-mono">admin&apos; AND &apos;1&apos;=&apos;1--</code></p>
-        <p>Hint — false: <code className="font-mono">admin&apos; AND &apos;1&apos;=&apos;0--</code></p>
-      </div>
     </div>
   );
 }
