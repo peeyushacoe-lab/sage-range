@@ -423,6 +423,31 @@ const PATHS = [
   },
 ];
 
+// ─── Competitions ─────────────────────────────────────────────────────────────
+
+const COMPETITIONS = [
+  {
+    name: "Sage Cup 2026 — Season 1",
+    slug: "sage-cup-2026-s1",
+    description:
+      "The inaugural Sage Range open competition. Race the clock across four labs spanning CTF, web security, and blue team forensics. Top three finishers earn a verified competition certificate. All skill levels welcome — scoring is cumulative across labs.",
+    startDate: new Date("2026-07-01T09:00:00Z"),
+    endDate: new Date("2026-07-31T23:59:59Z"),
+    published: true,
+    labSlugs: ["welcome-ctf", "sql-injection-101", "network-forensics-101", "phishing-analysis"],
+  },
+  {
+    name: "Blue Team Gauntlet — July 2026",
+    slug: "blue-team-gauntlet-jul26",
+    description:
+      "A blue team-only competition for SOC analysts and defenders. Four high-difficulty labs covering log analysis, memory forensics, malware triage, and Windows event correlation. This is not a beginner event — every lab is HARD or above. Points are awarded for speed as well as correctness.",
+    startDate: new Date("2026-07-15T09:00:00Z"),
+    endDate: new Date("2026-07-22T23:59:59Z"),
+    published: true,
+    labSlugs: ["windows-log-analysis", "malware-triage", "memory-forensics", "soc-alert-investigation"],
+  },
+];
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -486,6 +511,23 @@ async function main() {
     }
 
     console.log(`  ✓ ${pathData.slug} (${labSlugs.length} labs)`);
+  }
+
+  console.log("\nSeeding competitions...");
+  for (const comp of COMPETITIONS) {
+    await db.competition.upsert({
+      where: { slug: comp.slug },
+      update: {
+        name: comp.name,
+        description: comp.description,
+        startDate: comp.startDate,
+        endDate: comp.endDate,
+        published: comp.published,
+        labSlugs: comp.labSlugs,
+      },
+      create: comp,
+    });
+    console.log(`  ✓ ${comp.slug}`);
   }
 
   console.log("\nDone. All content seeded.");

@@ -120,6 +120,8 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
   // Track which evidence artifacts have been read (resets on stage change)
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [trackedStage, setTrackedStage] = useState(initialData.session.currentStage);
+  const [scoreFlash, setScoreFlash] = useState<number | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -156,11 +158,17 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
   async function takeAction(actionId: string) {
     setPending(actionId);
     try {
-      await fetch(`/api/simulation/${sessionId}/action`, {
+      const res = await fetch(`/api/simulation/${sessionId}/action`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ actionId }),
       });
+      const json = await res.json() as { scoreChange?: number };
+      if (typeof json.scoreChange === "number" && json.scoreChange !== 0) {
+        if (flashTimer.current) clearTimeout(flashTimer.current);
+        setScoreFlash(json.scoreChange);
+        flashTimer.current = setTimeout(() => setScoreFlash(null), 2200);
+      }
       await refresh();
     } finally {
       setPending(null);
@@ -201,9 +209,18 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
             <p className="text-xs text-zinc-500">Stage</p>
             <p className="text-sm font-semibold">{stageDefinition?.label ?? session.currentStage}</p>
           </div>
-          <div className="text-right">
+          <div className="text-right relative">
             <p className="text-xs text-zinc-500">Score</p>
             <p className="text-lg font-bold text-sage-500">{worldState.score}</p>
+            {scoreFlash !== null && (
+              <span
+                className={`absolute -top-4 right-0 text-xs font-bold animate-bounce ${
+                  scoreFlash > 0 ? "text-sage-400" : "text-red-400"
+                }`}
+              >
+                {scoreFlash > 0 ? `+${scoreFlash}` : scoreFlash} pts
+              </span>
+            )}
           </div>
           <div className="text-right font-mono text-sm text-zinc-400">{timer}</div>
           {isOver && (
@@ -245,6 +262,9 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
           <div ref={feedRef} className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[calc(100vh-120px)]">
             {events.map((ev) => {
               const style = ACTOR_STYLES[ev.actor] ?? ACTOR_STYLES.SYSTEM;
+              const scoreChange = ev.type === "STUDENT_ACTION"
+                ? (ev.payload as Record<string, unknown>)?.scoreChange as number | undefined
+                : undefined;
               return (
                 <div key={ev.id} className="flex gap-2 items-start text-xs">
                   <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded ${style.color}`}>
@@ -255,6 +275,11 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
                     <span className={ev.actor === "ATTACKER" ? "text-red-300" : ev.actor === "ANALYST" ? "text-sage-400" : "text-zinc-400"}>
                       {ev.narrative ?? ev.type}
                     </span>
+                    {typeof scoreChange === "number" && scoreChange !== 0 && (
+                      <span className={`ml-1.5 font-bold tabular-nums ${scoreChange > 0 ? "text-sage-500" : "text-red-400"}`}>
+                        {scoreChange > 0 ? `+${scoreChange}` : scoreChange}
+                      </span>
+                    )}
                   </div>
                 </div>
               );
