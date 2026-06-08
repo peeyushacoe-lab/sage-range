@@ -21,7 +21,6 @@ const isProtectedPage = createRouteMatcher([
 ]);
 
 const isOnboarding = createRouteMatcher(["/onboarding(.*)"]);
-const isApi = createRouteMatcher(["/api(.*)"]);
 
 // Students: no access to recruiter or instructor-only areas
 const isStudentBlocked = createRouteMatcher(["/recruiter(.*)", "/analytics/recruiter(.*)", "/analytics/instructor(.*)"]);
@@ -31,9 +30,6 @@ const isRecruiterBlocked = createRouteMatcher(["/labs(.*)", "/paths(.*)", "/comp
 const isInstructorBlocked = createRouteMatcher(["/competitions(.*)", "/paths(.*)", "/leaderboard(.*)", "/analytics/recruiter(.*)", "/recruiter(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // API routes pass through — each handler calls auth() and returns 401 if unauthenticated
-  if (isApi(req)) return NextResponse.next();
-
   // Protect page routes (redirects to sign-in if not authenticated)
   if (isProtectedPage(req)) await auth.protect();
 
@@ -68,9 +64,12 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
+  // Exclude /api and /trpc routes from clerkMiddleware entirely.
+  // The dev-browser redirect runs at the clerkMiddleware wrapper level, BEFORE the function
+  // body executes — so the isApi() guard never fires on production Vercel with dev keys.
+  // API handlers call auth() directly and handle their own 401s; they don't need this middleware.
   matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
+    "/((?!_next|api|trpc|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     "/__clerk/(.*)",
   ],
 };
