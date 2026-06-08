@@ -17,27 +17,39 @@ const isProtectedPage = createRouteMatcher([
   "/leaderboard(.*)",
 ]);
 
-const isOnboarding = createRouteMatcher(["/onboarding(.*)"]);
+const isOnboarding      = createRouteMatcher(["/onboarding(.*)"]);
+const isCompleteProfile = createRouteMatcher(["/complete-profile(.*)"]);
 
-const isStudentBlocked  = createRouteMatcher(["/recruiter(.*)", "/analytics/recruiter(.*)", "/analytics/instructor(.*)"]);
+const isStudentBlocked   = createRouteMatcher(["/recruiter(.*)", "/analytics/recruiter(.*)", "/analytics/instructor(.*)"]);
 const isRecruiterBlocked = createRouteMatcher(["/labs(.*)", "/paths(.*)", "/competitions(.*)", "/analytics/instructor(.*)"]);
 const isInstructorBlocked = createRouteMatcher(["/competitions(.*)", "/paths(.*)", "/leaderboard(.*)", "/analytics/recruiter(.*)", "/recruiter(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedPage(req)) await auth.protect();
-  if (isOnboarding(req)) return NextResponse.next();
+
+  // Let these flow-pages through without redirect loops
+  if (isOnboarding(req) || isCompleteProfile(req)) return NextResponse.next();
 
   const { userId, sessionClaims } = await auth();
   if (userId) {
     const meta = sessionClaims?.publicMetadata as Record<string, unknown> | undefined;
     const onboarded = req.cookies.get("sage_onboarded")?.value === "1";
+    const profileComplete = req.cookies.get("sage_profile_complete")?.value === "1";
+
+    // Step 1: not yet onboarded → force onboarding (role + name)
     if (!meta?.onboardingComplete && !onboarded) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
 
+    // Step 2: onboarded but profile not filled → force complete-profile
+    if ((meta?.onboardingComplete || onboarded) && !profileComplete) {
+      return NextResponse.redirect(new URL("/complete-profile", req.url));
+    }
+
+    // Role-based page guards
     const role = req.cookies.get("sage_role")?.value;
-    if (role === "STUDENT" && isStudentBlocked(req)) return NextResponse.redirect(new URL("/dashboard", req.url));
-    if (role === "RECRUITER" && isRecruiterBlocked(req)) return NextResponse.redirect(new URL("/recruiter", req.url));
+    if (role === "STUDENT"    && isStudentBlocked(req))    return NextResponse.redirect(new URL("/dashboard", req.url));
+    if (role === "RECRUITER"  && isRecruiterBlocked(req))  return NextResponse.redirect(new URL("/recruiter", req.url));
     if (role === "INSTRUCTOR" && isInstructorBlocked(req)) return NextResponse.redirect(new URL("/classroom", req.url));
   }
 

@@ -91,7 +91,7 @@ export default function OnboardingPage() {
       if (!res.ok) throw new Error("Failed");
 
       user?.reload().catch(() => null);
-      router.push("/dashboard");
+      router.push("/complete-profile");
     } catch {
       setError("Something went wrong. Try again.");
     } finally {

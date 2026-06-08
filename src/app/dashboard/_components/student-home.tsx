@@ -74,32 +74,82 @@ export async function StudentHome({ user }: { user: AppUser }) {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
-      <div className="flex flex-wrap items-center gap-3">
-        <div>
-          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-0.5">Command Center</p>
-          <h1 className="text-2xl font-bold text-zinc-100">{user.displayName ?? user.email.split("@")[0]}</h1>
+
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4 animate-fade-down">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-black text-lg animate-glow-pulse">
+              {(user.displayName ?? user.email)[0].toUpperCase()}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-zinc-500 uppercase tracking-widest font-mono mb-0.5">Command Center</p>
+            <h1 className="text-2xl font-bold text-zinc-100">{user.displayName ?? user.email.split("@")[0]}</h1>
+          </div>
+          <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-0.5 text-xs font-bold text-emerald-400 tracking-widest uppercase">
+            {rank.label}
+          </span>
         </div>
-        <span className="rounded border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-400 tracking-wide">
-          {rank.label.toUpperCase()}
-        </span>
+        <div className="text-xs font-mono text-zinc-600 hidden sm:block">
+          <span className="text-emerald-700">●</span> LIVE SESSION
+        </div>
       </div>
 
+      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Skill Score", value: user.skillScore, sub: <span className="text-emerald-500">{rank.label}</span> },
-          { label: "XP", value: user.xp.toLocaleString(), sub: rank.next && (
-            <div className="mt-1.5 space-y-1">
-              <div className="flex justify-between text-xs text-zinc-500"><span>{rank.pct}% to {rank.next}</span><span>{rank.nextMin}</span></div>
-              <div className="h-1.5 rounded-full bg-zinc-800"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${rank.pct}%` }} /></div>
-            </div>
-          )},
-          { label: "Labs Solved", value: solvedAttempts.length, sub: <span className="text-zinc-500">of {labs.length} available</span> },
-          { label: "Simulations", value: completedSims.length, sub: <span className="text-zinc-500">{completedSims.length ? `best ${bestScore}` : "no runs yet"}</span> },
-        ].map((c) => (
-          <div key={c.label} className="rounded-xl border border-white/8 bg-zinc-900/50 p-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">{c.label}</p>
-            <p className="text-3xl font-bold text-zinc-100">{c.value}</p>
-            <div className="text-xs mt-1">{c.sub}</div>
+          {
+            label: "Skill Score",
+            value: user.skillScore,
+            accent: "emerald",
+            icon: "⬡",
+            sub: <span className="text-emerald-500 font-mono text-xs">{rank.label}</span>,
+          },
+          {
+            label: "XP Earned",
+            value: user.xp.toLocaleString(),
+            accent: "emerald",
+            icon: "◈",
+            sub: rank.next ? (
+              <div className="mt-2 space-y-1">
+                <div className="flex justify-between text-[10px] text-zinc-600 font-mono">
+                  <span>{rank.pct}% to {rank.next}</span>
+                  <span>{rank.nextMin}</span>
+                </div>
+                <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-1000"
+                    style={{ width: `${rank.pct}%`, boxShadow: "0 0 8px rgba(16,185,129,0.6)" }}
+                  />
+                </div>
+              </div>
+            ) : <span className="text-emerald-500 text-xs font-mono">MAX RANK</span>,
+          },
+          {
+            label: "Labs Solved",
+            value: solvedAttempts.length,
+            accent: "zinc",
+            icon: "◻",
+            sub: <span className="text-zinc-500 text-xs font-mono">of {labs.length} available</span>,
+          },
+          {
+            label: "Simulations",
+            value: completedSims.length,
+            accent: "zinc",
+            icon: "◇",
+            sub: <span className="text-zinc-500 text-xs font-mono">{completedSims.length ? `best score: ${bestScore}` : "none yet"}</span>,
+          },
+        ].map((c, i) => (
+          <div
+            key={c.label}
+            className="card-glow rounded-xl border border-white/8 bg-zinc-900/60 p-4 relative overflow-hidden animate-fade-up"
+            style={{ animationDelay: `${i * 70}ms` }}
+          >
+            <div className="absolute top-3 right-3 text-xs text-zinc-700">{c.icon}</div>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono mb-2">{c.label}</p>
+            <p className="text-3xl font-black text-zinc-100 tabular-nums">{c.value}</p>
+            <div className="mt-1">{c.sub}</div>
           </div>
         ))}
       </div>
@@ -213,14 +263,15 @@ export async function StudentHome({ user }: { user: AppUser }) {
                 const tasks = TASK_COUNTS[lab.slug] ?? 1;
                 return (
                   <Link key={lab.id} href={`/labs/${lab.slug}`}
-                    className={`rounded-xl border p-4 flex flex-col gap-2 transition ${solved ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/8 bg-zinc-900/50 hover:border-white/20"}`}>
+                    className={`card-hover rounded-xl border p-4 flex flex-col gap-2 relative overflow-hidden ${solved ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/8 bg-zinc-900/60"}`}>
+                    {solved && <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-3xl" />}
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-emerald-500 uppercase tracking-wider">{lab.type.replace("_", " ")}</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded border ${diffBadge(lab.difficulty)}`}>{lab.difficulty}</span>
+                      <span className="text-xs text-emerald-500 uppercase tracking-widest font-mono">{lab.type.replace("_", " ")}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded border font-mono ${diffBadge(lab.difficulty)}`}>{lab.difficulty}</span>
                     </div>
-                    <h3 className="font-semibold text-zinc-100">{lab.title}{solved && <span className="text-emerald-500 ml-1.5">✓</span>}</h3>
-                    <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">{lab.description}</p>
-                    <p className="text-xs text-zinc-500 mt-auto pt-1">{tasks} task{tasks !== 1 ? "s" : ""} · {lab.points} pts</p>
+                    <h3 className="font-semibold text-zinc-100 leading-snug">{lab.title}{solved && <span className="text-emerald-500 ml-2 text-sm">✓</span>}</h3>
+                    <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">{lab.description}</p>
+                    <p className="text-xs text-zinc-600 mt-auto pt-1 font-mono">{tasks} task{tasks !== 1 ? "s" : ""} · {lab.points} pts</p>
                   </Link>
                 );
               })}

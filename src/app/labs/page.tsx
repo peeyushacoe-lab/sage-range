@@ -112,69 +112,70 @@ export default async function LabsIndex({
           <p className="text-zinc-500 text-sm">No labs match this filter.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {labs.map((lab) => {
+            {labs.map((lab, idx) => {
               const status = statusByLab.get(lab.id);
               const solved = status === "SOLVED";
               const inProgress = status === "IN_PROGRESS";
-
               const taskStages = TASK_STAGES[lab.slug] ?? [];
               const taskCount = taskStages.length;
-              const doneCount = taskStages.filter(
-                (s) => completedByLab.get(lab.id)?.has(s)
-              ).length;
+              const doneCount = taskStages.filter((s) => completedByLab.get(lab.id)?.has(s)).length;
 
               return (
                 <Link
                   key={lab.id}
                   href={`/labs/${lab.slug}`}
-                  className={
-                    "rounded-xl border p-4 transition flex flex-col gap-3 " +
-                    (solved
-                      ? "border-sage-500/40 bg-sage-500/5 hover:bg-sage-500/10"
-                      : "border-white/8 hover:border-sage-500/40 hover:bg-white/3")
-                  }
+                  className={`card-hover rounded-xl border p-5 flex flex-col gap-3 relative overflow-hidden animate-fade-up ${
+                    solved
+                      ? "border-sage-500/40 bg-sage-500/5"
+                      : "border-white/8 bg-zinc-900/60"
+                  }`}
+                  style={{ animationDelay: `${idx * 40}ms` }}
                 >
+                  {/* Solved corner accent */}
+                  {solved && <div className="absolute -top-4 -right-4 w-16 h-16 bg-emerald-500/15 rounded-full blur-xl" />}
+
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-wider text-sage-500">
+                    <span className="text-xs uppercase tracking-widest text-sage-500 font-mono">
                       {lab.type.replace("_", " ")}
                     </span>
-                    <span className={`text-xs font-medium ${DIFF_COLORS[lab.difficulty] ?? "text-zinc-400"}`}>
+                    <span className={`text-xs font-bold font-mono ${DIFF_COLORS[lab.difficulty] ?? "text-zinc-400"}`}>
                       {lab.difficulty}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="font-semibold flex items-center gap-2">
+                    <h3 className="font-semibold flex items-center gap-2 leading-snug">
                       {lab.title}
-                      {solved && <span className="text-sage-500 text-sm">✓</span>}
+                      {solved && <span className="text-sage-500">✓</span>}
+                      {inProgress && <span className="text-amber-400 text-xs font-mono">IN PROGRESS</span>}
                     </h3>
-                    <p className="text-sm text-zinc-400 mt-1 line-clamp-2">{lab.description}</p>
+                    <p className="text-sm text-zinc-500 mt-1.5 line-clamp-2 leading-relaxed">{lab.description}</p>
                   </div>
 
                   <div className="flex items-center justify-between mt-auto pt-1">
-                    <div className="flex items-center gap-2 text-xs text-zinc-500">
+                    <div className="flex items-center gap-2 text-xs text-zinc-600 font-mono">
                       <span>{lab.category}</span>
                       {taskCount > 0 && (
                         <>
-                          <span className="text-zinc-700">·</span>
+                          <span>·</span>
                           <span className={solved ? "text-sage-500" : inProgress ? "text-amber-400" : ""}>
-                            {taskCount} task{taskCount !== 1 ? "s" : ""}
-                            {doneCount > 0 && !solved && ` (${doneCount}/${taskCount})`}
+                            {doneCount > 0 && !solved ? `${doneCount}/${taskCount}` : `${taskCount}`} tasks
                           </span>
                         </>
                       )}
                     </div>
-                    <span className="text-xs text-zinc-500">{lab.points} pts</span>
+                    <span className="text-xs font-bold text-zinc-400 font-mono">{lab.points} pts</span>
                   </div>
 
-                  {/* Task progress bar */}
                   {taskCount > 0 && doneCount > 0 && (
-                    <div className="flex gap-1 mt-1">
+                    <div className="flex gap-1">
                       {taskStages.map((stage) => (
                         <div
                           key={stage}
-                          className={`flex-1 h-1 rounded-full ${
-                            completedByLab.get(lab.id)?.has(stage) ? "bg-sage-500" : "bg-zinc-800"
+                          className={`flex-1 h-0.5 rounded-full transition-all ${
+                            completedByLab.get(lab.id)?.has(stage)
+                              ? "bg-sage-500"
+                              : "bg-zinc-800"
                           }`}
                         />
                       ))}

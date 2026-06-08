@@ -28,7 +28,10 @@ export async function PATCH(req: Request) {
 
   const me = await getOrCreateAppUser();
   if (!me) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  if (me.id !== parsed.data.userId) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  // Allow "me" as a sentinel for the current user's own profile
+  if (parsed.data.userId !== "me" && me.id !== parsed.data.userId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
 
   const { userId: _id, profileExtra, ...rest } = parsed.data;
   const updated = await db.user.update({

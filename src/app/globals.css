@@ -7,15 +7,126 @@
 }
 
 html, body {
-  background: #0a0a0a;
+  background: #09090b;
   color: #f4f4f5;
   min-height: 100%;
 }
 
+/* ── Button press feel ──────────────────────────────────────────────────────── */
+button:active:not(:disabled),
+a[role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
+}
+
+/* ── Primary glow button ────────────────────────────────────────────────────── */
+.btn-glow {
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+}
+.btn-glow:hover {
+  box-shadow: 0 0 20px 2px rgba(16, 185, 129, 0.3), 0 4px 24px rgba(0,0,0,0.4);
+  transform: translateY(-1px);
+}
+.btn-glow:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 0 8px 1px rgba(16, 185, 129, 0.2);
+}
+
+/* ── Card hover lift ────────────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.25);
+}
+
+/* ── Glow border card ───────────────────────────────────────────────────────── */
+.card-glow {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.card-glow:hover {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.12), inset 0 0 30px rgba(16,185,129,0.04);
+  border-color: rgba(16,185,129,0.3);
+}
+
+/* ── Shimmer loading ────────────────────────────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ── Hex grid background ────────────────────────────────────────────────────── */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(16,185,129,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-grid-sm {
+  background-image:
+    linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── Glowing text ───────────────────────────────────────────────────────────── */
+.text-glow {
+  text-shadow: 0 0 20px rgba(16,185,129,0.6), 0 0 60px rgba(16,185,129,0.2);
+}
+
+/* ── Gradient text ──────────────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Scan line ──────────────────────────────────────────────────────────────── */
+.scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+}
+
+/* ── Noise overlay ──────────────────────────────────────────────────────────── */
+.noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* ── Input fields ───────────────────────────────────────────────────────────── */
 @layer components {
   .input-field {
-    @apply w-full rounded bg-black/40 border border-white/10 px-3 py-2 text-sm font-mono
-           focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30
-           bg-transparent text-zinc-100;
+    @apply w-full rounded-lg bg-zinc-900/70 border border-white/10 px-4 py-2.5 text-sm
+           text-zinc-100 placeholder-zinc-600
+           focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20
+           transition-colors;
   }
 }
+
+/* ── Animation delay utilities ──────────────────────────────────────────────── */
+.delay-75  { animation-delay: 75ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-700 { animation-delay: 700ms; }
