@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { sendWelcomeEmail } from "@/lib/email";
 import { Prisma } from "@prisma/client";
@@ -23,17 +23,13 @@ export async function POST(req: Request) {
 
   let email = "";
   try {
-    const client = await clerkClient();
-    const [clerkUser, existingUser] = await Promise.all([
-      client.users.getUser(userId),
-      db.user.findUnique({ where: { clerkId: userId }, select: { id: true, email: true } }),
-    ]);
+    const clerkUser = await currentUser();
+    email = clerkUser?.emailAddresses[0]?.emailAddress ?? "";
 
-    email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
-
-    client.users.updateUserMetadata(userId, {
-      publicMetadata: { onboardingComplete: true, role },
-    }).catch((e: unknown) => console.error("[onboarding] Clerk metadata update failed:", e));
+    const existingUser = await db.user.findUnique({
+      where: { clerkId: userId },
+      select: { id: true, email: true },
+    });
 
     let user;
     try {
@@ -45,6 +41,7 @@ export async function POST(req: Request) {
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        // Email collision under a different clerkId — re-link
         user = await db.user.update({
           where: { email },
           data: { clerkId: userId, role, displayName },

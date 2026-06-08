@@ -27,23 +27,19 @@ const isInstructorBlocked = createRouteMatcher(["/competitions(.*)", "/paths(.*)
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedPage(req)) await auth.protect();
 
-  // Let these flow-pages through without redirect loops
+  // Let onboarding and complete-profile pages through without redirect loops
   if (isOnboarding(req) || isCompleteProfile(req)) return NextResponse.next();
 
   const { userId, sessionClaims } = await auth();
   if (userId) {
     const meta = sessionClaims?.publicMetadata as Record<string, unknown> | undefined;
     const onboarded = req.cookies.get("sage_onboarded")?.value === "1";
-    const profileComplete = req.cookies.get("sage_profile_complete")?.value === "1";
 
-    // Step 1: not yet onboarded → force onboarding (role + name)
+    // Step 1 only: if not yet onboarded → force role/name selection
+    // complete-profile is enforced by the onboarding page's redirect, NOT middleware,
+    // so existing users who pre-date the profile step are not affected.
     if (!meta?.onboardingComplete && !onboarded) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
-    }
-
-    // Step 2: onboarded but profile not filled → force complete-profile
-    if ((meta?.onboardingComplete || onboarded) && !profileComplete) {
-      return NextResponse.redirect(new URL("/complete-profile", req.url));
     }
 
     // Role-based page guards
