@@ -3,11 +3,53 @@
 import { useState } from "react";
 import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
 
-const FAILED_LOGIN_EVENTS = [
-  { id: "4625", type: "Failed login",  user: "administrator", ip: "10.0.0.55", count: 847 },
-  { id: "4625", type: "Failed login",  user: "admin",         ip: "10.0.0.55", count: 423 },
-  { id: "4625", type: "Failed login",  user: "svc_backup",    ip: "10.0.0.55", count: 12 },
-  { id: "4624", type: "Successful",    user: "svc_backup",    ip: "10.0.0.55", count: 1 },
+type EventRow = {
+  id: string;
+  type: string;
+  user: string;
+  ip: string;
+  count: number;
+  detail: string;
+  mitre: string;
+};
+
+const FAILED_LOGIN_EVENTS: EventRow[] = [
+  {
+    id: "4625",
+    type: "Failed login",
+    user: "administrator",
+    ip: "10.0.0.55",
+    count: 847,
+    detail: "Logon Type: 3 (Network)\nFailure Reason: Unknown user name or bad password\nStatus: 0xC000006D\nSub Status: 0xC0000064\nWorkstation: ATTACKER-BOX\nLogon Process: NtLmSsp\n\nSignificance: 847 failures in 4 minutes — automated attack, not human error.",
+    mitre: "T1110.001 — Brute Force: Password Guessing",
+  },
+  {
+    id: "4625",
+    type: "Failed login",
+    user: "admin",
+    ip: "10.0.0.55",
+    count: 423,
+    detail: "Logon Type: 3 (Network)\nFailure Reason: Unknown user name or bad password\nStatus: 0xC000006D\nSub Status: 0xC0000064\nWorkstation: ATTACKER-BOX\n\nSignificance: Secondary account attempt — attacker is cycling through a wordlist.",
+    mitre: "T1110.001 — Brute Force: Password Guessing",
+  },
+  {
+    id: "4625",
+    type: "Failed login",
+    user: "svc_backup",
+    ip: "10.0.0.55",
+    count: 12,
+    detail: "Logon Type: 3 (Network)\nFailure Reason: Unknown user name or bad password\nStatus: 0xC000006D\nSub Status: 0xC0000064\n\nSignificance: Lower count suggests attacker slowed down or switched to targeted approach after discovering valid usernames.",
+    mitre: "T1110.001 — Brute Force: Password Guessing",
+  },
+  {
+    id: "4624",
+    type: "Successful",
+    user: "svc_backup",
+    ip: "10.0.0.55",
+    count: 1,
+    detail: "Logon Type: 3 (Network)\nLogon Process: NtLmSsp\nAuthentication Package: NTLM\nImpersonation Level: Impersonation\n\nSignificance: After 12 failures, the attacker successfully authenticated as svc_backup. The brute force succeeded.",
+    mitre: "T1078 — Valid Accounts",
+  },
 ];
 
 const SYSMON_NET = `ProcessName: C:\\Windows\\System32\\wbem\\WmiPrvSE.exe
@@ -41,6 +83,7 @@ export function WindowsLogAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [expandedEvent, setExpandedEvent] = useState<number | null>(null);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -96,9 +139,10 @@ export function WindowsLogAnalysisClient({
       <TaskShell number={1} title="Detect Failed Logins" unlocked completed={done("task_1")}>
         <p className="text-zinc-300 text-sm mb-3">
           Windows Security event logs show a pattern of authentication activity from a single source IP.
-          Identify the attack technique.
+          Click any row to inspect the full event detail — then identify the attack technique.
         </p>
-        <div className="overflow-x-auto rounded-lg border border-white/8 mb-4">
+
+        <div className="rounded-lg border border-white/8 mb-2 overflow-hidden">
           <table className="w-full text-xs font-mono">
             <thead>
               <tr className="border-b border-white/8 bg-zinc-900">
@@ -106,31 +150,57 @@ export function WindowsLogAnalysisClient({
                 <th className="px-3 py-2 text-left text-zinc-500">Type</th>
                 <th className="px-3 py-2 text-left text-zinc-500">User</th>
                 <th className="px-3 py-2 text-left text-zinc-500">Source IP</th>
-                <th className="px-3 py-2 text-left text-zinc-500">Count</th>
+                <th className="px-3 py-2 text-right text-zinc-500">Count</th>
               </tr>
             </thead>
             <tbody>
               {FAILED_LOGIN_EVENTS.map((ev, i) => (
-                <tr
-                  key={i}
-                  className={`border-b border-white/5 ${
-                    ev.id === "4624" ? "bg-green-950/30 text-green-300" : "text-red-300"
-                  }`}
-                >
-                  <td className="px-3 py-2">{ev.id}</td>
-                  <td className="px-3 py-2">{ev.type}</td>
-                  <td className="px-3 py-2">{ev.user}</td>
-                  <td className="px-3 py-2">{ev.ip}</td>
-                  <td className="px-3 py-2 font-bold">{ev.count}</td>
-                </tr>
+                <>
+                  <tr
+                    key={i}
+                    onClick={() => setExpandedEvent(expandedEvent === i ? null : i)}
+                    className={`border-b border-white/5 cursor-pointer transition-colors ${
+                      ev.id === "4624"
+                        ? "bg-green-950/30 text-green-300 hover:bg-green-950/50"
+                        : "text-red-300 hover:bg-red-950/20"
+                    } ${expandedEvent === i ? "bg-white/5" : ""}`}
+                  >
+                    <td className="px-3 py-2">{ev.id}</td>
+                    <td className="px-3 py-2">{ev.type}</td>
+                    <td className="px-3 py-2">{ev.user}</td>
+                    <td className="px-3 py-2">{ev.ip}</td>
+                    <td className="px-3 py-2 text-right font-bold">
+                      {ev.count}
+                      <span className="ml-2 text-zinc-600">{expandedEvent === i ? "▲" : "▼"}</span>
+                    </td>
+                  </tr>
+                  {expandedEvent === i && (
+                    <tr key={`${i}-detail`} className="border-b border-white/5">
+                      <td colSpan={5} className="px-4 py-3 bg-zinc-950">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Event Detail</p>
+                            <pre className="text-xs text-amber-300 whitespace-pre-wrap leading-relaxed">{ev.detail}</pre>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">MITRE ATT&CK</p>
+                            <span className="inline-block rounded border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs text-amber-400 font-mono">
+                              {ev.mitre}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
               ))}
             </tbody>
           </table>
         </div>
         <p className="text-xs text-zinc-500 mb-4">
-          Event 4624 = successful logon. Event 4625 = failed logon. The pattern of many failures
-          across multiple usernames from the same IP is a key indicator.
+          Click any row to expand the full event detail. Event 4624 = successful logon. Event 4625 = failed logon.
         </p>
+
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
             <p className="text-sm text-zinc-300 font-medium">What attack technique does this pattern indicate?</p>
@@ -169,10 +239,17 @@ export function WindowsLogAnalysisClient({
         <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
           <p className="font-mono text-xs text-zinc-500 mb-2">[Sysmon Event 3 — NetworkConnect]</p>
           <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SYSMON_NET}</pre>
+          <div className="mt-3 pt-3 border-t border-white/5 grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <p className="text-zinc-500 mb-1">Process</p>
+              <p className="text-amber-300 font-mono">WmiPrvSE.exe = WMI Provider Host</p>
+            </div>
+            <div>
+              <p className="text-zinc-500 mb-1">Port 135</p>
+              <p className="text-amber-300 font-mono">DCOM/RPC endpoint for remote WMI</p>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
-          WmiPrvSE.exe is the WMI Provider Host. Port 135 is the DCOM/RPC endpoint used for remote WMI connections.
-        </p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
             <p className="text-sm text-zinc-300 font-medium">What protocol was used for lateral movement?</p>
@@ -210,6 +287,9 @@ export function WindowsLogAnalysisClient({
         </p>
         <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
           <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{EXFIL_LOGS}</pre>
+          <div className="mt-3 pt-3 border-t border-white/5 text-xs text-zinc-500">
+            Correlation: 2.3 GB staged → 2.4 GB sent (overhead from TLS). Same session, 6-minute window.
+          </div>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">

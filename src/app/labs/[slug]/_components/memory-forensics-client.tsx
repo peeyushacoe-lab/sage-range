@@ -3,15 +3,42 @@
 import { useState } from "react";
 import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
 
-const PSLIST_OUTPUT = [
-  { pid: "4",    name: "System",        ppid: "0",   threads: "95" },
-  { pid: "392",  name: "smss.exe",      ppid: "4",   threads: "2" },
-  { pid: "512",  name: "csrss.exe",     ppid: "392", threads: "9" },
-  { pid: "544",  name: "wininit.exe",   ppid: "392", threads: "1" },
-  { pid: "604",  name: "svchost.exe",   ppid: "544", threads: "8" },
-  { pid: "1337", name: "svchost32.exe", ppid: "604", threads: "3", suspicious: true },
-  { pid: "2048", name: "explorer.exe",  ppid: "544", threads: "45" },
+type ProcessRow = {
+  pid: string;
+  name: string;
+  ppid: string;
+  threads: string;
+  suspicious?: boolean;
+  detail: string;
+  verdict: "clean" | "suspicious" | "malicious";
+};
+
+const PSLIST_OUTPUT: ProcessRow[] = [
+  { pid: "4",    name: "System",        ppid: "0",   threads: "95",  verdict: "clean",     detail: "System process. PID 4 is always System on Windows. Parent is PID 0 (Idle). Expected thread count: 60–120. Nothing suspicious here." },
+  { pid: "392",  name: "smss.exe",      ppid: "4",   threads: "2",   verdict: "clean",     detail: "Session Manager Subsystem. Correct parent (System), correct thread count (2). This process initializes the Windows session." },
+  { pid: "512",  name: "csrss.exe",     ppid: "392", threads: "9",   verdict: "clean",     detail: "Client/Server Runtime Subsystem. Spawned by smss.exe during session startup. Thread count of 9 is within normal range (5–15)." },
+  { pid: "544",  name: "wininit.exe",   ppid: "392", threads: "1",   verdict: "clean",     detail: "Windows Initialization Process. Correct parent (smss.exe). Thread count of 1 is normal. Legitimate system process." },
+  { pid: "604",  name: "svchost.exe",   ppid: "544", threads: "8",   verdict: "clean",     detail: "Service Host Process. Correct parent (wininit.exe). Hosts multiple Windows services. Thread count of 8 is normal." },
+  { pid: "1337", name: "svchost32.exe", ppid: "604", threads: "3",   verdict: "malicious", detail: "⚠ SUSPICIOUS: This is NOT a legitimate Windows process. Red flags:\n• Name: 'svchost32.exe' — typosquatting on svchost.exe\n• PID 1337 — non-standard, often a joke/signature\n• Only 3 threads — legitimate svchost hosts 8–30+\n• Spawned from svchost.exe, not services.exe (wrong parent)\n\nThis is malware masquerading as a system process." },
+  { pid: "2048", name: "explorer.exe",  ppid: "544", threads: "45",  verdict: "clean",     detail: "Windows Shell (File Explorer). Correct parent (wininit.exe). Thread count of 45 is normal for a user session. No anomalies." },
 ];
+
+const MALFIND_OUTPUT = `Process: explorer.exe  PID: 2048
+VAD:     0x001a0000
+Protection: PAGE_EXECUTE_READWRITE
+Tag: VadS
+
+Hex:
+4d 5a 90 00 03 00 00 00 04 00 00 00 ff ff 00 00  MZ..............
+b8 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00  ........@.......
+
+Header: MZ  ← PE file mapped in foreign process`;
+
+const VERDICT_COLORS: Record<ProcessRow["verdict"], string> = {
+  clean:     "text-zinc-400",
+  suspicious: "text-amber-400",
+  malicious: "text-red-400",
+};
 
 export function MemoryForensicsClient({
   labId,
@@ -21,6 +48,8 @@ export function MemoryForensicsClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [expandedPid, setExpandedPid] = useState<string | null>(null);
+  const [expandedNet, setExpandedNet] = useState(false);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -46,7 +75,7 @@ export function MemoryForensicsClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
-      setT1Error("Incorrect. Look for an unusual process name, suspicious PID, and low thread count.");
+      setT1Error("Incorrect. Click each process to inspect it — look for an unusual name and anomalous thread count.");
     }
   }
 
@@ -76,42 +105,60 @@ export function MemoryForensicsClient({
       {/* Task 1 — Rogue Process */}
       <TaskShell number={1} title="Rogue Process" unlocked completed={done("task_1")}>
         <p className="text-zinc-300 text-sm mb-3">
-          Volatility&apos;s <code className="font-mono text-amber-300">pslist</code> plugin walks the doubly-linked
-          <code className="font-mono text-amber-300"> _EPROCESS</code> list to enumerate running processes.
-          Malware often masquerades as a legitimate system process with a slightly modified name.
+          Volatility&apos;s <code className="font-mono text-amber-300">pslist</code> plugin enumerates running processes.
+          Click any row to inspect the process and see whether it&apos;s legitimate.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4 overflow-x-auto">
-          <p className="font-mono text-xs text-zinc-500 mb-2">$ vol.py -f memory.dmp pslist</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 overflow-hidden mb-4">
+          <p className="font-mono text-xs text-zinc-500 px-4 py-2 border-b border-white/5">$ vol.py -f memory.dmp pslist</p>
           <table className="font-mono text-xs w-full">
             <thead>
-              <tr className="text-zinc-500 border-b border-white/8">
-                <th className="text-left pr-6 py-1">PID</th>
-                <th className="text-left pr-6 py-1">Name</th>
-                <th className="text-left pr-6 py-1">PPID</th>
-                <th className="text-left py-1">Threads</th>
+              <tr className="text-zinc-500 border-b border-white/8 bg-zinc-900/50">
+                <th className="text-left px-4 py-2">PID</th>
+                <th className="text-left px-4 py-2">Name</th>
+                <th className="text-left px-4 py-2">PPID</th>
+                <th className="text-left px-4 py-2">Threads</th>
+                <th className="px-4 py-2"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-white/5">
               {PSLIST_OUTPUT.map((p) => (
-                <tr
-                  key={p.pid}
-                  className={p.suspicious ? "text-red-400" : "text-amber-300"}
-                >
-                  <td className="pr-6 py-0.5">{p.pid}</td>
-                  <td className="pr-6 py-0.5">{p.name}</td>
-                  <td className="pr-6 py-0.5">{p.ppid}</td>
-                  <td className="py-0.5">
-                    {p.threads}
-                    {p.suspicious && <span className="text-zinc-500 ml-2">← suspicious</span>}
-                  </td>
-                </tr>
+                <>
+                  <tr
+                    key={p.pid}
+                    onClick={() => setExpandedPid(expandedPid === p.pid ? null : p.pid)}
+                    className={`cursor-pointer transition-colors hover:bg-white/3 ${
+                      p.verdict === "malicious" ? "bg-red-950/20" : ""
+                    }`}
+                  >
+                    <td className={`px-4 py-2 ${VERDICT_COLORS[p.verdict]}`}>{p.pid}</td>
+                    <td className={`px-4 py-2 font-semibold ${VERDICT_COLORS[p.verdict]}`}>{p.name}</td>
+                    <td className={`px-4 py-2 ${VERDICT_COLORS[p.verdict]}`}>{p.ppid}</td>
+                    <td className={`px-4 py-2 ${VERDICT_COLORS[p.verdict]}`}>{p.threads}</td>
+                    <td className="px-4 py-2 text-right text-zinc-600 text-[10px]">
+                      {expandedPid === p.pid ? "▲" : "▼"}
+                    </td>
+                  </tr>
+                  {expandedPid === p.pid && (
+                    <tr key={`${p.pid}-detail`}>
+                      <td colSpan={5} className="px-4 py-3 bg-zinc-900/70 border-t border-white/5">
+                        <div className="flex items-start gap-3">
+                          <span className={`shrink-0 rounded border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest mt-0.5 ${
+                            p.verdict === "malicious" ? "border-red-500/40 bg-red-500/10 text-red-400" :
+                            p.verdict === "suspicious" ? "border-amber-500/40 bg-amber-500/10 text-amber-400" :
+                            "border-sage-500/30 bg-sage-500/10 text-sage-400"
+                          }`}>
+                            {p.verdict === "malicious" ? "Malicious" : p.verdict === "suspicious" ? "Suspicious" : "Clean"}
+                          </span>
+                          <p className="text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">{p.detail}</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
-          Red flags: unusual name (svchost<em>32</em>.exe), suspicious PID (1337), very few threads (3), and unexpected parent.
-        </p>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
             <p className="text-sm text-zinc-300 font-medium">Which process is suspicious and why?</p>
@@ -144,22 +191,55 @@ export function MemoryForensicsClient({
       {/* Task 2 — Network Connections */}
       <TaskShell number={2} title="Network Connections" unlocked={done("task_1")} completed={done("task_2")}>
         <p className="text-zinc-300 text-sm mb-3">
-          The <code className="font-mono text-amber-300">netscan</code> plugin lists active and recently closed
-          network connections from the memory dump. C2 connections often use non-standard ports.
+          The <code className="font-mono text-amber-300">netscan</code> plugin lists active network connections.
+          Click the highlighted row to see full threat context.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <p className="font-mono text-xs text-zinc-500 mb-2">$ vol.py -f memory.dmp netscan</p>
-          <div className="font-mono text-xs space-y-1">
-            <p className="text-zinc-500">Process             PID     Local               Remote              State</p>
-            <p className="text-zinc-500">svchost.exe         604     0.0.0.0:49152       —                   LISTEN</p>
-            <p className="text-red-400">svchost32.exe       1337    127.0.0.1:49823     185.220.101.47:4444  ESTABLISHED</p>
-            <p className="text-zinc-500">explorer.exe        2048    10.0.0.5:49901      172.217.3.110:443   ESTABLISHED</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 overflow-hidden mb-4">
+          <p className="font-mono text-xs text-zinc-500 px-4 py-2 border-b border-white/5">$ vol.py -f memory.dmp netscan</p>
+          <div className="divide-y divide-white/5 font-mono text-xs">
+            <div className="px-4 py-2 text-zinc-500 grid grid-cols-4 gap-2">
+              <span>Process</span><span>PID</span><span>Remote</span><span>State</span>
+            </div>
+            <div className="px-4 py-2 text-zinc-500 grid grid-cols-4 gap-2">
+              <span>svchost.exe</span><span>604</span><span>—</span><span>LISTEN</span>
+            </div>
+            <div
+              className="px-4 py-2 grid grid-cols-4 gap-2 cursor-pointer hover:bg-red-950/30 transition-colors bg-red-950/20"
+              onClick={() => setExpandedNet((v) => !v)}
+            >
+              <span className="text-red-400 font-semibold">svchost32.exe</span>
+              <span className="text-red-400">1337</span>
+              <span className="text-red-400">185.220.101.47:4444</span>
+              <span className="text-red-400 flex items-center gap-2">ESTABLISHED <span className="text-zinc-600">{expandedNet ? "▲" : "▼"}</span></span>
+            </div>
+            {expandedNet && (
+              <div className="px-4 py-3 bg-zinc-900/70 border-t border-red-500/20">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <p className="text-zinc-500 mb-2">Connection Detail</p>
+                    <div className="space-y-1">
+                      <p><span className="text-zinc-600">Local: </span><span className="text-amber-300">127.0.0.1:49823</span></p>
+                      <p><span className="text-zinc-600">Remote: </span><span className="text-red-400">185.220.101.47:4444</span></p>
+                      <p><span className="text-zinc-600">Process: </span><span className="text-red-400">svchost32.exe (PID 1337)</span></p>
+                      <p><span className="text-zinc-600">Protocol: </span><span className="text-amber-300">TCP</span></p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-zinc-500 mb-2">Threat Intelligence</p>
+                    <div className="space-y-1">
+                      <p className="text-red-400">185.220.101.47 — Known Tor exit node</p>
+                      <p className="text-amber-400">Port 4444 — Default Metasploit RAT port</p>
+                      <p className="text-zinc-400">This is an active C2 channel from the rogue process</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="px-4 py-2 text-zinc-500 grid grid-cols-4 gap-2">
+              <span>explorer.exe</span><span>2048</span><span>172.217.3.110:443</span><span>ESTABLISHED</span>
+            </div>
           </div>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
-          Port <code className="font-mono text-amber-300">4444</code> is the default Metasploit meterpreter port.
-          <code className="font-mono text-amber-300"> 185.220.101.47</code> is a known Tor exit node used for C2.
-        </p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
             <p className="text-sm text-zinc-300 font-medium">What is the C2 IP:port? (e.g. 1.2.3.4:5678)</p>
@@ -190,21 +270,18 @@ export function MemoryForensicsClient({
         </p>
         <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
           <p className="font-mono text-xs text-zinc-500 mb-2">$ vol.py -f memory.dmp malfind</p>
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{`Process: explorer.exe  PID: 2048
-VAD:     0x001a0000
-Protection: PAGE_EXECUTE_READWRITE
-Tag: VadS
-
-Hex:
-4d 5a 90 00 03 00 00 00 04 00 00 00 ff ff 00 00  MZ..............
-b8 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00  ........@.......
-
-Header: MZ  ← PE file mapped in foreign process`}</pre>
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{MALFIND_OUTPUT}</pre>
+          <div className="mt-3 pt-3 border-t border-white/5 grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <p className="text-zinc-500 mb-1">PAGE_EXECUTE_READWRITE</p>
+              <p className="text-zinc-400">Writable AND executable — no legitimate allocation needs both. Classic injection flag.</p>
+            </div>
+            <div>
+              <p className="text-zinc-500 mb-1">MZ Header (0x4D5A)</p>
+              <p className="text-zinc-400">A full PE image was mapped into explorer.exe&apos;s memory — the original code was replaced.</p>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
-          <code className="font-mono text-amber-300">PAGE_EXECUTE_READWRITE</code> is writable AND executable — no legitimate allocation needs both.
-          The <code className="font-mono text-amber-300">MZ</code> header confirms a PE image was injected and the original process hollowed out.
-        </p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
             <p className="text-sm text-zinc-300 font-medium">What injection technique is indicated by the MZ header in explorer.exe&apos;s VAD?</p>

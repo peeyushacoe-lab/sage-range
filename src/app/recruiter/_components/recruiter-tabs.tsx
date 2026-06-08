@@ -66,20 +66,24 @@ function gradeIndex(grade: SimGrade): number {
 
 // ── Candidate match count ─────────────────────────────────────────────────────
 
-function countMatches(students: StudentRow[], req: JobPostingRow["requirements"]): number {
+function filterMatches(students: StudentRow[], req: JobPostingRow["requirements"]): StudentRow[] {
   return students.filter((s) => {
     if (req.minScore !== undefined && s.skillScore < req.minScore) return false;
     if (req.minSimGrade) {
       const needed = gradeIndex(req.minSimGrade as SimGrade);
       const has = gradeIndex(s.simGrade);
-      if (has > needed) return false; // higher index = worse grade
+      if (has > needed) return false;
     }
     if (req.requiredPaths && req.requiredPaths.length > 0) {
       const hasAll = req.requiredPaths.every((p) => s.completedPaths.includes(p));
       if (!hasAll) return false;
     }
     return true;
-  }).length;
+  });
+}
+
+function countMatches(students: StudentRow[], req: JobPostingRow["requirements"]): number {
+  return filterMatches(students, req).length;
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -489,6 +493,7 @@ function PostingsTab({
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [expandedPostingId, setExpandedPostingId] = useState<string | null>(null);
 
   function handlePathToggle(path: string) {
     setForm((f) => ({
@@ -710,64 +715,136 @@ function PostingsTab({
       ) : (
         <div className="space-y-3">
           {postings.map((posting) => {
-            const matchCount = countMatches(students, posting.requirements);
+            const matches = filterMatches(students, posting.requirements);
+            const matchCount = matches.length;
             const isToggling = togglingId === posting.id;
+            const isExpanded = expandedPostingId === posting.id;
             return (
               <div
                 key={posting.id}
-                className={`rounded-xl border p-5 transition-colors ${
+                className={`rounded-xl border transition-colors ${
                   posting.active ? "border-white/8 bg-zinc-900/50" : "border-white/4 bg-zinc-950/50 opacity-60"
                 }`}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <h3 className="font-semibold text-zinc-100 truncate">{posting.title}</h3>
-                      <span className="text-zinc-400 text-sm">{posting.company}</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <h3 className="font-semibold text-zinc-100 truncate">{posting.title}</h3>
+                        <span className="text-zinc-400 text-sm">{posting.company}</span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            posting.active
+                              ? "bg-sage-500/15 text-sage-400"
+                              : "bg-zinc-500/15 text-zinc-500"
+                          }`}
+                        >
+                          {posting.active ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <p className="text-sm text-zinc-500 mt-1 line-clamp-2">{posting.description}</p>
+
+                      {/* Requirements */}
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {posting.requirements.minScore !== undefined && (
+                          <ReqBadge>Score ≥ {posting.requirements.minScore}</ReqBadge>
+                        )}
+                        {posting.requirements.minSimGrade && (
+                          <ReqBadge>Sim Grade ≥ {posting.requirements.minSimGrade}</ReqBadge>
+                        )}
+                        {posting.requirements.requiredPaths?.map((p) => (
+                          <ReqBadge key={p}>{p}</ReqBadge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-3 shrink-0">
+                      <div className="text-right">
+                        <button
+                          onClick={() => setExpandedPostingId(isExpanded ? null : posting.id)}
+                          className="hover:opacity-80 transition-opacity"
+                        >
+                          <p className="text-xl font-bold text-sage-400">{matchCount}</p>
+                          <p className="text-xs text-sage-500 underline underline-offset-2">
+                            {isExpanded ? "hide" : "view"} matches
+                          </p>
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => toggleActive(posting)}
+                        disabled={isToggling}
+                        className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40 ${
                           posting.active
-                            ? "bg-sage-500/15 text-sage-400"
-                            : "bg-zinc-500/15 text-zinc-500"
+                            ? "border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500"
+                            : "border-sage-500/40 text-sage-400 hover:border-sage-500"
                         }`}
                       >
-                        {posting.active ? "Active" : "Inactive"}
-                      </span>
+                        {isToggling ? "..." : posting.active ? "Deactivate" : "Activate"}
+                      </button>
                     </div>
-                    <p className="text-sm text-zinc-500 mt-1 line-clamp-2">{posting.description}</p>
-
-                    {/* Requirements */}
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {posting.requirements.minScore !== undefined && (
-                        <ReqBadge>Score ≥ {posting.requirements.minScore}</ReqBadge>
-                      )}
-                      {posting.requirements.minSimGrade && (
-                        <ReqBadge>Sim Grade ≥ {posting.requirements.minSimGrade}</ReqBadge>
-                      )}
-                      {posting.requirements.requiredPaths?.map((p) => (
-                        <ReqBadge key={p}>{p}</ReqBadge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-3 shrink-0">
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-sage-400">{matchCount}</p>
-                      <p className="text-xs text-zinc-500">matches</p>
-                    </div>
-                    <button
-                      onClick={() => toggleActive(posting)}
-                      disabled={isToggling}
-                      className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40 ${
-                        posting.active
-                          ? "border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500"
-                          : "border-sage-500/40 text-sage-400 hover:border-sage-500"
-                      }`}
-                    >
-                      {isToggling ? "..." : posting.active ? "Deactivate" : "Activate"}
-                    </button>
                   </div>
                 </div>
+
+                {/* Matches drill-down */}
+                {isExpanded && (
+                  <div className="border-t border-white/8 px-5 py-4">
+                    {matches.length === 0 ? (
+                      <p className="text-sm text-zinc-500">No candidates currently meet these requirements.</p>
+                    ) : (
+                      <>
+                        <p className="text-xs text-zinc-500 uppercase tracking-wider mb-3">
+                          {matches.length} qualifying candidate{matches.length !== 1 ? "s" : ""}
+                        </p>
+                        <div className="space-y-2">
+                          {matches.slice(0, 10).map((s) => (
+                            <div key={s.id} className="flex items-center justify-between gap-4 rounded-lg border border-white/6 bg-zinc-950/50 px-4 py-2.5">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-zinc-100 truncate">
+                                  {s.displayName ?? s.email.split("@")[0]}
+                                </p>
+                                <p className="text-xs text-zinc-500 truncate">{s.email}</p>
+                              </div>
+                              <div className="flex items-center gap-4 shrink-0 text-xs">
+                                <div className="text-right">
+                                  <p className="text-zinc-400 font-semibold">{s.skillScore}</p>
+                                  <p className="text-zinc-600">score</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className={`font-bold ${gradeColor(s.simGrade)}`}>
+                                    {s.bestSimScore > 0 ? s.simGrade : "—"}
+                                  </p>
+                                  <p className="text-zinc-600">sim</p>
+                                </div>
+                                {s.aiVerdict && (
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                                    s.aiVerdict === "Strong hire"
+                                      ? "bg-sage-500/20 text-sage-500"
+                                      : s.aiVerdict === "Potential hire"
+                                      ? "bg-amber-500/20 text-amber-400"
+                                      : "bg-red-500/20 text-red-400"
+                                  }`}>
+                                    {s.aiVerdict}
+                                  </span>
+                                )}
+                                <a
+                                  href={`/profile/${s.id}`}
+                                  className="text-sage-500 hover:underline whitespace-nowrap"
+                                >
+                                  Profile →
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                          {matches.length > 10 && (
+                            <p className="text-xs text-zinc-500 text-center pt-1">
+                              +{matches.length - 10} more — use Find Candidates tab with filters
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

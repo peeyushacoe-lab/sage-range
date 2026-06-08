@@ -283,6 +283,58 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
 
       <GapAnalysis gap={gap} />
 
+      {/* Recommended Labs — surfaced from weakness areas */}
+      <section className="mt-12 border-t border-white/10 pt-10">
+        <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-4">Recommended Next Labs</h2>
+        {(() => {
+          type LabRec = { slug: string; title: string; reason: string; tag: string };
+          const recs: LabRec[] = [];
+          const techWeak = assessment.technicalScore < 60;
+          const opWeak = assessment.operationalScore < 60;
+          const missedStages = debrief.missedOpportunities.map((m) => m.stage);
+          const industry = (session.template.industry ?? "").toLowerCase();
+
+          if (techWeak || missedStages.some((s) => s.includes("initial") || s.includes("recon")))
+            recs.push({ slug: "network-forensics-101", title: "Network Forensics 101", reason: "Strengthen packet analysis and C2 detection — core skills for early-stage containment.", tag: "Blue Team" });
+          if (techWeak || missedStages.some((s) => s.includes("lateral") || s.includes("privesc")))
+            recs.push({ slug: "windows-log-analysis", title: "Windows Log Analysis", reason: "Practice correlating Event IDs for lateral movement detection across a real attack chain.", tag: "Blue Team" });
+          if (opWeak || missedStages.some((s) => s.includes("contain") || s.includes("respond")))
+            recs.push({ slug: "malware-triage", title: "Malware Triage", reason: "Improve speed and accuracy in static analysis — a key skill for rapid incident response.", tag: "Forensics" });
+          if (industry.includes("health") || industry.includes("supply"))
+            recs.push({ slug: "memory-forensics", title: "Memory Forensics", reason: "Supply chain and healthcare incidents often involve process injection — practice Volatility analysis.", tag: "Forensics" });
+          if (outcome === "BREACHED" || assessment.leadershipGrade === "D" || assessment.leadershipGrade === "F")
+            recs.push({ slug: "phishing-analysis", title: "Phishing Analysis", reason: "Many breaches begin with phishing. Sharpen email header forensics and social engineering recognition.", tag: "Threat Intel" });
+          if (industry.includes("gov") || industry.includes("finance"))
+            recs.push({ slug: "osint-investigation", title: "OSINT Investigation", reason: "Government and finance targets face persistent reconnaissance. Practice infrastructure pivoting.", tag: "OSINT" });
+          if (recs.length === 0) {
+            recs.push({ slug: "network-forensics-101", title: "Network Forensics 101", reason: "Continue building packet analysis skills for sustained blue team readiness.", tag: "Blue Team" });
+            recs.push({ slug: "malware-triage", title: "Malware Triage", reason: "Deepen static analysis muscle memory — relevant in every scenario class.", tag: "Forensics" });
+          }
+
+          const dedupedRecs = recs.slice(0, 3);
+          return (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {dedupedRecs.map((rec) => (
+                <Link
+                  key={rec.slug}
+                  href={`/labs/${rec.slug}`}
+                  className="rounded-xl border border-white/10 bg-zinc-900/40 p-4 hover:border-sage-500/40 hover:bg-sage-500/5 transition-colors group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-sage-500 border border-sage-500/30 bg-sage-500/10 rounded px-1.5 py-0.5">
+                      {rec.tag}
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold text-zinc-100 group-hover:text-sage-400 transition-colors mb-1">{rec.title}</p>
+                  <p className="text-xs text-zinc-500 leading-relaxed">{rec.reason}</p>
+                  <p className="text-xs text-sage-500 mt-3">Start lab →</p>
+                </Link>
+              ))}
+            </div>
+          );
+        })()}
+      </section>
+
       <section className="mt-12 border-t border-white/10 pt-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm uppercase tracking-widest text-zinc-500">Post-Incident Report</h2>
