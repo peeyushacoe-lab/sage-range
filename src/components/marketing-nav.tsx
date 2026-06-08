@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { auth } from "@/auth";
 
 export async function MarketingNav() {
@@ -9,7 +10,7 @@ export async function MarketingNav() {
     <header className="sticky top-0 z-40 border-b border-white/8 bg-zinc-950/90 backdrop-blur">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="h-7 w-7 rounded bg-sage-500" />
+          <Image src="/logo.ico" alt="Sage Forge" width={28} height={28} className="rounded" unoptimized />
           <div className="flex flex-col leading-none">
             <span className="font-bold tracking-tight text-white text-sm">Sage Forge</span>
             <span className="text-[9px] text-zinc-500 tracking-wide">by CyberSage</span>
