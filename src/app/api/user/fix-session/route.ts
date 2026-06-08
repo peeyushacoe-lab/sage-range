@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
-import { getOrCreateAppUser } from "@/lib/current-user";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/db";
 
-// Recovery endpoint: if DB role is set but the onboarding cookie is missing,
-// re-sets the cookie and redirects to /dashboard.
 export async function GET(req: Request) {
+  const { userId } = await auth();
   const origin = new URL(req.url).origin;
-  const user = await getOrCreateAppUser();
+  if (!userId) return NextResponse.redirect(new URL("/sign-in", origin));
 
-  if (!user) return NextResponse.redirect(new URL("/sign-in", origin));
+  const user = await db.user.findUnique({ where: { clerkId: userId }, select: { role: true } });
 
-  if (!user.role) {
+  if (!user?.role) {
     return NextResponse.redirect(new URL("/onboarding", origin));
   }
 

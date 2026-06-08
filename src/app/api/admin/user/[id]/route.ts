@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 

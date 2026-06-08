@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/auth";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { sendWelcomeEmail } from "@/lib/email";
 import { Prisma } from "@prisma/client";
@@ -13,42 +13,51 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });
 
   const { role, displayName } = parsed.data;
-  const externalId = session.user.id;
-  const email = session.user.email;
 
-  if (!email) return NextResponse.json({ error: "no_email" }, { status: 400 });
-
-  let isNew = false;
+  let email = "";
   try {
-    const existing = await db.user.findUnique({ where: { externalId }, select: { id: true } });
-    isNew = !existing;
+    const client = await clerkClient();
+    const [clerkUser, existingUser] = await Promise.all([
+      client.users.getUser(userId),
+      db.user.findUnique({ where: { clerkId: userId }, select: { id: true, email: true } }),
+    ]);
 
+    email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+
+    client.users.updateUserMetadata(userId, {
+      publicMetadata: { onboardingComplete: true, role },
+    }).catch((e: unknown) => console.error("[onboarding] Clerk metadata update failed:", e));
+
+    let user;
     try {
-      await db.user.upsert({
-        where: { externalId },
+      user = await db.user.upsert({
+        where: { clerkId: userId },
         update: { role, displayName },
-        create: { externalId, email, role, displayName },
+        create: { clerkId: userId, email, role, displayName },
+        select: { email: true },
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-        // Email collision under a different externalId — re-link
-        await db.user.update({
+        user = await db.user.update({
           where: { email },
-          data: { externalId, role, displayName },
+          data: { clerkId: userId, role, displayName },
+          select: { email: true },
         });
       } else {
         throw e;
       }
     }
 
-    if (isNew) sendWelcomeEmail(email, displayName, role).catch(() => null);
+    if (!existingUser && user?.email) {
+      sendWelcomeEmail(user.email, displayName, role).catch(() => null);
+    }
   } catch (e) {
     console.error("[onboarding] Error:", e);
     return NextResponse.json({ error: "internal" }, { status: 500 });

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { auth, signOut } from "@/auth";
+import { UserButton } from "@clerk/nextjs";
 import { getOrCreateAppUser } from "@/lib/current-user";
 
 const ROLE_BADGE: Record<string, string> = {
@@ -11,9 +11,8 @@ const ROLE_BADGE: Record<string, string> = {
 };
 
 export async function Navbar({ backHref, backLabel }: { backHref?: string; backLabel?: string } = {}) {
-  const [session, user] = await Promise.all([auth(), getOrCreateAppUser()]);
+  const user = await getOrCreateAppUser();
   const role = user?.role ?? "STUDENT";
-  const displayName = user?.displayName ?? session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "User";
 
   return (
     <nav className="border-b border-white/8 bg-zinc-950/80 backdrop-blur sticky top-0 z-40">
@@ -43,26 +42,26 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
           )}
           {(role === "INSTRUCTOR") && (
             <>
-              <Link href="/classroom"           className="hover:text-zinc-100 transition-colors">Classrooms</Link>
-              <Link href="/simulation/new"       className="hover:text-zinc-100 transition-colors">Simulations</Link>
-              <Link href="/labs"                 className="hover:text-zinc-100 transition-colors">Labs</Link>
-              <Link href="/leaderboard"          className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
-              <Link href="/analytics/instructor" className="hover:text-zinc-100 transition-colors">Analytics</Link>
+              <Link href="/classroom"            className="hover:text-zinc-100 transition-colors">Classrooms</Link>
+              <Link href="/simulation/new"        className="hover:text-zinc-100 transition-colors">Simulations</Link>
+              <Link href="/labs"                  className="hover:text-zinc-100 transition-colors">Labs</Link>
+              <Link href="/leaderboard"           className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
+              <Link href="/analytics/instructor"  className="hover:text-zinc-100 transition-colors">Analytics</Link>
             </>
           )}
           {(role === "RECRUITER") && (
             <>
-              <Link href="/recruiter"           className="text-amber-400 hover:text-amber-300 transition-colors">Marketplace</Link>
-              <Link href="/analytics/recruiter" className="hover:text-zinc-100 transition-colors">Analytics</Link>
-              <Link href="/leaderboard"         className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
+              <Link href="/recruiter"            className="text-amber-400 hover:text-amber-300 transition-colors">Marketplace</Link>
+              <Link href="/analytics/recruiter"  className="hover:text-zinc-100 transition-colors">Analytics</Link>
+              <Link href="/leaderboard"          className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
             </>
           )}
           {role === "ADMIN" && (
             <>
-              <Link href="/labs"      className="hover:text-zinc-100 transition-colors">Labs</Link>
-              <Link href="/classroom" className="hover:text-zinc-100 transition-colors">Classroom</Link>
-              <Link href="/recruiter" className="hover:text-zinc-100 transition-colors">Recruiter</Link>
-              <Link href="/admin"     className="hover:text-zinc-100 transition-colors">Admin</Link>
+              <Link href="/labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
+              <Link href="/classroom"      className="hover:text-zinc-100 transition-colors">Classroom</Link>
+              <Link href="/recruiter"      className="hover:text-zinc-100 transition-colors">Recruiter</Link>
+              <Link href="/admin"          className="hover:text-zinc-100 transition-colors">Admin</Link>
             </>
           )}
           {user && (
@@ -75,18 +74,7 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
           <span className={`text-[10px] font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${ROLE_BADGE[role] ?? ROLE_BADGE.STUDENT}`}>
             {role}
           </span>
-          <span className="text-xs text-zinc-400 max-w-[120px] truncate hidden sm:block">{displayName}</span>
-          <form action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/sign-in" });
-          }}>
-            <button
-              type="submit"
-              className="text-xs text-zinc-500 hover:text-zinc-200 border border-white/8 rounded px-2.5 py-1 transition-colors"
-            >
-              Sign out
-            </button>
-          </form>
+          <UserButton />
         </div>
       </div>
     </nav>

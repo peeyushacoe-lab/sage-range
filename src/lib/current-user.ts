@@ -1,33 +1,35 @@
 import { cache } from "react";
-import { auth } from "@/auth";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "./db";
 
 export type AppUser = NonNullable<Awaited<ReturnType<typeof getOrCreateAppUser>>>;
 
 export const getOrCreateAppUser = cache(async function getOrCreateAppUser() {
-  const session = await auth();
-  if (!session?.user?.id) return null;
+  const { userId } = await auth();
+  if (!userId) return null;
 
-  const externalId = session.user.id;   // Keycloak sub claim
-  const email = session.user.email;
-
-  const existing = await db.user.findUnique({ where: { externalId } });
+  const existing = await db.user.findUnique({ where: { clerkId: userId } });
   if (existing) return existing;
 
+  const clerkUser = await currentUser();
+  const email = clerkUser?.emailAddresses[0]?.emailAddress;
   if (!email) return null;
 
-  // Email already registered under a different externalId (e.g. Keycloak realm change).
-  // Re-link so the existing profile is not orphaned.
+  // Email already exists under a different clerkId (e.g. dev→prod key switch).
+  // Re-link the clerkId so the existing profile is not orphaned.
   const byEmail = await db.user.findUnique({ where: { email } });
   if (byEmail) {
-    return db.user.update({ where: { email }, data: { externalId } });
+    return db.user.update({
+      where: { email },
+      data: { clerkId: userId },
+    });
   }
 
   return db.user.create({
     data: {
-      externalId,
+      clerkId: userId,
       email,
-      displayName: session.user.name ?? null,
+      displayName: clerkUser?.firstName ?? null,
     },
   });
 });
