@@ -57,12 +57,9 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
             </>
           )}
           {role === "ADMIN" && (
-            <>
-              <Link href="/admin#users"          className="text-red-400 hover:text-red-300 transition-colors font-medium">Users</Link>
-              <Link href="/admin#competitions"   className="hover:text-zinc-100 transition-colors">Competitions</Link>
-              <Link href="/admin#institutions"   className="hover:text-zinc-100 transition-colors">Institutions</Link>
-              <Link href="/admin#labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
-            </>
+            <Link href="/admin" className="text-red-400 hover:text-red-300 transition-colors font-medium text-xs uppercase tracking-widest">
+              Admin Panel
+            </Link>
           )}
           {user && (
             <Link href={`/profile/${user.id}`} className="hover:text-zinc-100 transition-colors">Profile</Link>
