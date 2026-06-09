@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { sendWelcomeEmail } from "@/lib/email";
 import { Prisma } from "@prisma/client";
@@ -10,6 +10,8 @@ const ONBOARDING_COOKIE = "sage_onboarded";
 const Body = z.object({
   role: z.enum(["STUDENT", "INSTRUCTOR", "RECRUITER"]),
   displayName: z.string().min(2).max(60),
+  // Client sends the email from useUser() — avoids any server-side Clerk API call
+  email: z.string().email().optional().or(z.literal("")),
 });
 
 export async function POST(req: Request) {
@@ -19,17 +21,16 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });
 
-  const { role, displayName } = parsed.data;
+  const { role, displayName, email: clientEmail = "" } = parsed.data;
 
-  let email = "";
   try {
-    const clerkUser = await currentUser();
-    email = clerkUser?.emailAddresses[0]?.emailAddress ?? "";
-
     const existingUser = await db.user.findUnique({
       where: { clerkId: userId },
       select: { id: true, email: true },
     });
+
+    // If user already in DB, update role/name and skip email lookup
+    const email = existingUser?.email ?? clientEmail;
 
     let user;
     try {

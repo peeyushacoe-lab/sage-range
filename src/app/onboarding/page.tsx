@@ -86,7 +86,11 @@ export default function OnboardingPage() {
       const res = await fetch("/api/user/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: selected, displayName: name.trim() }),
+        body: JSON.stringify({
+          role: selected,
+          displayName: name.trim(),
+          email: user?.emailAddresses[0]?.emailAddress ?? "",
+        }),
       });
       if (!res.ok) throw new Error("Failed");
 
