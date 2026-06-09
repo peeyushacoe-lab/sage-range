@@ -10,26 +10,34 @@ const ONBOARDING_COOKIE = "sage_onboarded";
 const Body = z.object({
   role: z.enum(["STUDENT", "INSTRUCTOR", "RECRUITER"]),
   displayName: z.string().min(2).max(60),
-  // Client sends the email from useUser() — avoids any server-side Clerk API call
   email: z.string().email().optional().or(z.literal("")),
 });
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
+  // Step 1 — auth
+  let userId: string | null = null;
+  try {
+    const session = await auth();
+    userId = session.userId;
+  } catch (e) {
+    console.error("[onboarding] auth() threw:", e);
+    return NextResponse.json({ error: "auth_failed", detail: String(e) }, { status: 500 });
+  }
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
+  // Step 2 — parse body
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });
 
   const { role, displayName, email: clientEmail = "" } = parsed.data;
 
+  // Step 3 — DB
   try {
     const existingUser = await db.user.findUnique({
       where: { clerkId: userId },
       select: { id: true, email: true },
     });
 
-    // If user already in DB, update role/name and skip email lookup
     const email = existingUser?.email ?? clientEmail;
 
     let user;
@@ -42,7 +50,6 @@ export async function POST(req: Request) {
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-        // Email collision under a different clerkId — re-link
         user = await db.user.update({
           where: { email },
           data: { clerkId: userId, role, displayName },
@@ -57,8 +64,9 @@ export async function POST(req: Request) {
       sendWelcomeEmail(user.email, displayName, role).catch(() => null);
     }
   } catch (e) {
-    console.error("[onboarding] Error:", e);
-    return NextResponse.json({ error: "internal" }, { status: 500 });
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[onboarding] DB error:", msg);
+    return NextResponse.json({ error: "db_failed", detail: msg }, { status: 500 });
   }
 
   const cookieOpts = {

@@ -92,12 +92,16 @@ export default function OnboardingPage() {
           email: user?.emailAddresses[0]?.emailAddress ?? "",
         }),
       });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string; detail?: string };
+        throw new Error(body.detail ?? body.error ?? `HTTP ${res.status}`);
+      }
 
       user?.reload().catch(() => null);
       router.push("/complete-profile");
-    } catch {
-      setError("Something went wrong. Try again.");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      setError(`Failed: ${msg}`);
     } finally {
       setSaving(false);
     }
