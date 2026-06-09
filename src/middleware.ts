@@ -17,7 +17,8 @@ const isProtectedPage = createRouteMatcher([
   "/leaderboard(.*)",
 ]);
 
-const isOnboarding      = createRouteMatcher(["/onboarding(.*)"]);
+const isApi            = createRouteMatcher(["/api(.*)"]);
+const isOnboarding     = createRouteMatcher(["/onboarding(.*)"]);
 const isCompleteProfile = createRouteMatcher(["/complete-profile(.*)"]);
 
 const isStudentBlocked   = createRouteMatcher(["/recruiter(.*)", "/analytics/recruiter(.*)", "/analytics/instructor(.*)"]);
@@ -25,9 +26,11 @@ const isRecruiterBlocked = createRouteMatcher(["/labs(.*)", "/paths(.*)", "/comp
 const isInstructorBlocked = createRouteMatcher(["/competitions(.*)", "/paths(.*)", "/leaderboard(.*)", "/analytics/recruiter(.*)", "/recruiter(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedPage(req)) await auth.protect();
+  // API routes pass through immediately — they call auth() themselves and return 401 if unauthed.
+  // They must be in the matcher so auth() can detect the middleware context.
+  if (isApi(req)) return NextResponse.next();
 
-  // Let onboarding and complete-profile pages through without redirect loops
+  if (isProtectedPage(req)) await auth.protect();
   if (isOnboarding(req) || isCompleteProfile(req)) return NextResponse.next();
 
   const { userId, sessionClaims } = await auth();
@@ -35,14 +38,10 @@ export default clerkMiddleware(async (auth, req) => {
     const meta = sessionClaims?.publicMetadata as Record<string, unknown> | undefined;
     const onboarded = req.cookies.get("sage_onboarded")?.value === "1";
 
-    // Step 1 only: if not yet onboarded → force role/name selection
-    // complete-profile is enforced by the onboarding page's redirect, NOT middleware,
-    // so existing users who pre-date the profile step are not affected.
     if (!meta?.onboardingComplete && !onboarded) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
 
-    // Role-based page guards
     const role = req.cookies.get("sage_role")?.value;
     if (role === "STUDENT"    && isStudentBlocked(req))    return NextResponse.redirect(new URL("/dashboard", req.url));
     if (role === "RECRUITER"  && isRecruiterBlocked(req))  return NextResponse.redirect(new URL("/recruiter", req.url));
@@ -53,11 +52,10 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  // Exclude /api and /trpc — they handle their own auth via auth() in each handler.
-  // Dev-browser redirect in clerkMiddleware runs before the function body, so API routes
-  // must be excluded from the matcher entirely to avoid 404s on non-localhost deployments.
   matcher: [
-    "/((?!_next|api|trpc|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Include all routes except static files so auth() works everywhere it's called
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
     "/__clerk/(.*)",
   ],
 };
