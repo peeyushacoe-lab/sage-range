@@ -32,10 +32,10 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
         <div className="flex items-center gap-5 text-sm text-zinc-400">
           {role === "STUDENT" && (
             <>
-              <Link href="/classroom"      className="hover:text-zinc-100 transition-colors">Classroom</Link>
+              <Link href="/feed"           className="hover:text-zinc-100 transition-colors">Feed</Link>
               <Link href="/labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
-              <Link href="/paths"          className="hover:text-zinc-100 transition-colors">Paths</Link>
               <Link href="/simulation/new" className="hover:text-zinc-100 transition-colors">Simulations</Link>
+              <Link href="/paths"          className="hover:text-zinc-100 transition-colors">Paths</Link>
               <Link href="/competitions"   className="hover:text-zinc-100 transition-colors">Competitions</Link>
               <Link href="/leaderboard"    className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
             </>
