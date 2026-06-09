@@ -243,7 +243,7 @@ model Classroom {
   webhookUrl   String?
   createdAt    DateTime @default(now())
 
-  instructor      User                     @relation("InstructorClassrooms", fields: [instructorId], references: [id])
+  instructor      User                     @relation("InstructorClassrooms", fields: [instructorId], references: [id], onDelete: Cascade)
   enrollments     ClassroomEnrollment[]
   assignments     ClassroomLabAssignment[]
   announcements   ClassroomAnnouncement[]
@@ -387,7 +387,7 @@ model JobPosting {
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
 
-  recruiter User                @relation("RecruiterPostings", fields: [recruiterId], references: [id])
+  recruiter User                @relation("RecruiterPostings", fields: [recruiterId], references: [id], onDelete: Cascade)
   bookmarks CandidateBookmark[]
 
   @@index([recruiterId])
@@ -402,8 +402,8 @@ model CandidateBookmark {
   note        String?
   createdAt   DateTime @default(now())
 
-  recruiter User        @relation("RecruiterBookmarks", fields: [recruiterId], references: [id])
-  candidate User        @relation("CandidateBookmarks", fields: [candidateId], references: [id])
+  recruiter User        @relation("RecruiterBookmarks", fields: [recruiterId], references: [id], onDelete: Cascade)
+  candidate User        @relation("CandidateBookmarks", fields: [candidateId], references: [id], onDelete: Cascade)
   job       JobPosting? @relation(fields: [jobId], references: [id])
 
   @@unique([recruiterId, candidateId])
@@ -434,7 +434,7 @@ model TeamSession {
   status       TeamStatus @default(LOBBY)
   createdAt    DateTime   @default(now())
 
-  lead    User               @relation("TeamLead", fields: [leadId], references: [id])
+  lead    User               @relation("TeamLead", fields: [leadId], references: [id], onDelete: Cascade)
   session SimulationSession? @relation(fields: [sessionId], references: [id])
   members TeamMember[]
 
@@ -450,7 +450,7 @@ model TeamMember {
   joinedAt      DateTime  @default(now())
 
   teamSession TeamSession @relation(fields: [teamSessionId], references: [id], onDelete: Cascade)
-  user        User        @relation(fields: [userId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([teamSessionId, userId])
   @@index([teamSessionId])
@@ -535,7 +535,7 @@ model CompetitionEntry {
   createdAt     DateTime  @default(now())
 
   competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  user        User        @relation(fields: [userId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([competitionId, userId])
   @@index([competitionId])
