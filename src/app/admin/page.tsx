@@ -199,7 +199,7 @@ export default async function AdminPanel() {
       <section className="mb-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Competitions</h2>
-          <NewCompetitionForm labs={publishedLabs} onCreated={() => {}} />
+          <NewCompetitionForm labs={publishedLabs} />
         </div>
         {competitions.length === 0 ? (
           <p className="text-zinc-500 text-sm">No competitions yet.</p>

@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Lab = { id: string; slug: string; title: string };
 
-export function NewCompetitionForm({ labs, onCreated }: { labs: Lab[]; onCreated: () => void }) {
+export function NewCompetitionForm({ labs }: { labs: Lab[] }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,7 +49,7 @@ export function NewCompetitionForm({ labs, onCreated }: { labs: Lab[]; onCreated
       }
       setName(""); setDescription(""); setStartDate(""); setEndDate(""); setSelectedSlugs([]);
       setOpen(false);
-      onCreated();
+      router.refresh();
     } catch {
       setError("Network error. Please try again.");
     } finally {
