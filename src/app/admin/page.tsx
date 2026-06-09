@@ -84,7 +84,7 @@ export default async function AdminPanel() {
       </section>
 
       {/* Institutions */}
-      <section className="mb-10">
+      <section id="institutions" className="mb-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Institutions ({institutions.length})</h2>
           <NewInstitutionForm />
@@ -128,7 +128,7 @@ export default async function AdminPanel() {
       </section>
 
       {/* User Management */}
-      <section className="mb-10">
+      <section id="users" className="mb-10">
         <h2 className="text-lg font-semibold mb-4">Users ({totalUsers})</h2>
         <div className="rounded-lg border border-white/10 overflow-x-auto">
           <table className="w-full text-sm">
@@ -162,7 +162,7 @@ export default async function AdminPanel() {
       </section>
 
       {/* Labs */}
-      <section className="mb-10">
+      <section id="labs" className="mb-10">
         <h2 className="text-lg font-semibold mb-4">Labs ({allLabs.length})</h2>
         <div className="rounded-lg border border-white/10 divide-y divide-white/10">
           {allLabs.map((lab) => (
@@ -196,7 +196,7 @@ export default async function AdminPanel() {
       </section>
 
       {/* Competitions */}
-      <section className="mb-10">
+      <section id="competitions" className="mb-10">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Competitions</h2>
           <NewCompetitionForm labs={publishedLabs} />

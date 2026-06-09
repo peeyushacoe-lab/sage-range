@@ -30,7 +30,7 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
         </div>
 
         <div className="flex items-center gap-5 text-sm text-zinc-400">
-          {(role === "STUDENT") && (
+          {role === "STUDENT" && (
             <>
               <Link href="/classroom"      className="hover:text-zinc-100 transition-colors">Classroom</Link>
               <Link href="/labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
@@ -40,7 +40,7 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
               <Link href="/leaderboard"    className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
             </>
           )}
-          {(role === "INSTRUCTOR") && (
+          {role === "INSTRUCTOR" && (
             <>
               <Link href="/classroom"            className="hover:text-zinc-100 transition-colors">Classrooms</Link>
               <Link href="/simulation/new"        className="hover:text-zinc-100 transition-colors">Simulations</Link>
@@ -49,7 +49,7 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
               <Link href="/analytics/instructor"  className="hover:text-zinc-100 transition-colors">Analytics</Link>
             </>
           )}
-          {(role === "RECRUITER") && (
+          {role === "RECRUITER" && (
             <>
               <Link href="/recruiter"            className="text-amber-400 hover:text-amber-300 transition-colors">Marketplace</Link>
               <Link href="/analytics/recruiter"  className="hover:text-zinc-100 transition-colors">Analytics</Link>
@@ -58,16 +58,15 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
           )}
           {role === "ADMIN" && (
             <>
-              <Link href="/admin"                   className="text-red-400 hover:text-red-300 transition-colors font-medium">Users</Link>
-              <Link href="/admin#competitions"      className="hover:text-zinc-100 transition-colors">Competitions</Link>
-              <Link href="/admin#institutions"      className="hover:text-zinc-100 transition-colors">Institutions</Link>
-              <Link href="/admin#labs"              className="hover:text-zinc-100 transition-colors">Labs</Link>
+              <Link href="/admin#users"          className="text-red-400 hover:text-red-300 transition-colors font-medium">Users</Link>
+              <Link href="/admin#competitions"   className="hover:text-zinc-100 transition-colors">Competitions</Link>
+              <Link href="/admin#institutions"   className="hover:text-zinc-100 transition-colors">Institutions</Link>
+              <Link href="/admin#labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
             </>
           )}
           {user && (
             <Link href={`/profile/${user.id}`} className="hover:text-zinc-100 transition-colors">Profile</Link>
           )}
-          <Link href="/pricing" className="hover:text-zinc-100 transition-colors text-zinc-600">Pricing</Link>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
