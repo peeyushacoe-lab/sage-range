@@ -25,7 +25,11 @@ export function CredentialsForm({ mode }: { mode: "signin" | "signup" }) {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({})) as { error?: string };
-        setError(body.error ?? "Sign up failed. Try again.");
+        if (res.status === 409) {
+          setError("__409__");
+        } else {
+          setError(body.error ?? "Sign up failed. Try again.");
+        }
         setLoading(false);
         return;
       }
@@ -70,7 +74,13 @@ export function CredentialsForm({ mode }: { mode: "signin" | "signup" }) {
         minLength={mode === "signup" ? 8 : 1}
         className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60"
       />
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && error !== "__409__" && <p className="text-xs text-red-400">{error}</p>}
+      {error === "__409__" && (
+        <p className="text-xs text-amber-400">
+          This email already has an account.{" "}
+          <a href="/sign-in" className="underline hover:text-amber-300">Sign in instead →</a>
+        </p>
+      )}
       <button
         type="submit"
         disabled={loading}
