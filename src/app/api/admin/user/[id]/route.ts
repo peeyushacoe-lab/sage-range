@@ -26,3 +26,17 @@ export async function PATCH(
   await db.user.update({ where: { id }, data: { role: role as Role } });
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const me = await getOrCreateAppUser();
+  if (!me || me.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { id } = await params;
+  if (id === me.id) return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
+
+  await db.user.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}
