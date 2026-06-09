@@ -16,14 +16,20 @@ export async function POST(req: Request) {
   }
 
   const { name, email, password } = parsed.data;
+  const hashed = await bcrypt.hash(password, 12);
 
   const existing = await db.user.findUnique({ where: { email } });
+
   if (existing) {
-    return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
+    // Account exists with a password already — genuine duplicate
+    if (existing.password) {
+      return NextResponse.json({ error: "An account with this email already exists. Sign in instead." }, { status: 409 });
+    }
+    // Account exists via OAuth (no password) — just add the password
+    await db.user.update({ where: { email }, data: { password: hashed, displayName: existing.displayName ?? name } });
+    return NextResponse.json({ ok: true });
   }
 
-  const hashed = await bcrypt.hash(password, 12);
   await db.user.create({ data: { email, password: hashed, displayName: name } });
-
   return NextResponse.json({ ok: true });
 }
