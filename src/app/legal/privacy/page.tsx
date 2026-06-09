@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
                 <li><span className="text-white font-medium">Simulation data:</span> Decisions made during simulations, timing, scores, and the generated company/scenario context for each session.</li>
                 <li><span className="text-white font-medium">Classroom data:</span> Classroom enrollments, lab assignments, instructor-posted announcements.</li>
                 <li><span className="text-white font-medium">Payment data:</span> Stripe customer ID and subscription status. We do not store card numbers — all payment processing is handled by Stripe.</li>
-                <li><span className="text-white font-medium">Technical data:</span> Session cookies set by Clerk (our authentication provider) and two httpOnly cookies we set for role and onboarding state.</li>
+                <li><span className="text-white font-medium">Technical data:</span> Session token cookie set by NextAuth (our authentication provider) and two httpOnly cookies we set for role and onboarding state.</li>
               </ul>
             </section>
 
@@ -48,7 +48,7 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-base font-semibold text-white mb-3">3. Data Sharing</h2>
               <p className="text-zinc-400 mb-3">We do not sell your personal data. We share data only with:</p>
               <ul className="space-y-2 text-zinc-400">
-                <li><span className="text-white font-medium">Clerk</span> — authentication and session management</li>
+                <li><span className="text-white font-medium">Google / GitHub</span> — OAuth sign-in via NextAuth</li>
                 <li><span className="text-white font-medium">Stripe</span> — payment processing for paid subscriptions</li>
                 <li><span className="text-white font-medium">Resend</span> — transactional email delivery</li>
                 <li><span className="text-white font-medium">Supabase / Neon</span> — PostgreSQL database hosting</li>
@@ -89,7 +89,7 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-base font-semibold text-white mb-3">6. Cookies</h2>
               <p className="text-zinc-400">We use the following cookies:</p>
               <ul className="space-y-2 text-zinc-400 mt-3">
-                <li><span className="font-mono text-xs text-zinc-300">__clerk_*</span> — Authentication session (Clerk). Required for login.</li>
+                <li><span className="font-mono text-xs text-zinc-300">next-auth.session-token</span> — Authentication session. Required for login.</li>
                 <li><span className="font-mono text-xs text-zinc-300">sage_onboarded</span> — Whether you&apos;ve completed onboarding. httpOnly, expires in 1 year.</li>
                 <li><span className="font-mono text-xs text-zinc-300">sage_role</span> — Your current role for edge routing. httpOnly, expires in 1 year.</li>
               </ul>
@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="text-base font-semibold text-white mb-3">7. Security</h2>
               <p className="text-zinc-400">
-                All data is transmitted over HTTPS. Authentication is handled by Clerk with industry-standard JWT tokens.
+                All data is transmitted over HTTPS. Authentication is handled via NextAuth with industry-standard JWT tokens.
                 Database access is restricted to application servers. Simulation sessions are isolated per user.
                 We conduct periodic security reviews and address vulnerabilities promptly.
               </p>

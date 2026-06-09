@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { stripe } from "@/lib/stripe";
 

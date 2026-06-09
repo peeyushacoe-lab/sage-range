@@ -1,71 +1,37 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { sendWelcomeEmail } from "@/lib/email";
-import { Prisma } from "@prisma/client";
 
 const ONBOARDING_COOKIE = "sage_onboarded";
 
 const Body = z.object({
   role: z.enum(["STUDENT", "INSTRUCTOR", "RECRUITER"]),
   displayName: z.string().min(2).max(60),
-  email: z.string().email().optional().or(z.literal("")),
 });
 
 export async function POST(req: Request) {
-  // Step 1 — auth
-  let userId: string | null = null;
-  try {
-    const session = await auth();
-    userId = session.userId;
-  } catch (e) {
-    console.error("[onboarding] auth() threw:", e);
-    return NextResponse.json({ error: "auth_failed", detail: String(e) }, { status: 500 });
-  }
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  // Step 2 — parse body
+  const userId = session.user.id;
+  const userEmail = session.user.email;
+
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });
 
-  const { role, displayName, email: clientEmail = "" } = parsed.data;
+  const { role, displayName } = parsed.data;
 
-  // Step 3 — DB
   try {
-    const existingUser = await db.user.findUnique({
-      where: { clerkId: userId },
-      select: { id: true, email: true },
+    await db.user.update({
+      where: { id: userId },
+      data: { role, displayName },
     });
 
-    const email = existingUser?.email ?? clientEmail;
-
-    let user;
-    try {
-      user = await db.user.upsert({
-        where: { clerkId: userId },
-        update: { role, displayName },
-        create: { clerkId: userId, email, role, displayName },
-        select: { email: true },
-      });
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-        user = await db.user.update({
-          where: { email },
-          data: { clerkId: userId, role, displayName },
-          select: { email: true },
-        });
-      } else {
-        throw e;
-      }
-    }
-
-    if (!existingUser && user?.email) {
-      sendWelcomeEmail(user.email, displayName, role).catch(() => null);
-    }
+    if (userEmail) sendWelcomeEmail(userEmail, displayName, role).catch(() => null);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.error("[onboarding] DB error:", msg);
     return NextResponse.json({ error: "db_failed", detail: msg }, { status: 500 });
   }
 

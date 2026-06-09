@@ -36,8 +36,9 @@ enum AttemptStatus {
 
 model User {
   id          String   @id @default(cuid())
-  clerkId     String   @unique
+  clerkId     String?  @unique
   email       String   @unique
+  password    String?
   displayName  String?
   role         Role     @default(STUDENT)
   university   String?

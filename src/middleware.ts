@@ -1,51 +1,50 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const isProtectedPage = createRouteMatcher([
-  "/dashboard(.*)",
-  "/labs(.*)",
-  "/recruiter(.*)",
-  "/profile(.*)",
-  "/simulation(.*)",
-  "/admin(.*)",
-  "/analytics(.*)",
-  "/billing(.*)",
-  "/paths(.*)",
-  "/classroom(.*)",
-  "/competitions(.*)",
-  "/institution(.*)",
-  "/leaderboard(.*)",
-]);
+const PROTECTED = [
+  "/dashboard", "/labs", "/recruiter", "/profile", "/simulation",
+  "/admin", "/analytics", "/billing", "/paths", "/classroom",
+  "/competitions", "/institution", "/leaderboard",
+];
 
-const isApi            = createRouteMatcher(["/api(.*)"]);
-const isOnboarding     = createRouteMatcher(["/onboarding(.*)"]);
-const isCompleteProfile = createRouteMatcher(["/complete-profile(.*)"]);
+function isProtected(p: string) { return PROTECTED.some((prefix) => p.startsWith(prefix)); }
+function isApi(p: string) { return p.startsWith("/api"); }
+function isOnboarding(p: string) { return p.startsWith("/onboarding"); }
+function isCompleteProfile(p: string) { return p.startsWith("/complete-profile"); }
 
-const isStudentBlocked   = createRouteMatcher(["/recruiter(.*)", "/analytics/recruiter(.*)", "/analytics/instructor(.*)"]);
-const isRecruiterBlocked = createRouteMatcher(["/labs(.*)", "/paths(.*)", "/competitions(.*)", "/analytics/instructor(.*)"]);
-const isInstructorBlocked = createRouteMatcher(["/competitions(.*)", "/paths(.*)", "/leaderboard(.*)", "/analytics/recruiter(.*)", "/recruiter(.*)"]);
+function isStudentBlocked(p: string) {
+  return p.startsWith("/recruiter") || p.startsWith("/analytics/recruiter") || p.startsWith("/analytics/instructor");
+}
+function isRecruiterBlocked(p: string) {
+  return p.startsWith("/labs") || p.startsWith("/paths") || p.startsWith("/competitions") || p.startsWith("/analytics/instructor");
+}
+function isInstructorBlocked(p: string) {
+  return p.startsWith("/competitions") || p.startsWith("/paths") || p.startsWith("/leaderboard") ||
+    p.startsWith("/analytics/recruiter") || p.startsWith("/recruiter");
+}
 
-export default clerkMiddleware(async (auth, req) => {
-  // API routes pass through immediately — they call auth() themselves and return 401 if unauthed.
-  // They must be in the matcher so auth() can detect the middleware context.
-  if (isApi(req)) return NextResponse.next();
+export default auth((req) => {
+  const { pathname } = req.nextUrl;
 
-  if (isProtectedPage(req)) await auth.protect();
-  if (isOnboarding(req) || isCompleteProfile(req)) return NextResponse.next();
+  if (isApi(pathname)) return NextResponse.next();
+  if (isOnboarding(pathname) || isCompleteProfile(pathname)) return NextResponse.next();
 
-  const { userId, sessionClaims } = await auth();
-  if (userId) {
-    const meta = sessionClaims?.publicMetadata as Record<string, unknown> | undefined;
+  const session = req.auth;
+
+  if (isProtected(pathname) && !session) {
+    return NextResponse.redirect(new URL("/sign-in", req.url));
+  }
+
+  if (session) {
     const onboarded = req.cookies.get("sage_onboarded")?.value === "1";
-
-    if (!meta?.onboardingComplete && !onboarded) {
+    if (!onboarded) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
 
     const role = req.cookies.get("sage_role")?.value;
-    if (role === "STUDENT"    && isStudentBlocked(req))    return NextResponse.redirect(new URL("/dashboard", req.url));
-    if (role === "RECRUITER"  && isRecruiterBlocked(req))  return NextResponse.redirect(new URL("/recruiter", req.url));
-    if (role === "INSTRUCTOR" && isInstructorBlocked(req)) return NextResponse.redirect(new URL("/classroom", req.url));
+    if (role === "STUDENT"    && isStudentBlocked(pathname))    return NextResponse.redirect(new URL("/dashboard", req.url));
+    if (role === "RECRUITER"  && isRecruiterBlocked(pathname))  return NextResponse.redirect(new URL("/recruiter", req.url));
+    if (role === "INSTRUCTOR" && isInstructorBlocked(pathname)) return NextResponse.redirect(new URL("/classroom", req.url));
   }
 
   return NextResponse.next();
@@ -53,9 +52,6 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Include all routes except static files so auth() works everywhere it's called
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
-    "/__clerk/(.*)",
   ],
 };

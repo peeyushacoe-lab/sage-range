@@ -6,10 +6,10 @@ const UPDATED = "1 June 2026";
 
 const COOKIES = [
   {
-    name: "__clerk_*",
-    provider: "Clerk",
-    purpose: "Authentication and session management. Required for sign-in to work.",
-    duration: "Session / up to 7 days",
+    name: "next-auth.session-token",
+    provider: "Sage Forge (NextAuth)",
+    purpose: "Authentication session token. Required for sign-in to work.",
+    duration: "Session / up to 30 days",
     category: "Essential",
   },
   {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { UserButton } from "@clerk/nextjs";
 import { getOrCreateAppUser } from "@/lib/current-user";
+import { signOut } from "@/auth";
 
 const ROLE_BADGE: Record<string, string> = {
   RECRUITER:  "border-amber-500/40 bg-amber-500/8 text-amber-400",
@@ -74,7 +74,19 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
           <span className={`text-[10px] font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${ROLE_BADGE[role] ?? ROLE_BADGE.STUDENT}`}>
             {role}
           </span>
-          <UserButton />
+          <form
+            action={async () => {
+              "use server";
+              await signOut({ redirectTo: "/" });
+            }}
+          >
+            <button
+              type="submit"
+              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded hover:bg-white/5"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
       </div>
     </nav>

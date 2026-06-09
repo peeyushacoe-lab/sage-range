@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 
@@ -7,12 +6,9 @@ const VALID_ROLES = ["STUDENT", "INSTRUCTOR", "RECRUITER"] as const;
 type SwitchRole = (typeof VALID_ROLES)[number];
 
 export async function GET(req: Request) {
-  const { userId } = await auth();
   const origin = new URL(req.url).origin;
-
-  if (!userId) return NextResponse.redirect(new URL("/sign-in", origin));
-
   const me = await getOrCreateAppUser();
+
   if (!me) return NextResponse.redirect(new URL("/sign-in", origin));
 
   if (process.env.NODE_ENV === "production" && me.role !== "ADMIN") {
@@ -24,7 +20,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "invalid_role" }, { status: 400 });
   }
 
-  await db.user.update({ where: { clerkId: userId }, data: { role } });
+  await db.user.update({ where: { id: me.id }, data: { role } });
 
   const cookieOpts = {
     path: "/",

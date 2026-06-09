@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 
 type Role = "STUDENT" | "INSTRUCTOR" | "RECRUITER";
 
@@ -71,9 +71,9 @@ const ROLES: Array<{
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user } = useUser();
+  const { data: session } = useSession();
   const [selected, setSelected] = useState<Role | null>(null);
-  const [name, setName] = useState(user?.fullName ?? "");
+  const [name, setName] = useState(session?.user?.name ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,18 +86,12 @@ export default function OnboardingPage() {
       const res = await fetch("/api/user/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          role: selected,
-          displayName: name.trim(),
-          email: user?.emailAddresses[0]?.emailAddress ?? "",
-        }),
+        body: JSON.stringify({ role: selected, displayName: name.trim() }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({})) as { error?: string; detail?: string };
         throw new Error(body.detail ?? body.error ?? `HTTP ${res.status}`);
       }
-
-      user?.reload().catch(() => null);
       router.push("/complete-profile");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Unknown error";

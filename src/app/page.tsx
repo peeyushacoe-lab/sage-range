@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Show } from "@clerk/nextjs";
+import { auth } from "@/auth";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 
@@ -94,7 +94,10 @@ const TICKER_ITEMS = [
   "T1041 — Exfiltration Over C2",
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  const isSignedIn = !!session;
+
   return (
     <div className="min-h-screen bg-[#09090b] text-white overflow-x-hidden">
       <MarketingNav />
@@ -142,25 +145,27 @@ export default function Home() {
 
           {/* CTAs */}
           <div className="flex flex-wrap items-center justify-center gap-4 animate-fade-up delay-300">
-            <Show when="signed-out">
-              <Link
-                href="/sign-up"
-                className="btn-glow rounded-xl bg-emerald-500 px-8 py-3.5 font-bold text-black text-base"
-              >
-                Start training free →
-              </Link>
-              <Link
-                href="/pricing"
-                className="rounded-xl border border-white/12 px-8 py-3.5 font-medium text-zinc-300 hover:border-white/25 hover:text-white transition-all text-base"
-              >
-                For teams & universities
-              </Link>
-            </Show>
-            <Show when="signed-in">
+            {!isSignedIn && (
+              <>
+                <Link
+                  href="/sign-in"
+                  className="btn-glow rounded-xl bg-emerald-500 px-8 py-3.5 font-bold text-black text-base"
+                >
+                  Start training free →
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="rounded-xl border border-white/12 px-8 py-3.5 font-medium text-zinc-300 hover:border-white/25 hover:text-white transition-all text-base"
+                >
+                  For teams & universities
+                </Link>
+              </>
+            )}
+            {isSignedIn && (
               <Link href="/dashboard" className="btn-glow rounded-xl bg-emerald-500 px-8 py-3.5 font-bold text-black text-base">
                 Go to Command Center →
               </Link>
-            </Show>
+            )}
           </div>
 
           <p className="text-xs text-zinc-600 mt-5 animate-fade-up delay-500 font-mono">
@@ -300,19 +305,21 @@ export default function Home() {
             Enterprises get a verified talent pipeline — not a list of certifications.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Show when="signed-out">
-              <Link href="/sign-up" className="btn-glow rounded-xl bg-emerald-500 px-8 py-3.5 font-bold text-black text-base">
-                Create free account →
-              </Link>
-              <Link href="/contact" className="rounded-xl border border-white/12 px-8 py-3.5 text-zinc-300 hover:text-white hover:border-white/25 transition-all text-base">
-                Talk to us
-              </Link>
-            </Show>
-            <Show when="signed-in">
+            {!isSignedIn && (
+              <>
+                <Link href="/sign-in" className="btn-glow rounded-xl bg-emerald-500 px-8 py-3.5 font-bold text-black text-base">
+                  Create free account →
+                </Link>
+                <Link href="/contact" className="rounded-xl border border-white/12 px-8 py-3.5 text-zinc-300 hover:text-white hover:border-white/25 transition-all text-base">
+                  Talk to us
+                </Link>
+              </>
+            )}
+            {isSignedIn && (
               <Link href="/dashboard" className="btn-glow rounded-xl bg-emerald-500 px-8 py-3.5 font-bold text-black text-base">
                 Go to Command Center →
               </Link>
-            </Show>
+            )}
           </div>
         </div>
       </section>

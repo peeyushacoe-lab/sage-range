@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 
 export async function POST() {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const cookieOpts = {
     path: "/",

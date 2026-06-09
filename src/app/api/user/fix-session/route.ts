@@ -1,17 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { db } from "@/lib/db";
+import { getOrCreateAppUser } from "@/lib/current-user";
 
 export async function GET(req: Request) {
-  const { userId } = await auth();
   const origin = new URL(req.url).origin;
-  if (!userId) return NextResponse.redirect(new URL("/sign-in", origin));
+  const user = await getOrCreateAppUser();
 
-  const user = await db.user.findUnique({ where: { clerkId: userId }, select: { role: true } });
-
-  if (!user?.role) {
-    return NextResponse.redirect(new URL("/onboarding", origin));
-  }
+  if (!user) return NextResponse.redirect(new URL("/sign-in", origin));
 
   const cookieOpts = {
     path: "/",
