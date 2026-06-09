@@ -1,8 +1,11 @@
 import Image from "next/image";
-import { signIn } from "@/auth";
+import { redirect } from "next/navigation";
+import { auth, signIn } from "@/auth";
 import { CredentialsForm } from "./credentials-form";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const session = await auth();
+  if (session) redirect("/api/user/fix-session");
   return (
     <main className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
       <div className="w-full max-w-sm">

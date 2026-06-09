@@ -14,8 +14,18 @@ export async function GET(req: Request) {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
   };
-  const res = NextResponse.redirect(new URL("/dashboard", origin));
+
+  // User has never been updated = brand new, needs to pick role
+  const needsOnboarding = user.updatedAt.getTime() === user.createdAt.getTime();
+
+  if (needsOnboarding) {
+    return NextResponse.redirect(new URL("/onboarding", origin));
+  }
+
+  // Existing user — restore cookies and send to the right home
+  const destination = user.role === "ADMIN" ? "/admin" : "/dashboard";
+  const res = NextResponse.redirect(new URL(destination, origin));
   res.cookies.set("sage_onboarded", "1", cookieOpts);
-  res.cookies.set("sage_role", user.role ?? "STUDENT", cookieOpts);
+  res.cookies.set("sage_role", user.role, cookieOpts);
   return res;
 }

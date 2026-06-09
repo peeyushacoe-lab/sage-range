@@ -10,10 +10,13 @@ const PROTECTED = [
   "/competitions", "/institution", "/leaderboard",
 ];
 
+const AUTH_PAGES = ["/sign-in", "/sign-up"];
+
 function isProtected(p: string) { return PROTECTED.some((prefix) => p.startsWith(prefix)); }
 function isApi(p: string) { return p.startsWith("/api"); }
 function isOnboarding(p: string) { return p.startsWith("/onboarding"); }
 function isCompleteProfile(p: string) { return p.startsWith("/complete-profile"); }
+function isAuthPage(p: string) { return AUTH_PAGES.some((prefix) => p.startsWith(prefix)); }
 
 function isStudentBlocked(p: string) {
   return p.startsWith("/recruiter") || p.startsWith("/analytics/recruiter") || p.startsWith("/analytics/instructor");
@@ -28,20 +31,28 @@ function isInstructorBlocked(p: string) {
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
+  const session = req.auth;
 
   if (isApi(pathname)) return NextResponse.next();
   if (isOnboarding(pathname) || isCompleteProfile(pathname)) return NextResponse.next();
 
-  const session = req.auth;
+  // Redirect logged-in users away from sign-in/sign-up
+  if (isAuthPage(pathname) && session) {
+    const onboarded = req.cookies.get("sage_onboarded")?.value === "1";
+    return NextResponse.redirect(new URL(onboarded ? "/dashboard" : "/api/user/fix-session", req.url));
+  }
 
+  // Redirect unauthenticated users to sign-in
   if (isProtected(pathname) && !session) {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
   if (session) {
     const onboarded = req.cookies.get("sage_onboarded")?.value === "1";
+
     if (!onboarded) {
-      return NextResponse.redirect(new URL("/onboarding", req.url));
+      // Go through fix-session which checks DB state and routes correctly
+      return NextResponse.redirect(new URL("/api/user/fix-session", req.url));
     }
 
     const role = req.cookies.get("sage_role")?.value;

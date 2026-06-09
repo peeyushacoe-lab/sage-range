@@ -41,8 +41,8 @@ export function CredentialsForm({ mode }: { mode: "signin" | "signup" }) {
       setLoading(false);
       return;
     }
-    router.push("/dashboard");
-    router.refresh();
+    // Hard navigate so middleware runs and routes to correct page
+    window.location.href = "/api/user/fix-session";
   }
 
   return (

@@ -24,16 +24,23 @@ export async function POST(req: Request) {
   const { role, displayName } = parsed.data;
 
   try {
+    const existing = await db.user.findUnique({ where: { id: userId }, select: { role: true } });
+
+    // Never downgrade an ADMIN via onboarding
+    const effectiveRole = existing?.role === "ADMIN" ? "ADMIN" : role;
+
     await db.user.update({
       where: { id: userId },
-      data: { role, displayName },
+      data: { role: effectiveRole, displayName },
     });
 
-    if (userEmail) sendWelcomeEmail(userEmail, displayName, role).catch(() => null);
+    if (userEmail) sendWelcomeEmail(userEmail, displayName, effectiveRole).catch(() => null);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return NextResponse.json({ error: "db_failed", detail: msg }, { status: 500 });
   }
+
+  const finalRole = (await db.user.findUnique({ where: { id: userId }, select: { role: true } }))?.role ?? role;
 
   const cookieOpts = {
     path: "/",
@@ -43,8 +50,8 @@ export async function POST(req: Request) {
     httpOnly: true,
   };
 
-  const res = NextResponse.json({ ok: true, role });
+  const res = NextResponse.json({ ok: true, role: finalRole });
   res.cookies.set(ONBOARDING_COOKIE, "1", cookieOpts);
-  res.cookies.set("sage_role", role, cookieOpts);
+  res.cookies.set("sage_role", finalRole, cookieOpts);
   return res;
 }
