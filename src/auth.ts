@@ -47,14 +47,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async jwt({ token, user, trigger }) {
-      if (user) {
-        if (user.id) {
-          token.id = user.id;
-          const dbUser = await db.user.findUnique({ where: { id: user.id } });
-          token.role = (dbUser?.role as string) ?? "STUDENT";
-        } else if (user.email) {
-          const dbUser = await db.user.findUnique({ where: { email: user.email } });
-          if (dbUser) { token.id = dbUser.id; token.role = dbUser.role as string; }
+      if (user?.email) {
+        // Always look up by email — user.id for OAuth is the provider's ID, not our DB CUID
+        const dbUser = await db.user.findUnique({ where: { email: user.email } });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role as string;
         }
       }
       if (trigger === "update" && typeof token.id === "string") {
