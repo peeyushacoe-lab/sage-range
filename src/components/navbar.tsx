@@ -18,7 +18,7 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
     <nav className="border-b border-white/8 bg-zinc-950/80 backdrop-blur sticky top-0 z-40">
       <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
+          <Link href={role === "ADMIN" ? "/admin" : "/dashboard"} className="flex items-center gap-2 shrink-0">
             <Image src="/logo.ico" alt="Sage Forge" width={28} height={28} className="rounded" unoptimized />
             <span className="text-xs font-bold tracking-widest text-emerald-500">SAGE FORGE</span>
           </Link>
@@ -58,10 +58,10 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
           )}
           {role === "ADMIN" && (
             <>
-              <Link href="/labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
-              <Link href="/classroom"      className="hover:text-zinc-100 transition-colors">Classroom</Link>
-              <Link href="/recruiter"      className="hover:text-zinc-100 transition-colors">Recruiter</Link>
-              <Link href="/admin"          className="hover:text-zinc-100 transition-colors">Admin</Link>
+              <Link href="/admin"                   className="text-red-400 hover:text-red-300 transition-colors font-medium">Users</Link>
+              <Link href="/admin#competitions"      className="hover:text-zinc-100 transition-colors">Competitions</Link>
+              <Link href="/admin#institutions"      className="hover:text-zinc-100 transition-colors">Institutions</Link>
+              <Link href="/admin#labs"              className="hover:text-zinc-100 transition-colors">Labs</Link>
             </>
           )}
           {user && (

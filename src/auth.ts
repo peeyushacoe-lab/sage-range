@@ -1,9 +1,8 @@
 import NextAuth, { type DefaultSession } from "next-auth";
-import Google from "next-auth/providers/google";
-import GitHub from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { authConfig } from "./auth.config";
 
 declare module "next-auth" {
   interface Session {
@@ -12,9 +11,9 @@ declare module "next-auth" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
-    Google,
-    GitHub,
+    ...authConfig.providers,
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -36,7 +35,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   session: { strategy: "jwt" },
-  pages: { signIn: "/sign-in" },
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "credentials") return true;
