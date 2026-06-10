@@ -8,10 +8,11 @@ export async function WelcomeCtf({
   labId: string;
   userId: string;
 }) {
-  const existing = await db.labResponse.findMany({
-    where: { userId, labId },
-    select: { stage: true },
-  });
+  const [existing, attempt] = await Promise.all([
+    db.labResponse.findMany({ where: { userId, labId }, select: { stage: true } }),
+    db.attempt.findUnique({ where: { userId_labId: { userId, labId } } }),
+  ]);
   const completedStages = existing.map((r) => r.stage);
-  return <WelcomeCtfClient labId={labId} completedStages={completedStages} />;
+  const alreadySolved = attempt?.status === "SOLVED";
+  return <WelcomeCtfClient labId={labId} completedStages={completedStages} alreadySolved={alreadySolved} />;
 }

@@ -1,16 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 export function WelcomeCtfClient({
   labId,
   completedStages: initial,
+  alreadySolved,
 }: {
   labId: string;
   completedStages: string[];
+  alreadySolved: boolean;
 }) {
+  const router = useRouter();
   const [completed, setCompleted] = useState<string[]>(initial);
   const [answers, setAnswers] = useState({ t1: "", t2: "", t3: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -25,6 +29,7 @@ export function WelcomeCtfClient({
       body: JSON.stringify({ labId, stage, response: "correct" }),
     });
     setCompleted((p) => [...p, stage]);
+    router.refresh();
   }
 
   function checkFlag(stage: "task_1" | "task_2" | "task_3", value: string, expected: string) {
@@ -115,15 +120,17 @@ export function WelcomeCtfClient({
 
       {allDone && (
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+          <h3 className="font-bold text-sage-400 text-base">Room Complete ✓</h3>
           <ul className="space-y-1 font-mono text-sm">
             <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;w3lc0me_t0_th3_r4nge&#125;</span></li>
             <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;b4se64_is_n0t_encrypti0n&#125;</span></li>
             <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;</span></li>
           </ul>
-          <p className="text-xs text-zinc-400">
-            Submit <code className="text-sage-400 font-mono">SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;</code> below to record your solve.
-          </p>
+          {!alreadySolved && (
+            <p className="text-xs text-zinc-400 border-t border-white/8 pt-3">
+              One last step: submit <code className="text-sage-400 font-mono">SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;</code> in the flag box below to earn your XP.
+            </p>
+          )}
         </div>
       )}
     </div>

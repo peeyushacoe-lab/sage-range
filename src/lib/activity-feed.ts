@@ -11,6 +11,7 @@ export type FeedEntry =
       labType: string;
       labDifficulty: string;
       score: number;
+      timeTakenSec: number | null;
       solvedAt: Date;
     }
   | {
@@ -24,6 +25,18 @@ export type FeedEntry =
       status: string;
       completedAt: Date;
     };
+
+export type SerializedFeedEntry =
+  | Omit<Extract<FeedEntry, { type: "lab_solved" }>, "solvedAt"> & { solvedAt: string }
+  | Omit<Extract<FeedEntry, { type: "sim_completed" }>, "completedAt"> & { completedAt: string };
+
+export function serializeFeed(feed: FeedEntry[]): SerializedFeedEntry[] {
+  return feed.map((e) =>
+    e.type === "lab_solved"
+      ? { ...e, solvedAt: e.solvedAt.toISOString() }
+      : { ...e, completedAt: e.completedAt.toISOString() }
+  );
+}
 
 export async function getActivityFeed(opts: {
   limit?: number;
@@ -67,6 +80,7 @@ export async function getActivityFeed(opts: {
       labType: a.lab.type,
       labDifficulty: a.lab.difficulty,
       score: a.score ?? 0,
+      timeTakenSec: a.timeTakenSec,
       solvedAt: a.solvedAt as Date,
     }));
 
@@ -93,8 +107,32 @@ export async function getActivityFeed(opts: {
     .slice(0, limit);
 }
 
-export function timeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+export async function getFeedReactions(entryIds: string[], userId: string) {
+  if (entryIds.length === 0) return { counts: {} as Record<string, Record<string, number>>, mine: {} as Record<string, string[]> };
+
+  const reactions = await db.feedReaction.findMany({
+    where: { entryId: { in: entryIds } },
+    select: { entryId: true, reaction: true, userId: true },
+  });
+
+  const counts: Record<string, Record<string, number>> = {};
+  const mine: Record<string, string[]> = {};
+
+  for (const r of reactions) {
+    if (!counts[r.entryId]) counts[r.entryId] = {};
+    counts[r.entryId][r.reaction] = (counts[r.entryId][r.reaction] ?? 0) + 1;
+    if (r.userId === userId) {
+      if (!mine[r.entryId]) mine[r.entryId] = [];
+      mine[r.entryId].push(r.reaction);
+    }
+  }
+
+  return { counts, mine };
+}
+
+export function timeAgo(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
   if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
@@ -102,5 +140,5 @@ export function timeAgo(date: Date): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
-  return date.toISOString().slice(0, 10);
+  return d.toISOString().slice(0, 10);
 }

@@ -79,6 +79,7 @@ model User {
   certification            IRCertification?
   competitionEntries       CompetitionEntry[]
   institutionMemberships   InstitutionMember[]
+  feedReactions            FeedReaction[]
 
   @@index([skillScore])
 }
@@ -539,6 +540,23 @@ model CompetitionEntry {
 
   @@unique([competitionId, userId])
   @@index([competitionId])
+  @@index([userId])
+}
+
+// ── Feed Reactions ────────────────────────────────────────────────────────────
+
+model FeedReaction {
+  id        String   @id @default(cuid())
+  userId    String
+  entryId   String
+  entryType String
+  reaction  String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, entryId, entryType, reaction])
+  @@index([entryId, entryType])
   @@index([userId])
 }
 
