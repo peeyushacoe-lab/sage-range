@@ -6,7 +6,7 @@ import { Navbar } from "@/components/navbar";
 import { ProfileFormClient } from "./_components/profile-form-client";
 import { computeBadges, TIER_STYLE } from "@/lib/badges";
 import { CyberAvatar } from "@/components/cyber-avatar";
-import { getRankInfo, computeRoleBadge, getCategoryIcon } from "@/lib/cyber-identity";
+import { getRankInfo, computeRoleBadge, computeSkillEmblems } from "@/lib/cyber-identity";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +56,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
   const rank = getRankInfo(target.skillScore);
   const badges = computeBadges({ attempts: target.attempts, simSessions, skillScore: target.skillScore, hasCert: !!target.certification });
   const roleBadge = computeRoleBadge(solved.map((a) => a.lab.type));
-  const solvedCategories = [...new Set(solved.map((a) => a.lab.category))];
+  const skillEmblems = computeSkillEmblems(
+    solved.map((a) => ({
+      category: a.lab.category,
+      difficulty: a.lab.difficulty,
+      solvedAt: a.solvedAt ?? new Date(0),
+    })),
+    simSessions.length
+  );
 
   const extra = (target.profileExtra ?? {}) as Record<string, unknown>;
   const projects = Array.isArray(extra.projects) ? extra.projects as { name: string; description: string; url: string }[] : [];
@@ -207,6 +214,32 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                 })()}
               </div>
 
+              {/* Skill Emblems */}
+              {skillEmblems.length > 0 && (
+                <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
+                  <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Skill Emblems</p>
+                  <div className="flex flex-wrap gap-2">
+                    {skillEmblems.map((e) => (
+                      <span
+                        key={e.category}
+                        title={`${e.count} solve${e.count !== 1 ? "s" : ""} · Confidence ${e.confidence}%`}
+                        className={`flex items-center gap-1.5 text-xs border rounded-full px-2.5 py-1 ${
+                          e.confidence >= 70
+                            ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-400"
+                            : e.confidence >= 40
+                            ? "border-zinc-600 bg-zinc-900 text-zinc-300"
+                            : "border-zinc-700/60 bg-zinc-900/60 text-zinc-500"
+                        }`}
+                      >
+                        <span>{e.icon}</span>
+                        <span>{e.category}</span>
+                        <span className="opacity-50 tabular-nums">({e.count})</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Badges */}
               {badges.length > 0 && (
                 <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
@@ -339,15 +372,26 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
             </div>
           )}
 
-          {/* Skill emblems from solved labs */}
-          {solvedCategories.length > 0 && (
+          {/* Skill emblems — weighted by difficulty + recency */}
+          {skillEmblems.length > 0 && (
             <div className="pt-4 border-t border-white/5">
               <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-2">Skill Emblems</p>
               <div className="flex flex-wrap gap-2">
-                {solvedCategories.slice(0, 8).map((cat) => (
-                  <span key={cat} className="flex items-center gap-1.5 text-xs border border-zinc-700 bg-zinc-900 text-zinc-400 rounded-full px-2.5 py-1">
-                    <span>{getCategoryIcon(cat)}</span>
-                    <span>{cat}</span>
+                {skillEmblems.map((e) => (
+                  <span
+                    key={e.category}
+                    title={`${e.count} solve${e.count !== 1 ? "s" : ""} · Confidence ${e.confidence}%`}
+                    className={`flex items-center gap-1.5 text-xs border rounded-full px-2.5 py-1 ${
+                      e.confidence >= 70
+                        ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-400"
+                        : e.confidence >= 40
+                        ? "border-zinc-600 bg-zinc-900 text-zinc-300"
+                        : "border-zinc-700/60 bg-zinc-900/60 text-zinc-500"
+                    }`}
+                  >
+                    <span>{e.icon}</span>
+                    <span>{e.category}</span>
+                    <span className="opacity-50 tabular-nums">({e.count})</span>
                   </span>
                 ))}
               </div>

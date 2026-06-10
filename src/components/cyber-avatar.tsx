@@ -14,6 +14,9 @@ const TIER_BG: Record<string, string> = {
   elite:   "rgba(6,46,37,0.6)",
 };
 
+// Elite-only: static soft glow (no animation — just visual prestige)
+const ELITE_FILTER = "drop-shadow(0 0 5px rgba(16,185,129,0.55)) drop-shadow(0 0 10px rgba(16,185,129,0.25))";
+
 interface CyberAvatarProps {
   initial: string;
   skillScore: number;
@@ -29,13 +32,18 @@ export function CyberAvatar({ initial, skillScore, size = "md", roleBadgeIcon }:
   const { px, strokeW, fontSize } = SIZES[size];
   const offset = CIRC * (1 - rank.pct / 100);
   const badgePx = Math.round(px * 0.3);
+  const isElite = rank.tier === "elite";
 
   return (
     <div className="relative shrink-0" style={{ width: px, height: px }}>
       {/* Ring */}
       <svg
         viewBox="0 0 100 100"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", transform: "rotate(-90deg)" }}
+        style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          transform: "rotate(-90deg)",
+          filter: isElite ? ELITE_FILTER : undefined,
+        }}
         aria-hidden="true"
       >
         <circle cx="50" cy="50" r={R} fill="none" stroke="#27272a" strokeWidth={strokeW} />
@@ -62,7 +70,7 @@ export function CyberAvatar({ initial, skillScore, size = "md", roleBadgeIcon }:
         {initial}
       </div>
 
-      {/* Role badge overlay — only md/lg */}
+      {/* Role badge overlay — md/lg only */}
       {roleBadgeIcon && size !== "sm" && (
         <div
           className="absolute bottom-0 right-0 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800"

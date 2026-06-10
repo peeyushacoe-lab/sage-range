@@ -1,10 +1,12 @@
+// ── Rank System ────────────────────────────────────────────────────────────────
+// 5 deterministic tiers, single source of truth
+
 export const RANKS = [
-  { label: "Recruit",        min: 0,    color: "#52525b", tier: "recruit" },
-  { label: "Analyst I",      min: 100,  color: "#f97316", tier: "bronze"  },
-  { label: "Analyst II",     min: 300,  color: "#fb923c", tier: "bronze"  },
-  { label: "Senior Analyst", min: 600,  color: "#94a3b8", tier: "silver"  },
-  { label: "Lead Analyst",   min: 1000, color: "#f59e0b", tier: "gold"    },
-  { label: "Principal",      min: 2000, color: "#10b981", tier: "elite"   },
+  { tier: "recruit", label: "Recruit", min: 0,    nextMin: 100,  color: "#52525b" },
+  { tier: "bronze",  label: "Bronze",  min: 100,  nextMin: 600,  color: "#f97316" },
+  { tier: "silver",  label: "Silver",  min: 600,  nextMin: 1000, color: "#94a3b8" },
+  { tier: "gold",    label: "Gold",    min: 1000, nextMin: 2000, color: "#f59e0b" },
+  { tier: "elite",   label: "Elite",   min: 2000, nextMin: null, color: "#10b981" },
 ] as const;
 
 export type RankTier = "recruit" | "bronze" | "silver" | "gold" | "elite";
@@ -30,24 +32,108 @@ export function getRankInfo(skillScore: number): RankInfo {
   return { label: r.label, tier: r.tier as RankTier, color: r.color, pct, nextLabel: next?.label ?? null };
 }
 
+// ── Role Badge ─────────────────────────────────────────────────────────────────
+// >60% dominance required; Explorer is the fallback (no blank state)
+
 export type RoleBadge = { label: string; icon: string; color: string };
 
-export function computeRoleBadge(solvedLabTypes: string[]): RoleBadge | null {
-  if (solvedLabTypes.length === 0) return null;
+export function computeRoleBadge(solvedLabTypes: string[]): RoleBadge {
+  const total = solvedLabTypes.length;
+
+  if (total === 0) {
+    return { label: "Explorer", icon: "🔭", color: "text-zinc-500" };
+  }
+
   const ctf  = solvedLabTypes.filter((t) => t === "CTF").length;
   const blue = solvedLabTypes.filter((t) => t === "BLUE_TEAM").length;
   const red  = solvedLabTypes.filter((t) => t === "RED_TEAM").length;
-  const total = ctf + blue + red;
-  if (total === 0) return null;
 
-  if (ctf > 0 && blue > 0 && red > 0 && total >= 6) {
+  // Full Spectrum: 6+ labs in EACH of the 3 types
+  if (ctf >= 6 && blue >= 6 && red >= 6) {
     return { label: "Full Spectrum", icon: "🎯", color: "text-purple-400" };
   }
-  const dom = ctf >= blue && ctf >= red ? "CTF" : red >= blue ? "RED_TEAM" : "BLUE_TEAM";
-  if (dom === "CTF")      return { label: "CTF Specialist", icon: "🚩", color: "text-amber-400"  };
-  if (dom === "RED_TEAM") return { label: "Red Team",       icon: "⚔️",  color: "text-red-400"   };
-  return                         { label: "Blue Team",      icon: "🛡️",  color: "text-blue-400"  };
+
+  // >60% dominance
+  if (ctf / total > 0.6)  return { label: "CTF Specialist", icon: "🚩", color: "text-amber-400" };
+  if (red / total > 0.6)  return { label: "Red Team",       icon: "⚔️",  color: "text-red-400"  };
+  if (blue / total > 0.6) return { label: "Blue Team",      icon: "🛡️",  color: "text-blue-400" };
+
+  // No dominant type
+  return { label: "Explorer", icon: "🔭", color: "text-zinc-400" };
 }
+
+// ── Skill Emblems ──────────────────────────────────────────────────────────────
+// Weighted scoring: Easy=1, Medium=2, Hard=3, Insane=4, Simulation=5
+// Decay: score degrades for labs not solved recently
+
+const DIFF_WEIGHT: Record<string, number> = {
+  EASY: 1, MEDIUM: 2, HARD: 3, INSANE: 4,
+};
+
+function recencyDecay(solvedAt: Date): number {
+  const days = (Date.now() - solvedAt.getTime()) / 86_400_000;
+  if (days <= 30)  return 1.0;
+  if (days <= 90)  return 0.9;
+  if (days <= 180) return 0.75;
+  return 0.5;
+}
+
+export type SolvedLabInput = {
+  category: string;
+  difficulty: string;
+  solvedAt: Date;
+};
+
+export type SkillEmblem = {
+  category: string;
+  icon: string;
+  score: number;
+  count: number;
+  confidence: number; // 0–100 normalised relative to top skill
+};
+
+export function computeSkillEmblems(
+  solvedLabs: SolvedLabInput[],
+  completedSimCount = 0
+): SkillEmblem[] {
+  const score: Record<string, number> = {};
+  const count: Record<string, number> = {};
+
+  for (const lab of solvedLabs) {
+    const w = DIFF_WEIGHT[lab.difficulty] ?? 1;
+    const weighted = w * recencyDecay(lab.solvedAt);
+    score[lab.category] = (score[lab.category] ?? 0) + weighted;
+    count[lab.category] = (count[lab.category] ?? 0) + 1;
+  }
+
+  // Simulations add 5 pts to the top category (no fixed category of their own)
+  if (completedSimCount > 0) {
+    const top = Object.entries(score).sort((a, b) => b[1] - a[1])[0]?.[0];
+    if (top) {
+      score[top] += completedSimCount * 5;
+    } else {
+      // No lab solves yet — create an Incident Response emblem from sims alone
+      score["Incident Response"] = (score["Incident Response"] ?? 0) + completedSimCount * 5;
+      count["Incident Response"] = (count["Incident Response"] ?? 0) + completedSimCount;
+    }
+  }
+
+  const allScores = Object.values(score);
+  const maxScore = allScores.length > 0 ? Math.max(...allScores) : 1;
+
+  return Object.entries(score)
+    .map(([category, s]) => ({
+      category,
+      icon: getCategoryIcon(category),
+      score: s,
+      count: count[category] ?? 0,
+      confidence: Math.min(100, Math.round((s / maxScore) * 100)),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6);
+}
+
+// ── Category Icons ─────────────────────────────────────────────────────────────
 
 const CATEGORY_ICON: Record<string, string> = {
   "web":                  "🌐",
