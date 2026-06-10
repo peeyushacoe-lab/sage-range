@@ -3,6 +3,12 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      // Vercel Blob storage
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+    ],
+  },
 };
 
 export default withSentryConfig(nextConfig, {

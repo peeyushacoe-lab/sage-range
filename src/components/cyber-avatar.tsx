@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getRankInfo } from "@/lib/cyber-identity";
 
 const SIZES = {
@@ -20,6 +21,7 @@ const ELITE_FILTER = "drop-shadow(0 0 5px rgba(16,185,129,0.55)) drop-shadow(0 0
 interface CyberAvatarProps {
   initial: string;
   skillScore: number;
+  avatarUrl?: string | null;
   size?: "sm" | "md" | "lg";
   roleBadgeIcon?: string;
 }
@@ -27,7 +29,7 @@ interface CyberAvatarProps {
 const R = 44;
 const CIRC = 2 * Math.PI * R;
 
-export function CyberAvatar({ initial, skillScore, size = "md", roleBadgeIcon }: CyberAvatarProps) {
+export function CyberAvatar({ initial, skillScore, avatarUrl, size = "md", roleBadgeIcon }: CyberAvatarProps) {
   const rank = getRankInfo(skillScore);
   const { px, strokeW, fontSize } = SIZES[size];
   const offset = CIRC * (1 - rank.pct / 100);
@@ -57,17 +59,27 @@ export function CyberAvatar({ initial, skillScore, size = "md", roleBadgeIcon }:
         />
       </svg>
 
-      {/* Inner face */}
+      {/* Inner face — photo or initial fallback */}
       <div
-        className="absolute inset-0 flex items-center justify-center rounded-full font-black select-none"
-        style={{
-          margin: `${Math.round(strokeW * px / 100) + 2}px`,
-          background: TIER_BG[rank.tier],
-          color: rank.color,
-          fontSize,
-        }}
+        className="absolute inset-0 overflow-hidden rounded-full"
+        style={{ margin: `${Math.round(strokeW * px / 100) + 2}px` }}
       >
-        {initial}
+        {avatarUrl ? (
+          <Image
+            src={avatarUrl}
+            alt={initial}
+            fill
+            className="object-cover rounded-full"
+            unoptimized
+          />
+        ) : (
+          <div
+            className="w-full h-full flex items-center justify-center rounded-full font-black select-none"
+            style={{ background: TIER_BG[rank.tier], color: rank.color, fontSize }}
+          >
+            {initial}
+          </div>
+        )}
       </div>
 
       {/* Role badge overlay — md/lg only */}

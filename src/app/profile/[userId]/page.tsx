@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
 import { ProfileFormClient } from "./_components/profile-form-client";
+import { AvatarUpload } from "./_components/avatar-upload";
 import { computeBadges, TIER_STYLE } from "@/lib/badges";
 import { CyberAvatar } from "@/components/cyber-avatar";
 import { getRankInfo, computeRoleBadge, computeSkillEmblems } from "@/lib/cyber-identity";
@@ -119,6 +120,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                     <CyberAvatar
                       initial={(target.displayName ?? target.email)[0].toUpperCase()}
                       skillScore={target.skillScore}
+                      avatarUrl={target.avatarUrl}
                       size="md"
                       roleBadgeIcon={roleBadge?.icon}
                     />
@@ -302,6 +304,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
               <CyberAvatar
                 initial={(target.displayName ?? target.email)[0].toUpperCase()}
                 skillScore={target.skillScore}
+                avatarUrl={target.avatarUrl}
                 size="lg"
                 roleBadgeIcon={roleBadge?.icon}
               />
@@ -494,6 +497,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
         {/* Edit form */}
         <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-6">
           <p className="text-xs uppercase tracking-widest text-zinc-500 mb-6">Edit Profile</p>
+          <div className="mb-6 pb-6 border-b border-white/5">
+            <p className="text-xs text-zinc-500 mb-3">Profile Photo</p>
+            <AvatarUpload
+              currentUrl={target.avatarUrl ?? null}
+              initial={(target.displayName ?? target.email)[0].toUpperCase()}
+            />
+          </div>
           <ProfileFormClient userId={target.id} role={target.role} initial={formInitial} />
         </div>
 

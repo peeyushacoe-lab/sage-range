@@ -50,6 +50,7 @@ model User {
   updatedAt    DateTime @updatedAt
   // Extended profile fields
   bio          String?
+  avatarUrl    String?
   skills       String[]
   cvUrl        String?
   company      String?
