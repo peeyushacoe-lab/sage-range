@@ -5,23 +5,10 @@ import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
 import { ProfileFormClient } from "./_components/profile-form-client";
 import { computeBadges, TIER_STYLE } from "@/lib/badges";
+import { CyberAvatar } from "@/components/cyber-avatar";
+import { getRankInfo, computeRoleBadge, getCategoryIcon } from "@/lib/cyber-identity";
 
 export const dynamic = "force-dynamic";
-
-const RANKS = [
-  { label: "Recruit", min: 0 }, { label: "Analyst I", min: 100 },
-  { label: "Analyst II", min: 300 }, { label: "Senior Analyst", min: 600 },
-  { label: "Lead Analyst", min: 1000 }, { label: "Principal", min: 2000 },
-] as const;
-
-function getRank(score: number) {
-  let idx = 0;
-  for (let i = 0; i < RANKS.length; i++) if (score >= RANKS[i].min) idx = i;
-  const r = RANKS[idx];
-  const next = idx < RANKS.length - 1 ? RANKS[idx + 1] : null;
-  const pct = next ? Math.min(100, Math.round(((score - r.min) / (next.min - r.min)) * 100)) : 100;
-  return { label: r.label, next: next?.label ?? null, nextMin: next?.min ?? null, pct };
-}
 
 function toRating(score: number) {
   if (score >= 88) return "EXCEPTIONAL";
@@ -49,7 +36,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
     db.user.findUnique({
       where: { id: userId },
       include: {
-        attempts: { include: { lab: { select: { title: true, type: true, slug: true, difficulty: true } } }, orderBy: { solvedAt: "desc" } },
+        attempts: { include: { lab: { select: { title: true, type: true, slug: true, difficulty: true, category: true } } }, orderBy: { solvedAt: "desc" } },
         aiEvaluations: { orderBy: { createdAt: "desc" }, take: 3 },
         certification: true,
       },
@@ -66,8 +53,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
   const isOwnProfile = me.id === userId;
   const solved = target.attempts.filter((a) => a.status === "SOLVED");
   const bestSimScore = simSessions.length > 0 ? simSessions[0].score : null;
-  const rank = getRank(target.skillScore);
+  const rank = getRankInfo(target.skillScore);
   const badges = computeBadges({ attempts: target.attempts, simSessions, skillScore: target.skillScore, hasCert: !!target.certification });
+  const roleBadge = computeRoleBadge(solved.map((a) => a.lab.type));
+  const solvedCategories = [...new Set(solved.map((a) => a.lab.category))];
 
   const extra = (target.profileExtra ?? {}) as Record<string, unknown>;
   const projects = Array.isArray(extra.projects) ? extra.projects as { name: string; description: string; url: string }[] : [];
@@ -120,13 +109,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
               <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-6">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex items-center gap-4">
-                    <div className={`h-14 w-14 rounded-2xl border-2 flex items-center justify-center text-xl font-black ${rStyle ? rStyle.card + " " + rStyle.text : "border-zinc-700 text-zinc-400"}`}>
-                      {(target.displayName ?? target.email)[0].toUpperCase()}
-                    </div>
+                    <CyberAvatar
+                      initial={(target.displayName ?? target.email)[0].toUpperCase()}
+                      skillScore={target.skillScore}
+                      size="md"
+                      roleBadgeIcon={roleBadge?.icon}
+                    />
                     <div>
                       <h1 className="text-xl font-bold">{target.displayName ?? target.email.split("@")[0]}</h1>
                       <p className="text-zinc-500 text-sm">{target.email}</p>
                       {target.university && <p className="text-xs text-zinc-600 mt-0.5">{target.university}</p>}
+                      {roleBadge && (
+                        <p className={`text-xs font-semibold mt-1 ${roleBadge.color}`}>
+                          {roleBadge.icon} {roleBadge.label}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <span className="rounded-lg border border-emerald-500/30 bg-emerald-500/8 px-2.5 py-1 text-xs font-bold text-emerald-400 shrink-0">
@@ -269,9 +266,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
         <div className="rounded-2xl border border-white/8 bg-zinc-900/40 p-6">
           <div className="flex flex-wrap items-start justify-between gap-6 mb-5">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-2xl font-black text-emerald-400">
-                {(target.displayName ?? target.email)[0].toUpperCase()}
-              </div>
+              <CyberAvatar
+                initial={(target.displayName ?? target.email)[0].toUpperCase()}
+                skillScore={target.skillScore}
+                size="lg"
+                roleBadgeIcon={roleBadge?.icon}
+              />
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <h1 className="text-2xl font-bold">{target.displayName ?? target.email.split("@")[0]}</h1>
@@ -281,6 +281,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                     </Link>
                   )}
                 </div>
+                {roleBadge && (
+                  <p className={`text-xs font-semibold mb-1 ${roleBadge.color}`}>
+                    {roleBadge.icon} {roleBadge.label}
+                  </p>
+                )}
                 {target.jobTitle && <p className="text-sm text-zinc-300">{target.jobTitle}{target.company ? ` · ${target.company}` : ""}</p>}
                 {!target.jobTitle && target.university && <p className="text-sm text-zinc-400">{target.university}</p>}
                 <p className="text-xs text-zinc-600">{target.email}</p>
@@ -292,13 +297,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                 <p className="text-4xl font-black text-zinc-100 tabular-nums">{target.skillScore}</p>
                 <p className="text-xs text-zinc-500">Skill Score</p>
                 <p className="text-xs font-bold text-emerald-400 mt-0.5">{rank.label.toUpperCase()}</p>
-                {rank.next && (
+                {rank.nextLabel && (
                   <div className="mt-2 w-32">
                     <div className="flex justify-between text-[10px] text-zinc-600 mb-1">
-                      <span>{rank.pct}%</span><span>{rank.next}</span>
+                      <span>{rank.pct}%</span><span>{rank.nextLabel}</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-zinc-800">
-                      <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${rank.pct}%` }} />
+                      <div className="h-full rounded-full transition-all" style={{ width: `${rank.pct}%`, backgroundColor: rank.color }} />
                     </div>
                   </div>
                 )}
@@ -331,6 +336,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
           {expertise.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
               {expertise.map((s) => <span key={s} className="text-xs border border-blue-500/20 bg-blue-500/8 text-blue-400 rounded-full px-3 py-1">{s}</span>)}
+            </div>
+          )}
+
+          {/* Skill emblems from solved labs */}
+          {solvedCategories.length > 0 && (
+            <div className="pt-4 border-t border-white/5">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-2">Skill Emblems</p>
+              <div className="flex flex-wrap gap-2">
+                {solvedCategories.slice(0, 8).map((cat) => (
+                  <span key={cat} className="flex items-center gap-1.5 text-xs border border-zinc-700 bg-zinc-900 text-zinc-400 rounded-full px-2.5 py-1">
+                    <span>{getCategoryIcon(cat)}</span>
+                    <span>{cat}</span>
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 

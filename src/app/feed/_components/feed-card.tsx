@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { timeAgo } from "@/lib/activity-feed";
 import type { SerializedFeedEntry } from "@/lib/activity-feed";
+import { CyberAvatar } from "@/components/cyber-avatar";
 
 type ReactionKey = "useful" | "congrats" | "impressive" | "smart";
 
@@ -98,15 +99,8 @@ export function FeedCard({ entry, initialCounts, initialMine }: FeedCardProps) {
   return (
     <div className="rounded-xl border border-white/8 bg-zinc-900/30 p-4 hover:bg-zinc-900/50 transition-colors">
       <div className="flex items-start gap-3">
-        <Link
-          href={`/profile/${entry.userId}`}
-          className={`h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
-            isLab
-              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
-              : "bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20"
-          }`}
-        >
-          {initial}
+        <Link href={`/profile/${entry.userId}`} className="shrink-0 hover:opacity-80 transition-opacity">
+          <CyberAvatar initial={initial} skillScore={entry.skillScore} size="sm" />
         </Link>
 
         <div className="flex-1 min-w-0">

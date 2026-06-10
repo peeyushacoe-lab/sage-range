@@ -7,6 +7,7 @@ export type FeedEntry =
       userId: string;
       displayName: string | null;
       email: string;
+      skillScore: number;
       labTitle: string;
       labType: string;
       labDifficulty: string;
@@ -20,6 +21,7 @@ export type FeedEntry =
       userId: string;
       displayName: string | null;
       email: string;
+      skillScore: number;
       scenarioName: string;
       simScore: number;
       status: string;
@@ -52,7 +54,7 @@ export async function getActivityFeed(opts: {
       where: { status: "SOLVED", ...whereUser, solvedAt: { gte: since } },
       include: {
         lab:  { select: { title: true, type: true, difficulty: true } },
-        user: { select: { id: true, displayName: true, email: true } },
+        user: { select: { id: true, displayName: true, email: true, skillScore: true } },
       },
       orderBy: { solvedAt: "desc" },
       take: limit,
@@ -61,7 +63,7 @@ export async function getActivityFeed(opts: {
       where: { status: { in: ["CONTAINED", "BREACHED"] }, ...whereUser, startedAt: { gte: since } },
       include: {
         template: { select: { name: true } },
-        user:     { select: { id: true, displayName: true, email: true } },
+        user:     { select: { id: true, displayName: true, email: true, skillScore: true } },
       },
       orderBy: { startedAt: "desc" },
       take: limit,
@@ -76,6 +78,7 @@ export async function getActivityFeed(opts: {
       userId: a.user.id,
       displayName: a.user.displayName,
       email: a.user.email,
+      skillScore: a.user.skillScore,
       labTitle: a.lab.title,
       labType: a.lab.type,
       labDifficulty: a.lab.difficulty,
@@ -92,6 +95,7 @@ export async function getActivityFeed(opts: {
       userId: s.user.id,
       displayName: s.user.displayName,
       email: s.user.email,
+      skillScore: s.user.skillScore,
       scenarioName: s.template.name,
       simScore: s.score as number,
       status: s.status,
