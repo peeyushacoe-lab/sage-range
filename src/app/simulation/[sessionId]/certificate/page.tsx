@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
-import { buildWorldState } from "@/lib/simulation/engine";
+import { buildWorldState, computeFinalScore } from "@/lib/simulation/engine";
 import { buildDebrief } from "@/lib/simulation/runtime/debrief";
 import { buildAnalystProfile } from "@/lib/simulation/runtime/profiler";
 import { computeLeadershipAssessment } from "@/lib/simulation/runtime/coaching";
@@ -42,7 +42,7 @@ export default async function CertificatePage({
 
   const worldState = buildWorldState(session.events);
   const outcome = (session.status === "CONTAINED" ? "CONTAINED" : "BREACHED") as "CONTAINED" | "BREACHED";
-  const score = worldState.score;
+  const score = computeFinalScore(session.template.slug, worldState);
 
   const timedEvents = session.events.map((e) => ({
     id: e.id, type: e.type, actor: e.actor, payload: e.payload,

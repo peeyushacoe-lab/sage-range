@@ -3,8 +3,9 @@
 // to confirm it is genuine and on record.
 
 import Link from "next/link";
+import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { buildWorldState } from "@/lib/simulation/engine";
+import { buildWorldState, computeFinalScore } from "@/lib/simulation/engine";
 import { buildAnalystProfile } from "@/lib/simulation/runtime/profiler";
 import { buildEmployeeStates } from "@/lib/simulation/runtime/humans/state";
 import { buildInfluenceGraph } from "@/lib/simulation/runtime/social/graph";
@@ -22,6 +23,38 @@ function rating(score: number) {
   return              { label: "DEVELOPING",   color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/30" };
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ sessionId: string }>;
+}): Promise<Metadata> {
+  const { sessionId } = await params;
+
+  const session = await db.simulationSession.findUnique({
+    where: { id: sessionId },
+    select: {
+      status: true,
+      template: { select: { name: true, industry: true } },
+      user: { select: { displayName: true, email: true } },
+    },
+  });
+
+  if (!session || session.status === "ACTIVE") {
+    return { title: "Certificate Verification — Sage Forge" };
+  }
+
+  const candidateName = session.user.displayName ?? session.user.email?.split("@")[0] ?? "Analyst";
+  const outcome = session.status === "CONTAINED" ? "Contained" : "Breached";
+  const title = `${candidateName} — ${session.template.name} Simulation Certificate | Sage Forge`;
+  const description = `Verified Sage Forge incident response simulation: ${session.template.name} (${session.template.industry}). Outcome: ${outcome}.`;
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "website" },
+  };
+}
+
 export default async function VerifySimulationPage({
   params,
 }: {
@@ -32,7 +65,7 @@ export default async function VerifySimulationPage({
   const session = await db.simulationSession.findUnique({
     where: { id: sessionId },
     include: {
-      template: { select: { name: true, industry: true } },
+      template: { select: { slug: true, name: true, industry: true } },
       user: { select: { displayName: true, email: true } },
       events: { orderBy: { createdAt: "asc" } },
     },
@@ -59,7 +92,7 @@ export default async function VerifySimulationPage({
 
   const worldState = buildWorldState(session.events);
   const outcome = (session.status === "CONTAINED" ? "CONTAINED" : "BREACHED") as "CONTAINED" | "BREACHED";
-  const score = worldState.score;
+  const score = computeFinalScore(session.template.slug, worldState);
 
   const timedEvents = session.events.map((e) => ({
     id: e.id, type: e.type, actor: e.actor, payload: e.payload,

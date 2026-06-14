@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   });
 
   // Award competition points — only on first completion of this stage, with difficulty weighting
-  if (isFirstStageCompletion) {
+  if (isFirstStageCompletion && user.role === "STUDENT") {
     try {
       const DIFFICULTY_WEIGHT: Record<string, number> = { EASY: 1.0, MEDIUM: 1.5, HARD: 2.0, INSANE: 3.0 };
       const allStages = TASK_STAGES[lab.slug] ?? [];
@@ -131,15 +131,16 @@ export async function POST(req: Request) {
         const now = new Date();
         const startedAt = existing?.startedAt ?? now;
         const timeTakenSec = Math.floor((now.getTime() - startedAt.getTime()) / 1000);
+        const awardPoints = user.role === "STUDENT" ? lab.points : 0;
         await db.$transaction([
           db.attempt.upsert({
             where: { userId_labId: { userId: user.id, labId: lab.id } },
-            create: { userId: user.id, labId: lab.id, status: "SOLVED", score: lab.points, startedAt, solvedAt: now, timeTakenSec },
-            update: { status: "SOLVED", score: lab.points, solvedAt: now, timeTakenSec },
+            create: { userId: user.id, labId: lab.id, status: "SOLVED", score: awardPoints, startedAt, solvedAt: now, timeTakenSec },
+            update: { status: "SOLVED", score: awardPoints, solvedAt: now, timeTakenSec },
           }),
           db.user.update({
             where: { id: user.id },
-            data: { skillScore: { increment: lab.points }, xp: { increment: lab.points } },
+            data: { skillScore: { increment: awardPoints }, xp: { increment: awardPoints } },
           }),
         ]);
       }

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import {
   buildWorldState,
+  computeFinalScore,
   getActionDef,
   getAvailableActions,
   getStageDefinition,
@@ -131,11 +132,14 @@ export async function POST(
 
   const newScore = worldState.score + actionDef.effects.scoreChange;
   const newStatus = actionDef.effects.stageBlocker ? "CONTAINED" : "ACTIVE";
+  const finalScore = newStatus !== "ACTIVE"
+    ? computeFinalScore(session.template.slug, { ...worldState, score: newScore, status: newStatus })
+    : newScore;
 
   await db.simulationSession.update({
     where: { id: session.id },
     data: {
-      score: newScore,
+      score: newStatus !== "ACTIVE" ? finalScore : newScore,
       status: newStatus,
       ...(newStatus !== "ACTIVE" && { endedAt: new Date() }),
     },
@@ -145,25 +149,27 @@ export async function POST(
     track("simulation.completed", user.id, {
       sessionId: session.id,
       outcome: newStatus,
-      score: newScore,
+      score: finalScore,
       templateSlug: session.template.slug,
     });
   }
 
   // Award XP and skillScore on session end, send certificate email
   if (newStatus === "CONTAINED") {
-    const xpGain = newScore * 3;
-    const skillGain = Math.floor(newScore / 2);
-    await db.user.update({
-      where: { id: user.id },
-      data: { xp: { increment: xpGain }, skillScore: { increment: skillGain } },
-    });
-    const rating = newScore >= 88 ? "EXCEPTIONAL" : newScore >= 68 ? "STRONG" : newScore >= 48 ? "ADEQUATE" : "DEVELOPING";
+    if (user.role === "STUDENT") {
+      const xpGain = finalScore * 3;
+      const skillGain = Math.floor(finalScore / 2);
+      await db.user.update({
+        where: { id: user.id },
+        data: { xp: { increment: xpGain }, skillScore: { increment: skillGain } },
+      });
+    }
+    const rating = finalScore >= 88 ? "EXCEPTIONAL" : finalScore >= 68 ? "STRONG" : finalScore >= 48 ? "ADEQUATE" : "DEVELOPING";
     sendSimCertificateEmail(
       user.email,
       user.displayName ?? user.email.split("@")[0],
       session.template.name,
-      newScore,
+      finalScore,
       rating,
       session.id
     ).catch(() => null);
@@ -238,14 +244,15 @@ export async function POST(
 
         // Ransomware deployment = simulation ends in breach
         if (consequences.some((c) => c.type === "REDAI_RANSOMWARE_DEPLOYED")) {
+          const finalBreachScore = computeFinalScore(session.template.slug, { ...worldState, score: newScore, status: "BREACHED" });
           await db.simulationSession.update({
             where: { id: session.id },
-            data: { status: "BREACHED", endedAt: new Date(), score: newScore },
+            data: { status: "BREACHED", endedAt: new Date(), score: finalBreachScore },
           });
           track("simulation.completed", user.id, {
             sessionId: session.id,
             outcome: "BREACHED",
-            score: newScore,
+            score: finalBreachScore,
             templateSlug: session.template.slug,
             cause: "ransomware",
           });

@@ -11,10 +11,9 @@ export function LinkedInShareBtn({ certId, issueYear, issueMonth }: LinkedInShar
     const params = new URLSearchParams({
       startTask: "CERTIFICATION_NAME",
       name: "IR Commander Certificate",
-      organizationId: "",
       issueYear: String(issueYear),
       issueMonth: String(issueMonth),
-      certUrl: `https://cybersage.uk/verify/${certId}`,
+      certUrl: `${window.location.origin}/verify/${certId}`,
       certId,
     });
     window.open(

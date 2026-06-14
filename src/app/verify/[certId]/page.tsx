@@ -1,9 +1,37 @@
+import type { Metadata } from "next";
 import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ certId: string }>;
+}): Promise<Metadata> {
+  const { certId } = await params;
+
+  const cert = await db.iRCertification.findUnique({
+    where: { certId },
+    select: { unlockedAt: true, user: { select: { displayName: true, email: true } } },
+  });
+
+  if (!cert) {
+    return { title: "Certificate Verification — Sage Forge" };
+  }
+
+  const candidateName = cert.user.displayName ?? cert.user.email.split("@")[0];
+  const title = `${candidateName} — IR Commander Certificate | Sage Forge`;
+  const description = `Verified Sage Forge IR Commander Certification, issued ${formatDate(cert.unlockedAt)}.`;
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "website" },
+  };
 }
 
 export default async function VerifyPage({

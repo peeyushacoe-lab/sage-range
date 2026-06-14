@@ -176,3 +176,47 @@ export function getActionDef(templateSlug: string, actionId: string) {
   const template = getTemplate(templateSlug);
   return template?.actions.find((a) => a.id === actionId) ?? null;
 }
+
+// Normalizes the raw accumulated score (sum of action scoreChange values) into a
+// 0-100 outcome score that rewards SPEED of containment as much as the quality of
+// the actions taken. Without this, raw scores are capped at whatever the earliest
+// available stageBlocker path sums to (often well under 100), which inverts the
+// intended incentive — fast, correct containment should score near 100.
+export function computeFinalScore(templateSlug: string, worldState: WorldState): number {
+  const template = getTemplate(templateSlug);
+  if (!template) return Math.max(0, Math.min(100, Math.round(worldState.score)));
+
+  // Stages that represent live attack progression — the terminal breach stage is
+  // excluded since it isn't a containment opportunity.
+  const containableStages = template.stages.filter((s) => !s.breachOnAutoAdvance);
+  const totalContainable = containableStages.length;
+  let stageIndex = containableStages.findIndex((s) => s.id === worldState.stage);
+  if (stageIndex < 0) stageIndex = totalContainable - 1;
+
+  // Quality: raw score vs. the best possible raw score achievable through this stage
+  // (every positive non-blocker action available so far, plus the best blocker).
+  const reachable = new Set(containableStages.slice(0, stageIndex + 1).map((s) => s.id));
+  const eligible = template.actions.filter((a) => a.availableInStages.some((s) => reachable.has(s)));
+  const nonBlockerMax = eligible
+    .filter((a) => !a.effects.stageBlocker && a.effects.scoreChange > 0)
+    .reduce((sum, a) => sum + a.effects.scoreChange, 0);
+  const blockerMax = Math.max(0, ...eligible.filter((a) => a.effects.stageBlocker).map((a) => a.effects.scoreChange));
+  const maxRaw = nonBlockerMax + blockerMax;
+  const qualityScore = maxRaw > 0 ? Math.min(100, (worldState.score / maxRaw) * 100) : 0;
+
+  if (worldState.status === "BREACHED") {
+    // Failed to contain in time — partial credit for good actions taken, no speed bonus.
+    return Math.round(Math.max(0, qualityScore * 0.4));
+  }
+
+  if (worldState.status !== "CONTAINED") {
+    return Math.max(0, Math.min(100, Math.round(worldState.score)));
+  }
+
+  // Speed: earlier containment stage = higher score.
+  const speedScore = totalContainable > 1
+    ? (100 * (totalContainable - 1 - stageIndex)) / (totalContainable - 1)
+    : 100;
+
+  return Math.round(Math.max(0, Math.min(100, 0.5 * speedScore + 0.5 * qualityScore)));
+}

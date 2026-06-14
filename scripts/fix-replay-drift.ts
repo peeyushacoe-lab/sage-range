@@ -11,7 +11,7 @@
  */
 
 import { PrismaClient } from "@prisma/client";
-import { buildWorldState } from "@/lib/simulation/engine";
+import { buildWorldState, computeFinalScore } from "@/lib/simulation/engine";
 
 const db = new PrismaClient();
 
@@ -31,17 +31,18 @@ async function main() {
 
   for (const session of sessions) {
     const worldState = buildWorldState(session.events);
-    if (session.score === worldState.score) {
+    const finalScore = computeFinalScore(session.template.slug, worldState);
+    if (session.score === finalScore) {
       clean++;
       continue;
     }
 
     await db.simulationSession.update({
       where: { id: session.id },
-      data: { score: worldState.score },
+      data: { score: finalScore },
     });
 
-    console.log(`Fixed ${session.id.slice(0, 16).toUpperCase()} — ${session.score} → ${worldState.score}`);
+    console.log(`Fixed ${session.id.slice(0, 16).toUpperCase()} — ${session.score} → ${finalScore}`);
     fixed++;
   }
 

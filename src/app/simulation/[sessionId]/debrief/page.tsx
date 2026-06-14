@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
-import { buildWorldState } from "@/lib/simulation/engine";
+import { buildWorldState, computeFinalScore } from "@/lib/simulation/engine";
 import { buildDebrief } from "@/lib/simulation/runtime/debrief";
 import { buildAnalystProfile } from "@/lib/simulation/runtime/profiler";
 import { buildEmployeeStates } from "@/lib/simulation/runtime/humans/state";
@@ -39,13 +39,14 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
 
   const worldState = buildWorldState(session.events);
   const outcome = (status === "CONTAINED" ? "CONTAINED" : "BREACHED") as "CONTAINED" | "BREACHED";
+  const finalScore = computeFinalScore(session.template.slug, worldState);
 
   const timedEvents = session.events.map((e) => ({
     id: e.id, type: e.type, actor: e.actor, payload: e.payload,
     narrative: e.narrative, createdAt: e.createdAt.toISOString(),
   }));
 
-  const debrief = buildDebrief(session.template.slug, timedEvents, outcome, worldState.score);
+  const debrief = buildDebrief(session.template.slug, timedEvents, outcome, finalScore);
   const profile = buildAnalystProfile(timedEvents);
   const company = session.companyData as CompanyProfile;
   const rawStates = buildEmployeeStates(company.employees, session.events);
@@ -66,12 +67,12 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
     generateIRReport({
       companyName: company.name, industry: session.template.industry,
       scenarioName: session.template.name, durationMin, outcome,
-      score: worldState.score, techScore: assessment.technicalScore,
+      score: finalScore, techScore: assessment.technicalScore,
       opScore: assessment.operationalScore, techniques: mitreSummary,
     }),
     generateGapAnalysis({
       techScore: assessment.technicalScore, opScore: assessment.operationalScore,
-      score: worldState.score, status: outcome,
+      score: finalScore, status: outcome,
       scenarioName: session.template.name, industry: session.template.industry,
       techniques: mitreSummary,
     }),
@@ -98,7 +99,7 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
             <p className={`text-3xl font-bold ${outcome === "CONTAINED" ? "text-sage-500" : "text-red-400"}`}>
               {outcome === "CONTAINED" ? "CONTAINED" : "BREACHED"}
             </p>
-            <p className="text-xl font-semibold mt-1">{worldState.score} <span className="text-sm font-normal text-zinc-500">pts</span></p>
+            <p className="text-xl font-semibold mt-1">{finalScore} <span className="text-sm font-normal text-zinc-500">pts</span></p>
           </div>
         </div>
       </div>

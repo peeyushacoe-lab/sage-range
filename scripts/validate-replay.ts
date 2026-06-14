@@ -13,7 +13,7 @@
  */
 
 import { PrismaClient } from "@prisma/client";
-import { buildWorldState } from "@/lib/simulation/engine";
+import { buildWorldState, computeFinalScore } from "@/lib/simulation/engine";
 
 const db = new PrismaClient();
 
@@ -49,8 +49,9 @@ async function main() {
 
   for (const session of sessions) {
     const worldState = buildWorldState(session.events);
+    const finalScore = computeFinalScore(session.template.slug, worldState);
 
-    const scoreDrift = session.score !== worldState.score;
+    const scoreDrift = session.score !== finalScore;
     // worldState.status values: "ACTIVE" | "CONTAINED" | "BREACHED"
     // session.status is the Prisma enum — compare as strings
     const statusDrift = session.status !== (worldState.status as string);
@@ -62,7 +63,7 @@ async function main() {
         templateSlug: session.template.slug,
         completedAt: session.endedAt,
         stored: { score: session.score, status: session.status },
-        recomputed: { score: worldState.score, status: worldState.status },
+        recomputed: { score: finalScore, status: worldState.status },
       });
     } else {
       passed++;

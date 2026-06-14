@@ -55,6 +55,7 @@ export async function POST(req: Request) {
   const startedAt = existing?.startedAt ?? new Date();
   const solvedAt = new Date();
   const timeTakenSec = Math.floor((solvedAt.getTime() - startedAt.getTime()) / 1000);
+  const awardPoints = user.role === "STUDENT" ? matched.points : 0;
 
   await db.$transaction([
     db.attempt.upsert({
@@ -63,14 +64,14 @@ export async function POST(req: Request) {
         userId: user.id,
         labId: lab.id,
         status: "SOLVED",
-        score: matched.points,
+        score: awardPoints,
         startedAt,
         solvedAt,
         timeTakenSec,
       },
       update: {
         status: "SOLVED",
-        score: matched.points,
+        score: awardPoints,
         solvedAt,
         timeTakenSec,
       },
@@ -78,42 +79,44 @@ export async function POST(req: Request) {
     db.user.update({
       where: { id: user.id },
       data: {
-        skillScore: { increment: matched.points },
-        xp: { increment: matched.points },
+        skillScore: { increment: awardPoints },
+        xp: { increment: awardPoints },
       },
     }),
   ]);
 
   // Award competition points for CTF-style flag submission (full-lab score, difficulty-weighted)
-  try {
-    const DIFFICULTY_WEIGHT: Record<string, number> = { EASY: 1.0, MEDIUM: 1.5, HARD: 2.0, INSANE: 3.0 };
-    const weight = DIFFICULTY_WEIGHT[lab.difficulty] ?? 1.0;
-    const competitionPoints = Math.round(matched.points * weight);
+  if (user.role === "STUDENT") {
+    try {
+      const DIFFICULTY_WEIGHT: Record<string, number> = { EASY: 1.0, MEDIUM: 1.5, HARD: 2.0, INSANE: 3.0 };
+      const weight = DIFFICULTY_WEIGHT[lab.difficulty] ?? 1.0;
+      const competitionPoints = Math.round(matched.points * weight);
 
-    const now = new Date();
-    const activeEntries = await db.competitionEntry.findMany({
-      where: {
-        userId: user.id,
-        competition: {
-          published: true,
-          startDate: { lte: now },
-          endDate: { gte: now },
+      const now = new Date();
+      const activeEntries = await db.competitionEntry.findMany({
+        where: {
+          userId: user.id,
+          competition: {
+            published: true,
+            startDate: { lte: now },
+            endDate: { gte: now },
+          },
         },
-      },
-      include: { competition: true },
-    });
-    for (const entry of activeEntries) {
-      const slugs = entry.competition.labSlugs as string[];
-      if (slugs.includes(lab.slug)) {
-        await db.competitionEntry.update({
-          where: { id: entry.id },
-          data: { score: { increment: competitionPoints } },
-        });
+        include: { competition: true },
+      });
+      for (const entry of activeEntries) {
+        const slugs = entry.competition.labSlugs as string[];
+        if (slugs.includes(lab.slug)) {
+          await db.competitionEntry.update({
+            where: { id: entry.id },
+            data: { score: { increment: competitionPoints } },
+          });
+        }
       }
+    } catch {
+      // Never fail the flag submission due to competition scoring errors
     }
-  } catch {
-    // Never fail the flag submission due to competition scoring errors
   }
 
-  return NextResponse.json({ correct: true, points: matched.points });
+  return NextResponse.json({ correct: true, points: awardPoints });
 }

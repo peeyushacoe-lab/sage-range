@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import {
   buildWorldState,
+  computeFinalScore,
   getAvailableActions,
   getStageDefinition,
   checkAutoAdvance,
@@ -145,10 +146,10 @@ export async function GET(
 
       // Compute score with the advance event included so the stored value matches recomputed value.
       const breachScore = isTerminalBreach
-        ? buildWorldState([
+        ? computeFinalScore(session.template.slug, buildWorldState([
             ...session.events,
             { type: "STAGE_ADVANCE", payload: { from: worldState.stage, to: nextStage, breach: true } } as unknown as typeof session.events[0],
-          ]).score
+          ]))
         : worldState.score;
 
       await db.simulationSession.update({
@@ -162,10 +163,12 @@ export async function GET(
 
       // Award participation XP on breach (no skill score — attacker won)
       if (isTerminalBreach) {
-        await db.user.update({
-          where: { id: user.id },
-          data: { xp: { increment: breachScore } },
-        });
+        if (user.role === "STUDENT") {
+          await db.user.update({
+            where: { id: user.id },
+            data: { xp: { increment: breachScore } },
+          });
+        }
         track("simulation.completed", user.id, {
           sessionId: session.id,
           outcome: "BREACHED",
