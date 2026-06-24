@@ -57,6 +57,7 @@ export async function POST(req: Request) {
           where: { stripeSubscriptionId: sub.id },
           data: {
             subscriptionStatus: sub.status,
+            ...(sub.metadata?.plan ? { subscriptionPlan: sub.metadata.plan } : {}),
             trialEndsAt: sub.trial_end ? new Date(sub.trial_end * 1000) : null,
           },
         });

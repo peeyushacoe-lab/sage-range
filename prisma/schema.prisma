@@ -81,6 +81,12 @@ model User {
   competitionEntries       CompetitionEntry[]
   institutionMemberships   InstitutionMember[]
   feedReactions            FeedReaction[]
+  quizAttempts             QuizAttempt[]
+  assessmentSubmissions    AssessmentSubmission[]
+  mentorReviews            MentorReview[]         @relation("MentorReviews")
+  portfolioItems           PortfolioItem[]
+  moduleProgress           UserModuleProgress[]
+  cohortMemberships        CohortMember[]
 
   @@index([skillScore])
 }
@@ -316,8 +322,10 @@ model LearningPath {
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  labs     PathLab[]
-  progress UserPathProgress[]
+  labs        PathLab[]
+  modules     Module[]
+  progress    UserPathProgress[]
+  cohortPaths CohortPath[]
 }
 
 model PathLab {
@@ -571,6 +579,34 @@ model RateLimitEvent {
   @@index([key, createdAt])
 }
 
+// ── Plan Pricing ──────────────────────────────────────────────────────────────
+
+model PlanPricing {
+  id        String   @id @default(cuid())
+  role      String   @unique  // STUDENT | INSTRUCTOR | RECRUITER
+  label     String
+  priceAmt  Int      @default(0)  // cents per month; 0 = free
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+}
+
+// ── Vouchers ──────────────────────────────────────────────────────────────────
+
+model Voucher {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  discountPct Int       @default(0)  // 0-100 percentage off
+  discountAmt Int       @default(0)  // fixed discount in cents (applied after pct)
+  maxUses     Int?                   // null = unlimited
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  @@index([code])
+}
+
 // ── Stripe Webhook Idempotency ────────────────────────────────────────────────
 
 model StripeWebhookEvent {
@@ -590,4 +626,288 @@ model AnalyticsEvent {
 
   @@index([event, createdAt])
   @@index([userId, createdAt])
+}
+
+// ── Modules & Structured Learning ────────────────────────────────────────────
+
+enum ResourceType {
+  PDF
+  ARTICLE
+  DOCUMENTATION
+  GITHUB
+  EXTERNAL_LINK
+  TOOL_DOWNLOAD
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  MULTIPLE_SELECT
+  SHORT_ANSWER
+}
+
+enum SubmissionType {
+  TEXT
+  PDF
+  IMAGE
+  ZIP
+  GITHUB_LINK
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+model Module {
+  id              String   @id @default(cuid())
+  pathId          String
+  title           String
+  overview        String   @db.Text
+  readingMaterial String   @db.Text
+  order           Int
+  isRequired      Boolean  @default(true)
+  published       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  path       LearningPath       @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  resources  ModuleResource[]
+  quiz       Quiz?
+  assessment Assessment?
+  progress   UserModuleProgress[]
+
+  @@unique([pathId, order])
+  @@index([pathId])
+}
+
+model ModuleResource {
+  id       String       @id @default(cuid())
+  moduleId String
+  title    String
+  type     ResourceType
+  url      String
+  order    Int          @default(0)
+
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
+}
+
+model Quiz {
+  id          String   @id @default(cuid())
+  moduleId    String   @unique
+  title       String
+  description String?
+  passMark    Int      @default(70)
+  createdAt   DateTime @default(now())
+
+  module    Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+}
+
+model QuizQuestion {
+  id            String       @id @default(cuid())
+  quizId        String
+  type          QuestionType
+  question      String       @db.Text
+  options       Json?
+  correctAnswer Json
+  explanation   String?      @db.Text
+  order         Int
+
+  quiz    Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers QuizAnswer[]
+
+  @@index([quizId])
+}
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  quizId      String
+  userId      String
+  score       Int
+  passed      Boolean
+  completedAt DateTime @default(now())
+
+  quiz    Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers QuizAnswer[]
+
+  @@index([quizId, userId])
+  @@index([userId])
+}
+
+model QuizAnswer {
+  id         String @id @default(cuid())
+  attemptId  String
+  questionId String
+  answer     Json
+
+  attempt  QuizAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+}
+
+model Assessment {
+  id           String   @id @default(cuid())
+  moduleId     String   @unique
+  title        String
+  instructions String   @db.Text
+  createdAt    DateTime @default(now())
+
+  module      Module                 @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  submissions AssessmentSubmission[]
+  rubric      AssessmentRubric?
+}
+
+model AssessmentSubmission {
+  id           String         @id @default(cuid())
+  assessmentId String
+  userId       String
+  type         SubmissionType
+  content      String         @db.Text
+  submittedAt  DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  assessment Assessment   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review     MentorReview?
+  portfolio  PortfolioItem?
+
+  @@unique([assessmentId, userId])
+  @@index([assessmentId])
+  @@index([userId])
+}
+
+model MentorReview {
+  id           String       @id @default(cuid())
+  submissionId String       @unique
+  reviewerId   String
+  status       ReviewStatus
+  grade        String?
+  comment      String?      @db.Text
+  reviewedAt   DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  submission   AssessmentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviewer     User                 @relation("MentorReviews", fields: [reviewerId], references: [id], onDelete: Cascade)
+  rubricScores RubricScore[]
+}
+
+model PortfolioItem {
+  id           String   @id @default(cuid())
+  userId       String
+  submissionId String   @unique
+  title        String
+  description  String   @db.Text
+  grade        String?
+  feedback     String?  @db.Text
+  isPublic     Boolean  @default(true)
+  completedAt  DateTime @default(now())
+
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submission AssessmentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserModuleProgress {
+  id             String    @id @default(cuid())
+  userId         String
+  moduleId       String
+  quizPassed     Boolean   @default(false)
+  assessmentDone Boolean   @default(false)
+  completedAt    DateTime?
+  startedAt      DateTime  @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@index([userId])
+}
+
+// ── Cohorts ───────────────────────────────────────────────────────────────────
+
+model Cohort {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  joinCode    String    @unique
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  members CohortMember[]
+  paths   CohortPath[]
+}
+
+model CohortMember {
+  id       String   @id @default(cuid())
+  cohortId String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  cohort Cohort @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([cohortId, userId])
+  @@index([cohortId])
+  @@index([userId])
+}
+
+model CohortPath {
+  id       String @id @default(cuid())
+  cohortId String
+  pathId   String
+
+  cohort Cohort       @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  path   LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
+
+  @@unique([cohortId, pathId])
+  @@index([cohortId])
+}
+
+// ── Assessment Rubrics ────────────────────────────────────────────────────────
+
+model AssessmentRubric {
+  id           String   @id @default(cuid())
+  assessmentId String   @unique
+  createdAt    DateTime @default(now())
+
+  assessment Assessment       @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  criteria   RubricCriterion[]
+}
+
+model RubricCriterion {
+  id       String @id @default(cuid())
+  rubricId String
+  label    String
+  maxScore Int    @default(10)
+  order    Int    @default(0)
+
+  rubric AssessmentRubric @relation(fields: [rubricId], references: [id], onDelete: Cascade)
+  scores RubricScore[]
+
+  @@index([rubricId])
+}
+
+model RubricScore {
+  id          String @id @default(cuid())
+  criterionId String
+  reviewId    String
+  score       Int
+
+  criterion RubricCriterion @relation(fields: [criterionId], references: [id], onDelete: Cascade)
+  review    MentorReview    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([criterionId, reviewId])
+  @@index([reviewId])
 }

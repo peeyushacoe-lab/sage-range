@@ -68,10 +68,16 @@ export async function InstructorHome({ user }: { user: AppUser }) {
           <h1 className="text-2xl font-bold text-zinc-100">{user.displayName ?? user.email.split("@")[0]}</h1>
           <p className="text-sm text-zinc-400 mt-1">Manage classrooms, track student progress, and run exercises.</p>
         </div>
-        <Link href="/classroom"
-          className="rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-400 transition">
-          Open Classroom Hub →
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/mentor"
+            className="rounded-lg border border-sage-500/30 bg-sage-500/10 px-4 py-2.5 text-sm font-semibold text-sage-400 hover:bg-sage-500/20 transition">
+            Review Queue →
+          </Link>
+          <Link href="/classroom"
+            className="rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-400 transition">
+            Open Classroom Hub →
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}

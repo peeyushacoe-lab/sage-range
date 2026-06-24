@@ -31,6 +31,10 @@ export default async function CertificatePage({
         include: { lab: true },
         orderBy: { order: "asc" },
       },
+      modules: {
+        where: { published: true },
+        select: { id: true },
+      },
     },
   });
 
@@ -43,27 +47,33 @@ export default async function CertificatePage({
     where: { userId_pathId: { userId: user.id, pathId: path.id } },
   });
 
-  const labIds = path.labs.map((pl) => pl.labId);
+  const hasModules = path.modules.length > 0;
 
-  const labResponses = await db.labResponse.findMany({
-    where: { userId: user.id, labId: { in: labIds } },
-    select: { labId: true, stage: true },
-  });
-
-  const completedByLab = new Map<string, Set<string>>();
-  for (const r of labResponses) {
-    if (!completedByLab.has(r.labId)) completedByLab.set(r.labId, new Set());
-    completedByLab.get(r.labId)!.add(r.stage);
+  let canCert = false;
+  if (hasModules) {
+    // Module-based path: completed when all modules are done (set by module progress hook)
+    canCert = !!userProgress?.completedAt;
+  } else {
+    // Lab-based path: check all labs
+    const labIds = path.labs.map((pl) => pl.labId);
+    const labResponses = await db.labResponse.findMany({
+      where: { userId: user.id, labId: { in: labIds } },
+      select: { labId: true, stage: true },
+    });
+    const completedByLab = new Map<string, Set<string>>();
+    for (const r of labResponses) {
+      if (!completedByLab.has(r.labId)) completedByLab.set(r.labId, new Set());
+      completedByLab.get(r.labId)!.add(r.stage);
+    }
+    canCert = path.labs.every((pl) => {
+      const stages = TASK_STAGES[pl.lab.slug] ?? [];
+      if (stages.length === 0) return false;
+      const done = completedByLab.get(pl.labId);
+      return stages.every((s) => done?.has(s));
+    });
   }
 
-  const allLabsDone = path.labs.every((pl) => {
-    const stages = TASK_STAGES[pl.lab.slug] ?? [];
-    if (stages.length === 0) return false;
-    const done = completedByLab.get(pl.labId);
-    return stages.every((s) => done?.has(s));
-  });
-
-  if (!allLabsDone || !userProgress) redirect(`/paths/${slug}`);
+  if (!canCert || !userProgress) redirect(`/paths/${slug}`);
 
   const candidateName = user.displayName ?? user.email.split("@")[0];
   const completedDate = userProgress.completedAt

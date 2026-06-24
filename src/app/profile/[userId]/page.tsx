@@ -140,13 +140,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                   </span>
                 </div>
                 {target.bio && <p className="text-sm text-zinc-300 leading-relaxed border-t border-white/5 pt-4">{target.bio}</p>}
-                {(target.linkedIn || target.github || target.cvUrl) && (
-                  <div className="flex gap-3 mt-4 pt-4 border-t border-white/5">
-                    {target.linkedIn && <a href={target.linkedIn} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">LinkedIn ↗</a>}
-                    {target.github && <a href={target.github} target="_blank" rel="noreferrer" className="text-xs text-zinc-400 hover:underline">GitHub ↗</a>}
-                    {target.cvUrl && <a href={target.cvUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-400 hover:underline">CV / Resume ↗</a>}
-                  </div>
-                )}
+                <div className="flex gap-3 mt-4 pt-4 border-t border-white/5 flex-wrap">
+                  {target.linkedIn && <a href={target.linkedIn} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">LinkedIn ↗</a>}
+                  {target.github && <a href={target.github} target="_blank" rel="noreferrer" className="text-xs text-zinc-400 hover:underline">GitHub ↗</a>}
+                  {target.cvUrl && <a href={target.cvUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-400 hover:underline">CV / Resume ↗</a>}
+                  <Link href={`/profile/${userId}/portfolio`} className="text-xs text-sage-400 hover:underline">Portfolio ↗</Link>
+                </div>
               </div>
 
               {/* Verified Activity */}
@@ -402,14 +401,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
           )}
 
           {/* Links */}
-          {(target.linkedIn || target.github || target.website || target.cvUrl) && (
-            <div className="flex gap-4 mt-4 pt-4 border-t border-white/5">
-              {target.linkedIn && <a href={target.linkedIn} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">LinkedIn ↗</a>}
-              {target.github && <a href={target.github} target="_blank" rel="noreferrer" className="text-xs text-zinc-400 hover:underline">GitHub ↗</a>}
-              {target.website && <a href={target.website} target="_blank" rel="noreferrer" className="text-xs text-zinc-400 hover:underline">Website ↗</a>}
-              {target.cvUrl && <a href={target.cvUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-400 hover:underline">CV ↗</a>}
-            </div>
-          )}
+          <div className="flex gap-4 mt-4 pt-4 border-t border-white/5 flex-wrap">
+            {target.linkedIn && <a href={target.linkedIn} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">LinkedIn ↗</a>}
+            {target.github && <a href={target.github} target="_blank" rel="noreferrer" className="text-xs text-zinc-400 hover:underline">GitHub ↗</a>}
+            {target.website && <a href={target.website} target="_blank" rel="noreferrer" className="text-xs text-zinc-400 hover:underline">Website ↗</a>}
+            {target.cvUrl && <a href={target.cvUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-400 hover:underline">CV ↗</a>}
+            <Link href={`/profile/${userId}/portfolio`} className="text-xs text-sage-400 hover:underline">Portfolio ↗</Link>
+          </div>
         </div>
 
         {/* Badges */}

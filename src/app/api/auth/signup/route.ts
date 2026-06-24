@@ -7,6 +7,7 @@ const Body = z.object({
   name: z.string().min(2).max(60),
   email: z.string().email(),
   password: z.string().min(8).max(72),
+  role: z.enum(["STUDENT", "INSTRUCTOR", "RECRUITER"]).optional().default("STUDENT"),
 });
 
 export async function POST(req: Request) {
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "bad_request" }, { status: 400 });
   }
 
-  const { name, email, password } = parsed.data;
+  const { name, email, password, role } = parsed.data;
   const hashed = await bcrypt.hash(password, 12);
 
   const existing = await db.user.findUnique({ where: { email } });
@@ -25,11 +26,14 @@ export async function POST(req: Request) {
     if (existing.password) {
       return NextResponse.json({ error: "An account with this email already exists. Sign in instead." }, { status: 409 });
     }
-    // Account exists via OAuth (no password) — just add the password
-    await db.user.update({ where: { email }, data: { password: hashed, displayName: existing.displayName ?? name } });
+    // Account exists via OAuth (no password) — just add the password and role
+    await db.user.update({
+      where: { email },
+      data: { password: hashed, displayName: existing.displayName ?? name, role },
+    });
     return NextResponse.json({ ok: true });
   }
 
-  await db.user.create({ data: { email, password: hashed, displayName: name } });
+  await db.user.create({ data: { email, password: hashed, displayName: name, role } });
   return NextResponse.json({ ok: true });
 }
