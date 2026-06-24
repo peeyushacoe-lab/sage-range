@@ -53,8 +53,8 @@ export async function POST(
       passed,
       answers: {
         create: quiz.questions.map((q) => ({
-          questionId: q.id,
-          answer: answers[q.id] ?? null,
+          question: { connect: { id: q.id } },
+          answer: answers[q.id] ?? {},
         })),
       },
     },
