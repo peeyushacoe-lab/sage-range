@@ -30,6 +30,11 @@ export function PaymentStep({ role, voucherCode, finalAmount, onSuccess, onBack 
     setStatus("loading");
     setInitError(null);
 
+    // Unmount any previously mounted PaymentElement before re-initialising
+    elementsRef.current?.getElement("payment")?.unmount();
+    elementsRef.current = null;
+    stripeRef.current = null;
+
     try {
       // 1. Get subscription client_secret from server
       const res = await fetch("/api/auth/create-subscription", {

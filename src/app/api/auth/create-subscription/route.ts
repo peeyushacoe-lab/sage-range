@@ -70,17 +70,27 @@ export async function POST(req: Request) {
     await stripe.subscriptions.cancel(sub.id).catch(() => null);
   }
 
-  // Create a product + price explicitly (Stripe v22 removed inline product_data from PriceData)
-  const product = await stripe.products.create({
-    name: `${planRow.label} Plan`,
-    metadata: { userId: me.id, plan: role.toLowerCase() },
-  });
-  const price = await stripe.prices.create({
-    product: product.id,
-    unit_amount: finalAmount,
-    currency: "usd",
-    recurring: { interval: "month" },
-  });
+  // Get or create a recurring price for this plan using lookup_key for idempotency.
+  // Using lookup_key means Stripe returns the same price on subsequent calls instead of
+  // creating a new product+price object on every API hit.
+  const lookupKey = `ruflo_${role.toLowerCase()}_${finalAmount}_monthly`;
+  const existing = await stripe.prices.list({ lookup_keys: [lookupKey], limit: 1 });
+  let price: { id: string };
+  if (existing.data.length > 0) {
+    price = existing.data[0];
+  } else {
+    const product = await stripe.products.create({
+      name: `${planRow.label} Plan`,
+      metadata: { plan: role.toLowerCase() },
+    });
+    price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: finalAmount,
+      currency: "usd",
+      recurring: { interval: "month" },
+      lookup_key: lookupKey,
+    });
+  }
 
   // Create the subscription with payment_behavior: 'default_incomplete'
   // This creates the subscription but doesn't charge yet — returns a PaymentIntent client_secret
@@ -111,11 +121,22 @@ export async function POST(req: Request) {
     }).catch(() => null);
   }
 
-  const invoice = subscription.latest_invoice as Stripe.Invoice;
-  const paymentIntent = invoice.payment_intent as Stripe.PaymentIntent;
+  const invoice = subscription.latest_invoice as Stripe.Invoice & {
+    payment_intent: Stripe.PaymentIntent | string | null;
+  };
+  // payment_intent is expanded (object) when we passed expand: ["latest_invoice.payment_intent"]
+  const rawIntent = invoice.payment_intent;
+  const clientSecret =
+    rawIntent !== null && typeof rawIntent === "object"
+      ? rawIntent.client_secret
+      : null;
+
+  if (!clientSecret) {
+    return NextResponse.json({ error: "payment_intent_missing" }, { status: 500 });
+  }
 
   return NextResponse.json({
     subscriptionId: subscription.id,
-    clientSecret: paymentIntent.client_secret,
+    clientSecret,
   });
 }

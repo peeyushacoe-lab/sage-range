@@ -46,7 +46,7 @@ export default async function BillingPage({
             plan={user.subscriptionPlan ?? null}
             status={user.subscriptionStatus ?? null}
             trialEndsAt={user.trialEndsAt?.toISOString() ?? null}
-            hasSubscription={!!user.stripeCustomerId}
+            hasSubscription={!!user.stripeSubscriptionId}
           />
 
           <div className="mt-10 rounded-xl border border-white/8 bg-zinc-900/30 p-5">

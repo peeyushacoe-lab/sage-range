@@ -30,6 +30,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: `${origin}/billing` });
   }
 
+  if (!PLANS.classroom.priceId) {
+    console.error("STRIPE_CLASSROOM_PRICE_ID is not configured");
+    return NextResponse.json({ error: "payment_not_configured" }, { status: 503 });
+  }
+
   try {
     // Reuse existing Stripe customer if present.
     let customerId = me.stripeCustomerId ?? undefined;

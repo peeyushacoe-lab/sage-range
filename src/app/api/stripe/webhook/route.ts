@@ -76,6 +76,26 @@ export async function POST(req: Request) {
         break;
       }
 
+      case "invoice.payment_succeeded": {
+        // Fired when a payment completes — updates status from incomplete → active.
+        // This covers the embedded PaymentElement flow in create-subscription.
+        const invoice = event.data.object as Stripe.Invoice;
+        const subId = typeof invoice.subscription === "string"
+          ? invoice.subscription
+          : invoice.subscription?.id;
+        if (!subId) break;
+
+        const sub = await stripe.subscriptions.retrieve(subId);
+        await db.user.updateMany({
+          where: { stripeSubscriptionId: subId },
+          data: {
+            subscriptionStatus: sub.status,
+            trialEndsAt: sub.trial_end ? new Date(sub.trial_end * 1000) : null,
+          },
+        });
+        break;
+      }
+
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = typeof invoice.customer === "string"
