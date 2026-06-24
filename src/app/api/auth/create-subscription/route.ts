@@ -70,20 +70,23 @@ export async function POST(req: Request) {
     await stripe.subscriptions.cancel(sub.id).catch(() => null);
   }
 
+  // Create a product + price explicitly (Stripe v22 removed inline product_data from PriceData)
+  const product = await stripe.products.create({
+    name: `${planRow.label} Plan`,
+    metadata: { userId: me.id, plan: role.toLowerCase() },
+  });
+  const price = await stripe.prices.create({
+    product: product.id,
+    unit_amount: finalAmount,
+    currency: "usd",
+    recurring: { interval: "month" },
+  });
+
   // Create the subscription with payment_behavior: 'default_incomplete'
   // This creates the subscription but doesn't charge yet — returns a PaymentIntent client_secret
   const subscription = await stripe.subscriptions.create({
     customer: customerId,
-    items: [
-      {
-        price_data: {
-          currency: "usd",
-          product_data: { name: `${planRow.label} Plan` },
-          unit_amount: finalAmount,
-          recurring: { interval: "month" },
-        },
-      },
-    ],
+    items: [{ price: price.id }],
     payment_behavior: "default_incomplete",
     payment_settings: { save_default_payment_method: "on_subscription" },
     expand: ["latest_invoice.payment_intent"],

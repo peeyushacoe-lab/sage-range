@@ -84,28 +84,29 @@ export async function POST(req: Request) {
 
   const origin = new URL(req.url).origin;
 
+  // Create product + price explicitly (Stripe v22 removed inline product_data from PriceData)
+  const product = await stripe.products.create({
+    name: plan.name,
+    metadata: { userId: user.id, plan: role.toLowerCase() },
+  });
+  const price = await stripe.prices.create({
+    product: product.id,
+    unit_amount: finalAmount,
+    currency: plan.currency,
+    recurring: { interval: "month" },
+  });
+
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
     payment_method_types: ["card"],
-    line_items: [
-      {
-        price_data: {
-          currency: plan.currency,
-          product_data: { name: plan.name },
-          unit_amount: finalAmount,
-          recurring: { interval: "month" },
-        },
-        quantity: 1,
-      },
-    ],
+    line_items: [{ price: price.id, quantity: 1 }],
     subscription_data: {
       metadata: { userId: user.id, plan: role.toLowerCase(), voucherCode: voucherCode ?? "" },
     },
     success_url: `${origin}/api/user/fix-session?signup=1`,
     cancel_url: `${origin}/sign-up?canceled=1`,
     metadata: { userId: user.id, plan: role.toLowerCase() },
-    ...(voucherCode ? { discounts: [] } : {}),
   });
 
   return NextResponse.json({ url: session.url });
