@@ -98,10 +98,10 @@ export default async function AdminModuleDetail({
             passMark: mod.quiz.passMark,
             questions: mod.quiz.questions.map((q) => ({
               id: q.id,
-              type: q.type as string,
+              type: q.type as "MULTIPLE_CHOICE" | "TRUE_FALSE" | "MULTIPLE_SELECT" | "SHORT_ANSWER",
               question: q.question,
               options: q.options as string[] | null,
-              correctAnswer: q.correctAnswer,
+              correctAnswer: q.correctAnswer as string | string[],
               explanation: q.explanation,
               order: q.order,
             })),
