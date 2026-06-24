@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 import { getOrCreateAppUser } from "@/lib/current-user";
@@ -93,13 +92,14 @@ export async function POST(req: Request) {
   }
 
   // Create the subscription with payment_behavior: 'default_incomplete'
-  // This creates the subscription but doesn't charge yet — returns a PaymentIntent client_secret
+  // This creates the subscription but doesn't charge yet — returns a client_secret via
+  // latest_invoice.confirmation_secret (the SDK v22 / dahlia replacement for payment_intent).
   const subscription = await stripe.subscriptions.create({
     customer: customerId,
     items: [{ price: price.id }],
     payment_behavior: "default_incomplete",
     payment_settings: { save_default_payment_method: "on_subscription" },
-    expand: ["latest_invoice.payment_intent"],
+    expand: ["latest_invoice"],
     metadata: { userId: me.id, plan: role.toLowerCase(), voucherCode: voucherCode ?? "" },
   });
 
@@ -121,15 +121,10 @@ export async function POST(req: Request) {
     }).catch(() => null);
   }
 
-  const invoice = subscription.latest_invoice as Stripe.Invoice & {
-    payment_intent: Stripe.PaymentIntent | string | null;
-  };
-  // payment_intent is expanded (object) when we passed expand: ["latest_invoice.payment_intent"]
-  const rawIntent = invoice.payment_intent;
-  const clientSecret =
-    rawIntent !== null && typeof rawIntent === "object"
-      ? rawIntent.client_secret
-      : null;
+  // In SDK v22 / dahlia, invoice.confirmation_secret.client_secret replaces
+  // the old invoice.payment_intent.client_secret pattern.
+  const invoice = subscription.latest_invoice as Stripe.Invoice;
+  const clientSecret = invoice.confirmation_secret?.client_secret ?? null;
 
   if (!clientSecret) {
     return NextResponse.json({ error: "payment_intent_missing" }, { status: 500 });

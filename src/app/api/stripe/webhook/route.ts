@@ -80,9 +80,10 @@ export async function POST(req: Request) {
         // Fired when a payment completes — updates status from incomplete → active.
         // This covers the embedded PaymentElement flow in create-subscription.
         const invoice = event.data.object as Stripe.Invoice;
-        const subId = typeof invoice.subscription === "string"
-          ? invoice.subscription
-          : invoice.subscription?.id;
+        // In SDK v22 / dahlia, invoice.subscription is removed.
+        // The subscription is now accessed via invoice.parent.subscription_details.subscription.
+        const rawSub = invoice.parent?.subscription_details?.subscription;
+        const subId = typeof rawSub === "string" ? rawSub : rawSub?.id;
         if (!subId) break;
 
         const sub = await stripe.subscriptions.retrieve(subId);

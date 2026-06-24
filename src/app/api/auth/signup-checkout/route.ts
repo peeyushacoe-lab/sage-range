@@ -84,23 +84,32 @@ export async function POST(req: Request) {
 
   const origin = new URL(req.url).origin;
 
-  // Create product + price explicitly (Stripe v22 removed inline product_data from PriceData)
-  const product = await stripe.products.create({
-    name: plan.name,
-    metadata: { userId: user.id, plan: role.toLowerCase() },
-  });
-  const price = await stripe.prices.create({
-    product: product.id,
-    unit_amount: finalAmount,
-    currency: plan.currency,
-    recurring: { interval: "month" },
-  });
+  // Get or create a recurring price using lookup_key for idempotency — avoids creating
+  // a new Stripe product+price object on every signup attempt.
+  const lookupKey = `ruflo_${role.toLowerCase()}_${finalAmount}_monthly`;
+  const existing = await stripe.prices.list({ lookup_keys: [lookupKey], limit: 1 });
+  let priceId: string;
+  if (existing.data.length > 0) {
+    priceId = existing.data[0].id;
+  } else {
+    const product = await stripe.products.create({
+      name: plan.name,
+      metadata: { plan: role.toLowerCase() },
+    });
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: finalAmount,
+      currency: plan.currency,
+      recurring: { interval: "month" },
+      lookup_key: lookupKey,
+    });
+    priceId = price.id;
+  }
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: [{ price: price.id, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     subscription_data: {
       metadata: { userId: user.id, plan: role.toLowerCase(), voucherCode: voucherCode ?? "" },
     },
