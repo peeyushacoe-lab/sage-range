@@ -30,8 +30,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
   const me = await getOrCreateAppUser();
   if (!me) redirect("/sign-in");
 
-  const canView = me.id === userId || me.role === "RECRUITER" || me.role === "INSTRUCTOR" || me.role === "ADMIN";
-  if (!canView) redirect("/dashboard");
+  // Any logged-in user can view any profile
 
   const [target, simSessions] = await Promise.all([
     db.user.findUnique({
@@ -285,6 +284,177 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
               )}
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── PEER VIEW (any logged-in user viewing someone else's profile) ─────────
+  if (!isOwnProfile) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white">
+        <Navbar backHref={backHref} backLabel={backLabel} />
+        <div className="max-w-3xl mx-auto px-6 py-8 space-y-5">
+
+          {/* Hero card */}
+          <div className="rounded-2xl border border-white/8 bg-zinc-900/40 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-4">
+                <CyberAvatar
+                  initial={(target.displayName ?? target.email)[0].toUpperCase()}
+                  skillScore={target.skillScore}
+                  avatarUrl={target.avatarUrl}
+                  size="lg"
+                  roleBadgeIcon={roleBadge?.icon}
+                />
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                    <h1 className="text-xl font-bold">{target.displayName ?? target.email.split("@")[0]}</h1>
+                    {target.certification && (
+                      <Link href={`/verify/${target.certification.certId}`} className="text-xs font-bold border border-emerald-500/40 bg-emerald-500/8 text-emerald-400 rounded-full px-2.5 py-0.5 hover:bg-emerald-500/15 transition">
+                        IR Commander ✓
+                      </Link>
+                    )}
+                  </div>
+                  {roleBadge && (
+                    <p className={`text-xs font-semibold mb-1 ${roleBadge.color}`}>{roleBadge.icon} {roleBadge.label}</p>
+                  )}
+                  {target.university && <p className="text-xs text-zinc-500">{target.university}</p>}
+                  {target.jobTitle && <p className="text-sm text-zinc-300">{target.jobTitle}{target.company ? ` · ${target.company}` : ""}</p>}
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-3xl font-black text-zinc-100 tabular-nums">{target.skillScore}</p>
+                <p className="text-[10px] text-zinc-500 mb-0.5">Skill Score</p>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-md border border-emerald-500/30 bg-emerald-500/8 text-emerald-400">{rank.label.toUpperCase()}</span>
+              </div>
+            </div>
+
+            {target.bio && <p className="text-sm text-zinc-300 leading-relaxed border-t border-white/5 pt-4 mb-4">{target.bio}</p>}
+
+            {/* Quick stats */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {[["Labs Solved", solved.length], ["Simulations", simSessions.length], ["Best Score", bestSimScore !== null ? `${bestSimScore}/100` : "—"]].map(([l, v]) => (
+                <div key={String(l)} className="rounded-lg border border-white/5 bg-zinc-950/50 p-3 text-center">
+                  <p className="text-lg font-bold text-zinc-100">{v}</p>
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">{l}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Links */}
+            <div className="flex gap-4 flex-wrap pt-3 border-t border-white/5">
+              {target.linkedIn && <a href={target.linkedIn} target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline">LinkedIn ↗</a>}
+              {target.github && <a href={target.github} target="_blank" rel="noreferrer" className="text-xs text-zinc-400 hover:underline">GitHub ↗</a>}
+              {target.website && <a href={target.website} target="_blank" rel="noreferrer" className="text-xs text-zinc-400 hover:underline">Website ↗</a>}
+            </div>
+          </div>
+
+          {/* Skill emblems */}
+          {skillEmblems.length > 0 && (
+            <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-5">
+              <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Skill Emblems</p>
+              <div className="flex flex-wrap gap-2">
+                {skillEmblems.map((e) => (
+                  <span
+                    key={e.category}
+                    title={`${e.count} solve${e.count !== 1 ? "s" : ""} · Confidence ${e.confidence}%`}
+                    className={`flex items-center gap-1.5 text-xs border rounded-full px-2.5 py-1 ${
+                      e.confidence >= 70
+                        ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-400"
+                        : e.confidence >= 40
+                        ? "border-zinc-600 bg-zinc-900 text-zinc-300"
+                        : "border-zinc-700/60 bg-zinc-900/60 text-zinc-500"
+                    }`}
+                  >
+                    <span>{e.icon}</span><span>{e.category}</span><span className="opacity-50 tabular-nums">({e.count})</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Badges */}
+          {badges.length > 0 && (
+            <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-5">
+              <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Achievements</p>
+              <div className="flex flex-wrap gap-2.5">
+                {badges.map((b) => {
+                  const s = TIER_STYLE[b.tier];
+                  return (
+                    <div key={b.id} title={b.description} className={`flex items-center gap-2 border rounded-xl px-3 py-2 ${s.border} ${s.bg}`}>
+                      <span className="text-lg">{b.icon}</span>
+                      <div>
+                        <p className={`text-xs font-bold ${s.text}`}>{b.label}</p>
+                        <p className="text-[10px] text-zinc-600">{b.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Labs + Sims */}
+          {(solved.length > 0 || simSessions.length > 0) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {solved.length > 0 && (
+                <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-5">
+                  <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">CTFs &amp; Labs Cleared</p>
+                  <div className="space-y-2">
+                    {solved.slice(0, 8).map((a) => (
+                      <div key={a.id} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-emerald-500 text-xs shrink-0">✓</span>
+                          <span className="text-zinc-300 truncate">{a.lab.title}</span>
+                        </div>
+                        <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ml-2 shrink-0 ${
+                          a.lab.difficulty === "EASY" ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/8" :
+                          a.lab.difficulty === "MEDIUM" ? "text-amber-400 border-amber-500/20 bg-amber-500/8" :
+                          a.lab.difficulty === "HARD" ? "text-red-400 border-red-500/20 bg-red-500/8" :
+                          "text-purple-400 border-purple-500/20 bg-purple-500/8"
+                        }`}>{a.lab.difficulty}</span>
+                      </div>
+                    ))}
+                    {solved.length > 8 && <p className="text-xs text-zinc-600 pt-1">+{solved.length - 8} more</p>}
+                  </div>
+                </div>
+              )}
+              {simSessions.length > 0 && (
+                <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-5">
+                  <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Simulation Runs</p>
+                  <div className="space-y-2">
+                    {simSessions.slice(0, 6).map((s) => {
+                      const score = s.score ?? 0;
+                      const rStyle = RATING_STYLE[toRating(score)];
+                      return (
+                        <div key={s.id} className="flex items-center justify-between text-sm">
+                          <span className="text-zinc-400 truncate">{s.template.name}</span>
+                          <div className="flex items-center gap-2 ml-3 shrink-0">
+                            <span className="font-bold text-zinc-100">{score}</span>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${rStyle.card} ${rStyle.text}`}>{toRating(score)}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Skills */}
+          {target.skills.length > 0 && (
+            <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-5">
+              <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Skills</p>
+              <div className="flex flex-wrap gap-2">
+                {target.skills.map((s) => (
+                  <span key={s} className="text-xs border border-emerald-500/20 bg-emerald-500/8 text-emerald-400 rounded-full px-3 py-1">{s}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     );
