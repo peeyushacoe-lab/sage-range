@@ -1,0 +1,22 @@
+Type,Difficulty,Lab Title,Slug,Flag #,Flag Answer,Points,Case Sensitive,Published
+CTF,EASY,"OSINT: Follow the Trail",osint-investigation,Flag 1,"SAGE{91.108.4.33}",100,Yes,Yes
+CTF,EASY,"OSINT: Follow the Trail",osint-investigation,Flag 2,"SAGE{ns1.bulletproof-hosting.biz}",100,Yes,Yes
+CTF,EASY,"OSINT: Follow the Trail",osint-investigation,Flag 3,"SAGE{4_d0m41ns_s4me_1nfr4}",100,Yes,Yes
+CTF,EASY,"SQL Injection 101",sql-injection-101,Flag 1,"SAGE{bl1nd_bl00l3an_sqli_m4st3r}",100,Yes,Yes
+CTF,EASY,"SQL Injection 101",sql-injection-101,Flag 2,"SAGE{cl4ss1c_0r_1_eq_1}",100,Yes,Yes
+CTF,EASY,"SQL Injection 101",sql-injection-101,Flag 3,"SAGE{un10n_s3l3ct_d4t4_l34k}",100,Yes,Yes
+CTF,EASY,"Web Reconnaissance",web-recon,Flag 1,"SAGE{r3c0n_r0b0ts_g1t_subd0m41n}",100,Yes,Yes
+CTF,EASY,"Welcome to Sage Forge",welcome-ctf,Flag 1,"SAGE{h4rdc0d3d_s3cr3ts_l34k}",50,Yes,Yes
+CTF,EASY,"Welcome to Sage Forge",welcome-ctf,Flag 2,"SAGE{b4se64_is_n0t_encrypti0n}",50,Yes,Yes
+CTF,EASY,"Welcome to Sage Forge",welcome-ctf,Flag 3,"SAGE{w3lc0me_t0_th3_r4nge}",50,Yes,Yes
+CTF,EASY,"XSS Fundamentals",xss-fundamentals,Flag 1,"SAGE{cdn_bypass_csp_byp4ss}",100,Yes,Yes
+BLUE TEAM,EASY,"Phishing Email Analysis",phishing-analysis,Flag 1,"SAGE{sp00f_m4cr0_p3rs1st3nc3}",100,Yes,Yes
+BLUE TEAM,MEDIUM,"Network Forensics 101",network-forensics-101,Flag 1,"SAGE{185.220.101.47}",150,Yes,Yes
+BLUE TEAM,MEDIUM,"SOC Alert Investigation",soc-alert-investigation,Flag 1,"SAGE{198.51.100.42}",200,Yes,Yes
+BLUE TEAM,HARD,"Malware Triage",malware-triage,Flag 1,"SAGE{AsyncMutex_6SI8OkPnk}",300,Yes,Yes
+BLUE TEAM,HARD,"Memory Forensics",memory-forensics,Flag 1,"SAGE{pr0c3ss_h0ll0w1ng_d3t3ct3d}",300,Yes,Yes
+BLUE TEAM,HARD,"Windows Log Analysis",windows-log-analysis,Flag 1,"SAGE{185.220.101.47}",250,Yes,Yes
+RED TEAM,MEDIUM,"Linux Privilege Escalation",privilege-escalation,Flag 1,"SAGE{r00t_fl4g_c4ptured}",200,Yes,Yes
+RED TEAM,MEDIUM,"SSRF Attack",ssrf-attack,Flag 1,"SAGE{cl0ud_m3t4d4t4_ssrf}",200,Yes,Yes
+RED TEAM,MEDIUM,"SSRF Attack",ssrf-attack,Flag 2,"SAGE{ssrf_1nt3rn4l_4cc3ss}",200,Yes,Yes
+RED TEAM,HARD,"Active Directory 101",active-directory-101,Flag 1,"SAGE{p4ss_th3_h4sh_4dm1n}",250,Yes,Yes
