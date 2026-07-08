@@ -83,7 +83,7 @@ function StepBar({ step, maxStep }: { step: number; maxStep: number }) {
 
 // ── Main form ─────────────────────────────────────────────────────────────────
 
-export function SignupForm({ plans }: { plans: PlanRow[] }) {
+export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: string }) {
   const planMap = Object.fromEntries(plans.map((p) => [p.role, p]));
 
   const [step, setStep] = useState(1);
@@ -252,6 +252,15 @@ export function SignupForm({ plans }: { plans: PlanRow[] }) {
               </svg>
               Sign up with GitHub
             </button>
+
+            {nexusUrl && (
+              <a
+                href={nexusUrl}
+                className="w-full flex items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+              >
+                Sign up with Nexus
+              </a>
+            )}
           </div>
 
           <div className="flex items-center gap-3 mb-5">

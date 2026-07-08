@@ -6,6 +6,7 @@ import { CredentialsForm } from "./credentials-form";
 export default async function SignInPage() {
   const session = await auth();
   if (session) redirect("/api/user/fix-session");
+  const nexusUrl = process.env.NEXUS_SSO_AUTHORIZE_URL;
   return (
     <main className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
@@ -38,6 +39,15 @@ export default async function SignInPage() {
               Continue with GitHub
             </button>
           </form>
+
+          {nexusUrl && (
+            <a
+              href={nexusUrl}
+              className="w-full flex items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+            >
+              Continue with Nexus
+            </a>
+          )}
         </div>
 
         <div className="flex items-center gap-3 my-5">

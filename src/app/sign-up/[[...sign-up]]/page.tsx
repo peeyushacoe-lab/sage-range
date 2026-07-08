@@ -7,6 +7,7 @@ import { getPlanPricing } from "@/lib/plan-pricing";
 export default async function SignUpPage() {
   const [session, plans] = await Promise.all([auth(), getPlanPricing()]);
   if (session) redirect("/api/user/fix-session");
+  const nexusUrl = process.env.NEXUS_SSO_AUTHORIZE_URL;
   return (
     <main className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
@@ -18,7 +19,7 @@ export default async function SignUpPage() {
           <p className="text-zinc-500 text-sm mt-1">Choose your plan — free for students</p>
         </div>
 
-        <SignupForm plans={plans} />
+        <SignupForm plans={plans} nexusUrl={nexusUrl} />
 
         <p className="text-center text-sm text-zinc-500 mt-5">
           Already have an account?{" "}
