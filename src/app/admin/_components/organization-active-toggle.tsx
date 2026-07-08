@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function InstitutionActiveToggle({ id, active }: { id: string; active: boolean }) {
+export function OrganizationActiveToggle({ id, active }: { id: string; active: boolean }) {
   const router = useRouter();
   const [on, setOn] = useState(active);
   const [loading, setLoading] = useState(false);
@@ -11,7 +11,7 @@ export function InstitutionActiveToggle({ id, active }: { id: string; active: bo
   async function toggle() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/institution/${id}`, {
+      const res = await fetch(`/api/admin/organization/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active: !on }),

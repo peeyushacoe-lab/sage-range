@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
-import { getActivityFeed, getFeedReactions, serializeFeed } from "@/lib/activity-feed";
+import { getActivityFeed, getFeedComments, getFeedReactions, serializeFeed } from "@/lib/activity-feed";
 import { Navbar } from "@/components/navbar";
 import { FeedCard } from "./_components/feed-card";
 
@@ -14,6 +14,7 @@ export default async function FeedPage() {
   const feed = await getActivityFeed({ limit: 60 });
   const entryIds = feed.map((e) => e.id);
   const { counts, mine } = await getFeedReactions(entryIds, me.id);
+  const comments = await getFeedComments(entryIds);
   const serialized = serializeFeed(feed);
 
   return (
@@ -47,6 +48,8 @@ export default async function FeedPage() {
                 entry={entry}
                 initialCounts={counts[entry.id] ?? {}}
                 initialMine={mine[entry.id] ?? []}
+                initialComments={comments[entry.id] ?? []}
+                meId={me.id}
               />
             ))}
           </div>

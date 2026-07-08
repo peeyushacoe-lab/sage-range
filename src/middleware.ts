@@ -7,7 +7,7 @@ const { auth } = NextAuth(authConfig);
 const PROTECTED = [
   "/dashboard", "/labs", "/recruiter", "/profile", "/simulation",
   "/admin", "/analytics", "/billing", "/paths", "/classroom",
-  "/competitions", "/institution", "/leaderboard",
+  "/competitions", "/organization", "/leaderboard",
 ];
 
 const AUTH_PAGES = ["/sign-in", "/sign-up"];

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { autoJoinOrganizationByDomain } from "@/lib/organization";
 
 const Body = z.object({
   name: z.string().min(2).max(60),
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  await db.user.create({ data: { email, password: hashed, displayName: name, role } });
+  const created = await db.user.create({ data: { email, password: hashed, displayName: name, role } });
+  await autoJoinOrganizationByDomain(created.id, created.email);
   return NextResponse.json({ ok: true });
 }

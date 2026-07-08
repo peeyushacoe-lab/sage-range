@@ -3,6 +3,8 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { authConfig } from "./auth.config";
+import { autoJoinOrganizationByDomain } from "@/lib/organization";
+import { verifyNexusToken, provisionNexusUser } from "@/lib/nexus-sso";
 
 declare module "next-auth" {
   interface Session {
@@ -33,17 +35,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return { id: user.id, email: user.email, name: user.displayName };
       },
     }),
+    Credentials({
+      id: "nexus",
+      name: "Nexus SSO",
+      credentials: {
+        token: { label: "Token", type: "text" },
+      },
+      async authorize(credentials) {
+        const token = credentials?.token as string | undefined;
+        if (!token) return null;
+
+        const claims = await verifyNexusToken(token);
+        if (!claims) return null;
+
+        const user = await provisionNexusUser(claims);
+        return { id: user.id, email: user.email, name: user.displayName };
+      },
+    }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === "credentials") return true;
+      // Credentials providers (password login, Nexus SSO) already do their own
+      // account creation/provisioning inside authorize() — this callback is only
+      // for OAuth providers (Google/GitHub) that don't have a custom authorize().
+      if (account?.provider === "credentials" || account?.provider === "nexus") return true;
       if (!user.email) return false;
-      await db.user.upsert({
-        where: { email: user.email },
-        update: {},
-        create: { email: user.email, displayName: user.name ?? null },
-      });
+      const existing = await db.user.findUnique({ where: { email: user.email } });
+      if (!existing) {
+        const created = await db.user.create({ data: { email: user.email, displayName: user.name ?? null } });
+        await autoJoinOrganizationByDomain(created.id, created.email);
+      }
       return true;
     },
     async jwt({ token, user, trigger }) {

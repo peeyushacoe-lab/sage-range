@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { timeAgo } from "@/lib/activity-feed";
-import type { SerializedFeedEntry } from "@/lib/activity-feed";
+import type { SerializedComment, SerializedFeedEntry } from "@/lib/activity-feed";
 import { CyberAvatar } from "@/components/cyber-avatar";
 
 type ReactionKey = "useful" | "congrats" | "impressive" | "smart";
@@ -48,12 +48,18 @@ interface FeedCardProps {
   entry: SerializedFeedEntry;
   initialCounts: Record<string, number>;
   initialMine: string[];
+  initialComments: SerializedComment[];
+  meId: string;
 }
 
-export function FeedCard({ entry, initialCounts, initialMine }: FeedCardProps) {
+export function FeedCard({ entry, initialCounts, initialMine, initialComments, meId }: FeedCardProps) {
   const [counts, setCounts] = useState(initialCounts);
   const [mine, setMine] = useState<Set<string>>(new Set(initialMine));
   const [loading, setLoading] = useState<string | null>(null);
+  const [comments, setComments] = useState(initialComments);
+  const [showComments, setShowComments] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [posting, setPosting] = useState(false);
 
   const name = entry.displayName ?? entry.email.split("@")[0];
   const initial = name[0].toUpperCase();
@@ -94,6 +100,31 @@ export function FeedCard({ entry, initialCounts, initialMine }: FeedCardProps) {
     } finally {
       setLoading(null);
     }
+  }
+
+  async function submitComment() {
+    const body = draft.trim();
+    if (!body || posting) return;
+    setPosting(true);
+    try {
+      const res = await fetch("/api/feed/comment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entryId: entry.id, entryType: entry.type, body }),
+      });
+      if (res.ok) {
+        const created = (await res.json()) as SerializedComment;
+        setComments((prev) => [...prev, created]);
+        setDraft("");
+      }
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  async function deleteComment(id: string) {
+    setComments((prev) => prev.filter((c) => c.id !== id));
+    await fetch(`/api/feed/comment/${id}`, { method: "DELETE" });
   }
 
   return (
@@ -182,6 +213,64 @@ export function FeedCard({ entry, initialCounts, initialMine }: FeedCardProps) {
                 </button>
               );
             })}
+
+            {comments.length > 0 && (
+              <button
+                onClick={() => setShowComments((v) => !v)}
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-1"
+              >
+                {showComments ? "Hide" : `${comments.length} comment${comments.length === 1 ? "" : "s"}`}
+              </button>
+            )}
+          </div>
+
+          {showComments && comments.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {comments.map((c) => {
+                const cName = c.displayName ?? c.email.split("@")[0];
+                return (
+                  <div key={c.id} className="flex items-start justify-between gap-2 text-xs">
+                    <p className="text-zinc-300 leading-snug">
+                      <Link href={`/profile/${c.userId}`} className="font-semibold hover:text-white transition-colors">
+                        {cName}
+                      </Link>
+                      <span className="text-zinc-500"> {c.body}</span>
+                    </p>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-zinc-700">{timeAgo(c.createdAt)}</span>
+                      {c.userId === meId && (
+                        <button
+                          onClick={() => deleteComment(c.id)}
+                          className="text-zinc-700 hover:text-red-400 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-2.5 flex items-center gap-2">
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submitComment();
+              }}
+              maxLength={500}
+              placeholder="Add a comment…"
+              className="flex-1 bg-white/4 border border-white/8 rounded-full px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-white/20"
+            />
+            <button
+              onClick={submitComment}
+              disabled={!draft.trim() || posting}
+              className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 disabled:opacity-30 transition-colors shrink-0"
+            >
+              Post
+            </button>
           </div>
         </div>
       </div>

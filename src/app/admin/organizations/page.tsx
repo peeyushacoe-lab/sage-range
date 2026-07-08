@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
-import { NewInstitutionForm } from "../_components/new-institution-form";
-import { InstitutionActiveToggle } from "../_components/institution-active-toggle";
+import { NewOrganizationForm } from "../_components/new-organization-form";
+import { OrganizationActiveToggle } from "../_components/organization-active-toggle";
+import { OrganizationMembersPanel } from "../_components/organization-members-panel";
 import { CopyCodeBtn } from "../_components/copy-code-btn";
 
 export const dynamic = "force-dynamic";
@@ -12,8 +13,8 @@ const PLAN_STYLE: Record<string, string> = {
   FREE:       "bg-zinc-800 text-zinc-500 border-zinc-700",
 };
 
-export default async function InstitutionsPage() {
-  const institutions = await db.institution.findMany({
+export default async function OrganizationsPage() {
+  const organizations = await db.organization.findMany({
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { members: true } } },
   });
@@ -22,31 +23,31 @@ export default async function InstitutionsPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Institutions</h1>
-          <p className="text-zinc-500 text-sm mt-1">{institutions.length} registered</p>
+          <h1 className="text-2xl font-bold text-white">Organizations</h1>
+          <p className="text-zinc-500 text-sm mt-1">{organizations.length} registered</p>
         </div>
-        <NewInstitutionForm />
+        <NewOrganizationForm />
       </div>
 
-      {institutions.length === 0 ? (
+      {organizations.length === 0 ? (
         <div className="rounded-xl border border-white/8 flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-zinc-500 text-sm mb-1">No institutions yet.</p>
-          <p className="text-zinc-700 text-xs">Create one to start selling institution access.</p>
+          <p className="text-zinc-500 text-sm mb-1">No organizations yet.</p>
+          <p className="text-zinc-700 text-xs">Create one to start selling organization access.</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {institutions.map((inst) => {
-            const expired = inst.expiresAt && inst.expiresAt < new Date();
-            const seatPct = Math.round((inst._count.members / inst.seats) * 100);
+          {organizations.map((org) => {
+            const expired = org.expiresAt && org.expiresAt < new Date();
+            const seatPct = Math.round((org._count.members / org.seats) * 100);
 
             return (
-              <div key={inst.id} className="rounded-xl border border-white/8 p-5">
+              <div key={org.id} className="rounded-xl border border-white/8 p-5">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <p className="font-semibold text-zinc-200">{inst.name}</p>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider border rounded px-2 py-0.5 ${PLAN_STYLE[inst.plan] ?? PLAN_STYLE.FREE}`}>
-                        {inst.plan}
+                      <p className="font-semibold text-zinc-200">{org.name}</p>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider border rounded px-2 py-0.5 ${PLAN_STYLE[org.plan] ?? PLAN_STYLE.FREE}`}>
+                        {org.plan}
                       </span>
                       {expired && (
                         <span className="text-[10px] font-bold uppercase tracking-wider border rounded px-2 py-0.5 bg-red-500/10 text-red-400 border-red-500/30">
@@ -54,18 +55,21 @@ export default async function InstitutionsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-zinc-500">{inst.contactEmail}</p>
+                    <p className="text-xs text-zinc-500">{org.contactEmail}</p>
+                    {org.domain && (
+                      <p className="text-xs text-sage-400 font-mono mt-0.5">@{org.domain} auto-joins</p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <CopyCodeBtn code={inst.joinCode} />
-                    <InstitutionActiveToggle id={inst.id} active={inst.active} />
+                    <CopyCodeBtn code={org.joinCode} />
+                    <OrganizationActiveToggle id={org.id} active={org.active} />
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6 text-xs text-zinc-600">
-                  <span className="font-mono">{inst.joinCode}</span>
-                  <span>{inst._count.members}/{inst.seats} seats</span>
-                  {inst.expiresAt && <span>Expires {inst.expiresAt.toISOString().slice(0, 10)}</span>}
+                  <span className="font-mono">{org.joinCode}</span>
+                  <span>{org._count.members}/{org.seats} seats</span>
+                  {org.expiresAt && <span>Expires {org.expiresAt.toISOString().slice(0, 10)}</span>}
                 </div>
 
                 {/* Seat usage bar */}
@@ -78,7 +82,9 @@ export default async function InstitutionsPage() {
                   </div>
                 </div>
 
-                {inst.notes && <p className="text-xs text-zinc-600 mt-2 italic">{inst.notes}</p>}
+                {org.notes && <p className="text-xs text-zinc-600 mt-2 italic">{org.notes}</p>}
+
+                <OrganizationMembersPanel orgId={org.id} />
               </div>
             );
           })}

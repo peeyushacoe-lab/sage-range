@@ -16,6 +16,7 @@ export async function PATCH(
     seats?: number;
     expiresAt?: string | null;
     notes?: string;
+    domain?: string | null;
   };
 
   const data: Record<string, unknown> = {};
@@ -24,7 +25,17 @@ export async function PATCH(
   if (typeof body.seats === "number") data.seats = body.seats;
   if ("expiresAt" in body) data.expiresAt = body.expiresAt ? new Date(body.expiresAt) : null;
   if (typeof body.notes === "string") data.notes = body.notes;
+  if ("domain" in body) {
+    const normalized = body.domain?.trim().toLowerCase().replace(/^@/, "") || null;
+    if (normalized) {
+      const clash = await db.organization.findUnique({ where: { domain: normalized } });
+      if (clash && clash.id !== id) {
+        return NextResponse.json({ error: "That domain is already registered to another organization." }, { status: 409 });
+      }
+    }
+    data.domain = normalized;
+  }
 
-  await db.institution.update({ where: { id }, data });
+  await db.organization.update({ where: { id }, data });
   return NextResponse.json({ ok: true });
 }

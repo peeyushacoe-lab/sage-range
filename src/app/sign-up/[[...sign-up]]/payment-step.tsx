@@ -5,7 +5,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import type { Stripe, StripeElements } from "@stripe/stripe-js";
 
 interface Props {
-  role: "INSTRUCTOR" | "RECRUITER";
+  role: "STUDENT" | "INSTRUCTOR" | "RECRUITER";
   voucherCode?: string;
   finalAmount: number;        // cents — displayed to user
   onSuccess: () => void;

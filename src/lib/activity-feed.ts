@@ -134,6 +134,40 @@ export async function getFeedReactions(entryIds: string[], userId: string) {
   return { counts, mine };
 }
 
+export type SerializedComment = {
+  id: string;
+  userId: string;
+  displayName: string | null;
+  email: string;
+  body: string;
+  createdAt: string;
+};
+
+export async function getFeedComments(entryIds: string[]) {
+  if (entryIds.length === 0) return {} as Record<string, SerializedComment[]>;
+
+  const comments = await db.feedComment.findMany({
+    where: { entryId: { in: entryIds } },
+    orderBy: { createdAt: "asc" },
+    include: { user: { select: { displayName: true, email: true } } },
+  });
+
+  const byEntry: Record<string, SerializedComment[]> = {};
+  for (const c of comments) {
+    if (!byEntry[c.entryId]) byEntry[c.entryId] = [];
+    byEntry[c.entryId].push({
+      id: c.id,
+      userId: c.userId,
+      displayName: c.user.displayName,
+      email: c.user.email,
+      body: c.body,
+      createdAt: c.createdAt.toISOString(),
+    });
+  }
+
+  return byEntry;
+}
+
 export function timeAgo(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   const seconds = Math.floor((Date.now() - d.getTime()) / 1000);

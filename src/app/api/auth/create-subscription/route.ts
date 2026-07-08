@@ -7,7 +7,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { getPlanPricing } from "@/lib/plan-pricing";
 
 const Body = z.object({
-  role: z.enum(["INSTRUCTOR", "RECRUITER"]),
+  role: z.enum(["STUDENT", "INSTRUCTOR", "RECRUITER"]),
   voucherCode: z.string().optional(),
 });
 
@@ -95,12 +95,15 @@ export async function POST(req: Request) {
   // Create the subscription with payment_behavior: 'default_incomplete'
   // This creates the subscription but doesn't charge yet — returns a client_secret via
   // latest_invoice.confirmation_secret (the SDK v22 / dahlia replacement for payment_intent).
+  // Note: confirmation_secret is only populated when explicitly expanded — expanding just
+  // "latest_invoice" leaves it null, which was causing every paid signup to fail with
+  // "payment_intent_missing".
   const subscription = await stripe.subscriptions.create({
     customer: customerId,
     items: [{ price: price.id }],
     payment_behavior: "default_incomplete",
     payment_settings: { save_default_payment_method: "on_subscription" },
-    expand: ["latest_invoice"],
+    expand: ["latest_invoice.confirmation_secret"],
     metadata: { userId: me.id, plan: role.toLowerCase(), voucherCode: voucherCode ?? "" },
   });
 

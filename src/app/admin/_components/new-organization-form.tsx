@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 const PLANS = ["TRIAL", "BASIC", "PRO", "ENTERPRISE"] as const;
 const DEFAULT_SEATS: Record<string, number> = { TRIAL: 30, BASIC: 100, PRO: 500, ENTERPRISE: 9999 };
 
-export function NewInstitutionForm() {
+export function NewOrganizationForm() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const [domain, setDomain] = useState("");
   const [plan, setPlan] = useState<typeof PLANS[number]>("TRIAL");
   const [seats, setSeats] = useState(30);
   const [expiresAt, setExpiresAt] = useState("");
@@ -23,15 +24,23 @@ export function NewInstitutionForm() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/institution", {
+      const res = await fetch("/api/admin/organization", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, contactEmail, plan, seats, expiresAt: expiresAt || undefined, notes: notes || undefined }),
+        body: JSON.stringify({
+          name,
+          contactEmail,
+          domain: domain.trim() || undefined,
+          plan,
+          seats,
+          expiresAt: expiresAt || undefined,
+          notes: notes || undefined,
+        }),
       });
       const data = await res.json() as { error?: string; joinCode?: string };
       if (!res.ok) { setError(data.error ?? "Failed"); return; }
       setOpen(false);
-      setName(""); setContactEmail(""); setPlan("TRIAL"); setSeats(30); setExpiresAt(""); setNotes("");
+      setName(""); setContactEmail(""); setDomain(""); setPlan("TRIAL"); setSeats(30); setExpiresAt(""); setNotes("");
       router.refresh();
     } finally {
       setLoading(false);
@@ -44,7 +53,7 @@ export function NewInstitutionForm() {
         onClick={() => setOpen(true)}
         className="text-xs px-3 py-1.5 rounded-lg bg-sage-500 text-black font-semibold hover:bg-sage-700 hover:text-white transition"
       >
-        + New Institution
+        + New Organization
       </button>
     );
   }
@@ -52,14 +61,19 @@ export function NewInstitutionForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-zinc-950 w-full max-w-lg">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold">New Institution</p>
+        <p className="text-sm font-semibold">New Organization</p>
         <button type="button" onClick={() => setOpen(false)} className="text-zinc-500 hover:text-white text-xs">✕ Cancel</button>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Institution name"
+        <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Organization name"
           className="col-span-2 rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60" />
         <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required type="email" placeholder="Contact email"
           className="col-span-2 rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60" />
+        <div className="flex flex-col gap-1 col-span-2">
+          <label className="text-xs text-zinc-500">Email domain (optional — auto-joins matching signups)</label>
+          <input value={domain} onChange={(e) => setDomain(e.target.value.toLowerCase())} type="text" placeholder="e.g. cybersage.uk"
+            className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60" />
+        </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs text-zinc-500">Plan</label>
           <select value={plan} onChange={(e) => { const p = e.target.value as typeof PLANS[number]; setPlan(p); setSeats(DEFAULT_SEATS[p]); }}
@@ -83,7 +97,7 @@ export function NewInstitutionForm() {
       {error && <p className="text-xs text-red-400">{error}</p>}
       <button type="submit" disabled={loading || !name.trim() || !contactEmail.trim()}
         className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white disabled:opacity-40 transition">
-        {loading ? "Creating…" : "Create Institution"}
+        {loading ? "Creating…" : "Create Organization"}
       </button>
     </form>
   );
