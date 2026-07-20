@@ -4,17 +4,13 @@ import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 
 const ClaimsSchema = z.object({
-  userId: z.string().min(1),
+  sub: z.string().min(1),       // Nexus sends standard JWT "sub" for the user id
   email: z.string().email(),
   organization: z.string().min(1),
   cohort: z.string().min(1).optional(),
   role: z.string().optional(),
-  // Accepted but intentionally unused for now: Nexus currently sends a free-text
-  // name ("Peeyush") with no stable id/email, so there's no reliable way to link
-  // it to an actual Org Lead account. Revisit once Nexus can send a linkable
-  // identifier for the mentor — lead assignment stays a manual admin step until then.
   mentor: z.string().optional(),
-});
+}).transform((d) => ({ ...d, userId: d.sub })); // expose as userId for the rest of the code
 
 export type NexusClaims = z.infer<typeof ClaimsSchema>;
 
