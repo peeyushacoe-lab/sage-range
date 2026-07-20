@@ -22,28 +22,14 @@ function getSecret() {
 
 /** Verifies a Nexus-issued SSO JWT (HS256). Returns null on any invalid, expired, or malformed token. */
 export async function verifyNexusToken(token: string): Promise<NexusClaims | null> {
-  // Decode header/payload without verifying — for diagnostics only
-  try {
-    const [headerB64, payloadB64] = token.split(".");
-    const header = JSON.parse(Buffer.from(headerB64, "base64url").toString());
-    const rawPayload = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
-    console.log("[nexus-sso] jwt header:", JSON.stringify(header));
-    console.log("[nexus-sso] jwt payload keys:", Object.keys(rawPayload).join(", "));
-    console.log("[nexus-sso] jwt exp:", rawPayload.exp ? new Date(rawPayload.exp * 1000).toISOString() : "missing");
-  } catch { /* ignore decode errors */ }
-
   try {
     const { payload } = await jwtVerify(token, getSecret(), {
       algorithms: ["HS256"],
       requiredClaims: ["exp"],
     });
     const parsed = ClaimsSchema.safeParse(payload);
-    if (!parsed.success) {
-      console.error("[nexus-sso] claims schema mismatch:", JSON.stringify(parsed.error.flatten()));
-    }
     return parsed.success ? parsed.data : null;
-  } catch (e) {
-    console.error("[nexus-sso] jwtVerify threw:", (e as Error).message);
+  } catch {
     return null;
   }
 }

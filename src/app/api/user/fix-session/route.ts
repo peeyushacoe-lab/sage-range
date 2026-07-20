@@ -15,14 +15,16 @@ export async function GET(req: Request) {
     httpOnly: true,
   };
 
-  // User has never been updated = brand new, needs to pick role
-  const needsOnboarding = user.updatedAt.getTime() === user.createdAt.getTime();
+  // Nexus-provisioned users already have a role set — skip onboarding.
+  // Other brand-new users (updatedAt === createdAt) need to pick a role.
+  const isNexusUser = !!user.externalId;
+  const needsOnboarding = !isNexusUser && user.updatedAt.getTime() === user.createdAt.getTime();
 
   if (needsOnboarding) {
     return NextResponse.redirect(new URL("/onboarding", origin));
   }
 
-  // Existing user — restore cookies and send to the right home
+  // Existing or Nexus user — restore cookies and send to the right home
   const destination = user.role === "ADMIN" ? "/admin" : "/dashboard";
   const res = NextResponse.redirect(new URL(destination, origin));
   res.cookies.set("sage_onboarded", "1", cookieOpts);
