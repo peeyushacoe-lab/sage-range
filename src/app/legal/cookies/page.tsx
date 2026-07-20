@@ -7,28 +7,28 @@ const UPDATED = "1 June 2026";
 const COOKIES = [
   {
     name: "next-auth.session-token",
-    provider: "Sage Forge (NextAuth)",
+    provider: "Sage Vault (NextAuth)",
     purpose: "Authentication session token. Required for sign-in to work.",
     duration: "Session / up to 30 days",
     category: "Essential",
   },
   {
     name: "sage_onboarded",
-    provider: "Sage Forge",
+    provider: "Sage Vault",
     purpose: "Records whether you have completed the onboarding flow. Used by the server to route you to the correct page on login.",
     duration: "1 year",
     category: "Essential",
   },
   {
     name: "sage_role",
-    provider: "Sage Forge",
+    provider: "Sage Vault",
     purpose: "Stores your current platform role (Student / Instructor / Recruiter) so routing decisions can be made at the network edge without a database call.",
     duration: "1 year",
     category: "Essential",
   },
   {
     name: "sage_cookie_consent",
-    provider: "Sage Forge",
+    provider: "Sage Vault",
     purpose: "Stores your cookie preference (accepted / declined) so the consent banner is not shown again.",
     duration: "Stored in localStorage (not a cookie)",
     category: "Functional",
@@ -44,7 +44,7 @@ export default function CookiePolicyPage() {
         <p className="text-xs text-zinc-500 mb-2">Last updated: {UPDATED}</p>
         <h1 className="text-3xl font-bold mb-2">Cookie Policy</h1>
         <p className="text-zinc-400 text-sm mb-10 leading-relaxed">
-          This policy explains what cookies Sage Forge (by CyberSage) uses, why, and how you can control them.
+          This policy explains what cookies Sage Vault (by CyberSage) uses, why, and how you can control them.
         </p>
 
         <div className="space-y-10 text-sm leading-relaxed">
@@ -118,7 +118,7 @@ export default function CookiePolicyPage() {
           <section>
             <h2 className="text-base font-semibold text-white mb-3">How to manage cookies</h2>
             <p className="text-zinc-400 mb-3">
-              You can manage or delete cookies through your browser settings. Note that disabling essential cookies will prevent you from signing in to Sage Forge.
+              You can manage or delete cookies through your browser settings. Note that disabling essential cookies will prevent you from signing in to Sage Vault.
             </p>
             <ul className="space-y-1 text-zinc-400">
               <li><a href="https://support.google.com/chrome/answer/95647" className="text-sage-400 hover:underline" target="_blank" rel="noreferrer">Chrome cookie settings ↗</a></li>

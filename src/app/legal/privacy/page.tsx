@@ -13,14 +13,14 @@ export default function PrivacyPolicyPage() {
           <p className="text-xs text-zinc-500 mb-2">Last updated: {UPDATED}</p>
           <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
           <p className="text-zinc-400 text-sm mb-10">
-            CyberSage Ltd, operating Sage Forge (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;), is committed to protecting your personal information.
+            CyberSage Ltd, operating Sage Vault (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;), is committed to protecting your personal information.
             This policy explains what data we collect, how we use it, and your rights.
           </p>
 
           <div className="space-y-10 text-sm leading-relaxed text-zinc-300">
             <section>
               <h2 className="text-base font-semibold text-white mb-3">1. Data We Collect</h2>
-              <p className="text-zinc-400 mb-3">We collect the following categories of data when you use Sage Forge:</p>
+              <p className="text-zinc-400 mb-3">We collect the following categories of data when you use Sage Vault:</p>
               <ul className="space-y-2 text-zinc-400">
                 <li><span className="text-white font-medium">Account data:</span> Email address, display name, role (Student / Instructor / Recruiter), university, profile fields you choose to fill in (bio, skills, CV URL, LinkedIn, GitHub, company, job title).</li>
                 <li><span className="text-white font-medium">Activity data:</span> Lab attempts and progress, simulation session events, learning path progress, competition entries, leaderboard scores.</li>
@@ -34,7 +34,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="text-base font-semibold text-white mb-3">2. How We Use Your Data</h2>
               <ul className="space-y-2 text-zinc-400">
-                <li>Provide and operate the Sage Forge platform</li>
+                <li>Provide and operate the Sage Vault platform</li>
                 <li>Generate your skill profile, certificates, and debrief reports</li>
                 <li>Allow instructors to track student progress in their classrooms</li>
                 <li>Allow recruiters to browse simulation-assessed candidate profiles (only with your consent via public profile settings)</li>

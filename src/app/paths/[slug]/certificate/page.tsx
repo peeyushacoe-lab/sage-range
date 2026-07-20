@@ -98,7 +98,7 @@ export default async function CertificatePage({
 
         <div className="w-full max-w-2xl rounded-2xl border border-white/8 bg-zinc-900/60 p-12 flex flex-col items-center text-center gap-6">
           <div>
-            <p className="text-sage-500 font-bold tracking-widest text-sm uppercase">SAGE FORGE</p>
+            <p className="text-sage-500 font-bold tracking-widest text-sm uppercase">SAGE VAULT</p>
           </div>
 
           <div className="w-16 h-px bg-white/10" />
@@ -121,7 +121,7 @@ export default async function CertificatePage({
           <div className="w-16 h-px bg-white/10" />
 
           <p className="text-xs text-zinc-600 tracking-wide">
-            Verified by Sage Forge · cybersage.uk
+            Verified by Sage Vault · cybersage.uk
           </p>
         </div>
 

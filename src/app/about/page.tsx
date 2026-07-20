@@ -4,11 +4,11 @@ import { MarketingFooter } from "@/components/marketing-footer";
 
 const PRODUCTS = [
   {
-    name: "Sage Forge",
+    name: "Sage Vault",
     tag: "Cyber Range & Training",
     tagColor: "text-sage-400 bg-sage-500/10 border-sage-500/20",
     description:
-      "Our flagship cyber range and security simulation platform. Designed for universities, training providers, government organisations, and enterprise security teams, Sage Forge delivers immersive, AI-powered cybersecurity exercises that replicate real-world incidents and attack scenarios.",
+      "Our flagship cyber range and security simulation platform. Designed for universities, training providers, government organisations, and enterprise security teams, Sage Vault delivers immersive, AI-powered cybersecurity exercises that replicate real-world incidents and attack scenarios.",
     capabilities: [
       "AI-generated cybersecurity scenarios",
       "Realistic incident response simulations",
@@ -86,7 +86,7 @@ const COMMITMENTS = [
   {
     icon: "🔓",
     title: "Accessibility",
-    body: "Cybersecurity training should not be gated by budget. Students access Sage Forge free. We monetise through institutions and employers — ensuring that talent can be discovered regardless of financial background.",
+    body: "Cybersecurity training should not be gated by budget. Students access Sage Vault free. We monetise through institutions and employers — ensuring that talent can be discovered regardless of financial background.",
   },
 ];
 
@@ -169,7 +169,7 @@ export default function AboutPage() {
                     href={p.href}
                     className="text-xs font-semibold text-sage-400 border border-sage-500/30 rounded-lg px-3 py-1.5 hover:bg-sage-500/10 transition"
                   >
-                    Visit Sage Forge →
+                    Visit Sage Vault →
                   </a>
                 )}
               </div>
@@ -248,11 +248,11 @@ export default function AboutPage() {
         <h2 className="text-3xl font-bold mb-4">Join the CyberSage ecosystem</h2>
         <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-xl mx-auto">
           Whether you&apos;re building skills, running a classroom, or hiring for your security team —
-          Sage Forge is available today. Brain Sentinel and Nexus are coming soon.
+          Sage Vault is available today. Brain Sentinel and Nexus are coming soon.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Link href="/sign-up" className="rounded-xl bg-sage-500 px-6 py-3 font-semibold text-black hover:bg-sage-400 transition">
-            Get started with Sage Forge →
+            Get started with Sage Vault →
           </Link>
           <Link href="/contact" className="rounded-xl border border-white/15 px-6 py-3 text-zinc-300 hover:text-white hover:border-white/30 transition">
             Talk to our team

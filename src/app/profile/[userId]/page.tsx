@@ -94,7 +94,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
           {rating && rStyle && (
             <div className={`rounded-2xl border p-6 mb-6 flex items-center justify-between gap-4 ${rStyle.card}`}>
               <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Sage Forge Verified Assessment</p>
+                <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Sage Vault Verified Assessment</p>
                 <p className={`text-4xl font-black ${rStyle.text}`}>{rating}</p>
                 <p className="text-sm text-zinc-400 mt-1">
                   Based on {simSessions.length} simulation{simSessions.length !== 1 ? "s" : ""} · Best score: {bestSimScore}/100

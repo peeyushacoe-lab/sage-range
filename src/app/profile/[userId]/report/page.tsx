@@ -113,7 +113,7 @@ export default async function CandidateReportPage({
           ← Back to Profile
         </Link>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-zinc-600">Sage Forge · Candidate Assessment Report</span>
+          <span className="text-xs text-zinc-600">Sage Vault · Candidate Assessment Report</span>
           <PrintBtn />
         </div>
       </div>
@@ -126,7 +126,7 @@ export default async function CandidateReportPage({
           <div className="flex items-start justify-between border-b border-zinc-200 pb-6">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 mb-2">
-                Sage Forge · Candidate Assessment Report
+                Sage Vault · Candidate Assessment Report
               </p>
               <h1 className="text-3xl font-bold text-zinc-900">{candidateName}</h1>
               {candidate.email && <p className="text-zinc-500 text-sm mt-0.5">{candidate.email}</p>}
@@ -145,7 +145,7 @@ export default async function CandidateReportPage({
                 <div className={`text-4xl font-bold ${r.color} mb-1`}>{r.label}</div>
               )}
               <p className="text-xs text-zinc-500">Generated {generatedDate}</p>
-              <p className="text-xs text-zinc-400">by Sage Forge</p>
+              <p className="text-xs text-zinc-400">by Sage Vault</p>
             </div>
           </div>
 
@@ -332,7 +332,7 @@ export default async function CandidateReportPage({
 
           {/* Footer */}
           <div className="border-t border-zinc-200 pt-4 flex items-center justify-between text-xs text-zinc-400">
-            <span>Sage Forge · cybersage.uk</span>
+            <span>Sage Vault · cybersage.uk</span>
             <span>Candidate ID: {userId.slice(0, 16).toUpperCase()}</span>
             <span>{generatedDate}</span>
           </div>

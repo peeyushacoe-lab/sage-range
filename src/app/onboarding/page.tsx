@@ -106,7 +106,7 @@ export default function OnboardingPage() {
       <div className="w-full max-w-4xl">
         {/* Header */}
         <div className="text-center mb-10">
-          <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-3">Welcome to Sage Forge</p>
+          <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-3">Welcome to Sage Vault</p>
           <h1 className="text-3xl font-bold text-white mb-3">How will you use the platform?</h1>
           <p className="text-zinc-400 text-sm max-w-lg mx-auto leading-relaxed">
             Choose your role so we can personalise your experience. You can change this any time in settings.

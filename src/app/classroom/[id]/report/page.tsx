@@ -149,7 +149,7 @@ export default async function ClassroomReportPage({
         {/* Report Header */}
         <div className="border-b border-zinc-200 px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold tracking-tight text-sage-700">Sage Forge</span>
+            <span className="text-lg font-bold tracking-tight text-sage-700">Sage Vault</span>
             <span className="text-zinc-400">|</span>
             <span className="text-sm text-zinc-500">Class Progress Report</span>
           </div>

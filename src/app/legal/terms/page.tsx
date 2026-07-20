@@ -13,7 +13,7 @@ export default function TermsPage() {
           <p className="text-xs text-zinc-500 mb-2">Last updated: {UPDATED}</p>
           <h1 className="text-3xl font-bold mb-2">Terms of Service</h1>
           <p className="text-zinc-400 text-sm mb-10">
-            By creating an account or using Sage Forge, you agree to these terms.
+            By creating an account or using Sage Vault, you agree to these terms.
             Please read them carefully.
           </p>
 
@@ -21,9 +21,9 @@ export default function TermsPage() {
             <section>
               <h2 className="text-base font-semibold text-white mb-3">1. Service Description</h2>
               <p className="text-zinc-400">
-                Sage Forge is a cyber security training, assessment, and talent platform that provides hands-on labs,
+                Sage Vault is a cyber security training, assessment, and talent platform that provides hands-on labs,
                 live incident response simulations, classroom management tools, and a recruiter talent marketplace.
-                The platform is operated by CyberSage Ltd (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) under the Sage Forge brand.
+                The platform is operated by CyberSage Ltd (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) under the Sage Vault brand.
               </p>
             </section>
 
@@ -87,7 +87,7 @@ export default function TermsPage() {
               <h2 className="text-base font-semibold text-white mb-3">7. Intellectual Property</h2>
               <p className="text-zinc-400">
                 All platform content — including simulation scenarios, lab content, assessment logic,
-                the REDai adversary engine, and the Sage Forge brand — is the intellectual property of Sage Forge.
+                the REDai adversary engine, and the Sage Vault brand — is the intellectual property of Sage Vault.
                 You may not reproduce, distribute, or create derivative works without written permission.
                 Your profile content (bio, skills, projects) remains your own.
               </p>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const LINKS = {
-  "Sage Forge": [
+  "Sage Vault": [
     { label: "Pricing",     href: "/pricing" },
     { label: "Leaderboard", href: "/leaderboard" },
     { label: "Sign Up Free", href: "/sign-up" },
@@ -42,7 +42,7 @@ export function MarketingFooter() {
               <div className="h-4 w-4 rounded-sm bg-sage-500/20 border border-sage-500/30 flex items-center justify-center">
                 <span className="text-[8px] text-sage-400 font-bold">SR</span>
               </div>
-              <span className="text-xs text-zinc-400">Sage Forge <span className="text-sage-500 text-[10px]">Live</span></span>
+              <span className="text-xs text-zinc-400">Sage Vault <span className="text-sage-500 text-[10px]">Live</span></span>
             </div>
             {COMING_SOON.map((p) => (
               <div key={p.name} className="flex items-center gap-2 opacity-50">

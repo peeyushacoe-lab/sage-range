@@ -20,12 +20,12 @@ export async function generateMetadata({
   });
 
   if (!cert) {
-    return { title: "Certificate Verification — Sage Forge" };
+    return { title: "Certificate Verification — Sage Vault" };
   }
 
   const candidateName = cert.user.displayName ?? cert.user.email.split("@")[0];
-  const title = `${candidateName} — IR Commander Certificate | Sage Forge`;
-  const description = `Verified Sage Forge IR Commander Certification, issued ${formatDate(cert.unlockedAt)}.`;
+  const title = `${candidateName} — IR Commander Certificate | Sage Vault`;
+  const description = `Verified Sage Vault IR Commander Certification, issued ${formatDate(cert.unlockedAt)}.`;
 
   return {
     title,
@@ -84,7 +84,7 @@ export default async function VerifyPage({
         <div className="w-16 h-px bg-white/10" />
 
         <div className="space-y-1 text-sm text-zinc-400">
-          <p>Issued by Sage Forge &middot; {formatDate(cert.unlockedAt)}</p>
+          <p>Issued by Sage Vault &middot; {formatDate(cert.unlockedAt)}</p>
           <p className="font-mono text-xs text-zinc-500">{cert.certId}</p>
         </div>
 

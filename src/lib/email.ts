@@ -4,7 +4,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM = "Sage Forge <noreply@cybersage.uk>";
+const FROM = "Sage Vault <noreply@cybersage.uk>";
 
 function wrap(content: string, title: string): string {
   return `<!DOCTYPE html>
@@ -32,12 +32,12 @@ function wrap(content: string, title: string): string {
 <body>
 <div class="container">
   <div class="card">
-    <div class="logo">Sage Forge</div>
+    <div class="logo">Sage Vault</div>
     ${content}
     <hr class="divider" />
-    <p style="font-size:12px;color:#52525b;">You received this email because you have an account on Sage Forge. <a href="https://cybersage.uk" style="color:#71717a;">cybersage.uk</a></p>
+    <p style="font-size:12px;color:#52525b;">You received this email because you have an account on Sage Vault. <a href="https://cybersage.uk" style="color:#71717a;">cybersage.uk</a></p>
   </div>
-  <div class="footer">© 2026 Sage Forge · <a href="https://cybersage.uk/legal/privacy" style="color:#52525b;">Privacy</a> · <a href="https://cybersage.uk/legal/terms" style="color:#52525b;">Terms</a></div>
+  <div class="footer">© 2026 Sage Vault · <a href="https://cybersage.uk/legal/privacy" style="color:#52525b;">Privacy</a> · <a href="https://cybersage.uk/legal/terms" style="color:#52525b;">Terms</a></div>
 </div>
 </body>
 </html>`;
@@ -55,7 +55,7 @@ export async function sendWelcomeEmail(to: string, name: string, role: string) {
     : "Start your first lab →";
 
   const html = wrap(`
-    <h1>Welcome to Sage Forge, ${name}</h1>
+    <h1>Welcome to Sage Vault, ${name}</h1>
     <p>Your account is set up as a <strong style="color:#f4f4f5;">${roleLabel}</strong>. Here's what you can do next:</p>
     ${role === "STUDENT" ? `
     <p>✓ Complete hands-on labs to build your skill score<br/>
@@ -71,12 +71,12 @@ export async function sendWelcomeEmail(to: string, name: string, role: string) {
     ✓ Post job listings and bookmark talent</p>` : ""}
     <a href="${ctaHref}" class="btn">${ctaLabel}</a>
     <p style="font-size:12px;color:#52525b;">You can change your role anytime from your profile settings.</p>
-  `, "Welcome to Sage Forge");
+  `, "Welcome to Sage Vault");
 
   await resend.emails.send({
     from: FROM,
     to,
-    subject: `Welcome to Sage Forge — you're all set`,
+    subject: `Welcome to Sage Vault — you're all set`,
     html,
   });
 }

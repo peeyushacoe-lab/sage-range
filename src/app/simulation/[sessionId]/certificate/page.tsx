@@ -94,7 +94,7 @@ export default async function CertificatePage({
           {/* Header */}
           <div className="text-center mb-10">
             <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-sage-500 print:text-emerald-700 mb-2">
-              Sage Forge
+              Sage Vault
             </p>
             <div className="border-t border-b border-white/10 print:border-zinc-300 py-4 my-4">
               <h1 className="text-2xl font-bold tracking-wide uppercase print:text-zinc-900">
@@ -206,7 +206,7 @@ export default async function CertificatePage({
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-sage-500 print:text-emerald-600 tracking-widest mb-0.5">
-                SAGE FORGE
+                SAGE VAULT
               </div>
               <p className="text-[10px] text-zinc-600 uppercase tracking-wider">Cyber Security Training Platform</p>
             </div>
@@ -214,7 +214,7 @@ export default async function CertificatePage({
               <p className="text-xs text-zinc-500 print:text-zinc-400">Verification ID</p>
               <p className="font-mono text-xs text-zinc-600 print:text-zinc-400">{sessionId.slice(0, 16).toUpperCase()}</p>
               <p className="text-[10px] text-zinc-700 print:text-zinc-400 mt-0.5 break-all">
-                sage-forge.com/verify/simulation/{sessionId}
+                sage-vault.com/verify/simulation/{sessionId}
               </p>
             </div>
           </div>

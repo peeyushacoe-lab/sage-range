@@ -170,7 +170,7 @@ export default function PricingPage() {
             <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">For Enterprises</p>
             <h2 className="text-2xl font-bold mb-3">Built for talent-first organisations</h2>
             <p className="text-zinc-400 text-sm leading-relaxed max-w-xl mx-auto mb-6">
-              Stop paying for certifications that don&apos;t predict performance. Sage Forge gives you simulation-verified
+              Stop paying for certifications that don&apos;t predict performance. Sage Vault gives you simulation-verified
               candidates — ranked by live incident response scores, not self-reported skills.
             </p>
             <div className="grid grid-cols-3 gap-4 mb-8">

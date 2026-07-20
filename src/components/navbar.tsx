@@ -19,8 +19,8 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
       <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           <Link href={role === "ADMIN" ? "/admin" : "/dashboard"} className="flex items-center gap-2 shrink-0">
-            <Image src="/logo.ico" alt="Sage Forge" width={28} height={28} className="rounded" unoptimized />
-            <span className="text-xs font-bold tracking-widest text-emerald-500">SAGE FORGE</span>
+            <Image src="/logo.ico" alt="Sage Vault" width={28} height={28} className="rounded" unoptimized />
+            <span className="text-xs font-bold tracking-widest text-emerald-500">SAGE VAULT</span>
           </Link>
           {backHref && backLabel && (
             <Link href={backHref} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">

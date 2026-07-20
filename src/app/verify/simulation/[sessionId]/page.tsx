@@ -40,13 +40,13 @@ export async function generateMetadata({
   });
 
   if (!session || session.status === "ACTIVE") {
-    return { title: "Certificate Verification — Sage Forge" };
+    return { title: "Certificate Verification — Sage Vault" };
   }
 
   const candidateName = session.user.displayName ?? session.user.email?.split("@")[0] ?? "Analyst";
   const outcome = session.status === "CONTAINED" ? "Contained" : "Breached";
-  const title = `${candidateName} — ${session.template.name} Simulation Certificate | Sage Forge`;
-  const description = `Verified Sage Forge incident response simulation: ${session.template.name} (${session.template.industry}). Outcome: ${outcome}.`;
+  const title = `${candidateName} — ${session.template.name} Simulation Certificate | Sage Vault`;
+  const description = `Verified Sage Vault incident response simulation: ${session.template.name} (${session.template.industry}). Outcome: ${outcome}.`;
 
   return {
     title,
@@ -83,7 +83,7 @@ export default async function VerifySimulationPage({
           </p>
           <p className="font-mono text-xs text-zinc-600 break-all">{sessionId}</p>
           <Link href="/" className="text-xs text-zinc-500 hover:text-zinc-300">
-            ← Sage Forge
+            ← Sage Vault
           </Link>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default async function VerifySimulationPage({
             <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-1">Verified Certificate</p>
             <h1 className="text-2xl font-bold">This simulation is genuine</h1>
             <p className="text-zinc-400 text-sm mt-1">
-              Issued by Sage Forge · Verified on record
+              Issued by Sage Vault · Verified on record
             </p>
           </div>
         </div>
@@ -211,7 +211,7 @@ export default async function VerifySimulationPage({
             </div>
             <div className="text-right">
               <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Platform</p>
-              <p className="text-sm font-semibold text-sage-400">Sage Forge</p>
+              <p className="text-sm font-semibold text-sage-400">Sage Vault</p>
               <p className="text-[10px] text-zinc-600">Cyber Security Training Platform</p>
             </div>
           </div>
@@ -225,7 +225,7 @@ export default async function VerifySimulationPage({
 
         <div className="flex items-center justify-center gap-4">
           <Link href="/" className="text-xs text-zinc-500 hover:text-zinc-300 transition">
-            ← Sage Forge
+            ← Sage Vault
           </Link>
           <span className="text-zinc-700">·</span>
           <Link href="/pricing" className="text-xs text-zinc-500 hover:text-zinc-300 transition">
