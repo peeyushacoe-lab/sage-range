@@ -43,13 +43,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         const token = credentials?.token as string | undefined;
-        if (!token) return null;
+        if (!token) { console.error("[nexus-sso] no token"); return null; }
 
         const claims = await verifyNexusToken(token);
-        if (!claims) return null;
+        if (!claims) { console.error("[nexus-sso] token verification failed — bad secret, expired, or missing claims"); return null; }
 
-        const user = await provisionNexusUser(claims);
-        return { id: user.id, email: user.email, name: user.displayName };
+        console.log("[nexus-sso] claims ok, provisioning user", claims.email);
+        try {
+          const user = await provisionNexusUser(claims);
+          return { id: user.id, email: user.email, name: user.displayName };
+        } catch (e) {
+          console.error("[nexus-sso] provisionNexusUser threw:", e);
+          return null;
+        }
       },
     }),
   ],
