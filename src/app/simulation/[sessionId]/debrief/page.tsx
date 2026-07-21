@@ -95,11 +95,17 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
               · {debrief.decisions.length} decisions
             </p>
           </div>
-          <div className="text-right">
+          <div className="text-right flex flex-col items-end gap-2">
             <p className={`text-3xl font-bold ${outcome === "CONTAINED" ? "text-sage-500" : "text-red-400"}`}>
               {outcome === "CONTAINED" ? "CONTAINED" : "BREACHED"}
             </p>
-            <p className="text-xl font-semibold mt-1">{finalScore} <span className="text-sm font-normal text-zinc-500">pts</span></p>
+            <p className="text-xl font-semibold">{finalScore} <span className="text-sm font-normal text-zinc-500">pts</span></p>
+            <Link
+              href={`/simulation/${sessionId}/replay`}
+              className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20 transition"
+            >
+              ▶ Replay Timeline
+            </Link>
           </div>
         </div>
       </div>
