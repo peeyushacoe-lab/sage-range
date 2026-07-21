@@ -31,17 +31,19 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
 
         <div className="flex items-center gap-5 text-sm text-zinc-400">
           {role === "STUDENT" && (
-            <>
+            <div className="flex items-center gap-3 text-xs text-zinc-400">
               <Link href="/feed"           className="hover:text-zinc-100 transition-colors">Feed</Link>
               <Link href="/labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
-              <Link href="/simulation/new" className="hover:text-zinc-100 transition-colors">Simulations</Link>
+              <Link href="/simulation/new" className="hover:text-zinc-100 transition-colors">Sims</Link>
               <Link href="/paths"          className="hover:text-zinc-100 transition-colors">Paths</Link>
-              <Link href="/competitions"   className="hover:text-zinc-100 transition-colors">Competitions</Link>
-              <Link href="/leaderboard"    className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
-              <Link href="/stats"          className="hover:text-zinc-100 transition-colors">My Stats</Link>
-              <Link href="/organization"  className="hover:text-zinc-100 transition-colors">Team</Link>
-              <Link href="/mitre"        className="hover:text-zinc-100 transition-colors">ATT&CK</Link>
-            </>
+              <Link href="/competitions"   className="hover:text-zinc-100 transition-colors">Compete</Link>
+              <Link href="/leaderboard"    className="hover:text-zinc-100 transition-colors">Ranks</Link>
+              <Link href="/stats"          className="hover:text-zinc-100 transition-colors">Stats</Link>
+              <Link href="/skills"         className="hover:text-zinc-100 transition-colors">Radar</Link>
+              <Link href="/achievements"   className="hover:text-zinc-100 transition-colors">Awards</Link>
+              <Link href="/mitre"          className="hover:text-zinc-100 transition-colors">ATT&CK</Link>
+              <Link href="/organization"   className="hover:text-zinc-100 transition-colors">Team</Link>
+            </div>
           )}
           {role === "INSTRUCTOR" && (
             <>
