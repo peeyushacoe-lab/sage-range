@@ -104,7 +104,7 @@ export function WelcomeCtfClient({
             <span className="text-emerald-400">+const SECRET_TOKEN = &apos;SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;&apos;;{"\n"}</span>
             <span className="text-emerald-400">+const TIMEOUT_MS = 30000;{"\n"}</span>
             <span className="text-zinc-500">{"\n"}</span>
-            <span className="text-zinc-400"> // TODO: move to environment variables{"\n"}</span>
+            <span className="text-zinc-400">{" // TODO: move to environment variables\n"}</span>
           </pre>
         </div>
         {!done("task_3") && (

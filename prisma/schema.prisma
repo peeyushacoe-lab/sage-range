@@ -85,6 +85,7 @@ model User {
   teamEvidence           TeamEvidence[]
   teamTasks              TeamTask[]
   labChangelogs          LabChangelog[]
+  auditLogs              AuditLog[]
   customScenarios        CustomScenario[]      @relation("CreatedCustomScenarios")
   notifications          Notification[]
   certification            IRCertification?
@@ -1091,4 +1092,39 @@ model Writeup {
   @@unique([userId, labId])
   @@index([labId, status])
   @@index([userId])
+}
+
+// ── Audit Log ─────────────────────────────────────────────────────────────────
+// Immutable append-only log of security-relevant events.
+// Rows are never updated or deleted — query for review and export only.
+
+enum AuditAction {
+  LOGIN_SUCCESS
+  LOGIN_FAILURE
+  LOGOUT
+  ROLE_CHANGE
+  FILE_UPLOAD
+  ADMIN_USER_DELETE
+  ADMIN_USER_ROLE_CHANGE
+  ASSESSMENT_ACCESS
+  FLAG_SUBMIT
+  LAB_VERSION_BUMP
+  SSO_PROVISION
+  PASSWORD_CHANGED
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  actorId   String?     // null for unauthenticated events (failed logins)
+  action    AuditAction
+  target    String?     // what was acted upon (userId, labSlug, fileUrl, etc.)
+  meta      Json?       // additional context (IP, user-agent, old/new values)
+  ip        String?
+  createdAt DateTime    @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+  @@index([createdAt])
 }

@@ -56,7 +56,7 @@ export function FlagForm({ labSlug, alreadySolved }: { labSlug: string; alreadyS
     return (
       <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
         <p className="text-sage-500 font-medium">✓ Solved</p>
-        <p className="text-zinc-400 mt-1">You've already captured this flag.</p>
+        <p className="text-zinc-400 mt-1">You&apos;ve already captured this flag.</p>
       </div>
     );
   }

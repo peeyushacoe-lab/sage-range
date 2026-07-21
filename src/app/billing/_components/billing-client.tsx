@@ -88,7 +88,7 @@ export function BillingClient({ plan, status, trialEndsAt, hasSubscription }: Pr
       {status === "past_due" && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/8 p-4">
           <p className="text-sm text-red-400 font-semibold mb-1">Payment failed</p>
-          <p className="text-xs text-zinc-400">Your last payment didn't go through. Update your payment method to keep access.</p>
+          <p className="text-xs text-zinc-400">Your last payment didn&apos;t go through. Update your payment method to keep access.</p>
         </div>
       )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -78,7 +79,7 @@ export function CredentialsForm({ mode }: { mode: "signin" | "signup" }) {
       {error === "__409__" && (
         <p className="text-xs text-amber-400">
           This email already has an account.{" "}
-          <a href="/sign-in" className="underline hover:text-amber-300">Sign in instead →</a>
+          <Link href="/sign-in" className="underline hover:text-amber-300">Sign in instead →</Link>
         </p>
       )}
       <button

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { authConfig } from "./auth.config";
 import { autoJoinOrganizationByDomain } from "@/lib/organization";
 import { verifyNexusToken, provisionNexusUser } from "@/lib/nexus-sso";
+import { audit } from "@/lib/audit";
 
 declare module "next-auth" {
   interface Session {
@@ -27,11 +28,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!email || !password) return null;
 
         const user = await db.user.findUnique({ where: { email } });
-        if (!user?.password) return null;
+        if (!user?.password) {
+          audit({ action: "LOGIN_FAILURE", target: email, meta: { reason: "no_account" } });
+          return null;
+        }
 
         const valid = await bcrypt.compare(password, user.password);
-        if (!valid) return null;
+        if (!valid) {
+          audit({ actorId: user.id, action: "LOGIN_FAILURE", target: user.id, meta: { reason: "bad_password" } });
+          return null;
+        }
 
+        audit({ actorId: user.id, action: "LOGIN_SUCCESS", target: user.id });
         return { id: user.id, email: user.email, name: user.displayName };
       },
     }),
@@ -46,9 +54,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!token) return null;
 
         const claims = await verifyNexusToken(token);
-        if (!claims) return null;
+        if (!claims) {
+          audit({ action: "LOGIN_FAILURE", meta: { reason: "invalid_nexus_token", provider: "nexus" } });
+          return null;
+        }
 
         const user = await provisionNexusUser(claims);
+        audit({ actorId: user.id, action: "SSO_PROVISION", target: user.id, meta: { org: claims.organization, cohort: claims.cohort } });
         return { id: user.id, email: user.email, name: user.displayName };
       },
     }),

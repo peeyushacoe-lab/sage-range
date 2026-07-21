@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
 import { CredentialsForm } from "./credentials-form";
@@ -61,9 +62,9 @@ export default async function SignInPage() {
 
         <p className="text-center text-sm text-zinc-500 mt-5">
           No account?{" "}
-          <a href="/sign-up" className="text-emerald-400 hover:text-emerald-300 transition-colors">
+          <Link href="/sign-up" className="text-emerald-400 hover:text-emerald-300 transition-colors">
             Create one free
-          </a>
+          </Link>
         </p>
       </div>
     </main>

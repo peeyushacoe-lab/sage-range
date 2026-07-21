@@ -162,7 +162,7 @@ export function SearchModal() {
           </div>
         ) : query.trim().length >= 2 && !loading ? (
           <div className="py-10 text-center">
-            <p className="text-zinc-600 text-sm">No results for "{query}"</p>
+            <p className="text-zinc-600 text-sm">No results for &quot;{query}&quot;</p>
           </div>
         ) : query.trim().length < 2 ? (
           <div className="py-6 px-4 grid grid-cols-2 gap-2">

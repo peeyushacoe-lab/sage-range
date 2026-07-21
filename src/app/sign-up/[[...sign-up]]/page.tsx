@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { SignupForm } from "./signup-form";
@@ -23,9 +24,9 @@ export default async function SignUpPage() {
 
         <p className="text-center text-sm text-zinc-500 mt-5">
           Already have an account?{" "}
-          <a href="/sign-in" className="text-emerald-400 hover:text-emerald-300 transition-colors">
+          <Link href="/sign-in" className="text-emerald-400 hover:text-emerald-300 transition-colors">
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </main>

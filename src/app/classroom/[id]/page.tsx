@@ -303,7 +303,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
       <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
         <header>
           <h1 className="text-2xl font-bold">{classroom.name}</h1>
-          <p className="text-sm text-zinc-400 mt-1">Your instructor's assignments and announcements.</p>
+          <p className="text-sm text-zinc-400 mt-1">Your instructor&apos;s assignments and announcements.</p>
         </header>
 
         {/* Announcements */}

@@ -381,7 +381,7 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
                       </div>
                       <p className="text-[10px] text-zinc-500 italic leading-snug">{exec.priority}</p>
                       {exec.demand && (
-                        <p className="text-[10px] text-zinc-300 mt-1.5 leading-snug border-l border-zinc-700 pl-2">"{exec.demand}"</p>
+                        <p className="text-[10px] text-zinc-300 mt-1.5 leading-snug border-l border-zinc-700 pl-2">&quot;{exec.demand}&quot;</p>
                       )}
                     </div>
                   );

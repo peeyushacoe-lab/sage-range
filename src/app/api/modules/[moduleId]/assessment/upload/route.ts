@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { auth } from "@/auth";
+import { audit } from "@/lib/audit";
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
 
@@ -48,5 +49,7 @@ export async function POST(
     { access: "public" }
   );
 
+  audit({ actorId: session.user.id, action: "FILE_UPLOAD", target: blob.url,
+    req, meta: { moduleId, mimeType: file.type, sizeBytes: file.size } });
   return NextResponse.json({ url: blob.url });
 }

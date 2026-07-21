@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
+import { audit } from "@/lib/audit";
 
 const VALID_ROLES = ["STUDENT", "INSTRUCTOR", "RECRUITER"] as const;
 type SwitchRole = (typeof VALID_ROLES)[number];
@@ -22,6 +23,8 @@ export async function GET(req: Request) {
   }
 
   await db.user.update({ where: { id: me.id }, data: { role } });
+  audit({ actorId: me.id, action: "ROLE_CHANGE", target: me.id, req,
+    meta: { previousRole: me.role, newRole: role } });
 
   const cookieOpts = {
     path: "/",

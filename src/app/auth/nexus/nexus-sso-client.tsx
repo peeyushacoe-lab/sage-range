@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export function NexusSsoClient() {
@@ -29,9 +30,9 @@ export function NexusSsoClient() {
     return (
       <div className="max-w-sm mx-auto p-8 text-center">
         <p className="text-red-400 text-sm mb-4">{error}</p>
-        <a href="/sign-in" className="text-sage-400 hover:text-sage-300 text-sm">
+        <Link href="/sign-in" className="text-sage-400 hover:text-sage-300 text-sm">
           Go to sign-in →
-        </a>
+        </Link>
       </div>
     );
   }

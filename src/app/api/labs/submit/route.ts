@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { rateLimit } from "@/lib/rate-limit";
+import { audit } from "@/lib/audit";
 
 const Body = z.object({
   labSlug: z.string().min(1),
@@ -119,5 +120,7 @@ export async function POST(req: Request) {
     }
   }
 
+  audit({ actorId: user.id, action: "FLAG_SUBMIT", target: parsed.data.labSlug,
+    req, meta: { correct: true, points: awardPoints } });
   return NextResponse.json({ correct: true, points: awardPoints });
 }
