@@ -15,7 +15,7 @@ const Body = z.object({
   company: z.string().max(120).optional(),
   jobTitle: z.string().max(120).optional(),
   website: z.string().url().max(300).optional().or(z.literal("")),
-  profileExtra: z.record(z.unknown()).optional(),
+  profileExtra: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function PATCH(req: Request) {
