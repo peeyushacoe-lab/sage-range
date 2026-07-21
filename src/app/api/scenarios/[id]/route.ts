@@ -31,8 +31,9 @@ const PatchBody = z.object({
   published:          z.boolean().optional(),
 });
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const { scenario, err } = await authorize(params.id);
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { scenario, err } = await authorize(id);
   if (err) return err;
 
   const parsed = PatchBody.safeParse(await req.json().catch(() => null));
@@ -46,8 +47,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   return NextResponse.json({ ok: true, published: updated.published });
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
-  const { scenario, err } = await authorize(params.id);
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { scenario, err } = await authorize(id);
   if (err) return err;
 
   await db.customScenario.delete({ where: { id: scenario!.id } });
