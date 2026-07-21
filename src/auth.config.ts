@@ -10,5 +10,11 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth }) {
       return !!auth;
     },
+    // Expose role from the JWT token so middleware can read it without a DB call
+    session({ session, token }) {
+      if (token.role) session.user.role = token.role as string;
+      if (token.id)   session.user.id   = token.id as string;
+      return session;
+    },
   },
 };

@@ -11,7 +11,8 @@ export async function GET(req: Request) {
 
   if (!me) return NextResponse.redirect(new URL("/sign-in", origin));
 
-  if (process.env.NODE_ENV === "production" && me.role !== "ADMIN") {
+  // Role switching is restricted to ADMINs in all environments
+  if (me.role !== "ADMIN") {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 

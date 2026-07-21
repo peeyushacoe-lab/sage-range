@@ -76,17 +76,16 @@ export async function GET(req: Request) {
     results.push({ type: "scenario", id: s.id, title: s.title, subtitle: s.subtitle, href: `/simulation/new` });
   }
 
-  // Users (public profiles)
+  // Users (public profiles) — email intentionally excluded to prevent PII harvesting
   const users = await db.user.findMany({
     where: {
       OR: [
         { displayName: { contains: q, mode: "insensitive" } },
-        { email:       { contains: q, mode: "insensitive" } },
         { university:  { contains: q, mode: "insensitive" } },
         { company:     { contains: q, mode: "insensitive" } },
       ],
     },
-    select: { id: true, displayName: true, email: true, skillScore: true, role: true },
+    select: { id: true, displayName: true, skillScore: true, role: true },
     take: 4,
   });
   for (const u of users) {
@@ -94,7 +93,7 @@ export async function GET(req: Request) {
     results.push({
       type: "user",
       id: u.id,
-      title: u.displayName ?? u.email.split("@")[0],
+      title: u.displayName ?? "User",
       subtitle: `${u.role} · ${u.skillScore} pts`,
       href: `/profile/${u.id}`,
     });
@@ -109,7 +108,7 @@ export async function GET(req: Request) {
         { body:  { contains: q, mode: "insensitive" } },
       ],
     },
-    select: { id: true, title: true, lab: { select: { title: true } }, user: { select: { displayName: true, email: true } } },
+    select: { id: true, title: true, lab: { select: { title: true } }, user: { select: { displayName: true } } },
     take: 4,
   });
   for (const w of writeups) {
@@ -117,7 +116,7 @@ export async function GET(req: Request) {
       type: "writeup",
       id: w.id,
       title: w.title,
-      subtitle: `${w.lab.title} · by ${w.user.displayName ?? w.user.email.split("@")[0]}`,
+      subtitle: `${w.lab.title} · by ${w.user.displayName ?? "User"}`,
       href: `/writeups/${w.id}`,
     });
   }

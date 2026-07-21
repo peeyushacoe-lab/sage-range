@@ -10,6 +10,16 @@ const ALLOWED_TYPES: Record<string, string[]> = {
   ZIP: ["application/zip", "application/x-zip-compressed"],
 };
 
+// Extension derived from MIME type — never trust the client-supplied filename extension
+const MIME_TO_EXT: Record<string, string> = {
+  "application/pdf":           "pdf",
+  "image/jpeg":                "jpg",
+  "image/png":                 "png",
+  "image/webp":                "webp",
+  "application/zip":           "zip",
+  "application/x-zip-compressed": "zip",
+};
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ moduleId: string }> }
@@ -31,7 +41,7 @@ export async function POST(
     return NextResponse.json({ error: "File too large (max 25 MB)" }, { status: 400 });
   }
 
-  const ext = file.name.split(".").pop() ?? "bin";
+  const ext = MIME_TO_EXT[file.type] ?? "bin";
   const blob = await put(
     `assessments/${moduleId}/${session.user.id}-${Date.now()}.${ext}`,
     file,

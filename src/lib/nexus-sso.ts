@@ -1,4 +1,5 @@
 import { jwtVerify } from "jose";
+import { randomBytes } from "crypto";
 import { z } from "zod";
 import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
@@ -34,8 +35,9 @@ export async function verifyNexusToken(token: string): Promise<NexusClaims | nul
   }
 }
 
-function makeCode() {
-  return Math.random().toString(36).slice(2, 10).toUpperCase();
+const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function makeCode(len = 8): string {
+  return Array.from(randomBytes(len), (b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join("");
 }
 
 async function uniqueOrgJoinCode() {
@@ -64,14 +66,20 @@ async function uniqueCohortJoinCode() {
  */
 export async function provisionNexusUser(claims: NexusClaims) {
   // 1. Organization — find or create by name (Nexus doesn't send a stable org id yet).
-  let org = await db.organization.findFirst({ where: { name: claims.organization } });
+  // Nexus sends a display name, not a stable org ID — match case-insensitively to prevent
+  // duplicate orgs from minor name differences. TODO: require stable org ID in JWT.
+  let org = await db.organization.findFirst({
+    where: { name: { equals: claims.organization, mode: "insensitive" } },
+  });
   if (!org) {
+    // Seat count comes from env so it can be configured per deployment tier
+    const seats = parseInt(process.env.NEXUS_SSO_ORG_SEATS ?? "500", 10);
     org = await db.organization.create({
       data: {
         name: claims.organization,
         contactEmail: claims.email,
         joinCode: await uniqueOrgJoinCode(),
-        seats: 100000, // Nexus is the real gatekeeper here, not Forage's seat cap
+        seats,
       },
     });
   }

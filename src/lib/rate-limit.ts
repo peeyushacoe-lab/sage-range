@@ -1,15 +1,27 @@
 // Lightweight DB-backed rate limiter for serverless environments.
 // Uses existing Prisma connection — no Redis needed.
+// Falls back to in-memory tracking on DB error (fail-closed: still enforces limits).
 
 import { db } from "@/lib/db";
 
 type RateLimitResult = { allowed: boolean; remaining: number; resetAt: Date };
 
-/**
- * Check and increment a rate limit counter.
- * Key format: "action:userId" or "action:sessionId"
- * Uses the RateLimit table (see schema).
- */
+// In-memory fallback: used only when DB is unavailable.
+// Keyed by rate-limit key; entries expire after their window.
+const memStore = new Map<string, { count: number; windowStart: number }>();
+
+function memCheck(key: string, max: number, windowSec: number): boolean {
+  const now = Date.now();
+  const entry = memStore.get(key);
+  if (!entry || now - entry.windowStart > windowSec * 1000) {
+    memStore.set(key, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= max) return false;
+  entry.count++;
+  return true;
+}
+
 export async function rateLimit(
   key: string,
   { max, windowSec }: { max: number; windowSec: number }
@@ -19,7 +31,6 @@ export async function rateLimit(
   const resetAt = new Date(now.getTime() + windowSec * 1000);
 
   try {
-    // Count recent events within the window
     const count = await db.rateLimitEvent.count({
       where: { key, createdAt: { gte: windowStart } },
     });
@@ -28,10 +39,8 @@ export async function rateLimit(
       return { allowed: false, remaining: 0, resetAt };
     }
 
-    // Record this event (fire-and-forget for speed)
     db.rateLimitEvent.create({ data: { key } }).catch(() => null);
 
-    // Periodically clean up old events (1-in-50 chance to keep overhead minimal)
     if (Math.random() < 0.02) {
       const cutoff = new Date(now.getTime() - windowSec * 2 * 1000);
       db.rateLimitEvent.deleteMany({ where: { key, createdAt: { lt: cutoff } } }).catch(() => null);
@@ -39,7 +48,8 @@ export async function rateLimit(
 
     return { allowed: true, remaining: max - count - 1, resetAt };
   } catch {
-    // On DB error, allow the request (fail open)
-    return { allowed: true, remaining: max, resetAt };
+    // DB unavailable — fall back to in-memory tracking (still enforces limits, fail-closed)
+    const allowed = memCheck(key, max, windowSec);
+    return { allowed, remaining: allowed ? max - 1 : 0, resetAt };
   }
 }

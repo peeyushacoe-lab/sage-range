@@ -112,11 +112,12 @@ export async function POST(req: Request) {
         completedAt: new Date().toISOString(),
         classroomName: classroom.name,
       };
-      // Fire-and-forget
+      // Fire-and-forget with a 5-second timeout
       fetch(classroom.webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(5000),
       }).catch(() => {/* ignore webhook errors */});
     }
   } catch {
