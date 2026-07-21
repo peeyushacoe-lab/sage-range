@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { sendLabAssignedEmail } from "@/lib/email";
+import { createBulkNotifications } from "@/lib/notifications";
 
 export async function POST(
   req: Request,
@@ -46,7 +47,7 @@ export async function POST(
         where: { classroomId: id },
         include: { user: { select: { email: true, displayName: true } } },
       }),
-      db.lab.findUnique({ where: { id: labId }, select: { title: true } }),
+      db.lab.findUnique({ where: { id: labId }, select: { title: true, slug: true } }),
     ]);
 
     if (lab && enrollments.length > 0) {
@@ -63,6 +64,15 @@ export async function POST(
           dueDateStr
         ).catch(() => null);
       }
+
+      const studentIds = enrollments.map((e) => e.userId);
+      createBulkNotifications(
+        studentIds,
+        "lab_assigned",
+        `New lab assigned: ${lab.title}`,
+        dueDateStr ? `Due ${dueDateStr} · ${classroom.name}` : classroom.name,
+        `/labs/${lab.slug}`
+      ).catch(() => null);
     }
   }
 

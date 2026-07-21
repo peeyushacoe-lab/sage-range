@@ -13,6 +13,7 @@ import { narrateAction } from "@/lib/simulation/narrator";
 import { buildNarrativeContext } from "@/lib/simulation/runtime/context";
 import { getActionConsequences, formatConsequenceNarrative } from "@/lib/simulation/runtime/consequences";
 import { getExecReactionsForAction } from "@/lib/simulation/runtime/executives";
+import { createNotification } from "@/lib/notifications";
 import { buildEmployeeStates } from "@/lib/simulation/runtime/humans/state";
 import { createAdversary, applyAdversarySuccess, applyAdversaryBlock } from "@/lib/simulation/runtime/redai/adversary";
 import { createMemory, recordAction, recordDefenderResponse } from "@/lib/simulation/runtime/redai/memory";
@@ -172,6 +173,13 @@ export async function POST(
       finalScore,
       rating,
       session.id
+    ).catch(() => null);
+    createNotification(
+      user.id,
+      "sim_complete",
+      `Simulation complete — ${rating}`,
+      `${session.template.name} · Score ${finalScore}`,
+      `/simulation/${session.id}/debrief`
     ).catch(() => null);
   }
 

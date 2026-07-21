@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
@@ -381,9 +382,18 @@ export default async function AchievementsPage() {
                         </p>
                       </div>
                       {unlocked && ach.earnedAt && (
-                        <p className="text-[10px] text-zinc-600 mt-auto">
-                          {ach.earnedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                        </p>
+                        <div className="flex items-center justify-between mt-auto pt-1">
+                          <p className="text-[10px] text-zinc-600">
+                            {ach.earnedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          </p>
+                          <Link
+                            href={`/achievements/${ach.id}`}
+                            className="text-[10px] text-zinc-600 hover:text-emerald-400 transition-colors"
+                            title="Share this achievement"
+                          >
+                            Share ↗
+                          </Link>
+                        </div>
                       )}
                     </div>
                   );

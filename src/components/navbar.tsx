@@ -1,8 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getOrCreateAppUser } from "@/lib/current-user";
+import { db } from "@/lib/db";
 import { signOut } from "@/auth";
 import { NavLinks } from "@/components/nav-links";
+import { NotificationBell } from "@/components/notification-bell";
+import { SearchTrigger } from "@/components/search-modal";
 
 const ROLE_BADGE: Record<string, string> = {
   RECRUITER:  "border-amber-500/40 bg-amber-500/8 text-amber-400",
@@ -14,6 +17,10 @@ const ROLE_BADGE: Record<string, string> = {
 export async function Navbar({ backHref, backLabel }: { backHref?: string; backLabel?: string } = {}) {
   const user = await getOrCreateAppUser();
   const role = user?.role ?? "STUDENT";
+
+  const unreadCount = user
+    ? await db.notification.count({ where: { userId: user.id, read: false } })
+    : 0;
 
   return (
     <nav className="border-b border-white/8 bg-zinc-950/80 backdrop-blur sticky top-0 z-40">
@@ -40,8 +47,10 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
           )}
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <span className={`text-[10px] font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${ROLE_BADGE[role] ?? ROLE_BADGE.STUDENT}`}>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <SearchTrigger />
+          {user && <NotificationBell initialUnread={unreadCount} />}
+          <span className={`text-[10px] font-bold uppercase tracking-widest border rounded px-2 py-0.5 ml-1 ${ROLE_BADGE[role] ?? ROLE_BADGE.STUDENT}`}>
             {role}
           </span>
           <form

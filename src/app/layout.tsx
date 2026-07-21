@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SessionProvider } from "@/components/session-provider";
 import { CookieConsent } from "@/components/cookie-consent";
+import { SearchModal } from "@/components/search-modal";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SessionProvider>
           {children}
           <CookieConsent />
+          <SearchModal />
         </SessionProvider>
       </body>
     </html>
