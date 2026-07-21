@@ -21,6 +21,7 @@ const TYPE_ICON: Record<string, string> = {
   writeup_rejected:   "❌",
   scenario_published: "🎯",
   competition_start:  "⚔️",
+  competition_win:    "🏆",
   announcement:       "📣",
 };
 

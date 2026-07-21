@@ -35,6 +35,7 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
   ]);
 
   const alreadySolved = attempt?.status === "SOLVED";
+  const labUpdated = attempt && !alreadySolved && attempt.labVersion < lab.version;
   const completedStages = new Set(labResponses.map((r) => r.stage));
 
   const taskStages = TASK_STAGES[slug] ?? [];
@@ -47,6 +48,14 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar backHref="/labs" backLabel="Labs" />
+      {labUpdated && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-2.5 flex items-center gap-2">
+          <span className="text-amber-400 text-sm">⚠</span>
+          <p className="text-xs text-amber-300">
+            This lab has been updated (v{lab.version}) since you started (v{attempt!.labVersion}). Review the instructions for any changes.
+          </p>
+        </div>
+      )}
       {/* Header bar */}
       <div className="border-b border-white/8 px-6 py-3 flex items-center justify-between">
         <Link href="/labs" className="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1.5">

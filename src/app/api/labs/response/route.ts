@@ -45,6 +45,15 @@ export async function POST(req: Request) {
     },
   });
 
+  // Ensure an IN_PROGRESS attempt exists with the current lab version (first touch)
+  if (isFirstStageCompletion) {
+    await db.attempt.upsert({
+      where: { userId_labId: { userId: user.id, labId: lab.id } },
+      create: { userId: user.id, labId: lab.id, status: "IN_PROGRESS", labVersion: lab.version },
+      update: {},
+    });
+  }
+
   // Award competition points — only on first completion of this stage, with difficulty weighting
   if (isFirstStageCompletion && user.role === "STUDENT") {
     try {
@@ -135,7 +144,7 @@ export async function POST(req: Request) {
         await db.$transaction([
           db.attempt.upsert({
             where: { userId_labId: { userId: user.id, labId: lab.id } },
-            create: { userId: user.id, labId: lab.id, status: "SOLVED", score: awardPoints, startedAt, solvedAt: now, timeTakenSec },
+            create: { userId: user.id, labId: lab.id, status: "SOLVED", score: awardPoints, labVersion: lab.version, startedAt, solvedAt: now, timeTakenSec },
             update: { status: "SOLVED", score: awardPoints, solvedAt: now, timeTakenSec },
           }),
           db.user.update({

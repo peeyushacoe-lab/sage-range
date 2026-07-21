@@ -8,6 +8,8 @@ const Body = z.object({
   description: z.string().min(1).max(2000),
   startDate: z.string().datetime(),
   endDate: z.string().datetime(),
+  freezeAt: z.string().datetime().optional(),
+  prizeDesc: z.string().max(500).optional(),
   labSlugs: z.array(z.string()).min(1),
 });
 
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_request", issues: parsed.error.issues }, { status: 400 });
   }
 
-  const { name, description, startDate, endDate, labSlugs } = parsed.data;
+  const { name, description, startDate, endDate, freezeAt, prizeDesc, labSlugs } = parsed.data;
   const slug = toSlug(name);
 
   const competition = await db.competition.create({
@@ -39,6 +41,8 @@ export async function POST(req: Request) {
       description,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
+      ...(freezeAt && { freezeAt: new Date(freezeAt) }),
+      ...(prizeDesc && { prizeDesc }),
       labSlugs,
       published: false,
     },

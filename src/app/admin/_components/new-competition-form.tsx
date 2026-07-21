@@ -14,6 +14,8 @@ export function NewCompetitionForm({ labs }: { labs: Lab[] }) {
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [freezeAt, setFreezeAt] = useState("");
+  const [prizeDesc, setPrizeDesc] = useState("");
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
 
   function toggleSlug(slug: string) {
@@ -39,6 +41,8 @@ export function NewCompetitionForm({ labs }: { labs: Lab[] }) {
           description,
           startDate: new Date(startDate).toISOString(),
           endDate: new Date(endDate).toISOString(),
+          freezeAt: freezeAt ? new Date(freezeAt).toISOString() : undefined,
+          prizeDesc: prizeDesc || undefined,
           labSlugs: selectedSlugs,
         }),
       });
@@ -47,7 +51,7 @@ export function NewCompetitionForm({ labs }: { labs: Lab[] }) {
         setError(data.error ?? "Failed to create competition.");
         return;
       }
-      setName(""); setDescription(""); setStartDate(""); setEndDate(""); setSelectedSlugs([]);
+      setName(""); setDescription(""); setStartDate(""); setEndDate(""); setFreezeAt(""); setPrizeDesc(""); setSelectedSlugs([]);
       setOpen(false);
       router.refresh();
     } catch {
@@ -102,6 +106,21 @@ export function NewCompetitionForm({ labs }: { labs: Lab[] }) {
           <input
             type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)}
             className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-zinc-500 mb-1">Freeze Scoreboard At <span className="text-zinc-700">(optional)</span></label>
+          <input
+            type="datetime-local" value={freezeAt} onChange={(e) => setFreezeAt(e.target.value)}
+            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-zinc-500 mb-1">Prize Description <span className="text-zinc-700">(optional)</span></label>
+          <input
+            value={prizeDesc} onChange={(e) => setPrizeDesc(e.target.value)}
+            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+            placeholder="Top 3 receive Sage Vault merchandise"
           />
         </div>
       </div>

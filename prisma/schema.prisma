@@ -81,6 +81,10 @@ model User {
   candidateBookmarks     CandidateBookmark[]   @relation("CandidateBookmarks")
   ledTeams               TeamSession[]         @relation("TeamLead")
   teamMemberships        TeamMember[]
+  teamNotes              TeamNote[]
+  teamEvidence           TeamEvidence[]
+  teamTasks              TeamTask[]
+  labChangelogs          LabChangelog[]
   customScenarios        CustomScenario[]      @relation("CreatedCustomScenarios")
   notifications          Notification[]
   certification            IRCertification?
@@ -107,6 +111,7 @@ model Lab {
   difficulty  Difficulty
   category    String
   points      Int        @default(100)
+  version     Int        @default(1)
   published   Boolean    @default(false)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -118,8 +123,23 @@ model Lab {
   pathLabs             PathLab[]
   hints                LabHint[]
   writeups             Writeup[]
+  changelog            LabChangelog[]
 
   @@index([type, difficulty])
+}
+
+model LabChangelog {
+  id          String   @id @default(cuid())
+  labId       String
+  version     Int
+  summary     String
+  changedById String
+  createdAt   DateTime @default(now())
+
+  lab       Lab  @relation(fields: [labId], references: [id], onDelete: Cascade)
+  changedBy User @relation(fields: [changedById], references: [id], onDelete: Cascade)
+
+  @@index([labId, version])
 }
 
 model Flag {
@@ -140,6 +160,7 @@ model Attempt {
   labId        String
   status       AttemptStatus @default(IN_PROGRESS)
   score        Int           @default(0)
+  labVersion   Int           @default(1)
   startedAt    DateTime      @default(now())
   solvedAt     DateTime?
   timeTakenSec Int?
@@ -478,7 +499,10 @@ model TeamSession {
 
   lead    User               @relation("TeamLead", fields: [leadId], references: [id], onDelete: Cascade)
   session SimulationSession? @relation(fields: [sessionId], references: [id])
-  members TeamMember[]
+  members  TeamMember[]
+  notes    TeamNote[]
+  evidence TeamEvidence[]
+  tasks    TeamTask[]
 
   @@index([leadId])
   @@index([status])
@@ -495,6 +519,49 @@ model TeamMember {
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([teamSessionId, userId])
+  @@index([teamSessionId])
+}
+
+model TeamNote {
+  id            String      @id @default(cuid())
+  teamSessionId String
+  authorId      String
+  content       String
+  createdAt     DateTime    @default(now())
+
+  teamSession TeamSession @relation(fields: [teamSessionId], references: [id], onDelete: Cascade)
+  author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([teamSessionId, createdAt])
+}
+
+model TeamEvidence {
+  id            String   @id @default(cuid())
+  teamSessionId String
+  pinnedById    String
+  title         String
+  content       String
+  tag           String   @default("INDICATOR")
+  createdAt     DateTime @default(now())
+
+  teamSession TeamSession @relation(fields: [teamSessionId], references: [id], onDelete: Cascade)
+  pinnedBy    User        @relation(fields: [pinnedById], references: [id], onDelete: Cascade)
+
+  @@index([teamSessionId])
+}
+
+model TeamTask {
+  id            String    @id @default(cuid())
+  teamSessionId String
+  createdById   String
+  assignedRole  TeamRole?
+  title         String
+  done          Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  teamSession TeamSession @relation(fields: [teamSessionId], references: [id], onDelete: Cascade)
+  createdBy   User        @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
   @@index([teamSessionId])
 }
 
@@ -570,15 +637,17 @@ model OrganizationMember {
 // ── Competitions ──────────────────────────────────────────────────────────────
 
 model Competition {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String    @unique
   description String
   startDate   DateTime
   endDate     DateTime
-  published   Boolean  @default(false)
+  freezeAt    DateTime?
+  prizeDesc   String?
+  published   Boolean   @default(false)
   labSlugs    Json
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   entries CompetitionEntry[]
 }

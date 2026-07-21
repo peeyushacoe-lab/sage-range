@@ -67,9 +67,9 @@ export function TeamLobbyClient({ teamId, currentUserId, initialData }: Props) {
       if (!res.ok) return;
       const json = await res.json() as TeamData;
       setData(json);
-      // If launched, redirect to war room
-      if (json.status === "ACTIVE" && json.sessionId) {
-        router.push(`/simulation/${json.sessionId}?teamId=${teamId}`);
+      // If launched, redirect to ops room
+      if (json.status === "ACTIVE") {
+        router.push(`/simulation/team/${teamId}/ops`);
       }
     } catch { /* silent */ }
   }, [teamId, router]);
@@ -124,8 +124,7 @@ export function TeamLobbyClient({ teamId, currentUserId, initialData }: Props) {
         setLaunchError(msg);
         return;
       }
-      const { sessionId } = await res.json() as { sessionId: string };
-      router.push(`/simulation/${sessionId}?teamId=${teamId}`);
+      router.push(`/simulation/team/${teamId}/ops`);
     } catch {
       setLaunchError("Network error.");
     } finally {

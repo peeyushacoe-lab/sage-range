@@ -8,6 +8,7 @@ export type NotificationType =
   | "writeup_rejected"
   | "scenario_published"
   | "competition_start"
+  | "competition_win"
   | "announcement";
 
 export async function createNotification(

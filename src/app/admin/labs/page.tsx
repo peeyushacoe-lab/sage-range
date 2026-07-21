@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { LabToggle } from "../_components/lab-toggle";
 import { TemplateToggle } from "../_components/template-toggle";
@@ -47,6 +48,7 @@ export default async function LabsPage() {
                 <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Type</th>
                 <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Difficulty</th>
                 <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Attempts</th>
+                <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Version</th>
                 <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Published</th>
               </tr>
             </thead>
@@ -68,6 +70,15 @@ export default async function LabsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right text-zinc-400 tabular-nums">{lab._count.attempts}</td>
+                  <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/admin/labs/${lab.slug}`}
+                      className="text-xs text-zinc-500 hover:text-zinc-300 font-mono transition"
+                      title="Version history"
+                    >
+                      v{lab.version}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <LabToggle id={lab.id} published={lab.published} />
                   </td>

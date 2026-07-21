@@ -22,6 +22,7 @@ const TYPE_ICON: Record<string, string> = {
   writeup_rejected:   "❌",
   scenario_published: "🎯",
   competition_start:  "⚔️",
+  competition_win:    "🏆",
   announcement:       "📣",
 };
 
@@ -33,6 +34,7 @@ const TYPE_COLOR: Record<string, string> = {
   writeup_rejected:   "border-l-red-500",
   scenario_published: "border-l-purple-500",
   competition_start:  "border-l-orange-500",
+  competition_win:    "border-l-amber-400",
   announcement:       "border-l-zinc-500",
 };
 

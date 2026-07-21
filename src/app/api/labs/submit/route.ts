@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   if (!matched) {
     await db.attempt.upsert({
       where: { userId_labId: { userId: user.id, labId: lab.id } },
-      create: { userId: user.id, labId: lab.id, status: "IN_PROGRESS" },
+      create: { userId: user.id, labId: lab.id, status: "IN_PROGRESS", labVersion: lab.version },
       update: {},
     });
     return NextResponse.json({ correct: false });
@@ -65,6 +65,7 @@ export async function POST(req: Request) {
         labId: lab.id,
         status: "SOLVED",
         score: awardPoints,
+        labVersion: lab.version,
         startedAt,
         solvedAt,
         timeTakenSec,

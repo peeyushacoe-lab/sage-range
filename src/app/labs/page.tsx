@@ -63,11 +63,19 @@ export default async function LabsIndex({
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Labs</h1>
-          <p className="text-zinc-400 mt-2">
-            Hands-on challenges across CTF, Blue Team, and Red Team disciplines. Complete all tasks in a room to capture the flag.
-          </p>
+        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Labs</h1>
+            <p className="text-zinc-400 mt-2">
+              Hands-on challenges across CTF, Blue Team, and Red Team disciplines. Complete all tasks in a room to capture the flag.
+            </p>
+          </div>
+          <Link
+            href="/labs/graph"
+            className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+          >
+            Skill Graph →
+          </Link>
         </header>
 
         {/* Simulation callout */}
