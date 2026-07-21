@@ -32,6 +32,7 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
         <div className="flex items-center gap-5 text-sm text-zinc-400">
           {role === "STUDENT" && (
             <div className="flex items-center gap-3 text-xs text-zinc-400">
+              <Link href="/daily"          className="hover:text-zinc-100 transition-colors text-emerald-400 hover:text-emerald-300 font-semibold">Daily</Link>
               <Link href="/feed"           className="hover:text-zinc-100 transition-colors">Feed</Link>
               <Link href="/labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
               <Link href="/simulation/new" className="hover:text-zinc-100 transition-colors">Sims</Link>
