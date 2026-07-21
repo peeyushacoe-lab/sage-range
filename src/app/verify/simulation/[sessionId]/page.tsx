@@ -92,7 +92,10 @@ export default async function VerifySimulationPage({
 
   const worldState = buildWorldState(session.events);
   const outcome = (session.status === "CONTAINED" ? "CONTAINED" : "BREACHED") as "CONTAINED" | "BREACHED";
-  const score = computeFinalScore(session.template.slug, worldState);
+  const verifyElapsed = session.endedAt
+    ? Math.floor((session.endedAt.getTime() - session.startedAt.getTime()) / 1000)
+    : undefined;
+  const score = computeFinalScore(session.template.slug, worldState, verifyElapsed);
 
   const timedEvents = session.events.map((e) => ({
     id: e.id, type: e.type, actor: e.actor, payload: e.payload,

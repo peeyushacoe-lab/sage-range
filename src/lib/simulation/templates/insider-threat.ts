@@ -160,6 +160,13 @@ export const insiderThreat: ScenarioDefinition = {
       availableInStages: ["NORMAL", "SUSPICIOUS_ACCESS"],
       effects: { stageBlocker: false, scoreChange: 8, stealthChange: -5 },
     },
+    {
+      id: "schedule_performance_review",
+      label: "Schedule 1:1 with Marcus Webb",
+      description: "HR flagged a performance concern. Book a meeting — address the issue through proper people management channels.",
+      availableInStages: ["NORMAL"],
+      effects: { stageBlocker: false, scoreChange: -8, stealthChange: 0 },
+    },
     // ── Suspicious Access ──────────────────────────────────────────────────────
     {
       id: "restrict_after_hours",
@@ -181,6 +188,13 @@ export const insiderThreat: ScenarioDefinition = {
       description: "Activate covert screen recording and keylogging on WKSTN-IT-WEBB without alerting the subject.",
       availableInStages: ["SUSPICIOUS_ACCESS", "PRIVILEGE_ABUSE"],
       effects: { stageBlocker: false, scoreChange: 8, stealthChange: 15 },
+    },
+    {
+      id: "confront_employee_directly",
+      label: "Call Marcus Webb Into Your Office Now",
+      description: "You have enough to confront him. Bring him in, show him the logs, demand an explanation.",
+      availableInStages: ["SUSPICIOUS_ACCESS"],
+      effects: { stageBlocker: false, scoreChange: -18, stealthChange: 0 },
     },
     // ── Privilege Abuse ────────────────────────────────────────────────────────
     {

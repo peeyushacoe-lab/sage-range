@@ -117,7 +117,10 @@ export default async function GraphPage({ params }: { params: Promise<{ sessionI
   // Stage markers from debrief
   const outcome = (session.status === "CONTAINED" ? "CONTAINED" : "BREACHED") as "CONTAINED" | "BREACHED";
   const worldState = buildWorldState(session.events);
-  const finalScore = computeFinalScore(session.template.slug, worldState);
+  const graphElapsed = session.endedAt
+    ? Math.floor((session.endedAt.getTime() - session.startedAt.getTime()) / 1000)
+    : undefined;
+  const finalScore = computeFinalScore(session.template.slug, worldState, graphElapsed);
   const timedEvents = session.events.map(e => ({
     id: e.id, type: e.type, actor: e.actor,
     payload: e.payload, narrative: e.narrative,

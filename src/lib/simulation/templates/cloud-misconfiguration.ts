@@ -147,6 +147,13 @@ export const cloudMisconfiguration: ScenarioDefinition = {
       availableInStages: ["NORMAL", "DISCOVERY"],
       effects: { stageBlocker: false, scoreChange: 8, stealthChange: 0 },
     },
+    {
+      id: "make_bucket_private_only",
+      label: "Make Bucket Private — Incident Closed",
+      description: "Flip the bucket back to private. The exposure window is closed. No further action needed — the keys are still valid but no one will find them now.",
+      availableInStages: ["DISCOVERY"],
+      effects: { stageBlocker: false, scoreChange: -15, stealthChange: 0 },
+    },
     // ── Discovery ───────────────────────────────────────────────────────────────
     {
       id: "rotate_iam_keys",
@@ -186,6 +193,16 @@ export const cloudMisconfiguration: ScenarioDefinition = {
       description: "Activate GuardDuty across all regions. Provides automated threat detection for ongoing attacker activity.",
       availableInStages: ["CREDENTIAL_THEFT", "LATERAL_MOVEMENT"],
       effects: { stageBlocker: false, scoreChange: 10, stealthChange: -10 },
+    },
+    {
+      id: "suspend_aws_account",
+      label: "Suspend the Entire AWS Account",
+      description: "Nuclear option: call AWS support and request account suspension. Instantly stops all attacker access.",
+      availableInStages: ["CREDENTIAL_THEFT", "LATERAL_MOVEMENT"],
+      effects: { stageBlocker: false, scoreChange: -25, stealthChange: -30 },
+      consequences: [
+        { system: "All AWS Services", status: "OFFLINE", reason: "Account suspended — production systems, CI/CD, and all cloud infrastructure offline indefinitely" },
+      ],
     },
     // ── Lateral Movement ────────────────────────────────────────────────────────
     {

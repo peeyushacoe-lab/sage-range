@@ -39,7 +39,9 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
 
   const worldState = buildWorldState(session.events);
   const outcome = (status === "CONTAINED" ? "CONTAINED" : "BREACHED") as "CONTAINED" | "BREACHED";
-  const finalScore = computeFinalScore(session.template.slug, worldState);
+  const endTime = session.endedAt ?? new Date();
+  const durationSeconds = Math.floor((endTime.getTime() - session.startedAt.getTime()) / 1000);
+  const finalScore = computeFinalScore(session.template.slug, worldState, durationSeconds);
 
   const timedEvents = session.events.map((e) => ({
     id: e.id, type: e.type, actor: e.actor, payload: e.payload,

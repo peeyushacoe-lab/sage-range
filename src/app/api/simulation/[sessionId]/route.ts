@@ -145,11 +145,12 @@ export async function GET(
       }
 
       // Compute score with the advance event included so the stored value matches recomputed value.
+      const elapsedBreachSec = Math.floor((Date.now() - session.startedAt.getTime()) / 1000);
       const breachScore = isTerminalBreach
         ? computeFinalScore(session.template.slug, buildWorldState([
             ...session.events,
             { type: "STAGE_ADVANCE", payload: { from: worldState.stage, to: nextStage, breach: true } } as unknown as typeof session.events[0],
-          ]))
+          ]), elapsedBreachSec)
         : worldState.score;
 
       await db.simulationSession.update({

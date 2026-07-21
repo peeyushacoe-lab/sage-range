@@ -192,6 +192,13 @@ export const phishingRansomware: ScenarioDefinition = {
       availableInStages: ["NORMAL", "PHISHING_ACTIVE"],
       effects: { stageBlocker: false, scoreChange: 8, stealthChange: 0 },
     },
+    {
+      id: "dismiss_ti_alert",
+      label: "Dismiss — Likely Noise",
+      description: "TI feeds fire hundreds of low-confidence alerts weekly. Mark this one as a false positive and close the ticket.",
+      availableInStages: ["NORMAL"],
+      effects: { stageBlocker: false, scoreChange: -10, stealthChange: 0 },
+    },
     // ── Phishing Active ───────────────────────────────────────────────────────
     {
       id: "brief_employees",
@@ -224,6 +231,16 @@ export const phishingRansomware: ScenarioDefinition = {
       description: "Observe attacker behavior without alerting them. Intelligence gain — but the attack continues.",
       availableInStages: ["INITIAL_COMPROMISE"],
       effects: { stageBlocker: false, scoreChange: 5, stealthChange: 15 },
+    },
+    {
+      id: "reimage_without_capture",
+      label: "Wipe and Reimage Endpoint",
+      description: "Fastest way to clean the machine — kick the user off, reimage from golden image, get them back online in 2 hours.",
+      availableInStages: ["INITIAL_COMPROMISE"],
+      effects: { stageBlocker: false, scoreChange: -20, stealthChange: -5 },
+      consequences: [
+        { system: "WKSTN-FIN-04", status: "OFFLINE", reason: "Reimaged — all forensic evidence destroyed. C2 implant re-deployed via persistence mechanism on DC." },
+      ],
     },
     {
       id: "notify_ir",
@@ -259,6 +276,13 @@ export const phishingRansomware: ScenarioDefinition = {
       description: "Reset all privileged account passwords. Invalidates stolen credentials immediately.",
       availableInStages: ["LATERAL_MOVEMENT", "DOMAIN_COMPROMISE"],
       effects: { stageBlocker: true, scoreChange: 22, stealthChange: -15 },
+    },
+    {
+      id: "broadcast_alert_all_staff",
+      label: "Broadcast Alert to All 2,400 Staff",
+      description: "Mass internal email warning everyone the network is compromised. Full transparency with the workforce.",
+      availableInStages: ["LATERAL_MOVEMENT"],
+      effects: { stageBlocker: false, scoreChange: -15, stealthChange: 30 },
     },
     // ── Domain Compromise ─────────────────────────────────────────────────────
     {

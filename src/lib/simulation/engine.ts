@@ -182,7 +182,11 @@ export function getActionDef(templateSlug: string, actionId: string) {
 // the actions taken. Without this, raw scores are capped at whatever the earliest
 // available stageBlocker path sums to (often well under 100), which inverts the
 // intended incentive — fast, correct containment should score near 100.
-export function computeFinalScore(templateSlug: string, worldState: WorldState): number {
+//
+// elapsedSec: seconds from session start to containment. When provided, speed is
+// scored continuously (penalises late containment even within the same stage).
+// Omit for in-flight estimates where timing isn't available.
+export function computeFinalScore(templateSlug: string, worldState: WorldState, elapsedSec?: number): number {
   const template = getTemplate(templateSlug);
   if (!template) return Math.max(0, Math.min(100, Math.round(worldState.score)));
 
@@ -213,10 +217,22 @@ export function computeFinalScore(templateSlug: string, worldState: WorldState):
     return Math.max(0, Math.min(100, Math.round(worldState.score)));
   }
 
-  // Speed: earlier containment stage = higher score.
-  const speedScore = totalContainable > 1
-    ? (100 * (totalContainable - 1 - stageIndex)) / (totalContainable - 1)
-    : 100;
+  // Speed: when actual elapsed time is available, use a continuous score so that
+  // acting fast within a stage (not just reaching an earlier stage) is rewarded.
+  // Without elapsedSec, fall back to the stage-index bucket.
+  let speedScore: number;
+  if (typeof elapsedSec === "number" && elapsedSec >= 0) {
+    // Total time budget = sum of autoAdvanceSec across all containable stages.
+    const totalTimeBudget = containableStages.reduce(
+      (sum, s) => sum + (s.autoAdvanceSec > 0 ? s.autoAdvanceSec : 60),
+      0
+    );
+    speedScore = Math.max(0, Math.min(100, Math.round(100 * (1 - elapsedSec / totalTimeBudget))));
+  } else {
+    speedScore = totalContainable > 1
+      ? (100 * (totalContainable - 1 - stageIndex)) / (totalContainable - 1)
+      : 100;
+  }
 
   return Math.round(Math.max(0, Math.min(100, 0.5 * speedScore + 0.5 * qualityScore)));
 }

@@ -133,8 +133,9 @@ export async function POST(
 
   const newScore = worldState.score + actionDef.effects.scoreChange;
   const newStatus = actionDef.effects.stageBlocker ? "CONTAINED" : "ACTIVE";
+  const elapsedSec = Math.floor((Date.now() - session.startedAt.getTime()) / 1000);
   const finalScore = newStatus !== "ACTIVE"
-    ? computeFinalScore(session.template.slug, { ...worldState, score: newScore, status: newStatus })
+    ? computeFinalScore(session.template.slug, { ...worldState, score: newScore, status: newStatus }, elapsedSec)
     : newScore;
 
   await db.simulationSession.update({
@@ -252,7 +253,7 @@ export async function POST(
 
         // Ransomware deployment = simulation ends in breach
         if (consequences.some((c) => c.type === "REDAI_RANSOMWARE_DEPLOYED")) {
-          const finalBreachScore = computeFinalScore(session.template.slug, { ...worldState, score: newScore, status: "BREACHED" });
+          const finalBreachScore = computeFinalScore(session.template.slug, { ...worldState, score: newScore, status: "BREACHED" }, elapsedSec);
           await db.simulationSession.update({
             where: { id: session.id },
             data: { status: "BREACHED", endedAt: new Date(), score: finalBreachScore },

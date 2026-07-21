@@ -49,7 +49,8 @@ export default async function ReplayPage({ params }: { params: Promise<{ session
 
   const outcome = (session.status === "CONTAINED" ? "CONTAINED" : "BREACHED") as "CONTAINED" | "BREACHED";
   const worldState = buildWorldState(session.events);
-  const finalScore = computeFinalScore(session.template.slug, worldState);
+  const replayElapsed = Math.floor(totalMs / 1000);
+  const finalScore = computeFinalScore(session.template.slug, worldState, replayElapsed);
   const debrief = buildDebrief(session.template.slug, timedEvents, outcome, finalScore);
 
   const stages: StageMarker[] = debrief.timeline.map((t) => ({

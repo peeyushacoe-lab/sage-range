@@ -42,7 +42,10 @@ export default async function CertificatePage({
 
   const worldState = buildWorldState(session.events);
   const outcome = (session.status === "CONTAINED" ? "CONTAINED" : "BREACHED") as "CONTAINED" | "BREACHED";
-  const score = computeFinalScore(session.template.slug, worldState);
+  const certElapsed = session.endedAt
+    ? Math.floor((session.endedAt.getTime() - session.startedAt.getTime()) / 1000)
+    : undefined;
+  const score = computeFinalScore(session.template.slug, worldState, certElapsed);
 
   const timedEvents = session.events.map((e) => ({
     id: e.id, type: e.type, actor: e.actor, payload: e.payload,
