@@ -68,6 +68,7 @@ model User {
   trialEndsAt          DateTime?
 
   attempts               Attempt[]
+  writeups               Writeup[]
   labResponses           LabResponse[]
   aiEvaluations          AIEvaluation[]
   simSessions            SimulationSession[]
@@ -80,6 +81,7 @@ model User {
   candidateBookmarks     CandidateBookmark[]   @relation("CandidateBookmarks")
   ledTeams               TeamSession[]         @relation("TeamLead")
   teamMemberships        TeamMember[]
+  customScenarios        CustomScenario[]      @relation("CreatedCustomScenarios")
   certification            IRCertification?
   competitionEntries       CompetitionEntry[]
   organizationMemberships  OrganizationMember[]
@@ -114,6 +116,7 @@ model Lab {
   classroomAssignments ClassroomLabAssignment[]
   pathLabs             PathLab[]
   hints                LabHint[]
+  writeups             Writeup[]
 
   @@index([type, difficulty])
 }
@@ -191,6 +194,30 @@ enum SimulationStatus {
   CONTAINED
   BREACHED
   ABANDONED
+}
+
+model CustomScenario {
+  id                 String     @id @default(cuid())
+  title              String
+  subtitle           String
+  briefing           String     @db.Text
+  difficulty         Difficulty
+  estimatedMinutes   Int        @default(45)
+  personaId          String
+  archetypeId        String
+  templateSlug       String
+  learningObjectives String[]
+  tags               String[]
+  realWorldAnalogue  String?
+  published          Boolean    @default(false)
+  createdById        String
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  createdBy User @relation("CreatedCustomScenarios", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([createdById])
+  @@index([published])
 }
 
 model ScenarioTemplate {
@@ -949,4 +976,31 @@ model RubricScore {
 
   @@unique([criterionId, reviewId])
   @@index([reviewId])
+}
+
+// ── Writeups ──────────────────────────────────────────────────────────────────
+
+enum WriteupStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Writeup {
+  id        String        @id @default(cuid())
+  userId    String
+  labId     String
+  title     String
+  body      String        @db.Text
+  status    WriteupStatus @default(PENDING)
+  verdict   String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lab  Lab  @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, labId])
+  @@index([labId, status])
+  @@index([userId])
 }

@@ -12,7 +12,7 @@ const SUID_OUTPUT = `/usr/bin/passwd
 const SUDO_OUTPUT = `User operator may run the following commands on target:
     (ALL) NOPASSWD: /usr/bin/vim`;
 
-const ROOT_SHELL = `operator@target:~$ sudo vim
+const ROOT_SHELL_PARTIAL = `operator@target:~$ sudo vim
 [opens vim editor]
 
 # From within vim, escape to shell:
@@ -21,18 +21,17 @@ const ROOT_SHELL = `operator@target:~$ sudo vim
 
 root@target:~# id
 uid=0(root) gid=0(root) groups=0(root)
-root@target:~# cat /root/flag.txt
-SAGE{r00t_fl4g_c4ptured}`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) =>
-    s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
-  return strip(value) === strip(expected);
-}
+root@target:~# `;
 
 function checkVimCommand(value: string): boolean {
   const v = value.toLowerCase();
   return v.includes("vim") && (v.includes(":!sh") || v.includes(":!/bin/sh") || v.includes(":shell") || v.includes(":!bash"));
+}
+
+function checkReadCommand(value: string): boolean {
+  const v = value.toLowerCase().trim();
+  return (v.includes("cat") || v.includes("less") || v.includes("more") || v.includes("strings")) &&
+         v.includes("/root/flag.txt");
 }
 
 export function PrivilegeEscalationClient({
@@ -84,11 +83,11 @@ export function PrivilegeEscalationClient({
 
   function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t3Answer, "SAGE{r00t_fl4g_c4ptured}")) {
+    if (checkReadCommand(t3Answer)) {
       setT3Error("");
       void saveStage("task_3");
     } else {
-      setT3Error("Incorrect flag. Copy the exact flag shown in the terminal output.");
+      setT3Error("Incorrect. Provide the full command including the path to the flag file.");
     }
   }
 
@@ -131,8 +130,8 @@ export function PrivilegeEscalationClient({
         )}
         {done("task_1") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — <span className="text-amber-300">find</span> with SUID escalates via{" "}
-            <span className="text-amber-300">find . -exec /bin/sh \; -quit</span>. Flag: SAGE&#123;f1nd_su1d_3scap3&#125;
+            Correct — <span className="text-amber-300">find</span> with SUID can be abused via{" "}
+            <span className="text-amber-300">find . -exec /bin/sh \; -quit</span>.
           </p>
         )}
       </TaskShell>
@@ -148,12 +147,12 @@ export function PrivilegeEscalationClient({
           <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SUDO_OUTPUT}</pre>
         </div>
         <p className="text-xs text-zinc-500 mb-4">
-          Hint: vim has built-in shell escape commands. Once inside vim with sudo, you can execute arbitrary commands.
+          vim has built-in shell escape commands. Once inside vim with sudo, you can execute arbitrary commands.
         </p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
             <p className="text-sm text-zinc-300 font-medium">
-              What command spawns a root shell from vim&apos;s sudo access?
+              What command sequence spawns a root shell from vim&apos;s sudo access?
             </p>
             <div className="flex gap-2 max-w-lg">
               <MonoInput
@@ -170,7 +169,7 @@ export function PrivilegeEscalationClient({
         {done("task_2") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — <span className="text-amber-300">sudo vim</span> then{" "}
-            <span className="text-amber-300">:!sh</span> drops a root shell. Flag: SAGE&#123;sudo_v1m_3scap3&#125;
+            <span className="text-amber-300">:!sh</span> drops a root shell.
           </p>
         )}
       </TaskShell>
@@ -178,19 +177,20 @@ export function PrivilegeEscalationClient({
       {/* Task 3 */}
       <TaskShell number={3} title="Read the Root Flag" unlocked={done("task_2")} completed={done("task_3")}>
         <p className="text-zinc-300 text-sm mb-3">
-          You now have a root shell. Read the flag from <code className="font-mono text-amber-300">/root/flag.txt</code>.
+          You now have a root shell. The session below shows you&apos;ve successfully escalated.
+          Read the flag from <code className="font-mono text-amber-300">/root/flag.txt</code> and submit the command you used.
         </p>
         <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-green-400 whitespace-pre-wrap">{ROOT_SHELL}</pre>
+          <pre className="font-mono text-xs text-green-400 whitespace-pre-wrap">{ROOT_SHELL_PARTIAL}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Submit the root flag:</p>
+            <p className="text-sm text-zinc-300 font-medium">What command reads the root flag?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
                 value={t3Answer}
                 onChange={setT3Answer}
-                placeholder="SAGE{...}"
+                placeholder="command /path/to/file"
                 className="flex-1"
               />
               <SubmitBtn label="Submit" />
@@ -198,16 +198,19 @@ export function PrivilegeEscalationClient({
             {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
           </form>
         )}
+        {done("task_3") && (
+          <p className="text-sm font-mono text-sage-400">
+            Command accepted — root flag captured and your solve recorded.
+          </p>
+        )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
-          <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;f1nd_su1d_3scap3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;sudo_v1m_3scap3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;r00t_fl4g_c4ptured&#125;</span></li>
-          </ul>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete ✓</h3>
+          <p className="text-sm text-zinc-400 mt-2">
+            All three privilege escalation paths identified — SUID abuse, sudo misconfiguration, and root flag retrieval. Your solve is recorded.
+          </p>
         </div>
       )}
     </div>

@@ -3,33 +3,66 @@
 import { useState } from "react";
 
 const LOGS = {
-  "auth.log": `2026-05-09 13:58:01 UTC  sshd: Failed password for invalid user admin from 192.168.1.45 port 51201
-2026-05-09 13:59:14 UTC  sshd: Accepted password for webserver from 10.0.0.15 port 43201
-2026-05-09 14:00:01 UTC  sshd: Failed password for finance.user from 198.51.100.42 port 51422
-2026-05-09 14:00:03 UTC  sshd: Failed password for finance.user from 198.51.100.42 port 51423
-2026-05-09 14:00:05 UTC  sshd: Failed password for finance.user from 198.51.100.42 port 51424
-2026-05-09 14:00:09 UTC  sshd: Failed password for finance.user from 198.51.100.42 port 51425
-2026-05-09 14:00:18 UTC  sshd: Accepted password for finance.user from 198.51.100.42 port 51428
-2026-05-09 14:00:21 UTC  sudo: finance.user ran: sudo -l (exit 0)`,
+  "auth.log": `2026-05-09 08:14:03  sshd: Failed password for root from 203.0.113.18 port 44121 ssh2
+2026-05-09 08:14:05  sshd: Failed password for admin from 203.0.113.18 port 44123 ssh2
+2026-05-09 08:14:07  sshd: Failed password for ubuntu from 203.0.113.18 port 44125 ssh2
+2026-05-09 08:16:31  sshd: Connection reset by 203.0.113.18 — max auth retries exceeded
+2026-05-09 09:41:15  sshd: Failed password for hr.manager from 45.33.32.156 port 53201 ssh2
+2026-05-09 09:42:01  sshd: Failed password for finance.director from 45.33.32.156 port 53204 ssh2
+2026-05-09 09:42:47  sshd: Failed password for it.admin from 45.33.32.156 port 53211 ssh2
+2026-05-09 09:43:33  sshd: Failed password for finance.user from 45.33.32.156 port 53218 ssh2
+2026-05-09 09:44:19  sshd: Failed password for ceo.assistant from 45.33.32.156 port 53225 ssh2
+2026-05-09 12:00:07  sshd: Accepted password for it.support from 10.0.0.15 port 22 ssh2
+2026-05-09 13:55:00  sshd: Failed password for finance.user from 45.33.32.156 port 59881 ssh2
+2026-05-09 13:55:07  sshd: Failed password for finance.user from 45.33.32.156 port 59882 ssh2
+2026-05-09 13:55:14  sshd: Failed password for finance.user from 45.33.32.156 port 59883 ssh2
+2026-05-09 13:55:21  sshd: Failed password for finance.user from 45.33.32.156 port 59884 ssh2
+2026-05-09 14:32:07  sudo: it.support : TTY=pts/1 ; PWD=/var/log ; USER=root ; COMMAND=/usr/sbin/service apache2 restart`,
 
-  "sysmon": `2026-05-09 14:00:19 UTC  EventID 1  ProcessCreate: EXCEL.EXE (PID 4821) — finance.user
-2026-05-09 14:03:02 UTC  EventID 1  ProcessCreate: powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0A...
-                                    (PID 5102, parent: EXCEL.EXE PID 4821)
-2026-05-09 14:03:04 UTC  EventID 3  NetworkConnect: powershell.exe PID 5102 → 198.51.100.42:4444
-2026-05-09 14:03:07 UTC  EventID 13 RegistryValueSet:
-                                    HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Updater
-                                    = powershell.exe -nop -w hidden -enc <base64>
-2026-05-09 14:04:01 UTC  EventID 1  ProcessCreate: cmd.exe (PID 5201, parent: powershell.exe 5102)
-2026-05-09 14:04:03 UTC  EventID 1  ProcessCreate: whoami.exe (PID 5202, parent: cmd.exe 5201)
-2026-05-09 14:04:08 UTC  EventID 1  ProcessCreate: net.exe user /domain (PID 5203, parent: cmd.exe 5201)`,
+  "sysmon": `2026-05-09 14:03:14  EventID 1   ProcessCreate  finance-ws01
+  Image:       C:\\Program Files\\Microsoft Office\\Office16\\WINWORD.EXE (PID 3910)
+  CommandLine: "WINWORD.EXE" /q "Q1_Invoice_Final.docm"
+  User:        CORP\\finance.user
 
-  "dns": `2026-05-09 13:57:44 UTC  finance-ws01  A?    update.windows-telemetry[.]com → NXDOMAIN
-2026-05-09 14:00:01 UTC  finance-ws01  A?    mail.company.internal → 10.0.0.25
-2026-05-09 14:03:03 UTC  finance-ws01  A?    cdn.ms-update[.]net → 198.51.100.42
-2026-05-09 14:03:05 UTC  finance-ws01  A?    api.ms-update[.]net → 198.51.100.42
-2026-05-09 14:10:17 UTC  finance-ws01  TXT?  finance-ws01.ms-update[.]net → (beaconing)
-2026-05-09 14:15:17 UTC  finance-ws01  TXT?  finance-ws01.ms-update[.]net → (beaconing)
-2026-05-09 14:20:17 UTC  finance-ws01  TXT?  finance-ws01.ms-update[.]net → (beaconing)`,
+2026-05-09 14:09:28  EventID 1   ProcessCreate  finance-ws01
+  Image:       C:\\Windows\\System32\\cmd.exe (PID 4203)
+  ParentImage: WINWORD.EXE (PID 3910)
+  CommandLine: cmd.exe /c powershell
+  User:        CORP\\finance.user
+
+2026-05-09 14:09:29  EventID 1   ProcessCreate  finance-ws01
+  Image:       C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe (PID 4204)
+  ParentImage: cmd.exe (PID 4203)
+  CommandLine: powershell -nop -w hidden -enc UwB0AGEAcgB0AC0AUwBsAGUAZQBwACAALQBTAGUAYwBvAG4AZA...
+  User:        CORP\\finance.user
+
+2026-05-09 14:09:33  EventID 3   NetworkConnect  finance-ws01
+  Image:          powershell.exe (PID 4204)
+  SourceIP:       10.10.20.45     SourcePort:      52831
+  DestinationIP:  198.51.100.71   DestinationPort: 443
+
+2026-05-09 14:10:07  EventID 13  RegistryValueSet  finance-ws01
+  TargetObject: HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\WindowsHelper
+  Details:      C:\\Users\\finance.user\\AppData\\Roaming\\svchost32.exe
+
+2026-05-09 14:10:51  EventID 1   ProcessCreate  finance-ws01
+  Image:       C:\\Windows\\System32\\whoami.exe (PID 4288)
+  ParentImage: powershell.exe (PID 4204)
+
+2026-05-09 14:11:03  EventID 1   ProcessCreate  finance-ws01
+  Image:       C:\\Windows\\System32\\net.exe (PID 4301)
+  CommandLine: net.exe user /domain
+  ParentImage: powershell.exe (PID 4204)`,
+
+  "dns": `2026-05-09 09:15:22  workstation-03   A?   windows-update.microsoft.com → 40.101.41.17
+2026-05-09 10:30:14  hr-ws01          A?   outlook.office365.com → 52.97.146.129
+2026-05-09 13:48:31  finance-ws01     A?   mail.corp.internal → 10.0.0.25
+2026-05-09 14:09:31  finance-ws01     A?   cdn.azure-update[.]net → 198.51.100.71
+2026-05-09 14:09:33  finance-ws01     A?   api.azure-update[.]net → 198.51.100.71
+2026-05-09 14:15:00  finance-ws01     TXT? bH4ks93x.azure-update[.]net → (beaconing)
+2026-05-09 14:20:00  finance-ws01     TXT? bH4ks93x.azure-update[.]net → (beaconing)
+2026-05-09 14:25:00  finance-ws01     TXT? bH4ks93x.azure-update[.]net → (beaconing)
+2026-05-09 15:01:45  workstation-11   A?   teams.microsoft.com → 52.113.194.132`,
 } as const;
 
 type LogTab = keyof typeof LOGS;
@@ -44,27 +77,12 @@ type EvalResult = {
 };
 
 const ACCESS_OPTIONS = [
-  { value: "email_attachment", label: "Malicious email attachment (Excel file)" },
-  { value: "web_exploit", label: "Web application exploit" },
-  { value: "brute_force_only", label: "Brute-force with no payload" },
-  { value: "insider", label: "Insider threat" },
+  { value: "spear_phishing", label: "Spear-phishing email with malicious document attachment" },
+  { value: "credential_spray", label: "Credential compromise via SSH password spray" },
+  { value: "web_exploit", label: "Remote code execution on a public-facing web application" },
+  { value: "supply_chain", label: "Supply chain compromise via software dependency" },
+  { value: "insider", label: "Insider threat — legitimate employee abusing own access" },
 ];
-
-const PERSISTENCE_OPTIONS = [
-  { value: "registry_run", label: "Registry Run key (HKCU\\...\\Run\\Updater)" },
-  { value: "scheduled_task", label: "Scheduled task" },
-  { value: "service", label: "Windows service creation" },
-  { value: "startup_folder", label: "Startup folder" },
-];
-
-function highlight(line: string): string {
-  if (line.includes("198.51.100.42")) return "text-red-400";
-  if (line.includes("Failed password")) return "text-amber-400";
-  if (line.includes("Accepted password") || line.includes("beaconing")) return "text-orange-400";
-  if (line.includes("powershell") || line.includes("cmd.exe") || line.includes("whoami")) return "text-red-300";
-  if (line.includes("RegistryValueSet") || line.includes("Run\\Updater")) return "text-red-400";
-  return "text-zinc-300";
-}
 
 export function SocInvestigationForm({
   labId,
@@ -79,8 +97,8 @@ export function SocInvestigationForm({
   const [tab, setTab] = useState<LogTab>("auth.log");
   const [ip, setIp] = useState("");
   const [accessVector, setAccessVector] = useState("");
-  const [persistence, setPersistence] = useState("");
-  const [patientZero, setPatientZero] = useState("");
+  const [processName, setProcessName] = useState("");
+  const [compromisedAccount, setCompromisedAccount] = useState("");
   const [summary, setSummary] = useState("");
   const [submitted, setSubmitted] = useState(!!prev);
   const [responseId, setResponseId] = useState(prev?.id ?? "");
@@ -89,11 +107,11 @@ export function SocInvestigationForm({
     prevEval ? (JSON.parse(prevEval.response) as EvalResult) : null
   );
   const [evalPending, setEvalPending] = useState(false);
-  const [ipResult, setIpResult] = useState<"correct" | "wrong" | null>(null);
+  const [results, setResults] = useState<Record<string, boolean> | null>(null);
 
   async function submitInvestigation(e: React.FormEvent) {
     e.preventDefault();
-    if (!summary.trim() || summary.trim().length < 50) return;
+    if (!summary.trim() || summary.trim().length < 80) return;
 
     setIsPending(true);
     try {
@@ -103,14 +121,21 @@ export function SocInvestigationForm({
         body: JSON.stringify({
           labId,
           stage: "investigation",
-          response: JSON.stringify({ ip, accessVector, persistence, patientZero, summary }),
+          response: JSON.stringify({ ip, accessVector, processName, compromisedAccount, summary }),
         }),
       });
       if (res.ok) {
         const data = (await res.json()) as { id: string };
         setResponseId(data.id);
         setSubmitted(true);
-        setIpResult(ip.trim().replace(/^sage\{|\}$/gi, "") === "198.51.100.42" ? "correct" : "wrong");
+
+        const normalizedIp = ip.trim().replace(/^sage\{|\}$/gi, "");
+        setResults({
+          ip:      normalizedIp === "198.51.100.71",
+          access:  accessVector === "spear_phishing",
+          process: processName.trim().toLowerCase().includes("winword"),
+          account: compromisedAccount.trim().toLowerCase().replace(/^corp\\/, "").includes("finance.user"),
+        });
       }
     } finally {
       setIsPending(false);
@@ -141,9 +166,7 @@ export function SocInvestigationForm({
       <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm space-y-1">
         <p className="text-amber-400 font-medium">Active incident — SOC-2026-0509</p>
         <p className="text-zinc-300">
-          A finance employee opened an Excel attachment from an unsolicited email. Unusual outbound
-          connections and privilege-escalation commands were observed shortly after. Investigate the
-          logs below and complete the analyst report.
+          SIEM correlation has triggered on multiple anomalous telemetry sources recorded between 08:00–15:30 UTC. Authentication, endpoint, and DNS data are available below. Determine the nature of the compromise and complete the analyst report.
         </p>
       </div>
 
@@ -165,9 +188,9 @@ export function SocInvestigationForm({
             </button>
           ))}
         </div>
-        <div className="rounded-b rounded-tr border border-white/10 bg-zinc-950 p-4 overflow-x-auto max-h-60 overflow-y-auto">
+        <div className="rounded-b rounded-tr border border-white/10 bg-zinc-950 p-4 overflow-x-auto max-h-64 overflow-y-auto">
           {LOGS[tab].split("\n").map((line, i) => (
-            <p key={i} className={`text-xs font-mono leading-5 whitespace-pre ${highlight(line)}`}>
+            <p key={i} className="text-xs font-mono leading-5 whitespace-pre text-zinc-300">
               {line}
             </p>
           ))}
@@ -179,11 +202,11 @@ export function SocInvestigationForm({
         <form onSubmit={submitInvestigation} className="space-y-5">
           <h3 className="font-semibold text-lg">Analyst report</h3>
 
-          <Field label="Malicious source IP">
+          <Field label="C2 server IP address">
             <input
               value={ip}
               onChange={(e) => setIp(e.target.value)}
-              placeholder="x.x.x.x  or  SAGE{x.x.x.x}"
+              placeholder="x.x.x.x"
               className="input-field"
             />
           </Field>
@@ -192,32 +215,37 @@ export function SocInvestigationForm({
             <Select value={accessVector} onChange={setAccessVector} options={ACCESS_OPTIONS} />
           </Field>
 
-          <Field label="Persistence mechanism">
-            <Select value={persistence} onChange={setPersistence} options={PERSISTENCE_OPTIONS} />
+          <Field label="Which process was the initial foothold? (the first process to spawn the malicious chain)">
+            <input
+              value={processName}
+              onChange={(e) => setProcessName(e.target.value)}
+              placeholder="ProcessName.exe"
+              className="input-field"
+            />
           </Field>
 
-          <Field label="Patient zero (compromised account)">
+          <Field label="Compromised account (username)">
             <input
-              value={patientZero}
-              onChange={(e) => setPatientZero(e.target.value)}
+              value={compromisedAccount}
+              onChange={(e) => setCompromisedAccount(e.target.value)}
               placeholder="username"
               className="input-field"
             />
           </Field>
 
-          <Field label={`Incident summary (min 50 chars — ${summary.length} typed)`}>
+          <Field label={`Incident summary (min 80 chars — ${summary.length} typed)`}>
             <textarea
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               rows={6}
-              placeholder="Describe what happened, how the attacker got in, what they did, and how they maintained access…"
+              placeholder="Describe what happened, how the attacker got in, what commands were run, and how they established persistence…"
               className="input-field resize-y"
             />
           </Field>
 
           <button
             type="submit"
-            disabled={isPending || summary.trim().length < 50}
+            disabled={isPending || summary.trim().length < 80}
             className="rounded bg-sage-500 px-5 py-2.5 text-sm font-medium text-black hover:bg-sage-700 hover:text-white disabled:opacity-50"
           >
             {isPending ? "Submitting…" : "Submit report"}
@@ -227,39 +255,35 @@ export function SocInvestigationForm({
         <div className="space-y-5">
           <h3 className="font-semibold text-lg">Report submitted</h3>
 
-          <div className="rounded-lg border border-white/10 divide-y divide-white/10 text-sm">
-            <Result
-              label="Malicious IP"
-              value={ipResult === "correct" ? "198.51.100.42 ✓" : "Incorrect — check auth.log for repeated failures"}
-              correct={ipResult === "correct"}
-            />
-            <Result
-              label="Access vector"
-              value="Malicious email attachment (Excel file) ✓"
-              correct={accessVector === "email_attachment"}
-              hint={accessVector !== "email_attachment" ? "See sysmon: EXCEL.EXE spawned PowerShell" : undefined}
-            />
-            <Result
-              label="Persistence"
-              value="Registry Run key (HKCU\\...\\Run\\Updater) ✓"
-              correct={persistence === "registry_run"}
-              hint={persistence !== "registry_run" ? "See sysmon EventID 13: RegistryValueSet" : undefined}
-            />
-            <Result
-              label="Patient zero"
-              value="finance.user ✓"
-              correct={patientZero.toLowerCase().includes("finance.user")}
-              hint={!patientZero.toLowerCase().includes("finance.user") ? "See auth.log: Accepted password for finance.user" : undefined}
-            />
-          </div>
-
-          {ipResult === "correct" && (
-            <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
-              <p className="text-sage-500 font-medium">Flag revealed</p>
-              <p className="text-zinc-300 mt-1 font-mono">SAGE{"{198.51.100.42}"}</p>
-              <p className="text-zinc-500 mt-1">Submit this in the flag form below to record your solve.</p>
+          {results && (
+            <div className="rounded-lg border border-white/10 divide-y divide-white/10 text-sm">
+              <Result
+                label="C2 server IP"
+                correct={results.ip}
+                hint={!results.ip ? "Authentication failures don't confirm compromise. Check where the payload phoned home — look across all three log sources." : undefined}
+              />
+              <Result
+                label="Initial access vector"
+                correct={results.access}
+                hint={!results.access ? "No credential attack fully succeeded. The actual entry point left traces in a different log source." : undefined}
+              />
+              <Result
+                label="Initial foothold process"
+                correct={results.process}
+                hint={!results.process ? "Check Sysmon EventID 1 at 14:03 — what is the earliest process in the chain and what file did it open?" : undefined}
+              />
+              <Result
+                label="Compromised account"
+                correct={results.account}
+                hint={!results.account ? "Cross-reference which account's session was active on the compromised workstation during the Sysmon events." : undefined}
+              />
             </div>
           )}
+
+          <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-4 text-sm">
+            <p className="text-zinc-300 font-medium">Report recorded ✓</p>
+            <p className="text-zinc-500 mt-1">Proceed to Task 2 — containment planning.</p>
+          </div>
 
           {!evalResult ? (
             <button
@@ -312,12 +336,10 @@ function Select({
 
 function Result({
   label,
-  value,
   correct,
   hint,
 }: {
   label: string;
-  value: string;
   correct: boolean;
   hint?: string;
 }) {
@@ -325,7 +347,7 @@ function Result({
     <div className="flex items-start justify-between p-3 gap-4">
       <div>
         <p className="text-zinc-400 text-xs">{label}</p>
-        <p className={correct ? "text-sage-500" : "text-zinc-300"}>{value}</p>
+        <p className={correct ? "text-sage-500" : "text-zinc-300"}>{correct ? "Correct ✓" : "Incorrect"}</p>
         {hint && <p className="text-xs text-zinc-500 mt-0.5">{hint}</p>}
       </div>
       <span className={correct ? "text-sage-500" : "text-red-400"}>

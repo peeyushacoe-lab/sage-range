@@ -28,7 +28,30 @@ export async function POST(req: Request) {
 
   // Generate company data BEFORE the transaction — may involve an async AI call
   // and long-running operations must not hold a DB transaction open.
-  const scenario = scenarioId ? getScenario(scenarioId) : null;
+  let scenario = scenarioId ? getScenario(scenarioId) : null;
+
+  // Custom instructor-built scenarios use the "custom_<cuid>" prefix.
+  if (!scenario && scenarioId?.startsWith("custom_")) {
+    const customId = scenarioId.slice(7);
+    const custom = await db.customScenario.findUnique({ where: { id: customId } });
+    if (custom) {
+      scenario = {
+        id: `custom_${custom.id}`,
+        title: custom.title,
+        subtitle: custom.subtitle,
+        briefing: custom.briefing,
+        difficulty: custom.difficulty as "EASY" | "MEDIUM" | "HARD" | "INSANE",
+        estimatedMinutes: custom.estimatedMinutes,
+        personaId: custom.personaId,
+        archetypeId: custom.archetypeId as IndustryArchetypeId,
+        startingConditions: {},
+        learningObjectives: custom.learningObjectives,
+        tags: custom.tags,
+        templateSlug: custom.templateSlug,
+        realWorldAnalogue: custom.realWorldAnalogue ?? undefined,
+      };
+    }
+  }
 
   let companyData;
   if (scenario) {

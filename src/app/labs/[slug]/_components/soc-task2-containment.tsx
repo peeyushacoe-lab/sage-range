@@ -5,7 +5,7 @@ import { HintPanel } from "./hint-panel";
 
 const CONTAINMENT_STEPS = [
   { id: "preserve", label: "Preserve forensic evidence — export SIEM/EDR logs before any changes", required: true },
-  { id: "block_c2", label: "Block 198.51.100.42 at perimeter firewall — terminate C2 channel", required: true },
+  { id: "block_c2", label: "Block identified C2 server at perimeter firewall — terminate active beacon", required: true },
   { id: "isolate", label: "Isolate finance-ws01 from the network — quarantine the compromised host", required: true },
   { id: "reset_creds", label: "Reset finance.user credentials — invalidate compromised account", required: true },
   { id: "notify", label: "Notify CISO and legal — mandatory for potential data breach", required: true },
@@ -56,16 +56,10 @@ export function SocTask2Containment({ labId, alreadyDone }: { labId: string; alr
 
   if (submitted) {
     return (
-      <div className="space-y-4">
-        <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
-          <p className="text-sage-500 font-medium mb-2">Containment plan accepted ✓</p>
-          <p className="text-zinc-400">Correct sequence: Preserve evidence → Block C2 + Isolate host → Reset credentials → Notify CISO/Legal</p>
-        </div>
-        <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
-          <p className="text-xs text-zinc-500 font-mono">Flag revealed</p>
-          <p className="font-mono text-sage-500 mt-1">SAGE&#123;1r_c0nt41nm3nt_f1rst&#125;</p>
-          <p className="text-xs text-zinc-600 mt-1">Submit this in the flag form to record your solve.</p>
-        </div>
+      <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
+        <p className="text-sage-500 font-medium mb-2">Containment plan accepted ✓</p>
+        <p className="text-zinc-400">Correct sequence: Preserve evidence → Block C2 + Isolate host → Reset credentials → Notify CISO/Legal</p>
+        <p className="text-zinc-500 mt-2">Proceed to Task 3 — threat hunt for lateral movement.</p>
       </div>
     );
   }
@@ -74,7 +68,7 @@ export function SocTask2Containment({ labId, alreadyDone }: { labId: string; alr
     <div className="space-y-5">
       <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 text-sm">
         <p className="text-blue-400 font-medium mb-1">New intelligence</p>
-        <p className="text-zinc-300">The attacker is actively beaconing to 198.51.100.42 every 5 minutes. finance.user&apos;s session is still active on finance-ws01. You have a 10-minute window before they escalate privileges. Select all correct containment actions — avoid steps that would destroy evidence or cause unnecessary business disruption.</p>
+        <p className="text-zinc-300">The attacker is actively beaconing every 5 minutes. The compromised user&apos;s session is still active on the affected workstation. You have a 10-minute window before they escalate privileges further. Select all correct containment actions — avoid steps that would destroy evidence or cause unnecessary business disruption.</p>
       </div>
 
       <form onSubmit={submit} className="space-y-4">

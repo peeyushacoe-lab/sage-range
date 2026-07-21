@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { signOut } from "@/auth";
+import { NavLinks } from "@/components/nav-links";
 
 const ROLE_BADGE: Record<string, string> = {
   RECRUITER:  "border-amber-500/40 bg-amber-500/8 text-amber-400",
@@ -30,45 +31,12 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
         </div>
 
         <div className="flex items-center gap-5 text-sm text-zinc-400">
-          {role === "STUDENT" && (
-            <div className="flex items-center gap-3 text-xs text-zinc-400">
-              <Link href="/daily"          className="hover:text-zinc-100 transition-colors text-emerald-400 hover:text-emerald-300 font-semibold">Daily</Link>
-              <Link href="/feed"           className="hover:text-zinc-100 transition-colors">Feed</Link>
-              <Link href="/labs"           className="hover:text-zinc-100 transition-colors">Labs</Link>
-              <Link href="/simulation/new" className="hover:text-zinc-100 transition-colors">Sims</Link>
-              <Link href="/paths"          className="hover:text-zinc-100 transition-colors">Paths</Link>
-              <Link href="/competitions"   className="hover:text-zinc-100 transition-colors">Compete</Link>
-              <Link href="/leaderboard"    className="hover:text-zinc-100 transition-colors">Ranks</Link>
-              <Link href="/stats"          className="hover:text-zinc-100 transition-colors">Stats</Link>
-              <Link href="/skills"         className="hover:text-zinc-100 transition-colors">Radar</Link>
-              <Link href="/achievements"   className="hover:text-zinc-100 transition-colors">Awards</Link>
-              <Link href="/mitre"          className="hover:text-zinc-100 transition-colors">ATT&CK</Link>
-              <Link href="/organization"   className="hover:text-zinc-100 transition-colors">Team</Link>
-            </div>
-          )}
-          {role === "INSTRUCTOR" && (
-            <>
-              <Link href="/classroom"            className="hover:text-zinc-100 transition-colors">Classrooms</Link>
-              <Link href="/simulation/new"        className="hover:text-zinc-100 transition-colors">Simulations</Link>
-              <Link href="/labs"                  className="hover:text-zinc-100 transition-colors">Labs</Link>
-              <Link href="/leaderboard"           className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
-              <Link href="/analytics/instructor"  className="hover:text-zinc-100 transition-colors">Analytics</Link>
-            </>
-          )}
-          {role === "RECRUITER" && (
-            <>
-              <Link href="/recruiter"            className="text-amber-400 hover:text-amber-300 transition-colors">Marketplace</Link>
-              <Link href="/analytics/recruiter"  className="hover:text-zinc-100 transition-colors">Analytics</Link>
-              <Link href="/leaderboard"          className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
-            </>
-          )}
-          {role === "ADMIN" && (
+          {role === "ADMIN" ? (
             <Link href="/admin" className="text-red-400 hover:text-red-300 transition-colors font-medium text-xs uppercase tracking-widest">
               Admin Panel
             </Link>
-          )}
-          {user && (
-            <Link href={`/profile/${user.id}`} className="hover:text-zinc-100 transition-colors">Profile</Link>
+          ) : (
+            <NavLinks role={role} profileHref={user ? `/profile/${user.id}` : null} />
           )}
         </div>
 

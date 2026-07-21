@@ -10,6 +10,18 @@ export const dynamic = "force-dynamic";
 
 type MitreMiss = { id: string; name: string; tactic: string; count: number };
 
+function diffColor(d: string) {
+  if (d === "HARD" || d === "INSANE") return "text-red-400";
+  if (d === "MEDIUM") return "text-amber-400";
+  return "text-zinc-500";
+}
+
+function formatTime(sec: number) {
+  if (sec < 60) return `${sec}s`;
+  if (sec < 3600) return `${Math.round(sec / 60)}m`;
+  return `${Math.floor(sec / 3600)}h ${Math.round((sec % 3600) / 60)}m`;
+}
+
 function toRating(score: number) {
   if (score >= 88) return "EXCEPTIONAL";
   if (score >= 68) return "STRONG";
@@ -43,6 +55,8 @@ export default async function InstructorAnalyticsPage() {
   const totalStudents = studentIds.length;
   const totalClassrooms = classrooms.length;
 
+  const assignedLabIds = [...new Set(classrooms.flatMap((c) => c.assignments.map((a) => a.labId)))];
+
   // Fetch all completed sim sessions for these students
   const sessions = studentIds.length > 0
     ? await db.simulationSession.findMany({
@@ -55,6 +69,38 @@ export default async function InstructorAnalyticsPage() {
         orderBy: { endedAt: "desc" },
       })
     : [];
+
+  // Lab attempts for enrolled students on assigned labs
+  const labAttempts = assignedLabIds.length > 0 && studentIds.length > 0
+    ? await db.attempt.findMany({
+        where: { labId: { in: assignedLabIds }, userId: { in: studentIds } },
+        select: {
+          labId: true, userId: true, status: true,
+          timeTakenSec: true, startedAt: true,
+          lab: { select: { title: true, difficulty: true } },
+        },
+      })
+    : [];
+
+  // Per-lab stats
+  type LabStat = { title: string; difficulty: string; attempts: number; solved: number; inProgress: number; times: number[] };
+  const labStatMap = new Map<string, LabStat>();
+  for (const a of labAttempts) {
+    if (!labStatMap.has(a.labId)) {
+      labStatMap.set(a.labId, { title: a.lab.title, difficulty: a.lab.difficulty, attempts: 0, solved: 0, inProgress: 0, times: [] });
+    }
+    const s = labStatMap.get(a.labId)!;
+    s.attempts++;
+    if (a.status === "SOLVED") { s.solved++; if (a.timeTakenSec) s.times.push(a.timeTakenSec); }
+    if (a.status === "IN_PROGRESS") s.inProgress++;
+  }
+  const labStats = [...labStatMap.values()]
+    .map((s) => ({
+      ...s,
+      solveRate: s.attempts > 0 ? Math.round((s.solved / s.attempts) * 100) : 0,
+      avgTimeSec: s.times.length > 0 ? Math.round(s.times.reduce((a, b) => a + b, 0) / s.times.length) : null,
+    }))
+    .sort((a, b) => a.solveRate - b.solveRate); // hardest first
 
   // Best session per student
   const bestByStudent = new Map<string, (typeof sessions)[0]>();
@@ -98,6 +144,41 @@ export default async function InstructorAnalyticsPage() {
   }
 
   const topMissed = [...missMap.values()].sort((a, b) => b.count - a.count).slice(0, 8);
+
+  // Students at risk — enrolled but no SOLVED attempts, or stuck (IN_PROGRESS > 0, SOLVED = 0)
+  type AtRiskStudent = {
+    userId: string; displayName: string | null; email: string;
+    inProgress: number; solved: number; oldest: Date | null;
+  };
+  const atRiskMap = new Map<string, AtRiskStudent>();
+
+  // Seed from enrolled students
+  for (const c of classrooms) {
+    for (const e of c.enrollments) {
+      if (!atRiskMap.has(e.userId)) {
+        atRiskMap.set(e.userId, {
+          userId: e.userId,
+          displayName: e.user.displayName,
+          email: e.user.email,
+          inProgress: 0, solved: 0, oldest: null,
+        });
+      }
+    }
+  }
+  for (const a of labAttempts) {
+    const s = atRiskMap.get(a.userId);
+    if (!s) continue;
+    if (a.status === "SOLVED") s.solved++;
+    if (a.status === "IN_PROGRESS") {
+      s.inProgress++;
+      if (!s.oldest || a.startedAt < s.oldest) s.oldest = a.startedAt;
+    }
+  }
+
+  const atRisk = [...atRiskMap.values()]
+    .filter((s) => s.solved === 0 && s.inProgress > 0)
+    .sort((a, b) => (a.oldest?.getTime() ?? 0) - (b.oldest?.getTime() ?? 0))
+    .slice(0, 10);
 
   // Top performers (by best sim score)
   const topPerformers = [...bestByStudent.entries()]
@@ -228,6 +309,115 @@ export default async function InstructorAnalyticsPage() {
               )}
             </section>
           </div>
+
+          {/* Lab Performance */}
+          <section>
+            <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-4">Lab Performance</h2>
+            {labStats.length === 0 ? (
+              <p className="text-zinc-600 text-sm italic">No lab attempts from your students yet.</p>
+            ) : (
+              <div className="rounded-xl border border-white/8 overflow-x-auto">
+                <table className="w-full text-sm min-w-[560px]">
+                  <thead>
+                    <tr className="border-b border-white/8 text-[10px] uppercase tracking-wider text-zinc-500">
+                      <th className="text-left p-3 pl-4">Lab</th>
+                      <th className="text-center p-3">Attempts</th>
+                      <th className="text-center p-3">Solved</th>
+                      <th className="text-center p-3 min-w-[100px]">Solve Rate</th>
+                      <th className="text-center p-3">Stuck</th>
+                      <th className="text-right p-3 pr-4">Avg Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {labStats.map((lab) => {
+                      const rateColor = lab.solveRate >= 70 ? "text-sage-400" : lab.solveRate >= 40 ? "text-amber-400" : "text-red-400";
+                      const barColor  = lab.solveRate >= 70 ? "bg-sage-500"  : lab.solveRate >= 40 ? "bg-amber-500"  : "bg-red-500";
+                      return (
+                        <tr key={lab.title} className="hover:bg-white/3 transition">
+                          <td className="p-3 pl-4">
+                            <p className="font-medium text-zinc-100">{lab.title}</p>
+                            <span className={`text-[10px] font-mono ${diffColor(lab.difficulty)}`}>{lab.difficulty}</span>
+                          </td>
+                          <td className="p-3 text-center text-zinc-400">{lab.attempts}</td>
+                          <td className="p-3 text-center text-zinc-400">{lab.solved}</td>
+                          <td className="p-3 text-center">
+                            <div className="flex flex-col items-center gap-1">
+                              <span className={`font-bold text-xs ${rateColor}`}>{lab.solveRate}%</span>
+                              <div className="h-1 w-16 rounded-full bg-zinc-800">
+                                <div className={`h-full rounded-full ${barColor}`} style={{ width: `${lab.solveRate}%` }} />
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3 text-center">
+                            {lab.inProgress > 0
+                              ? <span className="text-amber-400 font-bold text-xs">{lab.inProgress}</span>
+                              : <span className="text-zinc-700">—</span>}
+                          </td>
+                          <td className="p-3 pr-4 text-right text-xs text-zinc-500">
+                            {lab.avgTimeSec ? formatTime(lab.avgTimeSec) : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                <div className="border-t border-white/5 px-4 py-2 text-[10px] text-zinc-600 flex gap-4">
+                  <span>Sorted by solve rate ascending (hardest first)</span>
+                  <span>·</span>
+                  <span>Stuck = students still IN_PROGRESS</span>
+                  <span>·</span>
+                  <span>Avg Time = time to solve for successful attempts</span>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* Students at Risk */}
+          {atRisk.length > 0 && (
+            <section>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-sm uppercase tracking-widest text-zinc-500">Students at Risk</h2>
+                <span className="text-[10px] font-bold uppercase tracking-widest border border-amber-500/30 bg-amber-500/8 text-amber-400 rounded px-2 py-0.5">
+                  {atRisk.length} stuck
+                </span>
+              </div>
+              <div className="rounded-xl border border-amber-500/15 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/8 text-[10px] uppercase tracking-wider text-zinc-500">
+                      <th className="text-left p-3 pl-4">Student</th>
+                      <th className="text-center p-3">Labs In Progress</th>
+                      <th className="text-center p-3">Labs Solved</th>
+                      <th className="text-right p-3 pr-4">Oldest Attempt</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {atRisk.map((s) => {
+                      const daysSince = s.oldest
+                        ? Math.floor((Date.now() - s.oldest.getTime()) / 86_400_000)
+                        : null;
+                      return (
+                        <tr key={s.userId} className="hover:bg-white/3 transition">
+                          <td className="p-3 pl-4">
+                            <p className="font-medium text-zinc-100">{s.displayName ?? s.email.split("@")[0]}</p>
+                            <p className="text-[10px] text-zinc-600">{s.email}</p>
+                          </td>
+                          <td className="p-3 text-center text-amber-400 font-bold">{s.inProgress}</td>
+                          <td className="p-3 text-center text-zinc-600">{s.solved}</td>
+                          <td className="p-3 pr-4 text-right text-xs text-zinc-500">
+                            {daysSince !== null ? `${daysSince}d ago` : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                <div className="border-t border-white/5 px-4 py-2 text-[10px] text-zinc-600">
+                  Students with ≥1 in-progress lab and 0 solves · sorted by oldest attempt
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Per-classroom breakdown */}
           <section>

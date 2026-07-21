@@ -4,6 +4,20 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+type CustomScenario = {
+  id: string;
+  title: string;
+  subtitle: string;
+  briefing: string;
+  difficulty: "EASY" | "MEDIUM" | "HARD" | "INSANE";
+  estimatedMinutes: number;
+  personaId: string;
+  templateSlug: string;
+  learningObjectives: string[];
+  realWorldAnalogue?: string | null;
+  createdBy: { displayName: string | null; email: string };
+};
+
 const GENERATING_STEPS = [
   "Creating company...",
   "Populating employees...",
@@ -178,6 +192,7 @@ export default function NewSimulation() {
   const [starting, setStarting] = useState<string | null>(null);
   const [generatingStep, setGeneratingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [customScenarios, setCustomScenarios] = useState<CustomScenario[]>([]);
 
   useEffect(() => {
     if (!starting) return;
@@ -186,6 +201,13 @@ export default function NewSimulation() {
     }, 900);
     return () => clearInterval(interval);
   }, [starting]);
+
+  useEffect(() => {
+    fetch("/api/scenarios?published=true")
+      .then((r) => r.json())
+      .then((d) => { if (d.custom) setCustomScenarios(d.custom); })
+      .catch(() => {});
+  }, []);
 
   // Auto-start when instructor assigns a specific scenario
   useEffect(() => {
@@ -325,6 +347,73 @@ export default function NewSimulation() {
           })}
         </div>
       </div>
+
+      {/* Instructor Custom Scenarios */}
+      {customScenarios.length > 0 && (
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-5">
+            <h2 className="text-sm uppercase tracking-widest text-zinc-300 font-semibold">Instructor Scenarios</h2>
+            <span className="text-[10px] font-bold uppercase tracking-widest border border-sage-500/30 bg-sage-500/8 text-sage-400 rounded px-2 py-0.5">CUSTOM</span>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {customScenarios.map((s) => {
+              const customId = `custom_${s.id}`;
+              const isStarting = starting === customId;
+              const persona = PERSONA_STYLES[s.personaId] ?? PERSONA_STYLES.cybercriminal;
+              const diffStyle = DIFFICULTY_STYLES[s.difficulty];
+              return (
+                <div key={s.id} className="rounded-xl border border-white/8 bg-zinc-900/40 p-5 hover:border-white/15 transition-colors">
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <span className={`text-[10px] font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${persona.badge}`}>
+                      {persona.label}
+                    </span>
+                    <span className={`text-xs font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${diffStyle}`}>
+                      {s.difficulty}
+                    </span>
+                    <span className="text-xs text-zinc-600">{s.estimatedMinutes} min</span>
+                    <span className="text-[10px] text-zinc-600 border border-white/6 rounded px-1.5 py-0.5">
+                      by {s.createdBy.displayName ?? s.createdBy.email}
+                    </span>
+                    {s.realWorldAnalogue && (
+                      <span className="ml-auto text-[10px] text-zinc-600 font-mono italic">↗ {s.realWorldAnalogue}</span>
+                    )}
+                  </div>
+
+                  <h3 className="text-lg font-bold text-white mb-0.5">{s.title}</h3>
+                  <p className={`text-xs font-medium mb-2 ${persona.color}`}>{s.subtitle}</p>
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-4">{s.briefing}</p>
+
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-1.5">Learning Objectives</p>
+                      <ul className="space-y-0.5">
+                        {s.learningObjectives.map((o) => (
+                          <li key={o} className="flex items-start gap-1.5 text-xs text-zinc-400">
+                            <span className={`mt-0.5 shrink-0 w-1 h-1 rounded-full ${persona.color.replace("text-", "bg-")}`} />
+                            {o}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <button
+                      onClick={() => startScenario(customId, s.templateSlug)}
+                      disabled={!!starting}
+                      className="shrink-0 min-w-[180px] rounded-lg bg-zinc-800 border border-white/10 px-5 py-2.5 text-sm font-bold text-white hover:border-white/30 hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-center"
+                    >
+                      {isStarting ? (
+                        <span className="flex flex-col items-center gap-0.5">
+                          <span>Generating world...</span>
+                          <span className="text-xs font-normal opacity-70">{GENERATING_STEPS[generatingStep]}</span>
+                        </span>
+                      ) : "Deploy Scenario →"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Team Mode callout */}
       <Link

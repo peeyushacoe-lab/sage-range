@@ -119,10 +119,30 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
           )}
         </section>
 
-        {/* Flag submission */}
-        <section className="border-t border-white/8 pt-6">
-          <FlagForm labSlug={lab.slug} alreadySolved={alreadySolved} />
-        </section>
+        {/* Flag submission — only for CTF labs without task stages */}
+        {!hasTasks && (
+          <section className="border-t border-white/8 pt-6">
+            <FlagForm labSlug={lab.slug} alreadySolved={alreadySolved} />
+          </section>
+        )}
+
+        {/* Community writeups — only shown after solving */}
+        {alreadySolved && (
+          <section className="border-t border-white/8 pt-6 mt-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-zinc-300">Community Writeups</p>
+              <Link
+                href={`/labs/${slug}/writeups`}
+                className="text-xs text-emerald-400 hover:text-emerald-300 transition"
+              >
+                View writeups →
+              </Link>
+            </div>
+            <p className="text-xs text-zinc-600 mt-1">
+              Read how others solved this challenge, or share your own approach.
+            </p>
+          </section>
+        )}
       </div>
     </main>
   );

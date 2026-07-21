@@ -91,28 +91,35 @@ export default async function Leaderboard({
   );
 }
 
+// Admins and org leads are excluded from all leaderboards
+const EXCLUDE_USERS = {
+  role: { not: "ADMIN" as const },
+  organizationMemberships: { none: { isLead: true } },
+};
+
 async function getOverall() {
   const users = await db.user.findMany({
+    where:   EXCLUDE_USERS,
     orderBy: [{ skillScore: "desc" }, { xp: "desc" }],
-    take: 50,
-    select: { id: true, displayName: true, email: true, skillScore: true, xp: true, university: true },
+    take:    50,
+    select:  { id: true, displayName: true, email: true, skillScore: true, xp: true, university: true },
   });
   return users.map((u) => ({ ...u, score: u.skillScore }));
 }
 
 async function getByType(type: LabType) {
   const grouped = await db.attempt.groupBy({
-    by: ["userId"],
-    where: { status: "SOLVED", lab: { type } },
-    _sum: { score: true },
+    by:      ["userId"],
+    where:   { status: "SOLVED", lab: { type }, user: EXCLUDE_USERS },
+    _sum:    { score: true },
     orderBy: { _sum: { score: "desc" } },
-    take: 50,
+    take:    50,
   });
 
   if (grouped.length === 0) return [];
 
   const users = await db.user.findMany({
-    where: { id: { in: grouped.map((g) => g.userId) } },
+    where:  { id: { in: grouped.map((g) => g.userId) } },
     select: { id: true, displayName: true, email: true, xp: true, university: true },
   });
   const byId = new Map(users.map((u) => [u.id, u]));
@@ -128,18 +135,18 @@ async function getByType(type: LabType) {
 
 async function getBySimulation() {
   const grouped = await db.simulationSession.groupBy({
-    by: ["userId"],
-    where: { status: { in: ["CONTAINED", "BREACHED"] } },
-    _max: { score: true },
-    _count: { id: true },
+    by:      ["userId"],
+    where:   { status: { in: ["CONTAINED", "BREACHED"] }, user: EXCLUDE_USERS },
+    _max:    { score: true },
+    _count:  { id: true },
     orderBy: { _max: { score: "desc" } },
-    take: 50,
+    take:    50,
   });
 
   if (grouped.length === 0) return [];
 
   const users = await db.user.findMany({
-    where: { id: { in: grouped.map((g) => g.userId) } },
+    where:  { id: { in: grouped.map((g) => g.userId) } },
     select: { id: true, displayName: true, email: true, xp: true, university: true },
   });
   const byId = new Map(users.map((u) => [u.id, u]));

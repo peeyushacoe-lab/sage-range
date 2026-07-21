@@ -2,15 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
+import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 import { Navbar } from "@/components/navbar";
-
-export const dynamic = "force-dynamic";
-
-const TASK_STAGES: Record<string, string[]> = {
-  "welcome-ctf": ["task_1", "task_2", "task_3"],
-  "sql-injection-101": ["task_1", "task_2", "task_3"],
-  "soc-alert-investigation": ["investigation", "task_2", "task_3"],
-};
 
 const DIFF_COLORS: Record<string, string> = {
   EASY:   "text-sage-500",
