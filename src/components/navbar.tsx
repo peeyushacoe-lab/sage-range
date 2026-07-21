@@ -40,6 +40,7 @@ export async function Navbar({ backHref, backLabel }: { backHref?: string; backL
               <Link href="/leaderboard"    className="hover:text-zinc-100 transition-colors">Leaderboard</Link>
               <Link href="/stats"          className="hover:text-zinc-100 transition-colors">My Stats</Link>
               <Link href="/organization"  className="hover:text-zinc-100 transition-colors">Team</Link>
+              <Link href="/mitre"        className="hover:text-zinc-100 transition-colors">ATT&CK</Link>
             </>
           )}
           {role === "INSTRUCTOR" && (
