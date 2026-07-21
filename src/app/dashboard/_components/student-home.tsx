@@ -97,7 +97,7 @@ export async function StudentHome({ user }: { user: AppUser }) {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats">
         {[
           {
             label: "Skill Score",
@@ -153,6 +153,10 @@ export async function StudentHome({ user }: { user: AppUser }) {
           </div>
         ))}
       </div>
+
+      <Link href="/stats" className="block rounded-xl border border-white/5 bg-zinc-900/30 px-5 py-3 text-xs text-zinc-500 hover:border-emerald-500/30 hover:text-emerald-400 transition-colors text-center">
+        View full stats dashboard →
+      </Link>
 
       <CertProgressCard />
 
