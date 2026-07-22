@@ -35,9 +35,9 @@ function wrap(content: string, title: string): string {
     <div class="logo">Sage Vault</div>
     ${content}
     <hr class="divider" />
-    <p style="font-size:12px;color:#52525b;">You received this email because you have an account on Sage Vault. <a href="https://cybersage.uk" style="color:#71717a;">cybersage.uk</a></p>
+    <p style="font-size:12px;color:#52525b;">You received this email because you have an account on Sage Vault. <a href="https://www.cybersagevault.uk" style="color:#71717a;">cybersagevault.uk</a></p>
   </div>
-  <div class="footer">© 2026 Sage Vault · <a href="https://cybersage.uk/legal/privacy" style="color:#52525b;">Privacy</a> · <a href="https://cybersage.uk/legal/terms" style="color:#52525b;">Terms</a></div>
+  <div class="footer">© 2026 Sage Vault · <a href="https://www.cybersagevault.uk/legal/privacy" style="color:#52525b;">Privacy</a> · <a href="https://www.cybersagevault.uk/legal/terms" style="color:#52525b;">Terms</a></div>
 </div>
 </body>
 </html>`;
@@ -47,9 +47,9 @@ export async function sendWelcomeEmail(to: string, name: string, role: string) {
   if (!resend) return;
 
   const roleLabel = role === "INSTRUCTOR" ? "instructor" : role === "RECRUITER" ? "recruiter" : "student";
-  const ctaHref = role === "INSTRUCTOR" ? "https://cybersage.uk/classroom"
-    : role === "RECRUITER" ? "https://cybersage.uk/recruiter"
-    : "https://cybersage.uk/labs";
+  const ctaHref = role === "INSTRUCTOR" ? "https://www.cybersagevault.uk/classroom"
+    : role === "RECRUITER" ? "https://www.cybersagevault.uk/recruiter"
+    : "https://www.cybersagevault.uk/labs";
   const ctaLabel = role === "INSTRUCTOR" ? "Create your first classroom →"
     : role === "RECRUITER" ? "Browse the talent marketplace →"
     : "Start your first lab →";
@@ -95,7 +95,7 @@ export async function sendClassroomJoinEmail(
     <p>Hi ${studentName},</p>
     <p>You've successfully enrolled in <strong style="color:#f4f4f5;">${classroomName}</strong>, taught by ${instructorName}.</p>
     <p>Your instructor will assign labs and simulation exercises through this classroom. You'll be notified when new work is available.</p>
-    <a href="https://cybersage.uk/classroom/${classroomId}" class="btn">Go to classroom →</a>
+    <a href="https://www.cybersagevault.uk/classroom/${classroomId}" class="btn">Go to classroom →</a>
   `, "You've joined a classroom");
 
   await resend.emails.send({
@@ -136,10 +136,10 @@ export async function sendSimCertificateEmail(
       </span>
     </div>
     <p>Your certificate includes a public verification URL you can share with employers or on LinkedIn.</p>
-    <a href="https://cybersage.uk/simulation/${sessionId}/certificate" class="btn">Download certificate →</a>
-    <a href="https://cybersage.uk/simulation/${sessionId}/debrief" style="display:inline-block;padding:12px 24px;border:1px solid rgba(255,255,255,0.15);color:#a1a1aa;font-size:14px;border-radius:10px;text-decoration:none;margin:4px 0 16px 8px;">View debrief</a>
+    <a href="https://www.cybersagevault.uk/simulation/${sessionId}/certificate" class="btn">Download certificate →</a>
+    <a href="https://www.cybersagevault.uk/simulation/${sessionId}/debrief" style="display:inline-block;padding:12px 24px;border:1px solid rgba(255,255,255,0.15);color:#a1a1aa;font-size:14px;border-radius:10px;text-decoration:none;margin:4px 0 16px 8px;">View debrief</a>
     <p style="font-size:12px;color:#52525b;">
-      Verification URL: https://cybersage.uk/verify/simulation/${sessionId}
+      Verification URL: https://www.cybersagevault.uk/verify/simulation/${sessionId}
     </p>
   `, "Your simulation certificate is ready");
 
@@ -169,7 +169,7 @@ export async function sendLabAssignedEmail(
       <p style="margin:0;font-size:15px;font-weight:600;color:#f4f4f5;">${labTitle}</p>
       ${dueDate ? `<p style="margin:6px 0 0;font-size:12px;color:#71717a;">Due: ${dueDate}</p>` : ""}
     </div>
-    <a href="https://cybersage.uk/classroom/${classroomId}" class="btn">Go to classroom →</a>
+    <a href="https://www.cybersagevault.uk/classroom/${classroomId}" class="btn">Go to classroom →</a>
   `, "New lab assigned");
 
   await resend.emails.send({

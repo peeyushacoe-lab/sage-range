@@ -121,7 +121,7 @@ export default async function CertificatePage({
           <div className="w-16 h-px bg-white/10" />
 
           <p className="text-xs text-zinc-600 tracking-wide">
-            Verified by Sage Vault · cybersage.uk
+            Verified by Sage Vault · cybersagevault.uk
           </p>
         </div>
 

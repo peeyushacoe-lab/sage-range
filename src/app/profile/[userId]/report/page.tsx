@@ -332,7 +332,7 @@ export default async function CandidateReportPage({
 
           {/* Footer */}
           <div className="border-t border-zinc-200 pt-4 flex items-center justify-between text-xs text-zinc-400">
-            <span>Sage Vault · cybersage.uk</span>
+            <span>Sage Vault · cybersagevault.uk</span>
             <span>Candidate ID: {userId.slice(0, 16).toUpperCase()}</span>
             <span>{generatedDate}</span>
           </div>
