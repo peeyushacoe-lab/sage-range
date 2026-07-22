@@ -51,7 +51,7 @@ const HOW_IT_WORKS = [
     color: "sage",
     icon: "⬡",
     steps: [
-      "Sign up free — no card needed",
+      "Sign up and get started immediately",
       "Choose a learning path or jump into labs",
       "Complete tasks, earn XP, rank up",
       "Run live incident simulations",
@@ -151,7 +151,7 @@ export default async function Home() {
                   href="/sign-in"
                   className="btn-glow rounded-xl bg-emerald-500 px-8 py-3.5 font-bold text-black text-base"
                 >
-                  Start training free →
+                  Start training →
                 </Link>
                 <Link
                   href="/pricing"
@@ -169,7 +169,7 @@ export default async function Home() {
           </div>
 
           <p className="text-xs text-zinc-600 mt-5 animate-fade-up delay-500 font-mono">
-            FREE for students · No credit card · Browser-based
+            Browser-based · No setup required · Live simulations
           </p>
 
           {/* MITRE ticker */}
@@ -301,14 +301,14 @@ export default async function Home() {
             <span className="gradient-text text-glow">résumé now.</span>
           </h2>
           <p className="text-zinc-400 text-sm mb-10 leading-relaxed">
-            Students train free. Instructors get classroom tools from £149/month.
+            Students get full platform access. Instructors get classroom tools from £149/month.
             Enterprises get a verified talent pipeline — not a list of certifications.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             {!isSignedIn && (
               <>
                 <Link href="/sign-in" className="btn-glow rounded-xl bg-emerald-500 px-8 py-3.5 font-bold text-black text-base">
-                  Create free account →
+                  Create your account →
                 </Link>
                 <Link href="/contact" className="rounded-xl border border-white/12 px-8 py-3.5 text-zinc-300 hover:text-white hover:border-white/25 transition-all text-base">
                   Talk to us
