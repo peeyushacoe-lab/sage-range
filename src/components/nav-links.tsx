@@ -28,6 +28,8 @@ const STUDENT_PRIMARY: NavLink[] = [
 
 const STUDENT_MORE: NavLink[] = [
   { href: "/competitions",   label: "Compete"       },
+  { href: "/daily-hunt",     label: "Daily Hunt"    },
+  { href: "/soc-league",     label: "SOC League"    },
   { href: "/scoreboard",     label: "Leaderboard"   },
   { href: "/achievements",   label: "Achievements"  },
   { href: "/mitre",          label: "ATT&CK Map"    },

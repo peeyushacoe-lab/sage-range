@@ -49,6 +49,10 @@ model User {
   github       String?
   skillScore   Int      @default(0)
   xp           Int      @default(0)
+  // SOC League currency — separate from skillScore/xp. Earned on lab solves
+  // (see coinsForPoints in src/lib/soc-league.ts) and Daily Hunt bonuses.
+  // Rank tier (Recruit -> CyberSage Champion) is derived from this, not skillScore.
+  coins        Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   // Extended profile fields
@@ -104,8 +108,10 @@ model User {
   academyNotes             AcademyUserNote[]
   academyQuizAttempts      AcademyQuizAttempt[]
   academyCertificates      AcademyCertificate[]
+  dailyHuntAttempts        DailyHuntAttempt[]
 
   @@index([skillScore])
+  @@index([coins])
 }
 
 model Lab {
@@ -130,6 +136,7 @@ model Lab {
   hints                LabHint[]
   writeups             Writeup[]
   changelog            LabChangelog[]
+  dailyHunts           DailyHunt[]
 
   @@index([type, difficulty])
 }
@@ -671,6 +678,44 @@ model CompetitionEntry {
 
   @@unique([competitionId, userId])
   @@index([competitionId])
+  @@index([userId])
+}
+
+// ── SOC League: Daily Hunt ──────────────────────────────────────────────────
+// Foundation piece for the gamification/competition layer. Distinct from
+// Competition/CompetitionEntry (org-run, date-ranged, opt-in leaderboards) —
+// Daily Hunt is one automatically-rotating mystery lab per calendar day,
+// available to everyone, that pays out a bonus-coin reward on top of the
+// lab's normal skillScore/xp if solved within the time limit.
+
+model DailyHunt {
+  id           String   @id @default(cuid())
+  // Stored as UTC midnight for the calendar day this hunt is live.
+  date         DateTime @unique
+  labId        String
+  bonusCoins   Int      @default(50)
+  timeLimitSec Int      @default(1800)
+  createdAt    DateTime @default(now())
+
+  lab      Lab                @relation(fields: [labId], references: [id], onDelete: Cascade)
+  attempts DailyHuntAttempt[]
+
+  @@index([date])
+}
+
+model DailyHuntAttempt {
+  id           String    @id @default(cuid())
+  dailyHuntId  String
+  userId       String
+  startedAt    DateTime  @default(now())
+  completedAt  DateTime?
+  timeTakenSec Int?
+  coinsAwarded Int       @default(0)
+
+  dailyHunt DailyHunt @relation(fields: [dailyHuntId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([dailyHuntId, userId])
   @@index([userId])
 }
 

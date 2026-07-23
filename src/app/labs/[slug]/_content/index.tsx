@@ -39,6 +39,14 @@ import { CloudIamMisconfiguration } from "./cloud-iam-misconfiguration";
 import { CloudtrailAnalysis } from "./cloudtrail-analysis";
 import { VirustotalInvestigation } from "./virustotal-investigation";
 import { PhishingClickIncident } from "./phishing-click-incident";
+import { AlienvaultOtxPulse } from "./alienvault-otx-pulse";
+import { AbuseipdbInvestigation } from "./abuseipdb-investigation";
+import { UrlscanInvestigation } from "./urlscan-investigation";
+import { DfirTimelineCreation } from "./dfir-timeline-creation";
+import { MftAnalysis } from "./mft-analysis";
+import { AzureRbacMisconfiguration } from "./azure-rbac-misconfiguration";
+import { GcpIamPermissions } from "./gcp-iam-permissions";
+import { RansomwareIncident } from "./ransomware-incident";
 
 export type LabContentProps = { labId: string; userId: string };
 
@@ -86,6 +94,14 @@ const REGISTRY: Record<string, LabContent> = {
   "cloudtrail-analysis": CloudtrailAnalysis,
   "virustotal-investigation": VirustotalInvestigation,
   "phishing-click-incident": PhishingClickIncident,
+  "alienvault-otx-pulse": AlienvaultOtxPulse,
+  "abuseipdb-investigation": AbuseipdbInvestigation,
+  "urlscan-investigation": UrlscanInvestigation,
+  "dfir-timeline-creation": DfirTimelineCreation,
+  "mft-analysis": MftAnalysis,
+  "azure-rbac-misconfiguration": AzureRbacMisconfiguration,
+  "gcp-iam-permissions": GcpIamPermissions,
+  "ransomware-incident": RansomwareIncident,
 };
 
 export const TASK_STAGES: Record<string, string[]> = {
@@ -130,6 +146,14 @@ export const TASK_STAGES: Record<string, string[]> = {
   "cloudtrail-analysis": ["task_1", "task_2", "task_3"],
   "virustotal-investigation": ["task_1", "task_2", "task_3"],
   "phishing-click-incident": ["task_1", "task_2", "task_3"],
+  "alienvault-otx-pulse": ["task_1", "task_2", "task_3"],
+  "abuseipdb-investigation": ["task_1", "task_2", "task_3"],
+  "urlscan-investigation": ["task_1", "task_2", "task_3"],
+  "dfir-timeline-creation": ["task_1", "task_2", "task_3"],
+  "mft-analysis": ["task_1", "task_2", "task_3"],
+  "azure-rbac-misconfiguration": ["task_1", "task_2", "task_3"],
+  "gcp-iam-permissions": ["task_1", "task_2", "task_3"],
+  "ransomware-incident": ["task_1", "task_2", "task_3"],
 };
 
 export function getLabContent(slug: string): LabContent | null {

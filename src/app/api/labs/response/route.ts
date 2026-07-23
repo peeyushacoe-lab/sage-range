@@ -3,6 +3,8 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
+import { coinsForPoints } from "@/lib/soc-league";
+import { checkDailyHuntCompletion } from "@/lib/daily-hunt";
 
 const Body = z.object({
   labId: z.string().min(1),
@@ -150,9 +152,20 @@ export async function POST(req: Request) {
           }),
           db.user.update({
             where: { id: user.id },
-            data: { skillScore: { increment: awardPoints }, xp: { increment: awardPoints } },
+            data: {
+              skillScore: { increment: awardPoints },
+              xp: { increment: awardPoints },
+              coins: { increment: coinsForPoints(awardPoints) },
+            },
           }),
         ]);
+
+        // Daily Hunt bonus — best-effort, never blocks the main solve path
+        try {
+          await checkDailyHuntCompletion(user.id, lab.id, now);
+        } catch {
+          // ignore
+        }
       }
     }
   }

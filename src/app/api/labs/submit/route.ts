@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
+import { coinsForPoints } from "@/lib/soc-league";
+import { checkDailyHuntCompletion } from "@/lib/daily-hunt";
 
 const Body = z.object({
   labSlug: z.string().min(1),
@@ -83,9 +85,17 @@ export async function POST(req: Request) {
       data: {
         skillScore: { increment: awardPoints },
         xp: { increment: awardPoints },
+        coins: { increment: coinsForPoints(awardPoints) },
       },
     }),
   ]);
+
+  // Daily Hunt bonus — best-effort, never blocks the main flag-submission path
+  try {
+    await checkDailyHuntCompletion(user.id, lab.id, solvedAt);
+  } catch {
+    // ignore
+  }
 
   // Award competition points for CTF-style flag submission (full-lab score, difficulty-weighted)
   if (user.role === "STUDENT") {
