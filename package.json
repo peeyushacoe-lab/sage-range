@@ -31,7 +31,7 @@
     "resend": "^6.12.4",
     "stripe": "^22.2.0",
     "tailwind-merge": "^2.5.4",
-    "zod": "^3.23.8"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
