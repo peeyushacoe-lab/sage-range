@@ -24,27 +24,18 @@ const DIFF_COLORS: Record<string, string> = {
 export default async function LabsIndex({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; category?: string }>;
+  searchParams: Promise<{ type?: string }>;
 }) {
-  const { type, category } = await searchParams;
+  const { type } = await searchParams;
   const filter = TYPES.find((t) => t.key === type)?.key ?? "ALL";
 
   const user = await getOrCreateAppUser();
   if (!user) redirect("/sign-in");
 
-  const allCategories = await db.lab.findMany({
-    where: { published: true },
-    select: { category: true },
-    distinct: ["category"],
-    orderBy: { category: "asc" },
-  });
-  const categoryFilter = category && allCategories.some((c) => c.category === category) ? category : "ALL";
-
   const labs = await db.lab.findMany({
     where: {
       published: true,
       ...(filter !== "ALL" ? { type: filter } : {}),
-      ...(categoryFilter !== "ALL" ? { category: categoryFilter } : {}),
     },
     orderBy: [{ difficulty: "asc" }, { points: "asc" }],
   });
@@ -107,12 +98,11 @@ export default async function LabsIndex({
         </div>
 
         {/* Type filter */}
-        <nav className="flex gap-2 mb-3">
+        <nav className="flex gap-2 mb-6">
           {TYPES.map((t) => {
             const active = t.key === filter;
             const params = new URLSearchParams();
             if (t.key !== "ALL") params.set("type", t.key);
-            if (categoryFilter !== "ALL") params.set("category", categoryFilter);
             const qs = params.toString();
             return (
               <Link
@@ -125,30 +115,6 @@ export default async function LabsIndex({
                 }
               >
                 {t.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Category filter */}
-        <nav className="flex gap-2 mb-6 overflow-x-auto pb-1">
-          {[{ category: "ALL" }, ...allCategories].map(({ category: c }) => {
-            const active = c === categoryFilter;
-            const params = new URLSearchParams();
-            if (filter !== "ALL") params.set("type", filter);
-            if (c !== "ALL") params.set("category", c);
-            const qs = params.toString();
-            return (
-              <Link
-                key={c}
-                href={qs ? `/labs?${qs}` : "/labs"}
-                className={
-                  active
-                    ? "shrink-0 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white"
-                    : "shrink-0 rounded-full border border-white/8 px-3 py-1 text-xs text-zinc-500 hover:text-zinc-200 hover:border-white/20"
-                }
-              >
-                {c === "ALL" ? "All Categories" : c}
               </Link>
             );
           })}
