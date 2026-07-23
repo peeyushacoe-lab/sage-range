@@ -10,7 +10,7 @@ import { PaymentStep } from "./payment-step";
 type RoleKey = "STUDENT" | "INSTRUCTOR" | "RECRUITER";
 
 const DESCRIPTIONS: Record<RoleKey, string> = {
-  STUDENT:    "Free forever — labs, paths & community.",
+  STUDENT:    "Forever — labs, paths & community.",
   INSTRUCTOR: "Classrooms, assignments & analytics.",
   RECRUITER:  "Talent search, assessments & bookmarks.",
 };
