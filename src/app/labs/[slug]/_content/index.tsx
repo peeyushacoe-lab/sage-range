@@ -18,6 +18,7 @@ import { DnsExfiltrationDetection } from "./dns-exfiltration-detection";
 import { PowershellAttackDetection } from "./powershell-attack-detection";
 import { RdpAttackInvestigation } from "./rdp-attack-investigation";
 import { MitreAttackMapping } from "./mitre-attack-mapping";
+import { PromptInjection } from "./prompt-injection";
 
 export type LabContentProps = { labId: string; userId: string };
 
@@ -44,6 +45,7 @@ const REGISTRY: Record<string, LabContent> = {
   "powershell-attack-detection": PowershellAttackDetection,
   "rdp-attack-investigation": RdpAttackInvestigation,
   "mitre-attack-mapping": MitreAttackMapping,
+  "prompt-injection": PromptInjection,
 };
 
 export const TASK_STAGES: Record<string, string[]> = {
@@ -67,6 +69,7 @@ export const TASK_STAGES: Record<string, string[]> = {
   "powershell-attack-detection": ["task_1", "task_2", "task_3"],
   "rdp-attack-investigation": ["task_1", "task_2", "task_3"],
   "mitre-attack-mapping": ["task_1", "task_2", "task_3"],
+  "prompt-injection": ["task_1", "task_2", "task_3"],
 };
 
 export function getLabContent(slug: string): LabContent | null {
