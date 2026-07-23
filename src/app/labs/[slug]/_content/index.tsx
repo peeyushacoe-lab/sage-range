@@ -19,6 +19,26 @@ import { PowershellAttackDetection } from "./powershell-attack-detection";
 import { RdpAttackInvestigation } from "./rdp-attack-investigation";
 import { MitreAttackMapping } from "./mitre-attack-mapping";
 import { PromptInjection } from "./prompt-injection";
+import { SigmaRuleCreation } from "./sigma-rule-creation";
+import { YaraRuleBasics } from "./yara-rule-basics";
+import { IocHunting } from "./ioc-hunting";
+import { InsiderThreatInvestigation } from "./insider-threat-investigation";
+import { PersistenceDetection } from "./persistence-detection";
+import { PasswordSpraying } from "./password-spraying";
+import { FileUploadBypass } from "./file-upload-bypass";
+import { IdorHunting } from "./idor-hunting";
+import { JwtExploitation } from "./jwt-exploitation";
+import { XxeInjection } from "./xxe-injection";
+import { DetectionTuning } from "./detection-tuning";
+import { SigmaToSplunk } from "./sigma-to-splunk";
+import { LlmJailbreaking } from "./llm-jailbreaking";
+import { AiDataLeakage } from "./ai-data-leakage";
+import { WindowsRegistryAnalysis } from "./windows-registry-analysis";
+import { BrowserForensics } from "./browser-forensics";
+import { CloudIamMisconfiguration } from "./cloud-iam-misconfiguration";
+import { CloudtrailAnalysis } from "./cloudtrail-analysis";
+import { VirustotalInvestigation } from "./virustotal-investigation";
+import { PhishingClickIncident } from "./phishing-click-incident";
 
 export type LabContentProps = { labId: string; userId: string };
 
@@ -46,6 +66,26 @@ const REGISTRY: Record<string, LabContent> = {
   "rdp-attack-investigation": RdpAttackInvestigation,
   "mitre-attack-mapping": MitreAttackMapping,
   "prompt-injection": PromptInjection,
+  "sigma-rule-creation": SigmaRuleCreation,
+  "yara-rule-basics": YaraRuleBasics,
+  "ioc-hunting": IocHunting,
+  "insider-threat-investigation": InsiderThreatInvestigation,
+  "persistence-detection": PersistenceDetection,
+  "password-spraying": PasswordSpraying,
+  "file-upload-bypass": FileUploadBypass,
+  "idor-hunting": IdorHunting,
+  "jwt-exploitation": JwtExploitation,
+  "xxe-injection": XxeInjection,
+  "detection-tuning": DetectionTuning,
+  "sigma-to-splunk": SigmaToSplunk,
+  "llm-jailbreaking": LlmJailbreaking,
+  "ai-data-leakage": AiDataLeakage,
+  "windows-registry-analysis": WindowsRegistryAnalysis,
+  "browser-forensics": BrowserForensics,
+  "cloud-iam-misconfiguration": CloudIamMisconfiguration,
+  "cloudtrail-analysis": CloudtrailAnalysis,
+  "virustotal-investigation": VirustotalInvestigation,
+  "phishing-click-incident": PhishingClickIncident,
 };
 
 export const TASK_STAGES: Record<string, string[]> = {
@@ -70,6 +110,26 @@ export const TASK_STAGES: Record<string, string[]> = {
   "rdp-attack-investigation": ["task_1", "task_2", "task_3"],
   "mitre-attack-mapping": ["task_1", "task_2", "task_3"],
   "prompt-injection": ["task_1", "task_2", "task_3"],
+  "sigma-rule-creation": ["task_1", "task_2", "task_3"],
+  "yara-rule-basics": ["task_1", "task_2", "task_3"],
+  "ioc-hunting": ["task_1", "task_2", "task_3"],
+  "insider-threat-investigation": ["task_1", "task_2", "task_3"],
+  "persistence-detection": ["task_1", "task_2", "task_3"],
+  "password-spraying": ["task_1", "task_2", "task_3"],
+  "file-upload-bypass": ["task_1", "task_2", "task_3"],
+  "idor-hunting": ["task_1", "task_2", "task_3"],
+  "jwt-exploitation": ["task_1", "task_2", "task_3"],
+  "xxe-injection": ["task_1", "task_2", "task_3"],
+  "detection-tuning": ["task_1", "task_2", "task_3"],
+  "sigma-to-splunk": ["task_1", "task_2", "task_3"],
+  "llm-jailbreaking": ["task_1", "task_2", "task_3"],
+  "ai-data-leakage": ["task_1", "task_2", "task_3"],
+  "windows-registry-analysis": ["task_1", "task_2", "task_3"],
+  "browser-forensics": ["task_1", "task_2", "task_3"],
+  "cloud-iam-misconfiguration": ["task_1", "task_2", "task_3"],
+  "cloudtrail-analysis": ["task_1", "task_2", "task_3"],
+  "virustotal-investigation": ["task_1", "task_2", "task_3"],
+  "phishing-click-incident": ["task_1", "task_2", "task_3"],
 };
 
 export function getLabContent(slug: string): LabContent | null {
