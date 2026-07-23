@@ -36,6 +36,9 @@ export default async function AcademyAdminPage() {
           </p>
         </div>
         <div className="flex gap-3">
+          <Link href="/admin/academy/enrollments" className="text-sm text-zinc-400 border border-white/10 rounded-lg px-4 py-2 hover:text-white transition">
+            Enrollments
+          </Link>
           <Link href="/admin/academy/cheatsheets" className="text-sm text-zinc-400 border border-white/10 rounded-lg px-4 py-2 hover:text-white transition">
             Cheat Sheets
           </Link>
@@ -77,7 +80,11 @@ export default async function AcademyAdminPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right text-zinc-400 tabular-nums">{course._count.modules}</td>
-                <td className="px-4 py-3 text-right text-zinc-400 tabular-nums">{course._count.enrollments}</td>
+                <td className="px-4 py-3 text-right text-zinc-400 tabular-nums">
+                  <Link href={`/admin/academy/enrollments?courseId=${course.id}`} className="hover:text-emerald-400 transition">
+                    {course._count.enrollments}
+                  </Link>
+                </td>
                 <td className="px-4 py-3 text-right">
                   <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${course.published ? "text-emerald-400 bg-emerald-500/10" : "text-zinc-500 bg-zinc-800"}`}>
                     {course.published ? "Published" : "Draft"}

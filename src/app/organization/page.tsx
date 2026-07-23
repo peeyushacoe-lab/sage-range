@@ -280,6 +280,7 @@ export default async function OrganizationPage() {
                     <th className="text-right px-4 py-2.5">Sims</th>
                     <th className="text-right px-4 py-2.5">Streak</th>
                     <th className="text-right px-4 py-2.5">Last Active</th>
+                    <th className="text-right px-4 py-2.5">Details</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -309,6 +310,14 @@ export default async function OrganizationPage() {
                         }
                       </td>
                       <td className="px-4 py-2.5 text-right text-xs text-zinc-500">{relativeTime(m.lastActive)}</td>
+                      <td className="px-4 py-2.5 text-right">
+                        <Link
+                          href={`/organization/member/${m.member.user.id}`}
+                          className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+                        >
+                          Details →
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
