@@ -12,6 +12,12 @@ import { ActiveDirectory101 } from "./active-directory-101";
 import { PhishingAnalysis } from "./phishing-analysis";
 import { MemoryForensics } from "./memory-forensics";
 import { WebRecon } from "./web-recon";
+import { LinuxAuthInvestigation } from "./linux-auth-investigation";
+import { WebServerLogAnalysis } from "./web-server-log-analysis";
+import { DnsExfiltrationDetection } from "./dns-exfiltration-detection";
+import { PowershellAttackDetection } from "./powershell-attack-detection";
+import { RdpAttackInvestigation } from "./rdp-attack-investigation";
+import { MitreAttackMapping } from "./mitre-attack-mapping";
 
 export type LabContentProps = { labId: string; userId: string };
 
@@ -32,6 +38,12 @@ const REGISTRY: Record<string, LabContent> = {
   "phishing-analysis": PhishingAnalysis,
   "memory-forensics": MemoryForensics,
   "web-recon": WebRecon,
+  "linux-auth-investigation": LinuxAuthInvestigation,
+  "web-server-log-analysis": WebServerLogAnalysis,
+  "dns-exfiltration-detection": DnsExfiltrationDetection,
+  "powershell-attack-detection": PowershellAttackDetection,
+  "rdp-attack-investigation": RdpAttackInvestigation,
+  "mitre-attack-mapping": MitreAttackMapping,
 };
 
 export const TASK_STAGES: Record<string, string[]> = {
@@ -49,6 +61,12 @@ export const TASK_STAGES: Record<string, string[]> = {
   "phishing-analysis": ["task_1", "task_2", "task_3"],
   "memory-forensics": ["task_1", "task_2", "task_3"],
   "web-recon": ["task_1", "task_2", "task_3"],
+  "linux-auth-investigation": ["task_1", "task_2", "task_3"],
+  "web-server-log-analysis": ["task_1", "task_2", "task_3"],
+  "dns-exfiltration-detection": ["task_1", "task_2", "task_3"],
+  "powershell-attack-detection": ["task_1", "task_2", "task_3"],
+  "rdp-attack-investigation": ["task_1", "task_2", "task_3"],
+  "mitre-attack-mapping": ["task_1", "task_2", "task_3"],
 };
 
 export function getLabContent(slug: string): LabContent | null {
