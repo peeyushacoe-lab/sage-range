@@ -14,10 +14,10 @@ export default async function SignUpPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Image src="/logo.ico" alt="Sage Vault" width={40} height={40} className="rounded-lg" unoptimized />
+            <Image src="/logo.png" alt="Sage Vault" width={80} height={80} className="rounded-xl" unoptimized />
           </div>
           <h1 className="text-2xl font-bold text-white">Create your account</h1>
-          <p className="text-zinc-500 text-sm mt-1">Choose your plan — free for students</p>
+          <p className="text-zinc-500 text-sm mt-1">Choose your plan — students from £15/month</p>
         </div>
 
         <SignupForm plans={plans} nexusUrl={nexusUrl} />

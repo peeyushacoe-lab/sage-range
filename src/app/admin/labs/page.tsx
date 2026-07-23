@@ -38,6 +38,12 @@ export default async function LabsPage() {
               {labs.filter((l) => l.published).length} published · {labs.filter((l) => !l.published).length} draft
             </p>
           </div>
+          <Link
+            href="/admin/labs/new"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+          >
+            + New Lab
+          </Link>
         </div>
 
         <div className="rounded-xl border border-white/8 overflow-hidden">
@@ -49,7 +55,7 @@ export default async function LabsPage() {
                 <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Difficulty</th>
                 <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Attempts</th>
                 <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Version</th>
-                <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Published</th>
+                <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider font-mono">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -80,6 +86,12 @@ export default async function LabsPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/admin/labs/${lab.slug}/edit`}
+                      className="text-xs text-zinc-500 hover:text-emerald-400 transition mr-3"
+                    >
+                      Edit
+                    </Link>
                     <LabToggle id={lab.id} published={lab.published} />
                   </td>
                 </tr>

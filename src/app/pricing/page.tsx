@@ -6,12 +6,12 @@ import { CheckoutBtn } from "./_components/checkout-btn";
 const TIERS = [
   {
     name: "Student",
-    price: "Free",
-    period: "",
+    price: "£15",
+    period: "/month",
     description: "For individual learners building real-world cyber skills",
     color: "border-emerald-500/30",
     badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-    cta: "Get Started Free",
+    cta: "Get Started",
     ctaHref: "/sign-up",
     ctaStyle: "bg-emerald-500 text-black hover:bg-emerald-400",
     features: [
@@ -78,8 +78,8 @@ const TIERS = [
 
 const FAQ = [
   {
-    q: "Is the Student tier really free forever?",
-    a: "Yes. Labs, pathways, simulations, and the leaderboard are permanently free for individual learners. We monetise through institutions and employers, not students.",
+    q: "How much does the Student tier cost?",
+    a: "£15/month for individual learners. Labs, pathways, simulations, and the leaderboard are all included. No hidden fees.",
   },
   {
     q: "What counts as a 'cohort' in the Classroom plan?",
@@ -109,7 +109,7 @@ export default function PricingPage() {
           <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-3">Pricing</p>
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">Simple, transparent pricing</h1>
           <p className="text-zinc-400 text-lg max-w-xl mx-auto">
-            Students learn free. Institutions pay once per cohort. Enterprises get simulation-verified talent pipelines.
+            From £15/month for students. Institutions pay once per cohort. Enterprises get simulation-verified talent pipelines.
           </p>
         </section>
 
@@ -210,13 +210,13 @@ export default function PricingPage() {
         {/* Footer CTA */}
         <section className="border-t border-white/8 py-16 text-center">
           <h2 className="text-2xl font-bold mb-3">Ready to get started?</h2>
-          <p className="text-zinc-400 text-sm mb-8">Free forever for students. No credit card required.</p>
+          <p className="text-zinc-400 text-sm mb-8">From £15/month for students.</p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link
               href="/sign-up"
               className="rounded-xl bg-sage-500 text-black font-semibold px-6 py-3 text-sm hover:bg-sage-700 hover:text-white transition"
             >
-              Start for Free →
+              Get Started →
             </Link>
             <a
               href="mailto:support@cybersage.uk?subject=Enterprise%20Demo%20Request"

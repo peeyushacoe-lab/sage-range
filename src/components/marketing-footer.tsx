@@ -1,10 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const LINKS = {
   "Sage Vault": [
     { label: "Pricing",     href: "/pricing" },
     { label: "Leaderboard", href: "/leaderboard" },
-    { label: "Sign Up Free", href: "/sign-up" },
+    { label: "Sign Up",     href: "/sign-up" },
   ],
   Company: [
     { label: "About CyberSage", href: "/about" },
@@ -19,7 +20,6 @@ const LINKS = {
 
 const COMING_SOON = [
   { name: "Brain Sentinel", desc: "AI security intelligence" },
-  { name: "Nexus",          desc: "Secure workspace" },
 ];
 
 export function MarketingFooter() {
@@ -28,8 +28,8 @@ export function MarketingFooter() {
       <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-2 sm:grid-cols-5 gap-8">
         {/* Brand */}
         <div className="col-span-2 sm:col-span-2">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-6 w-6 rounded bg-sage-500" />
+          <div className="flex items-center gap-2.5 mb-1">
+            <Image src="/logo.png" alt="Sage Vault" width={32} height={32} className="rounded-md" unoptimized />
             <span className="font-bold text-white tracking-tight">CyberSage</span>
           </div>
           <p className="text-xs text-zinc-600 mb-4">Intelligence. Simulation. Resilience.</p>
@@ -40,9 +40,15 @@ export function MarketingFooter() {
             <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-1.5">Ecosystem</p>
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 rounded-sm bg-sage-500/20 border border-sage-500/30 flex items-center justify-center">
-                <span className="text-[8px] text-sage-400 font-bold">SR</span>
+                <span className="text-[8px] text-sage-400 font-bold">SV</span>
               </div>
-              <span className="text-xs text-zinc-400">Sage Vault <span className="text-sage-500 text-[10px]">Live</span></span>
+              <span className="text-xs text-zinc-400">Sage Vault <span className="text-sage-500 text-[10px]">· Live</span></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 rounded-sm bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+                <span className="text-[8px] text-blue-400 font-bold">NX</span>
+              </div>
+              <span className="text-xs text-zinc-400">Nexus <span className="text-blue-400 text-[10px]">· Live</span></span>
             </div>
             {COMING_SOON.map((p) => (
               <div key={p.name} className="flex items-center gap-2 opacity-50">

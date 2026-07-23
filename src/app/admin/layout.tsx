@@ -14,7 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <aside className="w-60 shrink-0 border-r border-white/8 flex flex-col sticky top-0 h-screen">
         {/* Brand */}
         <div className="h-16 flex items-center gap-3 px-5 border-b border-white/8 shrink-0">
-          <Image src="/logo.ico" alt="Sage Vault" width={28} height={28} className="rounded-lg" unoptimized />
+          <Image src="/logo.png" alt="Sage Vault" width={36} height={36} className="rounded-md" unoptimized />
           <div>
             <p className="text-xs font-black tracking-widest text-emerald-400">SAGE VAULT</p>
             <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-wider">Admin Panel</p>

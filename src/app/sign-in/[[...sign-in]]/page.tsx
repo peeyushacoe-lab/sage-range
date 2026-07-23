@@ -13,7 +13,7 @@ export default async function SignInPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Image src="/logo.ico" alt="Sage Vault" width={40} height={40} className="rounded-lg" unoptimized />
+            <Image src="/logo.png" alt="Sage Vault" width={80} height={80} className="rounded-xl" unoptimized />
           </div>
           <h1 className="text-2xl font-bold text-white">Sign in to Sage Vault</h1>
         </div>

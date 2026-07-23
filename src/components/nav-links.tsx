@@ -18,11 +18,12 @@ function linkCls(href: string, pathname: string) {
 }
 
 const STUDENT_PRIMARY: NavLink[] = [
-  { href: "/daily",          label: "Daily"  },
-  { href: "/labs",           label: "Labs"   },
-  { href: "/simulation/new", label: "Sims"   },
-  { href: "/paths",          label: "Paths"  },
-  { href: "/feed",           label: "Feed"   },
+  { href: "/daily",          label: "Daily"    },
+  { href: "/academy",        label: "Academy"  },
+  { href: "/labs",           label: "Labs"     },
+  { href: "/simulation/new", label: "Sims"     },
+  { href: "/paths",          label: "Paths"    },
+  { href: "/feed",           label: "Feed"     },
 ];
 
 const STUDENT_MORE: NavLink[] = [

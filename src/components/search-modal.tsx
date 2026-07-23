@@ -167,8 +167,8 @@ export function SearchModal() {
         ) : query.trim().length < 2 ? (
           <div className="py-6 px-4 grid grid-cols-2 gap-2">
             {[
+              { href: "/academy",        icon: "📚", label: "Academy" },
               { href: "/labs",           icon: "🧪", label: "Browse Labs" },
-              { href: "/paths",          icon: "🗺️", label: "Learning Paths" },
               { href: "/simulation/new", icon: "🛡️", label: "Simulations" },
               { href: "/achievements",   icon: "🏅", label: "Achievements" },
             ].map((s) => (

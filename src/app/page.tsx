@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { auth } from "@/auth";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
@@ -119,6 +120,19 @@ export default async function Home() {
         />
 
         <div className="relative z-10 text-center max-w-4xl mx-auto">
+          {/* Logo mark */}
+          <div className="flex justify-center mb-8 animate-fade-down">
+            <Image
+              src="/logo.png"
+              alt="Sage Vault"
+              width={140}
+              height={140}
+              className="rounded-2xl drop-shadow-[0_0_32px_rgba(16,185,129,0.25)]"
+              unoptimized
+              priority
+            />
+          </div>
+
           {/* Live badge */}
           <div className="inline-flex items-center gap-2.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 text-xs font-mono text-emerald-400 mb-8 animate-fade-down">
             <span className="relative flex h-2 w-2">
@@ -301,7 +315,7 @@ export default async function Home() {
             <span className="gradient-text text-glow">résumé now.</span>
           </h2>
           <p className="text-zinc-400 text-sm mb-10 leading-relaxed">
-            Students get full platform access. Instructors get classroom tools from £149/month.
+            Students from £15/month. Instructors get classroom tools from £149/month.
             Enterprises get a verified talent pipeline — not a list of certifications.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">

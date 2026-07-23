@@ -10,7 +10,7 @@ export async function MarketingNav() {
     <header className="sticky top-0 z-40 border-b border-white/8 bg-zinc-950/90 backdrop-blur">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <Image src="/logo.ico" alt="Sage Vault" width={28} height={28} className="rounded" unoptimized />
+          <Image src="/logo.png" alt="Sage Vault" width={42} height={42} className="rounded-md" unoptimized />
           <div className="flex flex-col leading-none">
             <span className="font-bold tracking-tight text-white text-sm">Sage Vault</span>
             <span className="text-[9px] text-zinc-500 tracking-wide">by CyberSage</span>

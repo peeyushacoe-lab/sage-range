@@ -99,6 +99,11 @@ model User {
   portfolioItems           PortfolioItem[]
   moduleProgress           UserModuleProgress[]
   cohortMemberships        CohortMember[]
+  academyEnrollments       AcademyEnrollment[]
+  academyLessonProgress    AcademyLessonProgress[]
+  academyNotes             AcademyUserNote[]
+  academyQuizAttempts      AcademyQuizAttempt[]
+  academyCertificates      AcademyCertificate[]
 
   @@index([skillScore])
 }
@@ -1127,4 +1132,251 @@ model AuditLog {
   @@index([actorId, createdAt])
   @@index([action, createdAt])
   @@index([createdAt])
+}
+
+// ── Academy ───────────────────────────────────────────────────────────────────
+
+enum AcademyCategory {
+  FUNDAMENTALS
+  BLUE_TEAM
+  RED_TEAM
+  FORENSICS
+  SECURITY_ENGINEERING
+  NETWORKING
+  CLOUD
+}
+
+enum AcademyBlockType {
+  TEXT
+  CODE
+  IMAGE
+  CALLOUT
+  KNOWLEDGE_CHECK
+}
+
+enum AcademyQuestionType {
+  MULTIPLE_CHOICE
+  MULTIPLE_SELECT
+  FILL_BLANK
+  TRUE_FALSE
+  MATCH_PAIRS
+}
+
+model AcademyCourse {
+  id           String          @id @default(cuid())
+  slug         String          @unique
+  title        String
+  subtitle     String?
+  description  String          @db.Text
+  category     AcademyCategory
+  difficulty   Difficulty
+  estimatedHrs Int             @default(0)
+  thumbnail    String?
+  published    Boolean         @default(false)
+  order        Int             @default(0)
+  prerequisites String[]
+  objectives   String[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  modules      AcademyModule[]
+  enrollments  AcademyEnrollment[]
+  certificates AcademyCertificate[]
+  cheatSheets  AcademyCheatSheet[]
+}
+
+model AcademyModule {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  description String?
+  order       Int
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course  AcademyCourse  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons AcademyLesson[]
+  quiz    AcademyQuiz?
+
+  @@unique([courseId, order])
+  @@index([courseId])
+}
+
+model AcademyLesson {
+  id          String   @id @default(cuid())
+  moduleId    String
+  title       String
+  summary     String?
+  order       Int
+  published   Boolean  @default(false)
+  durationMin Int      @default(5)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  module     AcademyModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  blocks     AcademyLessonBlock[]
+  flashcards AcademyFlashcard[]
+  notes      AcademyUserNote[]
+  progress   AcademyLessonProgress[]
+
+  @@unique([moduleId, order])
+  @@index([moduleId])
+}
+
+model AcademyLessonBlock {
+  id       String           @id @default(cuid())
+  lessonId String
+  type     AcademyBlockType
+  order    Int
+  content  Json
+
+  lesson AcademyLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+}
+
+model AcademyQuiz {
+  id          String   @id @default(cuid())
+  moduleId    String   @unique
+  title       String
+  description String?
+  passMark    Int      @default(70)
+  createdAt   DateTime @default(now())
+
+  module    AcademyModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions AcademyQuestion[]
+  attempts  AcademyQuizAttempt[]
+}
+
+model AcademyQuestion {
+  id            String              @id @default(cuid())
+  quizId        String
+  type          AcademyQuestionType
+  question      String              @db.Text
+  options       Json?
+  correctAnswer Json
+  explanation   String?             @db.Text
+  order         Int
+
+  quiz    AcademyQuiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers AcademyQuizAnswer[]
+
+  @@index([quizId])
+}
+
+model AcademyQuizAttempt {
+  id          String   @id @default(cuid())
+  quizId      String
+  userId      String
+  score       Int
+  passed      Boolean
+  completedAt DateTime @default(now())
+
+  quiz    AcademyQuiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers AcademyQuizAnswer[]
+
+  @@index([quizId, userId])
+  @@index([userId])
+}
+
+model AcademyQuizAnswer {
+  id         String @id @default(cuid())
+  attemptId  String
+  questionId String
+  answer     Json
+
+  attempt  AcademyQuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question AcademyQuestion    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+}
+
+model AcademyEnrollment {
+  id          String    @id @default(cuid())
+  userId      String
+  courseId    String
+  enrolledAt  DateTime  @default(now())
+  completedAt DateTime?
+
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course AcademyCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model AcademyLessonProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  lessonId    String
+  completedAt DateTime?
+  startedAt   DateTime  @default(now())
+
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson AcademyLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+model AcademyUserNote {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson AcademyLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+model AcademyFlashcard {
+  id        String   @id @default(cuid())
+  lessonId  String
+  front     String
+  back      String   @db.Text
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  lesson AcademyLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+}
+
+model AcademyCertificate {
+  id       String   @id @default(cuid())
+  userId   String
+  courseId String
+  certCode String   @unique
+  issuedAt DateTime @default(now())
+
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course AcademyCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+}
+
+model AcademyCheatSheet {
+  id          String    @id @default(cuid())
+  courseId    String?
+  title       String
+  description String?
+  content     String    @db.Text
+  order       Int       @default(0)
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  course AcademyCourse? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([courseId])
 }
