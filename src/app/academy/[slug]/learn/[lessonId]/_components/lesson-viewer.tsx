@@ -16,14 +16,14 @@ type Lesson = { id: string; title: string; durationMin: number; blocks: Block[];
 type ModuleItem = { id: string; title: string; quizId: string | null; lessons: { id: string; title: string; durationMin: number; completed: boolean }[] };
 
 export function LessonViewer({
-  courseSlug, courseTitle, lesson, modules, prevLesson, nextLesson, alreadyCompleted, initialNote, userXp,
+  courseSlug, courseTitle, lesson, modules, prevLesson, next, alreadyCompleted, initialNote, userXp,
 }: {
   courseSlug: string;
   courseTitle: string;
   lesson: Lesson;
   modules: ModuleItem[];
   prevLesson: { id: string; title: string } | null;
-  nextLesson: { id: string; title: string } | null;
+  next: { href: string; label: string } | null;
   alreadyCompleted: boolean;
   initialNote: string;
   userXp?: number;
@@ -93,9 +93,14 @@ export function LessonViewer({
       {sidebarOpen && (
         <aside className="w-64 shrink-0 border-r border-white/8 bg-zinc-900/60 flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-white/6">
-            <Link href={`/academy/${courseSlug}`} className="text-[11px] text-zinc-500 hover:text-zinc-300 transition block mb-2">
-              ← {courseTitle}
-            </Link>
+            <div className="flex items-center justify-between mb-2">
+              <Link href={`/academy/${courseSlug}`} className="text-[11px] text-zinc-500 hover:text-zinc-300 transition block truncate">
+                ← {courseTitle}
+              </Link>
+              <Link href="/dashboard" className="text-[10px] text-zinc-600 hover:text-emerald-400 transition shrink-0 border border-white/8 rounded px-2 py-0.5 ml-2">
+                Vault
+              </Link>
+            </div>
             {/* Course progress bar */}
             <div className="flex items-center gap-2">
               <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
@@ -228,17 +233,17 @@ export function LessonViewer({
             )}
 
             {/* Completed state — encourage next */}
-            {completed && nextLesson && (
+            {completed && next && (
               <div className="mt-8 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-5 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-emerald-400 mb-0.5">Lesson complete!</p>
                   <p className="text-xs text-zinc-500">Ready for the next challenge?</p>
                 </div>
                 <Link
-                  href={`/academy/${courseSlug}/learn/${nextLesson.id}`}
+                  href={next.href}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-5 py-2 rounded-xl transition"
                 >
-                  Next: {nextLesson.title} →
+                  Next: {next.label} →
                 </Link>
               </div>
             )}
@@ -250,8 +255,8 @@ export function LessonViewer({
                   ← {prevLesson.title}
                 </Link>
               ) : <div />}
-              {nextLesson && !completed && (
-                <Link href={`/academy/${courseSlug}/learn/${nextLesson.id}`} className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm font-semibold px-4 py-2 rounded-xl transition">
+              {next && !completed && (
+                <Link href={next.href} className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm font-semibold px-4 py-2 rounded-xl transition">
                   Skip to next →
                 </Link>
               )}

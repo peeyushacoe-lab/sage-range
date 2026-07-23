@@ -13,12 +13,38 @@ import { CHEAT_SHEETS } from "./cheatsheets";
 
 const db = new PrismaClient();
 
+// The quiz UI stores options as [{id,text}] with the correct answer being the
+// option's id (its index as a string). Our authoring format uses plain text,
+// so convert here: options text[] -> [{id,text}], and correct text -> index id.
 function questionData(q: SeedQuestion, order: number) {
+  const texts = q.options ?? [];
+  const optionObjs = texts.map((t, i) => ({ id: String(i), text: t }));
+  const idOf = (text: string) => {
+    const idx = texts.findIndex(t => t === text);
+    if (idx === -1) throw new Error(`Correct answer "${text}" not found in options for: ${q.question}`);
+    return String(idx);
+  };
+
+  let options: Prisma.InputJsonValue | typeof Prisma.JsonNull = Prisma.JsonNull;
+  let correctAnswer: Prisma.InputJsonValue;
+
+  if (q.type === "MULTIPLE_CHOICE") {
+    options = optionObjs;
+    correctAnswer = idOf(q.correct as string);
+  } else if (q.type === "MULTIPLE_SELECT") {
+    options = optionObjs;
+    const correctTexts = Array.isArray(q.correct) ? q.correct : [q.correct];
+    correctAnswer = correctTexts.map(idOf);
+  } else {
+    // TRUE_FALSE ("true"/"false") and FILL_BLANK (text answer) — stored as-is.
+    correctAnswer = q.correct as Prisma.InputJsonValue;
+  }
+
   return {
     type: q.type,
     question: q.question,
-    options: (q.options ?? null) as Prisma.InputJsonValue,
-    correctAnswer: q.correct as Prisma.InputJsonValue,
+    options,
+    correctAnswer,
     explanation: q.explanation ?? null,
     order,
   };

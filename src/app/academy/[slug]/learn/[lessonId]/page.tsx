@@ -69,7 +69,23 @@ export default async function LearnLessonPage({
   );
   const currentIdx = allLessons.findIndex(l => l.id === lessonId);
   const prev = currentIdx > 0 ? allLessons[currentIdx - 1] : null;
-  const next = currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null;
+  const nextLessonRow = currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null;
+
+  // If this is the last lesson of its module and the module has a quiz, the
+  // next step is that quiz — otherwise fall through to the next lesson.
+  const currentModule = course.modules.find(m => m.id === lesson.module.id);
+  const isLastInModule = currentModule
+    ? currentModule.lessons[currentModule.lessons.length - 1]?.id === lessonId
+    : false;
+
+  let next: { href: string; label: string } | null;
+  if (isLastInModule && currentModule?.quiz?.id) {
+    next = { href: `/academy/${slug}/quiz/${currentModule.id}`, label: `${currentModule.title} Quiz` };
+  } else if (nextLessonRow) {
+    next = { href: `/academy/${slug}/learn/${nextLessonRow.id}`, label: nextLessonRow.title };
+  } else {
+    next = null;
+  }
 
   return (
     <LessonViewer
@@ -103,7 +119,7 @@ export default async function LearnLessonPage({
         })),
       }))}
       prevLesson={prev ? { id: prev.id, title: prev.title } : null}
-      nextLesson={next ? { id: next.id, title: next.title } : null}
+      next={next}
       alreadyCompleted={completedIds.has(lessonId)}
       initialNote={note?.content ?? ""}
       userXp={user.xp}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { EnrollBtn } from "./_components/enroll-btn";
+import { Navbar } from "@/components/navbar";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
+      <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-10">
         <Link href="/academy" className="text-xs text-zinc-600 hover:text-zinc-400 transition mb-6 block">← Academy</Link>
 

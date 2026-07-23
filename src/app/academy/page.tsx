@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
+import { Navbar } from "@/components/navbar";
 
 export const dynamic = "force-dynamic";
 
@@ -109,6 +110,7 @@ export default async function AcademyPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
+      <Navbar />
       <div className="max-w-6xl mx-auto px-6 py-10">
 
         {/* Header */}

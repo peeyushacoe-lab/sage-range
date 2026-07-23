@@ -81,7 +81,13 @@ export function QuizClient({ courseSlug, courseTitle, quiz, lastAttempt }: {
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <div className="max-w-2xl mx-auto px-6 py-10">
-        <Link href={`/academy/${courseSlug}`} className="text-xs text-zinc-600 hover:text-zinc-400 transition mb-6 block">← {courseTitle}</Link>
+        <div className="flex items-center justify-between mb-6">
+          <Link href={`/academy/${courseSlug}`} className="text-xs text-zinc-600 hover:text-zinc-400 transition">← {courseTitle}</Link>
+          <div className="flex items-center gap-3">
+            <Link href="/academy" className="text-[11px] text-zinc-600 hover:text-zinc-300 transition">Academy</Link>
+            <Link href="/dashboard" className="text-[11px] text-zinc-600 hover:text-emerald-400 transition border border-white/8 rounded px-2 py-0.5">Vault</Link>
+          </div>
+        </div>
 
         <h1 className="text-2xl font-bold mb-1">{quiz.title}</h1>
         <p className="text-zinc-500 text-sm mb-2">{quiz.questions.length} question{quiz.questions.length !== 1 ? "s" : ""} · Pass at {quiz.passMark}%</p>
