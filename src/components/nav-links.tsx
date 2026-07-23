@@ -18,26 +18,29 @@ function linkCls(href: string, pathname: string) {
 }
 
 const STUDENT_PRIMARY: NavLink[] = [
-  { href: "/daily",          label: "Daily"    },
-  { href: "/academy",        label: "Academy"  },
-  { href: "/labs",           label: "Labs"     },
-  { href: "/simulation/new", label: "Sims"     },
-  { href: "/paths",          label: "Paths"    },
-  { href: "/feed",           label: "Feed"     },
+  { href: "/daily",          label: "Daily"     },
+  { href: "/academy",        label: "Academy"   },
+  { href: "/labs",           label: "Labs"      },
+  { href: "/incidents",      label: "Incidents" },
+  { href: "/simulation/new", label: "Sims"      },
+  { href: "/paths",          label: "Paths"     },
+  { href: "/feed",           label: "Feed"      },
 ];
 
 const STUDENT_MORE: NavLink[] = [
-  { href: "/competitions",   label: "Compete"       },
-  { href: "/daily-hunt",     label: "Daily Hunt"    },
-  { href: "/soc-league",     label: "SOC League"    },
-  { href: "/scoreboard",     label: "Leaderboard"   },
-  { href: "/achievements",   label: "Achievements"  },
-  { href: "/mitre",          label: "ATT&CK Map"    },
-  { href: "/skills",         label: "Skills Radar"  },
-  { href: "/stats",          label: "Stats"         },
-  { href: "/workspace",      label: "IR Workspace"  },
-  { href: "/organization",   label: "Team"          },
-  { href: "/resume",         label: "Resume"        },
+  { href: "/competitions",     label: "Compete"        },
+  { href: "/daily-hunt",       label: "Daily Hunt"     },
+  { href: "/soc-shift",        label: "SOC Shift"      },
+  { href: "/threat-bulletin",  label: "Threat Bulletin"},
+  { href: "/soc-league",       label: "SOC League"     },
+  { href: "/scoreboard",       label: "Leaderboard"    },
+  { href: "/achievements",     label: "Achievements"   },
+  { href: "/mitre",            label: "ATT&CK Map"     },
+  { href: "/skills",           label: "Skills Radar"   },
+  { href: "/stats",            label: "Stats"          },
+  { href: "/workspace",        label: "IR Workspace"   },
+  { href: "/organization",     label: "Team"           },
+  { href: "/resume",           label: "Resume"         },
 ];
 
 const INSTRUCTOR_LINKS: NavLink[] = [

@@ -109,6 +109,8 @@ model User {
   academyQuizAttempts      AcademyQuizAttempt[]
   academyCertificates      AcademyCertificate[]
   dailyHuntAttempts        DailyHuntAttempt[]
+  incidentSimProgress      IncidentSimProgress[]
+  socShiftAttempts         SocShiftAttempt[]
 
   @@index([skillScore])
   @@index([coins])
@@ -1161,6 +1163,7 @@ enum AuditAction {
   LAB_VERSION_BUMP
   SSO_PROVISION
   PASSWORD_CHANGED
+  INCIDENT_TASK_SUBMIT
 }
 
 model AuditLog {
@@ -1424,4 +1427,232 @@ model AcademyCheatSheet {
   course AcademyCourse? @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
   @@index([courseId])
+}
+
+// ── Incident Simulations (curated, multi-artifact scenarios) ──────────────────
+// Distinct from SimulationSession/CustomScenario above, which is the live
+// AI-generated red-vs-blue engine. These are fixed, authored scenarios — a
+// chained sequence of tasks read against a bundle of realistic artifacts
+// (event logs, Sysmon, PCAP summaries, email, memory dumps, registry, etc.),
+// scoped inside a fictional CompanyEnvironment. Think "one big multi-hour lab"
+// rather than a dynamic simulation.
+
+enum CompanyIndustry {
+  FINANCE
+  HEALTHCARE
+  EDUCATION
+  MANUFACTURING
+  RETAIL
+  GOVERNMENT
+  TECHNOLOGY
+}
+
+model CompanyEnvironment {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  name          String
+  industry      CompanyIndustry
+  description   String          @db.Text
+  employeeCount Int
+  networkNotes  String?         @db.Text
+  published     Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+
+  incidentSimulations IncidentSimulation[]
+
+  @@index([industry])
+}
+
+enum SimArtifactType {
+  EVENT_LOG
+  SYSMON_LOG
+  DEFENDER_LOG
+  PCAP_SUMMARY
+  EMAIL
+  MEMORY_DUMP
+  REGISTRY
+  TIMELINE
+  FILE_LISTING
+}
+
+enum SimTaskAnswerType {
+  FREE_TEXT
+  RADIO
+}
+
+model IncidentSimulation {
+  id               String     @id @default(cuid())
+  slug             String     @unique
+  codename         String
+  title            String
+  companyId        String
+  briefing         String     @db.Text
+  difficulty       Difficulty
+  estimatedMinutes Int        @default(150)
+  points           Int        @default(1000)
+  published        Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+
+  company   CompanyEnvironment     @relation(fields: [companyId], references: [id])
+  artifacts IncidentSimArtifact[]
+  tasks     IncidentSimTask[]
+  progress  IncidentSimProgress[]
+
+  @@index([companyId])
+}
+
+model IncidentSimArtifact {
+  id           String          @id @default(cuid())
+  simulationId String
+  type         SimArtifactType
+  title        String
+  content      String          @db.Text
+  order        Int
+
+  simulation IncidentSimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+
+  @@index([simulationId])
+}
+
+model IncidentSimTask {
+  id            String            @id @default(cuid())
+  simulationId  String
+  order         Int
+  title         String
+  prompt        String            @db.Text
+  answerType    SimTaskAnswerType
+  correctAnswer String            @db.Text
+  options       String[]
+  points        Int               @default(100)
+
+  simulation IncidentSimulation   @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  hints      IncidentSimHint[]
+  progress   IncidentSimProgress[]
+
+  @@index([simulationId])
+}
+
+model IncidentSimHint {
+  id        String @id @default(cuid())
+  taskId    String
+  level     Int
+  pointCost Int
+  text      String @db.Text
+
+  task IncidentSimTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+}
+
+model IncidentSimProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  simulationId String
+  taskId       String
+  completedAt  DateTime @default(now())
+
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  simulation IncidentSimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  task       IncidentSimTask    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, taskId])
+  @@index([userId])
+  @@index([simulationId])
+}
+
+// ── SOC Shift Mode ──────────────────────────────────────────────────────────
+// A timed triage exercise: a batch of alerts (mostly noise, a few real) drops
+// at once, and the student has a time limit to classify each one. Scored on
+// speed, triage accuracy, and correct escalation — modeling how a real SOC
+// analyst's shift actually works, distinct from single-flag labs.
+
+enum ShiftAlertVerdict {
+  TRUE_POSITIVE
+  FALSE_POSITIVE
+}
+
+enum ShiftAlertAction {
+  ESCALATE
+  CLOSE
+  MONITOR
+}
+
+model SocShift {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  briefing      String   @db.Text
+  timeLimitSec  Int      @default(2700)
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  alerts   ShiftAlert[]
+  attempts SocShiftAttempt[]
+}
+
+model ShiftAlert {
+  id           String            @id @default(cuid())
+  shiftId      String
+  order        Int
+  source       String
+  summary      String            @db.Text
+  rawLog       String            @db.Text
+  verdict      ShiftAlertVerdict
+  correctAction ShiftAlertAction
+  explanation  String            @db.Text
+
+  shift    SocShift              @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  triages  ShiftAlertTriage[]
+
+  @@index([shiftId])
+}
+
+model SocShiftAttempt {
+  id          String    @id @default(cuid())
+  userId      String
+  shiftId     String
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  score       Int?
+  accuracyPct Int?
+
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shift   SocShift           @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  triages ShiftAlertTriage[]
+
+  @@index([userId])
+  @@index([shiftId])
+}
+
+model ShiftAlertTriage {
+  id         String           @id @default(cuid())
+  attemptId  String
+  alertId    String
+  action     ShiftAlertAction
+  correct    Boolean
+  answeredAt DateTime         @default(now())
+
+  attempt SocShiftAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  alert   ShiftAlert      @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, alertId])
+  @@index([attemptId])
+}
+
+// ── Weekly Threat Bulletin ────────────────────────────────────────────────────
+
+model ThreatBulletin {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  weekOf       DateTime
+  actorOrFamily String
+  headline     String
+  summary      String   @db.Text
+  newCves      String[]
+  newIocs      String[]
+  ttps         String[]
+  published    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  @@index([weekOf])
 }
