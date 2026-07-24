@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { PrintBtn } from "./_components/print-btn";
 
 export const dynamic = "force-dynamic";
 
@@ -63,9 +64,7 @@ export default async function CertificatePage({ params }: { params: Promise<{ ce
         </div>
 
         <div className="flex justify-center gap-4 mt-6 print:hidden">
-          <button onClick={() => window.print()} className="text-sm text-zinc-400 border border-white/10 px-4 py-2 rounded-xl hover:text-white transition">
-            Print / Save as PDF
-          </button>
+          <PrintBtn />
           <a href="/academy" className="text-sm text-zinc-400 border border-white/10 px-4 py-2 rounded-xl hover:text-white transition">
             Back to Academy
           </a>
