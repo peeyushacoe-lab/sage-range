@@ -110,7 +110,7 @@ export default async function OrganizationPage() {
 
   // ── Lead: fetch everything in parallel ──────────────────────────────────────
   const members = await db.organizationMember.findMany({
-    where: { organizationId: org.id },
+    where: { organizationId: org.id, user: { hidden: false } },
     include: { user: { select: { id: true, displayName: true, email: true, skillScore: true, role: true } } },
     orderBy: { joinedAt: "asc" },
   });
