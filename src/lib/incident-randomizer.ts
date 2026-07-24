@@ -39,6 +39,14 @@ const MALWARE_NOUNS = ["Locker", "Vault", "Reaper", "Cipher", "Wraith", "Sentine
 const DOMAIN_WORDS = ["cdn-update", "sys-relay", "cloud-sync", "net-monitor", "api-gateway", "edge-cache"];
 const TLDS = ["net", "org", "io", "co"];
 const LOOKALIKE_SUFFIXES = ["-support", "-secure", "-help", "-verify"];
+// Threat-intel-style "adjective + animal" naming convention (mirrors real
+// vendor attacker-group naming, e.g. COZY BEAR / FANCY BEAR).
+const ATTACKER_ADJECTIVES = ["Cobalt", "Nomad", "Velvet", "Wandering", "Static", "Hollow", "Frozen", "Rusty"];
+const ATTACKER_ANIMALS = ["Falcon", "Jackal", "Viper", "Badger", "Heron", "Lynx", "Cormorant", "Mantis"];
+// Months are fixed to the fictional-present year used across every
+// simulation's story so artifact/task copy referencing "this incident" stays
+// internally consistent without hardcoding a specific date.
+const ATTACK_MONTHS = ["03", "04", "05", "06", "07", "08", "09"];
 
 export type TokenMap = Record<string, string>;
 
@@ -63,6 +71,12 @@ export function buildTokenMap(seedInput: string): TokenMap {
   let hash = "";
   for (let i = 0; i < 64; i++) hash += hashChars[Math.floor(rng() * 16)];
 
+  const attackerAlias = `${pick(ATTACKER_ADJECTIVES)} ${pick(ATTACKER_ANIMALS)}`;
+  const attackMonth = pick(ATTACK_MONTHS);
+  const attackDay = String(1 + Math.floor(rng() * 27)).padStart(2, "0");
+  const attackHour = String(Math.floor(rng() * 24)).padStart(2, "0");
+  const attackMinute = String(Math.floor(rng() * 60)).padStart(2, "0");
+
   return {
     EMPLOYEE_NAME: `${firstName} ${lastName}`,
     EMPLOYEE_USER: `${firstName[0].toLowerCase()}${lastName.toLowerCase()}`,
@@ -74,6 +88,9 @@ export function buildTokenMap(seedInput: string): TokenMap {
     LOOKALIKE_DOMAIN: `${dept.toLowerCase()}-corp${lookalikeSuffix}.com`,
     MALWARE_NAME: malwareName,
     MALWARE_HASH: hash,
+    ATTACKER_ALIAS: attackerAlias,
+    ATTACK_DATE: `2026-${attackMonth}-${attackDay}`,
+    ATTACK_TIME: `${attackHour}:${attackMinute}`,
   };
 }
 

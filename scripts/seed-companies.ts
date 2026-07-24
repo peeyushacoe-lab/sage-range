@@ -66,6 +66,16 @@ const COMPANIES = [
     networkNotes:
       "Aging on-prem infrastructure, high reliance on third-party vendors and MSPs for critical systems, minimal network segmentation between departments.",
   },
+  {
+    slug: "nimbus-cloud-solutions",
+    name: "Nimbus Cloud Solutions",
+    industry: "TECHNOLOGY" as const,
+    description:
+      "A B2B SaaS company running its entire product on Azure, serving mid-market customers with data export and analytics tooling. Engineering moves fast, ships often, and has historically prioritized velocity over cloud security hygiene.",
+    employeeCount: 340,
+    networkNotes:
+      "Cloud-native on Azure. Engineering keeps application code in public and private GitHub repositories with automated secret scanning only partially enrolled. Storage accounts and Key Vaults are provisioned per-team with inconsistent access scoping.",
+  },
 ];
 
 async function main() {

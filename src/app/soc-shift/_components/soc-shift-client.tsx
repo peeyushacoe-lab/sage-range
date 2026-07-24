@@ -20,7 +20,15 @@ function formatClock(sec: number) {
   return `${m}:${s}`;
 }
 
-export function SocShiftClient({ shift, initialAttempt }: { shift: Shift; initialAttempt: Attempt | null }) {
+export function SocShiftClient({
+  shift,
+  initialAttempt,
+  leaderboard,
+}: {
+  shift: Shift;
+  initialAttempt: Attempt | null;
+  leaderboard?: { name: string; score: number; accuracyPct: number }[];
+}) {
   const [attempt, setAttempt] = useState<Attempt | null>(initialAttempt?.completedAt || initialAttempt?.id ? initialAttempt : null);
   const [triaged, setTriaged] = useState<Record<string, { action: Action; correct: boolean; explanation: string }>>({});
   const [starting, setStarting] = useState(false);
@@ -198,6 +206,25 @@ export function SocShiftClient({ shift, initialAttempt }: { shift: Shift; initia
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {leaderboard && leaderboard.length > 0 && (
+        <div className="mt-8 rounded-xl border border-white/8 bg-zinc-900/40 p-4">
+          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Leaderboard</p>
+          <div className="space-y-1.5">
+            {leaderboard.map((row, i) => (
+              <div key={i} className="flex items-center justify-between text-sm">
+                <span className="text-zinc-400">
+                  <span className="text-zinc-600 font-mono mr-2 w-5 inline-block">{i + 1}.</span>
+                  {row.name}
+                </span>
+                <span className="font-mono text-zinc-300">
+                  {row.score} pts <span className="text-zinc-600">· {row.accuracyPct}%</span>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

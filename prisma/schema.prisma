@@ -113,6 +113,8 @@ model User {
   socShiftAttempts         SocShiftAttempt[]
   incidentSimEvidenceBoards IncidentSimEvidenceBoard[]
   incidentSimReports        IncidentSimReport[]
+  detectionSubmissions      DetectionSubmission[]
+  purpleTeamReplaySessions  PurpleTeamReplaySession[]
 
   @@index([skillScore])
   @@index([coins])
@@ -1171,6 +1173,8 @@ enum AuditAction {
   PASSWORD_CHANGED
   INCIDENT_TASK_SUBMIT
   INCIDENT_REPORT_SUBMIT
+  DETECTION_CHALLENGE_SUBMIT
+  PURPLE_TEAM_REPLAY_COMPLETE
 }
 
 model AuditLog {
@@ -1643,6 +1647,90 @@ model IncidentSimReport {
 
   @@unique([userId, simulationId])
   @@index([userId])
+}
+
+// ── Detection Validation Engine ──────────────────────────────────────────────
+// Students write a simple field/operator/value rule set (a constrained,
+// Sigma-inspired DSL — not full Sigma syntax) and it's evaluated against a
+// fixed, pre-labeled synthetic event log. We compute precision/recall/F1
+// server-side rather than trusting anything client-supplied.
+
+model DetectionChallenge {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  description String     @db.Text
+  difficulty  Difficulty
+  points      Int        @default(300)
+  published   Boolean    @default(true)
+  // Array of { id, raw, fields: Record<string,string>, isMalicious: boolean }
+  events      Json
+  createdAt   DateTime   @default(now())
+
+  submissions DetectionSubmission[]
+}
+
+model DetectionSubmission {
+  id             String   @id @default(cuid())
+  userId         String
+  challengeId    String
+  // Student's submitted condition set: { logic: "AND"|"OR", conditions: [{field, operator, value}] }
+  rule           Json
+  truePositives  Int
+  falsePositives Int
+  falseNegatives Int
+  trueNegatives  Int
+  precision      Float
+  recall         Float
+  f1             Float
+  score          Int
+  passed         Boolean  @default(false)
+  submittedAt    DateTime @default(now())
+
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge DetectionChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([challengeId])
+}
+
+// ── Purple Team Replay ───────────────────────────────────────────────────────
+// An attack sequence revealed in ordered, cumulative steps. Students hold a
+// single detection rule (reusing the same DSL/matcher as the Detection
+// Validation Engine — see src/lib/detection-engine.ts) and re-evaluate it
+// against the events revealed so far at each step, refining it as the
+// attack unfolds rather than grading one static submission all at once.
+
+model PurpleTeamReplay {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  description String     @db.Text
+  difficulty  Difficulty
+  points      Int        @default(400)
+  published   Boolean    @default(true)
+  // Ordered array of { step, narrative, events: DatasetEvent[] } — each
+  // step's events are newly revealed at that step (cumulative across the
+  // replay, not repeated).
+  steps       Json
+  createdAt   DateTime   @default(now())
+
+  sessions PurpleTeamReplaySession[]
+}
+
+model PurpleTeamReplaySession {
+  id          String    @id @default(cuid())
+  userId      String
+  replayId    String
+  currentStep Int       @default(0)
+  bestF1      Float     @default(0)
+  completedAt DateTime?
+  startedAt   DateTime  @default(now())
+
+  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replay PurpleTeamReplay @relation(fields: [replayId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, replayId])
 }
 
 // ── SOC Shift Mode ──────────────────────────────────────────────────────────

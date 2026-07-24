@@ -32,6 +32,8 @@ const STUDENT_MORE: NavLink[] = [
   { href: "/daily-hunt",       label: "Daily Hunt"     },
   { href: "/soc-shift",        label: "SOC Shift"      },
   { href: "/threat-bulletin",  label: "Threat Bulletin"},
+  { href: "/detection-lab",    label: "Detection Lab"  },
+  { href: "/purple-team",      label: "Purple Team"    },
   { href: "/soc-league",       label: "SOC League"     },
   { href: "/scoreboard",       label: "Leaderboard"    },
   { href: "/achievements",     label: "Achievements"   },
