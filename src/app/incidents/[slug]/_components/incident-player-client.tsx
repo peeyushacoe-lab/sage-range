@@ -74,7 +74,14 @@ function HintList({ hints }: { hints: Hint[] }) {
             ) : (
               <button
                 type="button"
-                onClick={() => setRevealed((r) => [...r, h.level])}
+                onClick={() => {
+                  setRevealed((r) => [...r, h.level]);
+                  fetch("/api/incidents/hint-view", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ hintId: h.id }),
+                  }).catch(() => null);
+                }}
                 className="text-xs text-zinc-500 hover:text-amber-400 underline underline-offset-2"
               >
                 Reveal hint {h.level} (-{h.pointCost} pts)

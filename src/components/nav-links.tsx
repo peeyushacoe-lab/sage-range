@@ -43,6 +43,7 @@ const STUDENT_MORE: NavLink[] = [
   { href: "/workspace",        label: "IR Workspace"   },
   { href: "/organization",     label: "Team"           },
   { href: "/resume",           label: "Resume"         },
+  { href: "/transcript",       label: "Transcript"     },
 ];
 
 const INSTRUCTOR_LINKS: NavLink[] = [

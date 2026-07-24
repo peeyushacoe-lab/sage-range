@@ -55,6 +55,10 @@ export async function POST(req: Request) {
 
   const correct = normalize(parsed.data.answer) === normalize(expectedAnswer);
   if (!correct) {
+    // Logged on failure too (not just success) so instructor analytics can
+    // compute first-attempt success rate and find common failure points —
+    // see src/lib/insights/instructor-analytics.ts.
+    audit({ actorId: user.id, action: "INCIDENT_TASK_SUBMIT", target: task.id, req, meta: { correct: false, simulationId: task.simulationId } });
     return NextResponse.json({ correct: false });
   }
 

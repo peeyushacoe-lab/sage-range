@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { coinsForPoints } from "@/lib/soc-league";
+import { audit } from "@/lib/audit";
 
 const Body = z.object({ attemptId: z.string().min(1) });
 
@@ -41,6 +42,14 @@ export async function POST(req: Request) {
       },
     }),
   ]);
+
+  audit({
+    actorId: user.id,
+    action: "SOC_SHIFT_COMPLETE",
+    target: attempt.shiftId,
+    req,
+    meta: { score, accuracyPct, correctCount, totalAlerts },
+  });
 
   return NextResponse.json({ score, accuracyPct, correctCount, totalAlerts });
 }

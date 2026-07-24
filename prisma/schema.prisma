@@ -115,6 +115,7 @@ model User {
   incidentSimReports        IncidentSimReport[]
   detectionSubmissions      DetectionSubmission[]
   purpleTeamReplaySessions  PurpleTeamReplaySession[]
+  incidentHintViews         IncidentHintView[]
 
   @@index([skillScore])
   @@index([coins])
@@ -1175,6 +1176,7 @@ enum AuditAction {
   INCIDENT_REPORT_SUBMIT
   DETECTION_CHALLENGE_SUBMIT
   PURPLE_TEAM_REPLAY_COMPLETE
+  SOC_SHIFT_COMPLETE
 }
 
 model AuditLog {
@@ -1578,9 +1580,29 @@ model IncidentSimHint {
   pointCost Int
   text      String @db.Text
 
-  task IncidentSimTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task  IncidentSimTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  views IncidentHintView[]
 
   @@index([taskId])
+}
+
+// Analytics-only reveal tracking for Boss Fight hints. Unlike LabHint/UsedHint,
+// incident sim hints are free to reveal (no point cost deducted, no gating) —
+// this table exists purely so instructor analytics can answer "how much are
+// students leaning on hints" for Boss Fights the same way it already can for
+// Labs, without changing the existing free-hint game economy.
+model IncidentHintView {
+  id       String   @id @default(cuid())
+  userId   String
+  hintId   String
+  viewedAt DateTime @default(now())
+
+  user User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hint IncidentSimHint @relation(fields: [hintId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hintId])
+  @@index([userId])
+  @@index([hintId])
 }
 
 model IncidentSimProgress {

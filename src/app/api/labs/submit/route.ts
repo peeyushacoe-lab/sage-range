@@ -45,6 +45,10 @@ export async function POST(req: Request) {
       create: { userId: user.id, labId: lab.id, status: "IN_PROGRESS", labVersion: lab.version },
       update: {},
     });
+    // Logged on failure too (not just success) so instructor analytics can
+    // compute first-attempt success rate and find common failure points —
+    // see src/lib/insights/instructor-analytics.ts.
+    audit({ actorId: user.id, action: "FLAG_SUBMIT", target: parsed.data.labSlug, req, meta: { correct: false } });
     return NextResponse.json({ correct: false });
   }
 
