@@ -166,8 +166,14 @@ export default async function PathDetail({
           <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-widest text-amber-400 mb-1">Path Complete</p>
-              <p className="font-semibold">All labs finished — great work.</p>
+              <p className="font-semibold">All labs finished — your certificate is ready.</p>
             </div>
+            <Link
+              href={`/paths/${slug}/certificate`}
+              className="shrink-0 rounded-lg border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition whitespace-nowrap"
+            >
+              View Certificate →
+            </Link>
           </div>
         )}
 
