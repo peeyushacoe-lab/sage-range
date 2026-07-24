@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
   const task = await db.incidentSimTask.findUnique({
     where: { id: parsed.data.taskId },
-    include: { simulation: { select: { id: true, published: true, randomized: true } } },
+    include: { simulation: { select: { id: true, slug: true, published: true, randomized: true } } },
   });
   if (!task || !task.simulation.published) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
@@ -76,6 +76,28 @@ export async function POST(req: Request) {
 
   audit({ actorId: user.id, action: "INCIDENT_TASK_SUBMIT", target: task.id,
     req, meta: { correct: true, points: awardPoints, simulationId: task.simulationId } });
+
+  // Award competition points for any active competition that lists this
+  // incident simulation's slug — same reuse pattern as labs/submit and
+  // detection-lab/submit, extended to cover Boss Fight sims so a "Seasonal
+  // Boss Fight" competition can score progress through the incident tasks.
+  if (user.role === "STUDENT") {
+    try {
+      const now = new Date();
+      const activeEntries = await db.competitionEntry.findMany({
+        where: { userId: user.id, competition: { published: true, startDate: { lte: now }, endDate: { gte: now } } },
+        include: { competition: true },
+      });
+      for (const entry of activeEntries) {
+        const slugs = entry.competition.labSlugs as string[];
+        if (slugs.includes(task.simulation.slug)) {
+          await db.competitionEntry.update({ where: { id: entry.id }, data: { score: { increment: awardPoints } } });
+        }
+      }
+    } catch {
+      // Never fail the task submission due to competition scoring errors
+    }
+  }
 
   return NextResponse.json({ correct: true, points: awardPoints });
 }

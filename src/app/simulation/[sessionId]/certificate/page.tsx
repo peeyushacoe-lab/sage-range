@@ -11,6 +11,7 @@ import { buildInfluenceGraph } from "@/lib/simulation/runtime/social/graph";
 import { applyContagion } from "@/lib/simulation/runtime/social/contagion";
 import { computeOrganizationHealth } from "@/lib/simulation/runtime/social/sentiment";
 import type { CompanyProfile } from "@/lib/simulation/types";
+import { userCanAccessSession } from "@/lib/simulation/team-access";
 import { CertActions } from "./_components/print-btn";
 import { track } from "@/lib/analytics";
 
@@ -37,7 +38,7 @@ export default async function CertificatePage({
     include: { template: true, events: { orderBy: { createdAt: "asc" } } },
   });
 
-  if (!session || session.userId !== user.id) notFound();
+  if (!session || !(await userCanAccessSession(user.id, session))) notFound();
   if (session.status === "ACTIVE") redirect(`/simulation/${sessionId}`);
 
   const worldState = buildWorldState(session.events);

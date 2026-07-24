@@ -13,6 +13,7 @@ import { computeLeadershipAssessment } from "@/lib/simulation/runtime/coaching";
 import { generateCoachingPlan } from "@/lib/simulation/narrator";
 import { generateIRReport, generateGapAnalysis, parseGapAnalysis } from "@/lib/simulation/runtime/ai-reports";
 import type { CompanyProfile } from "@/lib/simulation/types";
+import { userCanAccessSession } from "@/lib/simulation/team-access";
 import { CopyReportBtn } from "./_components/copy-report-btn";
 import { GapAnalysis } from "./_components/gap-analysis";
 import { MitreHeatmap } from "./_components/mitre-heatmap";
@@ -32,7 +33,7 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
     include: { template: true, events: { orderBy: { createdAt: "asc" } } },
   });
 
-  if (!session || session.userId !== user.id) notFound();
+  if (!session || !(await userCanAccessSession(user.id, session))) notFound();
 
   const status = session.status as string;
   if (status === "ACTIVE") redirect(`/simulation/${sessionId}`);

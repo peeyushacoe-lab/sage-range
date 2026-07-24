@@ -5,6 +5,7 @@ import { buildWorldState } from "@/lib/simulation/engine";
 import { getRoleConfig, listRoles } from "@/lib/simulation/runtime/roles/permissions";
 import type { SimulationRole } from "@/lib/simulation/runtime/roles/permissions";
 import type { WorldState } from "@/lib/simulation/types";
+import { userCanAccessSession } from "@/lib/simulation/team-access";
 
 const VALID_ROLES = new Set<SimulationRole>([
   "INCIDENT_COMMANDER", "SOC_ANALYST", "THREAT_HUNTER",
@@ -34,7 +35,7 @@ export async function GET(
     include: { events: { orderBy: { createdAt: "asc" } } },
   });
 
-  if (!session || session.userId !== user.id) {
+  if (!session || !(await userCanAccessSession(user.id, session))) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 

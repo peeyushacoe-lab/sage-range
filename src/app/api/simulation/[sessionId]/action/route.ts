@@ -30,6 +30,7 @@ import type { AdversaryMemory } from "@/lib/simulation/runtime/redai/memory";
 import { sendSimCertificateEmail } from "@/lib/email";
 import { track } from "@/lib/analytics";
 import { rateLimit } from "@/lib/rate-limit";
+import { userCanAccessSession, getSessionRewardRecipients } from "@/lib/simulation/team-access";
 
 const Body = z.object({ actionId: z.string().min(1) });
 
@@ -55,7 +56,7 @@ export async function POST(
     include: { template: true, events: { orderBy: { createdAt: "asc" } } },
   });
 
-  if (!session || session.userId !== user.id) {
+  if (!session || !(await userCanAccessSession(user.id, session))) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
@@ -98,6 +99,10 @@ export async function POST(
         scoreChange: actionDef.effects.scoreChange,
         stealthChange: actionDef.effects.stealthChange,
         stageBlocker: actionDef.effects.stageBlocker,
+        // Attribution for team play — who on the team actually took this
+        // action. Solo sessions just record their own owner here too.
+        actorUserId: user.id,
+        actorName: user.displayName ?? user.email,
       },
       narrative,
     },
@@ -156,32 +161,39 @@ export async function POST(
     });
   }
 
-  // Award XP and skillScore on session end, send certificate email
+  // Award XP and skillScore on session end, send certificate email.
+  // For team ("Capture the Company") sessions this fans out to every team
+  // member, not just whoever happened to submit the containing action —
+  // the outcome belongs to the whole team, not the one clicking analyst.
   if (newStatus === "CONTAINED") {
-    if (user.role === "STUDENT") {
-      const xpGain = finalScore * 3;
-      const skillGain = Math.floor(finalScore / 2);
-      await db.user.update({
-        where: { id: user.id },
-        data: { xp: { increment: xpGain }, skillScore: { increment: skillGain } },
-      });
-    }
     const rating = finalScore >= 88 ? "EXCEPTIONAL" : finalScore >= 68 ? "STRONG" : finalScore >= 48 ? "ADEQUATE" : "DEVELOPING";
-    sendSimCertificateEmail(
-      user.email,
-      user.displayName ?? user.email.split("@")[0],
-      session.template.name,
-      finalScore,
-      rating,
-      session.id
-    ).catch(() => null);
-    createNotification(
-      user.id,
-      "sim_complete",
-      `Simulation complete — ${rating}`,
-      `${session.template.name} · Score ${finalScore}`,
-      `/simulation/${session.id}/debrief`
-    ).catch(() => null);
+    const recipients = await getSessionRewardRecipients(session.id, user.id);
+    const xpGain = finalScore * 3;
+    const skillGain = Math.floor(finalScore / 2);
+
+    for (const recipient of recipients) {
+      if (recipient.role === "STUDENT") {
+        await db.user.update({
+          where: { id: recipient.id },
+          data: { xp: { increment: xpGain }, skillScore: { increment: skillGain } },
+        });
+      }
+      sendSimCertificateEmail(
+        recipient.email,
+        recipient.displayName ?? recipient.email.split("@")[0],
+        session.template.name,
+        finalScore,
+        rating,
+        session.id
+      ).catch(() => null);
+      createNotification(
+        recipient.id,
+        "sim_complete",
+        `Simulation complete — ${rating}`,
+        `${session.template.name} · Score ${finalScore}`,
+        `/simulation/${session.id}/debrief`
+      ).catch(() => null);
+    }
   }
 
   // REDai adversary turn — only runs while the simulation is still live

@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { buildDebrief } from "@/lib/simulation/runtime/debrief";
 import { buildWorldState, computeFinalScore } from "@/lib/simulation/engine";
+import { userCanAccessSession } from "@/lib/simulation/team-access";
 import { Navbar } from "@/components/navbar";
 import { ReplayPlayer } from "./_components/replay-player";
 import type { ReplayEvent, StageMarker } from "./_components/replay-player";
@@ -23,7 +24,7 @@ export default async function ReplayPage({ params }: { params: Promise<{ session
     },
   });
 
-  if (!session || session.userId !== user.id) notFound();
+  if (!session || !(await userCanAccessSession(user.id, session))) notFound();
   if (session.status === "ACTIVE") redirect(`/simulation/${sessionId}`);
 
   const startMs = session.startedAt.getTime();

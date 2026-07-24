@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { buildAssetGraph } from "@/lib/simulation/runtime/redai/asset-graph";
 import { buildDebrief } from "@/lib/simulation/runtime/debrief";
 import { buildWorldState, computeFinalScore } from "@/lib/simulation/engine";
+import { userCanAccessSession } from "@/lib/simulation/team-access";
 import { Navbar } from "@/components/navbar";
 import { AttackGraph } from "./_components/attack-graph";
 import type { GraphNode, GraphEdge, AttackEvent, StageMarker } from "./_components/attack-graph";
@@ -71,7 +72,7 @@ export default async function GraphPage({ params }: { params: Promise<{ sessionI
     },
   });
 
-  if (!session || session.userId !== user.id) notFound();
+  if (!session || !(await userCanAccessSession(user.id, session))) notFound();
   if (session.status === "ACTIVE") redirect(`/simulation/${sessionId}`);
 
   const company = session.companyData as CompanyProfile;

@@ -19,6 +19,7 @@ import { computeOrganizationHealth } from "@/lib/simulation/runtime/social/senti
 import { getExecDemandsForStage, getExecutivesForTemplate } from "@/lib/simulation/runtime/executives";
 import type { AttackStage, CompanyProfile, Executive } from "@/lib/simulation/types";
 import { track } from "@/lib/analytics";
+import { userCanAccessSession, getSessionRewardRecipients } from "@/lib/simulation/team-access";
 
 export async function GET(
   _req: Request,
@@ -33,7 +34,7 @@ export async function GET(
     include: { template: true, events: { orderBy: { createdAt: "asc" } } },
   });
 
-  if (!session || session.userId !== user.id) {
+  if (!session || !(await userCanAccessSession(user.id, session))) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
@@ -162,13 +163,19 @@ export async function GET(
         },
       });
 
-      // Award participation XP on breach (no skill score — attacker won)
+      // Award participation XP on breach (no skill score — attacker won).
+      // Fans out to the whole team on a "Capture the Company" session rather
+      // than just whichever teammate's poll happened to trigger the advance —
+      // see getSessionRewardRecipients for why.
       if (isTerminalBreach) {
-        if (user.role === "STUDENT") {
-          await db.user.update({
-            where: { id: user.id },
-            data: { xp: { increment: breachScore } },
-          });
+        const recipients = await getSessionRewardRecipients(session.id, user.id);
+        for (const recipient of recipients) {
+          if (recipient.role === "STUDENT") {
+            await db.user.update({
+              where: { id: recipient.id },
+              data: { xp: { increment: breachScore } },
+            });
+          }
         }
         track("simulation.completed", user.id, {
           sessionId: session.id,
