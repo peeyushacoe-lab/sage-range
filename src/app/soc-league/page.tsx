@@ -15,7 +15,7 @@ export default async function SocLeaguePage() {
   const rank = getSocLeagueRank(me.coins);
 
   const leaderboard = await db.user.findMany({
-    where: { role: "STUDENT", coins: { gt: 0 } },
+    where: { role: "STUDENT", hidden: false, coins: { gt: 0 } },
     select: { id: true, displayName: true, email: true, coins: true },
     orderBy: { coins: "desc" },
     take: 20,

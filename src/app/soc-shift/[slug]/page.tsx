@@ -23,7 +23,7 @@ export default async function SocShiftPage({ params }: { params: Promise<{ slug:
   });
 
   const leaderboard = await db.socShiftAttempt.findMany({
-    where: { shiftId: shift.id, completedAt: { not: null } },
+    where: { shiftId: shift.id, completedAt: { not: null }, user: { hidden: false } },
     orderBy: [{ score: "desc" }, { completedAt: "asc" }],
     take: 10,
     include: { user: { select: { displayName: true } } },

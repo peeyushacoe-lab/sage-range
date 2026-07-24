@@ -18,13 +18,13 @@ export default async function ScoreboardPage() {
 
   const [topUsers, recentSolves, recentSims, activeCount] = await Promise.all([
     db.user.findMany({
-      where:   { role: "STUDENT", skillScore: { gt: 0 }, organizationMemberships: { none: { isLead: true } } },
+      where:   { role: "STUDENT", hidden: false, skillScore: { gt: 0 }, organizationMemberships: { none: { isLead: true } } },
       select:  { id: true, displayName: true, skillScore: true },
       orderBy: { skillScore: "desc" },
       take:    50,
     }),
     db.attempt.findMany({
-      where:   { status: "SOLVED", solvedAt: { gte: thirtyMinsAgo } },
+      where:   { status: "SOLVED", solvedAt: { gte: thirtyMinsAgo }, user: { hidden: false } },
       select:  {
         id: true, solvedAt: true,
         user: { select: { id: true, displayName: true } },
@@ -34,7 +34,7 @@ export default async function ScoreboardPage() {
       take: 12,
     }),
     db.simulationSession.findMany({
-      where:   { status: { in: ["CONTAINED", "BREACHED"] }, endedAt: { gte: thirtyMinsAgo } },
+      where:   { status: { in: ["CONTAINED", "BREACHED"] }, endedAt: { gte: thirtyMinsAgo }, user: { hidden: false } },
       select:  {
         id: true, endedAt: true, status: true, score: true,
         user:     { select: { id: true, displayName: true } },
@@ -46,6 +46,7 @@ export default async function ScoreboardPage() {
     db.user.count({
       where: {
         role: "STUDENT",
+        hidden: false,
         OR: [
           { attempts:    { some: { startedAt: { gte: oneDayAgo } } } },
           { simSessions: { some: { startedAt: { gte: oneDayAgo } } } },

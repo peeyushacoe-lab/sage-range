@@ -27,7 +27,7 @@ export default async function RecruiterAnalyticsPage() {
 
   // All students with at least one completed simulation
   const completedSessions = await db.simulationSession.findMany({
-    where: { status: { in: ["CONTAINED", "BREACHED"] } },
+    where: { status: { in: ["CONTAINED", "BREACHED"] }, user: { hidden: false } },
     include: {
       user: {
         select: {

@@ -37,6 +37,7 @@ export default async function CompetitionDetailPage({
     where: { slug, published: true },
     include: {
       entries: {
+        where: { user: { hidden: false } },
         orderBy: { score: "desc" },
         include: {
           user: { select: { displayName: true, email: true, university: true } },

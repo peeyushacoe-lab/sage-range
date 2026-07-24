@@ -44,6 +44,10 @@ model User {
   password    String?
   displayName  String?
   role         Role     @default(STUDENT)
+  // QA/internal accounts: excluded from every leaderboard, scoreboard, and the
+  // public activity feed. Profile, certificates, and other self/direct-view
+  // pages are unaffected — this only hides the account from discovery surfaces.
+  hidden       Boolean  @default(false)
   university   String?
   linkedIn     String?
   github       String?

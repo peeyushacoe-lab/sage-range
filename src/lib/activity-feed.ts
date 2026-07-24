@@ -51,7 +51,7 @@ export async function getActivityFeed(opts: {
 
   const [solves, sims] = await Promise.all([
     db.attempt.findMany({
-      where: { status: "SOLVED", ...whereUser, solvedAt: { gte: since } },
+      where: { status: "SOLVED", ...whereUser, solvedAt: { gte: since }, user: { hidden: false } },
       include: {
         lab:  { select: { title: true, type: true, difficulty: true } },
         user: { select: { id: true, displayName: true, email: true, skillScore: true } },
@@ -60,7 +60,7 @@ export async function getActivityFeed(opts: {
       take: limit,
     }),
     db.simulationSession.findMany({
-      where: { status: { in: ["CONTAINED", "BREACHED"] }, ...whereUser, startedAt: { gte: since } },
+      where: { status: { in: ["CONTAINED", "BREACHED"] }, ...whereUser, startedAt: { gte: since }, user: { hidden: false } },
       include: {
         template: { select: { name: true } },
         user:     { select: { id: true, displayName: true, email: true, skillScore: true } },

@@ -19,7 +19,7 @@ export default async function RecruiterDashboard() {
   if (!me || (me.role !== "RECRUITER" && me.role !== "ADMIN")) redirect("/dashboard");
 
   const students = await db.user.findMany({
-    where: { role: "STUDENT" },
+    where: { role: "STUDENT", hidden: false },
     orderBy: [{ skillScore: "desc" }],
     take: 200,
     select: {

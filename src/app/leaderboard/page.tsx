@@ -91,10 +91,11 @@ export default async function Leaderboard({
   );
 }
 
-// Admins and org leads are excluded from all leaderboards
+// Admins, org leads, and hidden (QA/internal) accounts are excluded from all leaderboards
 const EXCLUDE_USERS = {
   role: { not: "ADMIN" as const },
   organizationMemberships: { none: { isLead: true } },
+  hidden: false,
 };
 
 async function getOverall() {

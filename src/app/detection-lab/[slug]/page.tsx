@@ -26,7 +26,7 @@ export default async function DetectionChallengePage({ params }: { params: Promi
 
   // One best (highest-F1) passing submission per user, for the leaderboard.
   const passingSubmissions = await db.detectionSubmission.findMany({
-    where: { challengeId: challenge.id, passed: true },
+    where: { challengeId: challenge.id, passed: true, user: { hidden: false } },
     orderBy: { f1: "desc" },
     include: { user: { select: { id: true, displayName: true } } },
   });
