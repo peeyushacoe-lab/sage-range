@@ -4,14 +4,9 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { PrintBtn } from "./_components/print-btn";
 import { LinkedInShareBtn } from "./_components/linkedin-share-btn";
+import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 
 export const dynamic = "force-dynamic";
-
-const TASK_STAGES: Record<string, string[]> = {
-  "welcome-ctf": ["task_1", "task_2", "task_3"],
-  "sql-injection-101": ["task_1", "task_2", "task_3"],
-  "soc-alert-investigation": ["investigation", "task_2", "task_3"],
-};
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -49,11 +44,12 @@ export default async function CertificatePage({
 
   const hasModules = path.modules.length > 0;
 
-  let canCert = false;
-  if (hasModules) {
-    // Module-based path: completed when all modules are done (set by module progress hook)
-    canCert = !!userProgress?.completedAt;
-  } else {
+  // completedAt is authoritative for both path kinds — the path page (or the
+  // module-progress hook) sets it once everything is done. The per-lab stage
+  // check below is only a fallback for lab-based paths where the user finished
+  // the last lab but hasn't revisited the path page to trigger that update.
+  let canCert = !!userProgress?.completedAt;
+  if (!canCert && !hasModules) {
     // Lab-based path: check all labs
     const labIds = path.labs.map((pl) => pl.labId);
     const labResponses = await db.labResponse.findMany({
