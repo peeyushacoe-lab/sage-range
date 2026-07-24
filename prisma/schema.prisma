@@ -111,6 +111,8 @@ model User {
   dailyHuntAttempts        DailyHuntAttempt[]
   incidentSimProgress      IncidentSimProgress[]
   socShiftAttempts         SocShiftAttempt[]
+  incidentSimEvidenceBoards IncidentSimEvidenceBoard[]
+  incidentSimReports        IncidentSimReport[]
 
   @@index([skillScore])
   @@index([coins])
@@ -388,6 +390,10 @@ model LearningPath {
   description String
   order       Int      @default(0)
   published   Boolean  @default(false)
+  // Soft reference (by slug) to an IncidentSimulation that unlocks once every
+  // PathLab step below is completed. Not a hard FK — capstones live in a
+  // separate content model (Incident Simulations) from PathLab's Lab steps.
+  capstoneSimulationSlug String?
   createdAt   DateTime @default(now())
 
   labs        PathLab[]
@@ -1164,6 +1170,7 @@ enum AuditAction {
   SSO_PROVISION
   PASSWORD_CHANGED
   INCIDENT_TASK_SUBMIT
+  INCIDENT_REPORT_SUBMIT
 }
 
 model AuditLog {
@@ -1491,14 +1498,39 @@ model IncidentSimulation {
   estimatedMinutes Int        @default(150)
   points           Int        @default(1000)
   published        Boolean    @default(true)
+  // When true, artifact/task content is a template containing {{TOKEN}}
+  // placeholders — the Simulation Generator substitutes deterministic
+  // per-(user, simulation) values at request time. See src/lib/incident-randomizer.ts.
+  randomized       Boolean    @default(false)
+  // Interactive Network Map data: node list and status-change events keyed
+  // to task completion order. Both are plain JSON rather than relational
+  // tables since they're small, simulation-authored, and never queried on
+  // their own — see src/app/incidents/[slug]/_components/network-map.tsx.
+  networkNodes     Json?
+  networkEvents    Json?
+  // Learning Paths reference simulations by slug (see LearningPathStep) —
+  // no FK needed since a path step can equally reference a Lab slug.
+  isCapstone       Boolean    @default(false)
   createdAt        DateTime   @default(now())
 
-  company   CompanyEnvironment     @relation(fields: [companyId], references: [id])
-  artifacts IncidentSimArtifact[]
-  tasks     IncidentSimTask[]
-  progress  IncidentSimProgress[]
+  company        CompanyEnvironment      @relation(fields: [companyId], references: [id])
+  artifacts      IncidentSimArtifact[]
+  tasks          IncidentSimTask[]
+  progress       IncidentSimProgress[]
+  evidenceBoards IncidentSimEvidenceBoard[]
+  reports        IncidentSimReport[]
 
   @@index([companyId])
+}
+
+enum MitreTactic {
+  INITIAL_ACCESS
+  PERSISTENCE
+  PRIVILEGE_ESCALATION
+  LATERAL_MOVEMENT
+  COMMAND_AND_CONTROL
+  EXFILTRATION
+  IMPACT
 }
 
 model IncidentSimArtifact {
@@ -1508,6 +1540,9 @@ model IncidentSimArtifact {
   title        String
   content      String          @db.Text
   order        Int
+  // Null for meta/reference artifacts (e.g. the consolidated timeline, or a
+  // pure detection log) that don't map to one Evidence Board tactic bucket.
+  tactic       MitreTactic?
 
   simulation IncidentSimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
 
@@ -1558,6 +1593,56 @@ model IncidentSimProgress {
   @@unique([userId, taskId])
   @@index([userId])
   @@index([simulationId])
+}
+
+// ── Evidence Board ────────────────────────────────────────────────────────────
+// A drag-and-drop investigation workspace: categorize artifacts into MITRE
+// tactic buckets, then order them into a timeline, before writing the report.
+
+model IncidentSimEvidenceBoard {
+  id             String    @id @default(cuid())
+  userId         String
+  simulationId   String
+  // Map of artifactId -> the MitreTactic the student assigned it to.
+  categorization Json
+  // Ordered list of artifact IDs representing the student's timeline.
+  timelineOrder  String[]
+  score          Int?
+  accuracyPct    Int?
+  completedAt    DateTime?
+  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime  @default(now())
+
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  simulation IncidentSimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, simulationId])
+  @@index([userId])
+}
+
+// ── Executive Report Builder ──────────────────────────────────────────────────
+
+model IncidentSimReport {
+  id                  String    @id @default(cuid())
+  userId              String
+  simulationId        String
+  executiveSummary    String    @db.Text
+  incidentTimeline    String    @db.Text
+  technicalFindings   String    @db.Text
+  mitreMapping        String    @db.Text
+  indicatorsOfCompromise String @db.Text
+  businessImpact       String  @db.Text
+  containmentActions    String @db.Text
+  recommendations       String @db.Text
+  submittedAt         DateTime?
+  updatedAt           DateTime  @updatedAt
+  createdAt           DateTime  @default(now())
+
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  simulation IncidentSimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, simulationId])
+  @@index([userId])
 }
 
 // ── SOC Shift Mode ──────────────────────────────────────────────────────────

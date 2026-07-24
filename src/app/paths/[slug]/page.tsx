@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { EnrollBtn } from "./_components/enroll-btn";
 import { Navbar } from "@/components/navbar";
+import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 
 export const dynamic = "force-dynamic";
 
@@ -41,13 +42,51 @@ export default async function PathDetail({
   const user = await getOrCreateAppUser();
   if (!user) redirect("/sign-in");
 
-  const userProgress = await db.userPathProgress.findUnique({
+  let userProgress = await db.userPathProgress.findUnique({
     where: { userId_pathId: { userId: user.id, pathId: path.id } },
   });
 
   const isEnrolled = !!userProgress;
-  const isCompleted = !!userProgress?.completedAt;
+  let isCompleted = !!userProgress?.completedAt;
   const hasModules = path.modules.length > 0;
+
+  // Lab-based paths (PathLab, no Modules) don't get an automatic completion
+  // event the way module quizzes/assessments do — derive it here from lab
+  // completion, matching the same TASK_STAGES check used on /paths.
+  let labsDone = 0;
+  let allLabsDone = false;
+  let labDoneFlags: boolean[] = path.labs.map(() => false);
+  if (!hasModules && path.labs.length > 0) {
+    const labIds = path.labs.map((pl) => pl.labId);
+    const labResponses = await db.labResponse.findMany({
+      where: { userId: user.id, labId: { in: labIds } },
+      select: { labId: true, stage: true },
+    });
+    const completedByLab = new Map<string, Set<string>>();
+    for (const r of labResponses) {
+      if (!completedByLab.has(r.labId)) completedByLab.set(r.labId, new Set());
+      completedByLab.get(r.labId)!.add(r.stage);
+    }
+    labDoneFlags = path.labs.map((pl) => {
+      const stages = TASK_STAGES[pl.lab.slug] ?? [];
+      if (stages.length === 0) return false;
+      const done = completedByLab.get(pl.labId);
+      return stages.every((s) => done?.has(s));
+    });
+    labsDone = labDoneFlags.filter(Boolean).length;
+    allLabsDone = labsDone === path.labs.length;
+
+    if (isEnrolled && !isCompleted && allLabsDone) {
+      userProgress = await db.userPathProgress.update({
+        where: { userId_pathId: { userId: user.id, pathId: path.id } },
+        data: { completedAt: new Date() },
+      });
+      isCompleted = true;
+    }
+  }
+
+  const capstoneSlug = path.capstoneSimulationSlug;
+  const capstoneReady = isCompleted && !!capstoneSlug;
 
   // Module-based progress
   let moduleProgressMap = new Map<string, { quizPassed: boolean; assessmentDone: boolean; completedAt: Date | null }>();
@@ -119,6 +158,30 @@ export default async function PathDetail({
               className="shrink-0 rounded-lg border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition whitespace-nowrap"
             >
               View Certificate →
+            </Link>
+          </div>
+        )}
+
+        {!hasModules && allLabsDone && isEnrolled && (
+          <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-amber-400 mb-1">Path Complete</p>
+              <p className="font-semibold">All labs finished — great work.</p>
+            </div>
+          </div>
+        )}
+
+        {capstoneReady && (
+          <div className="mb-8 rounded-xl border border-sage-500/40 bg-sage-500/5 p-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-sage-500 mb-1">Capstone Unlocked</p>
+              <p className="font-semibold">Put it all together in a full Incident Simulation.</p>
+            </div>
+            <Link
+              href={`/incidents/${capstoneSlug}`}
+              className="shrink-0 rounded-lg bg-sage-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition whitespace-nowrap"
+            >
+              Start Capstone →
             </Link>
           </div>
         )}
@@ -212,16 +275,41 @@ export default async function PathDetail({
           </section>
         ) : (
           <section>
-            <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Labs in this path</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xs uppercase tracking-widest text-zinc-500">
+                Labs in this path — {labsDone}/{path.labs.length} complete
+              </h2>
+              {isEnrolled && path.labs.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-sage-500 rounded-full transition-all"
+                      style={{ width: `${Math.round((labsDone / path.labs.length) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-zinc-500">{Math.round((labsDone / path.labs.length) * 100)}%</span>
+                </div>
+              )}
+            </div>
             <div className="flex flex-col gap-3">
               {path.labs.map((pl, idx) => {
                 const lab = pl.lab;
                 const diffColor = DIFF_COLORS[lab.difficulty as string] ?? "text-zinc-400 border-white/10";
+                const isDone = labDoneFlags[idx] ?? false;
                 return (
-                  <div key={pl.id} className="rounded-xl border border-white/8 p-4 flex items-center justify-between gap-4">
+                  <div
+                    key={pl.id}
+                    className={`rounded-xl border p-4 flex items-center justify-between gap-4 transition ${
+                      isDone ? "border-sage-500/40 bg-sage-500/5" : "border-white/8"
+                    }`}
+                  >
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="shrink-0 h-7 w-7 rounded-full border-2 border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-500">
-                        {idx + 1}
+                      <div
+                        className={`shrink-0 h-7 w-7 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
+                          isDone ? "border-sage-500 bg-sage-500 text-zinc-950" : "border-zinc-700 text-zinc-500"
+                        }`}
+                      >
+                        {isDone ? "✓" : idx + 1}
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium truncate">{lab.title}</p>
@@ -232,7 +320,7 @@ export default async function PathDetail({
                       href={`/labs/${lab.slug}`}
                       className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-zinc-300 hover:border-sage-500/40 hover:text-sage-500 transition"
                     >
-                      Start →
+                      {isDone ? "Review" : "Start"} →
                     </Link>
                   </div>
                 );

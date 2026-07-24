@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { coinsForPoints } from "@/lib/soc-league";
+import { buildTokenMap, applyTokens, simSeed } from "@/lib/incident-randomizer";
 
 const Body = z.object({
   taskId: z.string().min(1),
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
 
   const task = await db.incidentSimTask.findUnique({
     where: { id: parsed.data.taskId },
-    include: { simulation: { select: { id: true, published: true } } },
+    include: { simulation: { select: { id: true, published: true, randomized: true } } },
   });
   if (!task || !task.simulation.published) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
@@ -45,7 +46,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ correct: true, alreadyCompleted: true });
   }
 
-  const correct = normalize(parsed.data.answer) === normalize(task.correctAnswer);
+  // For randomized simulations, regenerate this student's exact token values
+  // (same seed as the page render) and apply them to the stored template
+  // correctAnswer before comparing.
+  const expectedAnswer = task.simulation.randomized
+    ? applyTokens(task.correctAnswer, buildTokenMap(simSeed(user.id, task.simulationId)))
+    : task.correctAnswer;
+
+  const correct = normalize(parsed.data.answer) === normalize(expectedAnswer);
   if (!correct) {
     return NextResponse.json({ correct: false });
   }

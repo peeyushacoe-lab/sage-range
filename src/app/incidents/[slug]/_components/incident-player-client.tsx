@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import Link from "next/link";
+import { resolveNetworkState, type NetworkNode, type NetworkEvent } from "@/lib/network-map";
+import { NetworkMap } from "./network-map";
 
 type Artifact = {
   id: string;
@@ -33,6 +36,7 @@ type Company = {
 
 type Simulation = {
   id: string;
+  slug: string;
   codename: string;
   title: string;
   briefing: string;
@@ -206,11 +210,15 @@ export function IncidentPlayerClient({
   artifacts,
   tasks,
   completedTaskIds,
+  networkNodes,
+  networkEvents,
 }: {
   simulation: Simulation;
   artifacts: Artifact[];
   tasks: Task[];
   completedTaskIds: string[];
+  networkNodes?: NetworkNode[] | null;
+  networkEvents?: NetworkEvent[] | null;
 }) {
   const [completed, setCompleted] = useState<string[]>(completedTaskIds);
   const [activeArtifact, setActiveArtifact] = useState(artifacts[0]?.id ?? "");
@@ -220,6 +228,19 @@ export function IncidentPlayerClient({
   const doneCount = tasks.filter((t) => done(t.id)).length;
 
   const active = artifacts.find((a) => a.id === activeArtifact) ?? artifacts[0];
+
+  // The map re-derives live from local `completed` state, so it updates the
+  // instant a task is solved — no reload required.
+  const maxCompletedOrder = useMemo(() => {
+    const completedOrders = tasks.filter((t) => done(t.id)).map((t) => t.order);
+    return completedOrders.length > 0 ? Math.max(...completedOrders) : 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completed, tasks]);
+
+  const resolvedNodes = useMemo(() => {
+    if (!networkNodes || networkNodes.length === 0) return null;
+    return resolveNetworkState(networkNodes, networkEvents ?? [], maxCompletedOrder);
+  }, [networkNodes, networkEvents, maxCompletedOrder]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
@@ -252,6 +273,12 @@ export function IncidentPlayerClient({
           <span className="text-xs text-zinc-500 font-mono">{doneCount}/{tasks.length} tasks</span>
         </div>
       </header>
+
+      {resolvedNodes && (
+        <div className="mb-6">
+          <NetworkMap nodes={resolvedNodes} />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6">
         {/* Artifacts panel */}
@@ -297,10 +324,24 @@ export function IncidentPlayerClient({
           {allDone && (
             <div className="rounded-xl border border-sage-500/40 bg-sage-500/5 p-5">
               <h3 className="font-bold text-sage-400 text-base mb-1">Simulation Complete</h3>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-zinc-400 mb-4">
                 You reconstructed the full attack chain for {simulation.codename} and produced containment and
                 reporting recommendations — exactly the workflow of a real incident response engagement.
               </p>
+              <div className="flex flex-col gap-2">
+                <Link
+                  href={`/incidents/${simulation.slug}/evidence-board`}
+                  className="rounded-lg bg-sage-500 px-4 py-2.5 text-center text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition"
+                >
+                  Continue to Evidence Board →
+                </Link>
+                <Link
+                  href={`/incidents/${simulation.slug}/report`}
+                  className="rounded-lg border border-white/15 px-4 py-2.5 text-center text-sm font-medium text-zinc-200 hover:border-white/30 transition"
+                >
+                  Skip to Report Builder
+                </Link>
+              </div>
             </div>
           )}
         </div>
