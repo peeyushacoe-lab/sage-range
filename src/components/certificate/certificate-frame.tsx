@@ -170,7 +170,7 @@ export function CertificateFrame({
                 <div className="text-center">
                   <Image src="/certificates/ceo-signature-navy.png" alt="CEO signature" width={165} height={28} className="mx-auto" />
                   <p className="w-48 border-b mb-2" style={{ borderColor: GOLD_SOFT }} />
-                  <p className="text-xs font-bold tracking-[0.15em]" style={{ color: NAVY }}>ARJUN S. MEHTA</p>
+                  <p className="text-xs font-bold tracking-[0.15em]" style={{ color: NAVY }}>KHURRAM QAMAR</p>
                   <p className="text-[10px] tracking-[0.12em] text-zinc-500">CHIEF EXECUTIVE OFFICER</p>
                   <p className="text-[10px] tracking-[0.12em] text-zinc-500">CYBERSAGE UK</p>
                 </div>
