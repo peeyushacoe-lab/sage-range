@@ -14,6 +14,8 @@ import type { CompanyProfile } from "@/lib/simulation/types";
 import { userCanAccessSession } from "@/lib/simulation/team-access";
 import { CertActions } from "./_components/print-btn";
 import { track } from "@/lib/analytics";
+import { CertificateFrame } from "@/components/certificate/certificate-frame";
+import { certificateQrSvg } from "@/components/certificate/qr";
 
 export const dynamic = "force-dynamic";
 
@@ -80,6 +82,7 @@ export default async function CertificatePage({
   });
 
   const displayName = user.displayName || user.email?.split("@")[0] || "Analyst";
+  const verifyQr = await certificateQrSvg(`https://www.cybersagevault.uk/verify/simulation/${sessionId}`);
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -92,76 +95,27 @@ export default async function CertificatePage({
       </div>
 
       {/* Certificate */}
-      <div className="max-w-3xl mx-auto px-6 py-12 print:py-0 print:px-0 print:max-w-none">
-        <div className="rounded-2xl border-2 border-white/15 bg-gradient-to-b from-zinc-900 to-zinc-950 p-10 print:rounded-none print:border-0 print:bg-white print:text-black">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 print:py-0 print:px-0 print:max-w-none">
+        <CertificateFrame
+          recipientName={displayName}
+          intro="has successfully completed the cyber incident response simulation"
+          title={session.template.name}
+          detail={`${company.industry} — ${company.name}`}
+          issuedOn={session.endedAt ?? session.startedAt}
+          stats={[
+            { icon: "target", label: "Outcome", value: outcome },
+            { icon: "doc", label: "Score", value: `${score} / 100` },
+            { icon: "layers", label: "Assessment", value: `${rating.label} · Grade ${assessment.leadershipGrade}` },
+            ...(durationMin !== null ? [{ icon: "clock" as const, label: "Duration", value: `${durationMin} min` }] : []),
+            { icon: "shield", label: "Verification ID", value: sessionId.slice(0, 16).toUpperCase() },
+          ]}
+          verify={{
+            qrSvg: verifyQr,
+            display: `cybersagevault.uk/verify/simulation/${sessionId.slice(0, 12)}…`,
+          }}
+        />
 
-          {/* Header */}
-          <div className="text-center mb-10">
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-sage-500 print:text-emerald-700 mb-2">
-              Sage Vault
-            </p>
-            <div className="border-t border-b border-white/10 print:border-zinc-300 py-4 my-4">
-              <h1 className="text-2xl font-bold tracking-wide uppercase print:text-zinc-900">
-                Certificate of Completion
-              </h1>
-            </div>
-            <p className="text-zinc-400 print:text-zinc-600 text-sm">This certifies that</p>
-          </div>
-
-          {/* Candidate name */}
-          <div className="text-center mb-8">
-            <p className="text-4xl font-bold text-white print:text-zinc-900">{displayName}</p>
-            <p className="text-zinc-500 print:text-zinc-500 text-sm mt-2">
-              {user.email}
-            </p>
-          </div>
-
-          {/* Body */}
-          <div className="text-center mb-10">
-            <p className="text-zinc-400 print:text-zinc-600 text-sm mb-6">
-              has successfully completed the cyber incident response simulation
-            </p>
-
-            <div className="rounded-xl border border-white/10 print:border-zinc-200 bg-zinc-900/60 print:bg-zinc-50 px-8 py-6 mb-6 inline-block min-w-[320px]">
-              <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Scenario</p>
-              <p className="text-xl font-bold print:text-zinc-900">{session.template.name}</p>
-              <p className="text-zinc-500 print:text-zinc-500 text-sm mt-1">{company.industry} — {company.name}</p>
-            </div>
-
-            {/* Score row */}
-            <div className="flex items-center justify-center gap-6 mb-6 flex-wrap">
-              <div className="text-center">
-                <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Outcome</p>
-                <p className={`text-lg font-bold ${outcome === "CONTAINED" ? "text-sage-400 print:text-emerald-600" : "text-red-400"}`}>
-                  {outcome}
-                </p>
-              </div>
-              <div className="h-8 w-px bg-white/10 print:bg-zinc-300" />
-              <div className="text-center">
-                <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Score</p>
-                <p className="text-lg font-bold print:text-zinc-900">{score}<span className="text-zinc-500 print:text-zinc-400 text-xs font-normal"> / 100</span></p>
-              </div>
-              <div className="h-8 w-px bg-white/10 print:bg-zinc-300" />
-              <div className="text-center">
-                <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Assessment</p>
-                <p className={`text-lg font-bold ${rating.color} print:text-zinc-900`}>{rating.label}</p>
-              </div>
-              <div className="h-8 w-px bg-white/10 print:bg-zinc-300" />
-              <div className="text-center">
-                <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Leadership Grade</p>
-                <p className="text-lg font-bold print:text-zinc-900">{assessment.leadershipGrade}</p>
-              </div>
-              {durationMin !== null && (
-                <>
-                  <div className="h-8 w-px bg-white/10 print:bg-zinc-300" />
-                  <div className="text-center">
-                    <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Duration</p>
-                    <p className="text-lg font-bold print:text-zinc-900">{durationMin} min</p>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+        <div className="rounded-2xl border-2 border-white/15 bg-gradient-to-b from-zinc-900 to-zinc-950 p-10 mt-8 print:rounded-none print:border-0 print:bg-white print:text-black">
 
           {/* Skills demonstrated */}
           {debrief.mitreTechniques.length > 0 && (

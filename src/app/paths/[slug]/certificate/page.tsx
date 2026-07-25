@@ -5,12 +5,11 @@ import { Navbar } from "@/components/navbar";
 import { PrintBtn } from "./_components/print-btn";
 import { LinkedInShareBtn } from "./_components/linkedin-share-btn";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
+import { CertificateFrame, type SidebarStat } from "@/components/certificate/certificate-frame";
+import { certificateQrSvg } from "@/components/certificate/qr";
+import { computeMitreCoverage } from "@/lib/insights/mitre";
 
 export const dynamic = "force-dynamic";
-
-function formatDate(date: Date) {
-  return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-}
 
 export default async function CertificatePage({
   params,
@@ -72,56 +71,69 @@ export default async function CertificatePage({
   if (!canCert || !userProgress) redirect(`/paths/${slug}`);
 
   const candidateName = user.displayName ?? user.email.split("@")[0];
-  const completedDate = userProgress.completedAt
-    ? formatDate(userProgress.completedAt)
-    : formatDate(new Date());
 
   const irCert = await db.iRCertification.findUnique({
     where: { userId: user.id },
     select: { certId: true, unlockedAt: true },
   });
 
+  // Sidebar data: MITRE coverage from the user's real progress, covered
+  // domains from this path's lab categories, curriculum hours estimated
+  // from lab difficulty.
+  const mitre = await computeMitreCoverage(user.id);
+  const domains = [...new Set(path.labs.map((pl) => pl.lab.category))].slice(0, 6);
+  const HOURS: Record<string, number> = { EASY: 1, MEDIUM: 1.5, HARD: 2.5, INSANE: 4 };
+  const trainingHours = Math.max(1, Math.round(path.labs.reduce((s, pl) => s + (HOURS[pl.lab.difficulty] ?? 1), 0)));
+
+  let capstone: string | undefined;
+  if (path.capstoneSimulationSlug) {
+    const capSim = await db.incidentSimulation.findUnique({
+      where: { slug: path.capstoneSimulationSlug },
+      select: { codename: true, title: true },
+    });
+    if (capSim) capstone = `${capSim.codename} · ${capSim.title}`;
+  }
+
+  const stats: SidebarStat[] = [
+    { icon: "clock", label: "Training Hours", value: `${trainingHours} Hours` },
+    { icon: "target", label: "MITRE ATT&CK Coverage", value: `${mitre.coveragePct}%` },
+  ];
+  if (irCert) stats.push({ icon: "shield", label: "Certificate ID", value: irCert.certId });
+  stats.push({ icon: "doc", label: "Certificate No.", value: `CSV-${(userProgress.completedAt ?? new Date()).getFullYear()}-${userProgress.id.slice(-6).toUpperCase()}` });
+
+  const verify = irCert
+    ? {
+        qrSvg: await certificateQrSvg(`https://www.cybersagevault.uk/verify/${irCert.certId}`),
+        display: `cybersagevault.uk/verify/${irCert.certId}`,
+      }
+    : undefined;
+
   return (
     <>
       <style>{`@media print { .no-print { display: none } }`}</style>
       <div className="no-print"><Navbar backHref={`/paths/${slug}`} backLabel="Path" /></div>
 
-      <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 py-12">
-        <div className="no-print flex items-center gap-4 mb-8 w-full max-w-2xl">
+      <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-4 sm:px-6 py-12">
+        <div className="no-print flex items-center gap-4 mb-8 w-full max-w-5xl">
           <div className="flex-1" />
           <PrintBtn />
         </div>
 
-        <div className="w-full max-w-2xl rounded-2xl border border-white/8 bg-zinc-900/60 p-12 flex flex-col items-center text-center gap-6">
-          <div>
-            <p className="text-sage-500 font-bold tracking-widest text-sm uppercase">SAGE VAULT</p>
-          </div>
-
-          <div className="w-16 h-px bg-white/10" />
-
-          <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Certificate of Completion</p>
-            <p className="text-zinc-400 text-sm">This is to certify that</p>
-            <p className="text-3xl font-bold mt-2 tracking-tight">{candidateName}</p>
-            <p className="text-zinc-400 text-sm mt-3">has successfully completed</p>
-            <p className="text-2xl font-bold mt-2 text-sage-500">{path.title}</p>
-          </div>
-
-          <div className="w-16 h-px bg-white/10" />
-
-          <div className="text-xs text-zinc-500 space-y-1">
-            <p>Completed on {completedDate}</p>
-            <p>Skill Score at time of completion: {user.skillScore}</p>
-          </div>
-
-          <div className="w-16 h-px bg-white/10" />
-
-          <p className="text-xs text-zinc-600 tracking-wide">
-            Verified by Sage Vault · cybersagevault.uk
-          </p>
+        <div className="w-full max-w-5xl">
+          <CertificateFrame
+            recipientName={candidateName}
+            intro="has successfully completed the"
+            title={path.title}
+            detail="including all required laboratories, practical assessments, and hands-on exercises."
+            capstone={capstone}
+            issuedOn={userProgress.completedAt ?? new Date()}
+            stats={stats}
+            lists={domains.length > 0 ? [{ icon: "layers", label: "Covered Domains", items: domains }] : []}
+            verify={verify}
+          />
         </div>
 
-        <div className="no-print w-full max-w-2xl mt-6 rounded-xl border border-white/8 bg-zinc-900/50 p-6 flex flex-col items-center gap-4">
+        <div className="no-print w-full max-w-5xl mt-6 rounded-xl border border-white/8 bg-zinc-900/50 p-6 flex flex-col items-center gap-4">
           <p className="text-xs text-zinc-500 uppercase tracking-widest">IR Commander Certification</p>
           {irCert ? (
             <div className="flex flex-col items-center gap-3">

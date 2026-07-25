@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
+import { CertificateFrame } from "@/components/certificate/certificate-frame";
+import { certificateQrSvg } from "@/components/certificate/qr";
 
 export const dynamic = "force-dynamic";
 
@@ -64,33 +66,26 @@ export default async function VerifyPage({
   const candidateName =
     cert.user.displayName ?? cert.user.email.split("@")[0];
 
+  const verify = {
+    qrSvg: await certificateQrSvg(`https://www.cybersagevault.uk/verify/${cert.certId}`),
+    display: `cybersagevault.uk/verify/${cert.certId}`,
+  };
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-lg rounded-2xl border border-white/8 bg-zinc-900/60 p-12 flex flex-col items-center text-center gap-6">
-        <p className="text-5xl font-bold text-emerald-400">✓</p>
-        <p className="text-emerald-400 font-bold text-xl tracking-wide uppercase">
-          Verified
-        </p>
-
-        <div className="w-16 h-px bg-white/10" />
-
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-widest text-zinc-500">
-            IR Commander Certificate
-          </p>
-          <p className="text-2xl font-bold">{candidateName}</p>
+    <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-4 sm:px-6 py-16">
+      <div className="w-full max-w-5xl">
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <p className="text-emerald-400 font-bold text-sm tracking-[0.3em] uppercase">✓ Verified — this certification is on record</p>
         </div>
-
-        <div className="w-16 h-px bg-white/10" />
-
-        <div className="space-y-1 text-sm text-zinc-400">
-          <p>Issued by Sage Vault &middot; {formatDate(cert.unlockedAt)}</p>
-          <p className="font-mono text-xs text-zinc-500">{cert.certId}</p>
-        </div>
-
-        <p className="text-xs text-zinc-500">
-          This certification is verified and on record.
-        </p>
+        <CertificateFrame
+          recipientName={candidateName}
+          intro="has earned the"
+          title="IR Commander Certification"
+          detail="awarded for incident response leadership demonstrated across live-fire simulations and completed learning paths."
+          issuedOn={cert.unlockedAt}
+          stats={[{ icon: "shield", label: "Certificate ID", value: cert.certId }]}
+          verify={verify}
+        />
       </div>
     </div>
   );
