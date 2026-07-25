@@ -120,6 +120,7 @@ model User {
   detectionSubmissions      DetectionSubmission[]
   purpleTeamReplaySessions  PurpleTeamReplaySession[]
   incidentHintViews         IncidentHintView[]
+  announcementsCreated      Announcement[]
 
   @@index([skillScore])
   @@index([coins])
@@ -1130,6 +1131,23 @@ model Notification {
 
   @@index([userId, read])
   @@index([userId, createdAt])
+}
+
+// Company-wide/platform broadcasts shown on the student dashboard — distinct
+// from Notification (per-user, has read state). Admin-authored, everyone
+// sees the same feed, no read tracking needed.
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  body        String
+  href        String?
+  published   Boolean  @default(true)
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([published, createdAt])
 }
 
 // ── Writeups ──────────────────────────────────────────────────────────────────

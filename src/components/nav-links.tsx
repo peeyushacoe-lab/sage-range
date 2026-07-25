@@ -27,23 +27,45 @@ const STUDENT_PRIMARY: NavLink[] = [
   { href: "/feed",           label: "Feed"      },
 ];
 
-const STUDENT_MORE: NavLink[] = [
-  { href: "/competitions",     label: "Compete"        },
-  { href: "/daily-hunt",       label: "Daily Hunt"     },
-  { href: "/soc-shift",        label: "SOC Shift"      },
-  { href: "/threat-bulletin",  label: "Threat Bulletin"},
-  { href: "/detection-lab",    label: "Detection Lab"  },
-  { href: "/purple-team",      label: "Purple Team"    },
-  { href: "/soc-league",       label: "SOC League"     },
-  { href: "/scoreboard",       label: "Leaderboard"    },
-  { href: "/achievements",     label: "Achievements"   },
-  { href: "/mitre",            label: "ATT&CK Map"     },
-  { href: "/skills",           label: "Skills Radar"   },
-  { href: "/stats",            label: "Stats"          },
-  { href: "/workspace",        label: "IR Workspace"   },
-  { href: "/organization",     label: "Team"           },
-  { href: "/resume",           label: "Resume"         },
-  { href: "/transcript",       label: "Transcript"     },
+type NavGroup = { label: string; links: NavLink[] };
+
+const STUDENT_MORE: NavGroup[] = [
+  {
+    label: "Compete",
+    links: [
+      { href: "/competitions",     label: "Competitions"   },
+      { href: "/daily-hunt",       label: "Daily Hunt"     },
+      { href: "/soc-shift",        label: "SOC Shift"      },
+      { href: "/soc-league",       label: "SOC League"     },
+      { href: "/scoreboard",       label: "Leaderboard"    },
+    ],
+  },
+  {
+    label: "Blue team tools",
+    links: [
+      { href: "/threat-bulletin",  label: "Threat Bulletin"},
+      { href: "/detection-lab",    label: "Detection Lab"  },
+      { href: "/purple-team",      label: "Purple Team"    },
+      { href: "/workspace",        label: "IR Workspace"   },
+    ],
+  },
+  {
+    label: "Progress",
+    links: [
+      { href: "/achievements",     label: "Achievements"   },
+      { href: "/mitre",            label: "ATT&CK Map"     },
+      { href: "/skills",           label: "Skills Radar"   },
+      { href: "/stats",            label: "Stats"          },
+      { href: "/transcript",       label: "Transcript"     },
+    ],
+  },
+  {
+    label: "Community",
+    links: [
+      { href: "/organization",     label: "Team"           },
+      { href: "/resume",           label: "Resume"         },
+    ],
+  },
 ];
 
 const INSTRUCTOR_LINKS: NavLink[] = [
@@ -60,7 +82,7 @@ const RECRUITER_LINKS: NavLink[] = [
   { href: "/leaderboard",          label: "Leaderboard" },
 ];
 
-function MoreMenu({ links, pathname }: { links: NavLink[]; pathname: string }) {
+function MoreMenu({ groups, pathname }: { groups: NavGroup[]; pathname: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -72,7 +94,7 @@ function MoreMenu({ links, pathname }: { links: NavLink[]; pathname: string }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const anyActive = links.some((l) => isActive(l.href, pathname));
+  const anyActive = groups.some((g) => g.links.some((l) => isActive(l.href, pathname)));
 
   return (
     <div ref={ref} className="relative">
@@ -87,20 +109,25 @@ function MoreMenu({ links, pathname }: { links: NavLink[]; pathname: string }) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-2 w-44 rounded-xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/40 py-1.5 z-50">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className={`block px-4 py-2 text-xs transition-colors ${
-                isActive(l.href, pathname)
-                  ? "text-zinc-100 font-semibold bg-white/4"
-                  : "text-zinc-400 hover:text-zinc-100 hover:bg-white/4"
-              }`}
-            >
-              {l.label}
-            </Link>
+        <div className="absolute top-full right-0 mt-2 w-56 rounded-xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/40 py-2 z-50 max-h-[80vh] overflow-y-auto">
+          {groups.map((g, gi) => (
+            <div key={g.label} className={gi > 0 ? "mt-1.5 pt-1.5 border-t border-white/6" : ""}>
+              <p className="px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{g.label}</p>
+              {g.links.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className={`block px-4 py-2 text-xs transition-colors ${
+                    isActive(l.href, pathname)
+                      ? "text-zinc-100 font-semibold bg-white/4"
+                      : "text-zinc-400 hover:text-zinc-100 hover:bg-white/4"
+                  }`}
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
           ))}
         </div>
       )}
@@ -149,7 +176,7 @@ export function NavLinks({
       {STUDENT_PRIMARY.map((l) => (
         <Link key={l.href} href={l.href} className={linkCls(l.href, pathname)}>{l.label}</Link>
       ))}
-      <MoreMenu links={STUDENT_MORE} pathname={pathname} />
+      <MoreMenu groups={STUDENT_MORE} pathname={pathname} />
       {profileHref && (
         <Link href={profileHref} className={linkCls(profileHref, pathname)}>Profile</Link>
       )}

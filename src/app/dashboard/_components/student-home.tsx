@@ -2,55 +2,40 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { CertProgressCard } from "./cert-progress-card";
 import { JoinClassroomClient } from "@/app/classroom/_components/classroom-hub-client";
-import { listScenarios } from "@/lib/simulation/runtime/scenarios/manifest";
+import { buildHomeDashboard, type ContinueLearning } from "@/lib/insights/home-dashboard";
 import type { AppUser } from "@/lib/current-user";
 
-const RANKS = [
-  { label: "Recruit", min: 0 }, { label: "Analyst I", min: 100 },
-  { label: "Analyst II", min: 300 }, { label: "Senior Analyst", min: 600 },
-  { label: "Lead Analyst", min: 1000 }, { label: "Principal", min: 2000 },
-] as const;
-
-function getRank(score: number) {
-  let idx = 0;
-  for (let i = 0; i < RANKS.length; i++) if (score >= RANKS[i].min) idx = i;
-  const r = RANKS[idx];
-  const next = idx < RANKS.length - 1 ? RANKS[idx + 1] : null;
-  const pct = next ? Math.min(100, Math.round(((score - r.min) / (next.min - r.min)) * 100)) : 100;
-  return { label: r.label, next: next?.label ?? null, nextMin: next?.min ?? null, pct };
-}
-
-const TASK_COUNTS: Record<string, number> = {
-  "welcome-ctf": 3, "sql-injection-101": 3, "soc-alert-investigation": 3,
+const GREETING_LABEL: Record<string, string> = {
+  morning: "Good morning",
+  afternoon: "Good afternoon",
+  evening: "Good evening",
 };
 
-const SCENARIOS = listScenarios().slice(0, 4).map((s) => ({
-  id: s.id,
-  slug: s.templateSlug,
-  name: s.title,
-  brief: s.subtitle,
-  difficulty: s.difficulty,
-  industry: s.archetypeId.replace(/_/g, " "),
-}));
+const DIFF_COLOR: Record<string, string> = {
+  EASY: "text-emerald-400 border-emerald-500/30 bg-emerald-500/8",
+  MEDIUM: "text-amber-400 border-amber-500/30 bg-amber-500/8",
+  HARD: "text-red-400 border-red-500/30 bg-red-500/8",
+  INSANE: "text-purple-400 border-purple-500/30 bg-purple-500/8",
+};
 
-function diffBadge(d: string) {
-  if (d === "HARD" || d === "INSANE") return "text-red-400 border-red-500/30 bg-red-500/10";
-  if (d === "MEDIUM") return "text-amber-400 border-amber-500/30 bg-amber-500/10";
-  return "text-zinc-400 border-zinc-700 bg-zinc-800";
-}
+const QUICK_ACCESS = [
+  { href: "/academy", label: "Learning", icon: "📚" },
+  { href: "/labs", label: "Labs", icon: "🧪" },
+  { href: "/simulation/new", label: "Simulations", icon: "🎯" },
+  { href: "/competitions", label: "Challenges", icon: "🏆" },
+  { href: "/stats", label: "Progress", icon: "📊" },
+  { href: "/transcript", label: "Certificates", icon: "🏅" },
+  { href: "/scoreboard", label: "Ranking", icon: "📈" },
+  { href: "/feed", label: "Community", icon: "👥" },
+];
 
-function elapsed(d: Date) {
-  const s = Math.floor((Date.now() - d.getTime()) / 1000);
-  return s < 3600 ? `${Math.floor(s / 60)}m` : `${Math.floor(s / 3600)}h`;
+function continueLearningHref(cl: NonNullable<ContinueLearning>) {
+  return cl.href;
 }
 
 export async function StudentHome({ user }: { user: AppUser }) {
-  const [attempts, labs, solvedAttempts, activeSimulation, completedSims, enrolledClasses] = await Promise.all([
-    db.attempt.findMany({ where: { userId: user.id }, include: { lab: true }, orderBy: { startedAt: "desc" }, take: 8 }),
-    db.lab.findMany({ where: { published: true }, take: 6 }),
-    db.attempt.findMany({ where: { userId: user.id, status: "SOLVED" }, include: { lab: { select: { id: true, type: true } } } }),
-    db.simulationSession.findFirst({ where: { userId: user.id, status: "ACTIVE" }, include: { template: true }, orderBy: { startedAt: "desc" } }),
-    db.simulationSession.findMany({ where: { userId: user.id, status: { in: ["CONTAINED", "BREACHED"] } }, select: { status: true, score: true }, orderBy: { score: "desc" } }),
+  const [dashboard, enrolledClasses] = await Promise.all([
+    buildHomeDashboard(user),
     db.classroomEnrollment.findMany({
       where: { userId: user.id },
       include: { classroom: { select: { id: true, name: true, _count: { select: { assignments: true } } } } },
@@ -58,111 +43,186 @@ export async function StudentHome({ user }: { user: AppUser }) {
     }),
   ]);
 
-  const solvedIds = new Set(solvedAttempts.map((a) => a.lab.id));
-  const rank = getRank(user.skillScore);
-  const bestScore = completedSims[0]?.score ?? 0;
-  const hasCTF = solvedAttempts.some((a) => a.lab.type === "CTF");
-  const hasBlue = solvedAttempts.some((a) => a.lab.type === "BLUE_TEAM");
-  const hasSim = completedSims.length > 0;
-
-  const stages = [
-    { label: "Cyber\nFoundations",  sub: "Solve a CTF lab",       done: hasCTF },
-    { label: "Blue Team\nAnalyst",  sub: "Solve a blue-team lab",  done: hasBlue },
-    { label: "IR\nSpecialist",      sub: "Complete a simulation",  done: hasSim },
-    { label: "Crisis\nCommander",   sub: "Score 500+ in a sim",    done: completedSims.some((s) => (s.score ?? 0) >= 500) },
-  ];
-
   return (
     <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
 
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 animate-fade-down">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-black text-lg animate-glow-pulse">
-              {(user.displayName ?? user.email)[0].toUpperCase()}
+      {/* ── Welcome Command Area ─────────────────────────────────────── */}
+      <div className="rounded-2xl border border-white/8 bg-zinc-900/60 p-6 animate-fade-down">
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <div>
+            <p className="text-xs text-zinc-500 uppercase tracking-widest font-mono mb-1">Command Center</p>
+            <h1 className="text-2xl font-bold text-zinc-100">
+              {GREETING_LABEL[dashboard.greeting]}, {dashboard.displayName}
+            </h1>
+            <div className="flex items-center gap-2 mt-2">
+              <span
+                className="rounded-full border px-3 py-0.5 text-xs font-bold tracking-widest uppercase"
+                style={{ color: dashboard.rankColor, borderColor: `${dashboard.rankColor}66`, background: `${dashboard.rankColor}1a` }}
+              >
+                {dashboard.rankLabel}
+              </span>
+              {dashboard.globalRank && (
+                <span className="text-xs text-zinc-500 font-mono">Rank #{dashboard.globalRank}</span>
+              )}
             </div>
           </div>
-          <div>
-            <p className="text-xs text-zinc-500 uppercase tracking-widest font-mono mb-0.5">Command Center</p>
-            <h1 className="text-2xl font-bold text-zinc-100">{user.displayName ?? user.email.split("@")[0]}</h1>
+
+          <div className="flex items-center gap-5">
+            <div className="text-center">
+              <p className="text-2xl font-black text-amber-400 tabular-nums">{dashboard.streak}</p>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">{dashboard.streak === 1 ? "Day streak" : "Day streak"}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-zinc-100 tabular-nums">{dashboard.xp.toLocaleString()}</p>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">XP</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-emerald-400 tabular-nums">{dashboard.skillScore}</p>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">Skill score</p>
+            </div>
           </div>
-          <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-0.5 text-xs font-bold text-emerald-400 tracking-widest uppercase">
-            {rank.label}
-          </span>
         </div>
-        <div className="text-xs font-mono text-zinc-600 hidden sm:block">
-          <span className="text-emerald-700">●</span> LIVE SESSION
-        </div>
+
+        {dashboard.rankNextLabel && (
+          <div className="mt-4 space-y-1">
+            <div className="flex justify-between text-[10px] text-zinc-600 font-mono">
+              <span>{dashboard.rankPct}% to {dashboard.rankNextLabel}</span>
+            </div>
+            <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
+              <div className="h-full rounded-full bg-emerald-500 transition-all duration-1000" style={{ width: `${dashboard.rankPct}%` }} />
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats">
-        {[
-          {
-            label: "Skill Score",
-            value: user.skillScore,
-            accent: "emerald",
-            icon: "⬡",
-            sub: <span className="text-emerald-500 font-mono text-xs">{rank.label}</span>,
-          },
-          {
-            label: "XP Earned",
-            value: user.xp.toLocaleString(),
-            accent: "emerald",
-            icon: "◈",
-            sub: rank.next ? (
-              <div className="mt-2 space-y-1">
-                <div className="flex justify-between text-[10px] text-zinc-600 font-mono">
-                  <span>{rank.pct}% to {rank.next}</span>
-                  <span>{rank.nextMin}</span>
+      {/* ── Continue Where You Left ──────────────────────────────────── */}
+      <section>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-3">Continue where you left</h2>
+        {dashboard.continueLearning ? (
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs text-emerald-500 uppercase tracking-widest font-mono mb-1">{dashboard.continueLearning.kind.replace("_", " ")}</p>
+              <p className="text-lg font-bold text-zinc-100">{dashboard.continueLearning.title}</p>
+              <p className="text-sm text-zinc-400 mt-1">{dashboard.continueLearning.sub}</p>
+              {dashboard.continueLearning.kind === "lab" && (
+                <div className="mt-3 w-56 space-y-1">
+                  <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                    <div className="h-full rounded-full bg-emerald-500" style={{ width: `${dashboard.continueLearning.progressPct}%` }} />
+                  </div>
+                  <p className="text-[10px] text-zinc-600 font-mono">{dashboard.continueLearning.progressPct}% complete</p>
                 </div>
-                <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-emerald-500 transition-all duration-1000"
-                    style={{ width: `${rank.pct}%`, boxShadow: "0 0 8px rgba(16,185,129,0.6)" }}
-                  />
-                </div>
+              )}
+            </div>
+            <Link
+              href={continueLearningHref(dashboard.continueLearning)}
+              className="shrink-0 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-5 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 transition"
+            >
+              Resume →
+            </Link>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-sm text-zinc-300">Nothing in progress — pick a lab or launch a simulation to get started.</p>
+            </div>
+            <div className="flex gap-3">
+              <Link href="/labs" className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition">Browse labs →</Link>
+              <Link href="/simulation/new" className="rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-zinc-300 hover:border-white/25 transition">Launch a sim →</Link>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── Today's Mission ──────────────────────────────────────────── */}
+      {dashboard.todaysMission && (
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-3">Today&apos;s mission</h2>
+          <div className={`rounded-xl border p-5 flex flex-wrap items-center justify-between gap-4 ${dashboard.todaysMission.solved ? "border-emerald-500/30 bg-emerald-500/5" : "border-white/8 bg-zinc-900/50"}`}>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-xs text-zinc-500 uppercase tracking-widest font-mono">Investigate</p>
+                {dashboard.todaysMission.solved && <span className="text-xs text-emerald-400 font-semibold">✓ Solved today</span>}
               </div>
-            ) : <span className="text-emerald-500 text-xs font-mono">MAX RANK</span>,
-          },
-          {
-            label: "Labs Solved",
-            value: solvedAttempts.length,
-            accent: "zinc",
-            icon: "◻",
-            sub: <span className="text-zinc-500 text-xs font-mono">of {labs.length} available</span>,
-          },
-          {
-            label: "Simulations",
-            value: completedSims.length,
-            accent: "zinc",
-            icon: "◇",
-            sub: <span className="text-zinc-500 text-xs font-mono">{completedSims.length ? `best score: ${bestScore}` : "none yet"}</span>,
-          },
-        ].map((c, i) => (
-          <div
-            key={c.label}
-            className="card-glow rounded-xl border border-white/8 bg-zinc-900/60 p-4 relative overflow-hidden animate-fade-up"
-            style={{ animationDelay: `${i * 70}ms` }}
-          >
-            <div className="absolute top-3 right-3 text-xs text-zinc-700">{c.icon}</div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono mb-2">{c.label}</p>
-            <p className="text-3xl font-black text-zinc-100 tabular-nums">{c.value}</p>
-            <div className="mt-1">{c.sub}</div>
+              <p className="text-lg font-bold text-zinc-100">{dashboard.todaysMission.title}</p>
+              <div className="flex items-center gap-3 mt-2 text-xs">
+                <span className={`px-2 py-0.5 rounded border font-mono ${DIFF_COLOR[dashboard.todaysMission.difficulty] ?? DIFF_COLOR.EASY}`}>{dashboard.todaysMission.difficulty}</span>
+                <span className="text-emerald-400 font-bold">+{dashboard.todaysMission.points} pts</span>
+              </div>
+            </div>
+            <Link href={`/labs/${dashboard.todaysMission.slug}`} className="shrink-0 rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-bold text-black hover:bg-emerald-400 transition">
+              {dashboard.todaysMission.solved ? "View →" : "Start challenge →"}
+            </Link>
           </div>
-        ))}
-      </div>
+        </section>
+      )}
 
-      <Link href="/stats" className="block rounded-xl border border-white/5 bg-zinc-900/30 px-5 py-3 text-xs text-zinc-500 hover:border-emerald-500/30 hover:text-emerald-400 transition-colors text-center">
-        View full stats dashboard →
-      </Link>
+      {/* ── Learning Journey ─────────────────────────────────────────── */}
+      {dashboard.journey.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">My learning journey</h2>
+            <Link href="/paths" className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors">View paths →</Link>
+          </div>
+          <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5 space-y-3">
+            {dashboard.journey.map((step, i) => (
+              <Link
+                key={step.title + i}
+                href={step.href ?? "#"}
+                className={`flex items-center gap-3 ${step.href ? "" : "pointer-events-none"}`}
+              >
+                <span className={`shrink-0 h-6 w-6 rounded-full flex items-center justify-center text-xs ${
+                  step.status === "done" ? "bg-emerald-500 text-zinc-950" : step.status === "current" ? "border-2 border-amber-400 text-amber-400 animate-pulse" : "border border-zinc-700 text-zinc-700"
+                }`}>
+                  {step.status === "done" ? "✓" : step.status === "current" ? "🔥" : "🔒"}
+                </span>
+                <span className={`text-sm ${step.status === "done" ? "text-emerald-400" : step.status === "current" ? "text-amber-400 font-semibold" : "text-zinc-600"}`}>
+                  {step.title}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Quick Access Grid ────────────────────────────────────────── */}
+      <section>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-4">Quick access</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {QUICK_ACCESS.map((q) => (
+            <Link key={q.href} href={q.href} className="card-hover rounded-xl border border-white/8 bg-zinc-900/60 p-4 flex flex-col items-center gap-2 text-center hover:border-emerald-500/30 transition">
+              <span className="text-2xl">{q.icon}</span>
+              <span className="text-xs font-semibold text-zinc-300">{q.label}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <CertProgressCard />
 
+      {/* ── Active Labs ───────────────────────────────────────────────── */}
+      {dashboard.activeLabs.length > 0 && (
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-4">Active labs</h2>
+          <div className="rounded-xl border border-white/8 divide-y divide-white/5 overflow-hidden">
+            {dashboard.activeLabs.map((lab) => (
+              <Link key={lab.slug} href={`/labs/${lab.slug}`} className="flex items-center justify-between px-5 py-3.5 hover:bg-white/3 transition">
+                <p className="text-sm font-medium text-zinc-200">{lab.title}</p>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="w-28 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                    <div className="h-full rounded-full bg-emerald-500" style={{ width: `${lab.progressPct}%` }} />
+                  </div>
+                  <span className="text-xs text-zinc-500 font-mono w-10 text-right">{lab.progressPct}%</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── My Classes ────────────────────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">My Classes</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">My classes</h2>
           {enrolledClasses.length > 0 && (
             <Link href="/classroom" className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors">View all →</Link>
           )}
@@ -193,116 +253,72 @@ export async function StudentHome({ user }: { user: AppUser }) {
         </div>
       </section>
 
-      {activeSimulation ? (
-        <div className="rounded-xl border border-red-500/50 bg-red-500/5 p-5 flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-              <p className="text-xs font-semibold uppercase tracking-widest text-red-400">Incident In Progress</p>
-            </div>
-            <p className="text-lg font-bold text-zinc-100">{activeSimulation.template.name}</p>
-            <p className="text-sm text-zinc-400 mt-1">
-              Stage: <span className="text-zinc-300">{activeSimulation.currentStage.replace(/_/g, " ")}</span>
-              <span className="mx-2 text-zinc-600">·</span>
-              Elapsed: <span className="text-amber-400">{elapsed(activeSimulation.startedAt)}</span>
-            </p>
+      {/* ── Achievements + Leaderboard ───────────────────────────────── */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Achievements</h2>
+            <Link href="/achievements" className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors">
+              {dashboard.achievementsEarnedCount}/{dashboard.achievementsTotalCount} →
+            </Link>
           </div>
-          <Link href={`/simulation/${activeSimulation.id}`}
-            className="shrink-0 rounded-lg border border-red-500/40 bg-red-500/10 px-5 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/20 transition">
-            Resume Incident →
-          </Link>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">
-          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Launch Next Mission</p>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {SCENARIOS.map((s) => (
-              <div key={s.id} className="rounded-lg border border-white/8 bg-zinc-950 p-4 flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-emerald-500 uppercase tracking-wider">{s.industry}</span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded border ${diffBadge(s.difficulty)}`}>{s.difficulty}</span>
-                </div>
-                <p className="font-semibold text-zinc-100">{s.name}</p>
-                <p className="text-xs text-zinc-400 leading-relaxed">{s.brief}</p>
-                <Link href={`/simulation/new?scenario=${s.id}`} className="mt-auto self-start rounded border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition">
-                  Deploy →
-                </Link>
+          <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5 grid grid-cols-2 gap-3">
+            {dashboard.achievementsPreview.map((a) => (
+              <div key={a.id} className={`rounded-lg border p-3 flex items-center gap-2.5 ${a.earnedAt ? "border-emerald-500/30 bg-emerald-500/5" : "border-white/8 opacity-50"}`}>
+                <span className="text-xl">{a.emoji}</span>
+                <p className="text-xs font-semibold text-zinc-200 leading-tight">{a.name}</p>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        </section>
 
-      <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">
-        <p className="text-xs text-zinc-500 uppercase tracking-widest mb-5">Skill Path</p>
-        <div className="flex items-start">
-          {stages.map((st, i) => {
-            const isCurrent = !st.done && (i === 0 || stages[i - 1].done);
-            return (
-              <div key={i} className="flex-1 flex flex-col items-center relative">
-                {i < stages.length - 1 && <div className={`absolute top-3.5 left-1/2 w-full h-px ${st.done ? "bg-emerald-500/40" : "bg-zinc-800"}`} />}
-                <div className={`relative z-10 h-7 w-7 rounded-full border-2 flex items-center justify-center mb-3 ${st.done ? "border-emerald-500 bg-emerald-500" : isCurrent ? "border-amber-400 bg-amber-400/10 animate-pulse" : "border-zinc-700 bg-zinc-900"}`}>
-                  {st.done
-                    ? <svg className="h-3.5 w-3.5 text-zinc-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                    : <span className={`text-xs font-bold ${isCurrent ? "text-amber-400" : "text-zinc-600"}`}>{i + 1}</span>}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Vault ranking</h2>
+            <Link href="/scoreboard" className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors">View full leaderboard →</Link>
+          </div>
+          <div className="rounded-xl border border-white/8 divide-y divide-white/5 overflow-hidden">
+            {dashboard.leaderboardPreview.length === 0 ? (
+              <p className="text-xs text-zinc-600 p-5">Solve a lab to appear on the leaderboard.</p>
+            ) : (
+              dashboard.leaderboardPreview.map((row) => (
+                <div key={row.id} className={`flex items-center justify-between px-4 py-3 ${row.isMe ? "bg-emerald-500/5" : ""}`}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-zinc-600 w-5 text-right font-mono">
+                      {row.rank === 1 ? "🥇" : row.rank === 2 ? "🥈" : row.rank === 3 ? "🥉" : `#${row.rank}`}
+                    </span>
+                    <span className={`text-sm ${row.isMe ? "text-emerald-300 font-semibold" : "text-zinc-300"}`}>
+                      {row.name}{row.isMe && <span className="ml-1.5 text-[10px] text-zinc-500">(you)</span>}
+                    </span>
+                  </div>
+                  <span className="text-xs text-zinc-500 font-mono tabular-nums">{row.skillScore}</span>
                 </div>
-                <p className={`text-xs font-semibold text-center leading-tight whitespace-pre-line px-1 ${st.done ? "text-emerald-400" : isCurrent ? "text-amber-400" : "text-zinc-600"}`}>{st.label}</p>
-                <p className="text-xs text-zinc-600 text-center mt-0.5 px-1 leading-tight">{st.sub}</p>
-              </div>
-            );
-          })}
-        </div>
+              ))
+            )}
+          </div>
+        </section>
       </div>
 
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Training Labs</h2>
-          <Link href="/labs" className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors">Browse all →</Link>
-        </div>
-        {labs.length === 0
-          ? <p className="text-zinc-500 text-sm">No labs published yet.</p>
-          : <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {labs.map((lab) => {
-                const solved = solvedIds.has(lab.id);
-                const tasks = TASK_COUNTS[lab.slug] ?? 1;
-                return (
-                  <Link key={lab.id} href={`/labs/${lab.slug}`}
-                    className={`card-hover rounded-xl border p-4 flex flex-col gap-2 relative overflow-hidden ${solved ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/8 bg-zinc-900/60"}`}>
-                    {solved && <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-3xl" />}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-emerald-500 uppercase tracking-widest font-mono">{lab.type.replace("_", " ")}</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded border font-mono ${diffBadge(lab.difficulty)}`}>{lab.difficulty}</span>
-                    </div>
-                    <h3 className="font-semibold text-zinc-100 leading-snug">{lab.title}{solved && <span className="text-emerald-500 ml-2 text-sm">✓</span>}</h3>
-                    <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">{lab.description}</p>
-                    <p className="text-xs text-zinc-600 mt-auto pt-1 font-mono">{tasks} task{tasks !== 1 ? "s" : ""} · {lab.points} pts</p>
-                  </Link>
-                );
-              })}
-            </div>}
-      </section>
-
-      <section className="pb-8">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-4">Recent Activity</h2>
-        {attempts.length === 0
-          ? <p className="text-zinc-500 text-sm">No attempts yet — pick a lab above.</p>
-          : <div className="rounded-xl border border-white/8 divide-y divide-white/5 overflow-hidden">
-              {attempts.map((a) => (
-                <div key={a.id} className="flex items-center justify-between px-4 py-3 hover:bg-zinc-900/50 transition">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-zinc-200 truncate">{a.lab.title}</p>
-                    <p className="text-xs text-zinc-600">{a.startedAt.toISOString().slice(0, 10)}</p>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className={`text-xs px-2 py-0.5 rounded border ${a.status === "SOLVED" ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" : a.status === "IN_PROGRESS" ? "text-amber-400 bg-amber-500/10 border-amber-500/30" : "text-zinc-400 bg-zinc-800 border-zinc-700"}`}>
-                      {a.status.replace("_", " ")}
-                    </span>
-                    {a.score > 0 && <span className="text-xs text-zinc-500">{a.score} pts</span>}
-                  </div>
+      {/* ── Announcements ─────────────────────────────────────────────── */}
+      {dashboard.announcements.length > 0 && (
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-4">Latest updates</h2>
+          <div className="rounded-xl border border-white/8 divide-y divide-white/5 overflow-hidden">
+            {dashboard.announcements.map((a) => {
+              const content = (
+                <div className="px-5 py-4">
+                  <p className="text-sm font-semibold text-zinc-100">{a.title}</p>
+                  <p className="text-xs text-zinc-500 mt-1">{a.body}</p>
+                  <p className="text-[10px] text-zinc-600 mt-1.5 font-mono">{a.createdAt.toISOString().slice(0, 10)}</p>
                 </div>
-              ))}
-            </div>}
-      </section>
+              );
+              return a.href
+                ? <Link key={a.id} href={a.href} className="block hover:bg-white/3 transition">{content}</Link>
+                : <div key={a.id}>{content}</div>;
+            })}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

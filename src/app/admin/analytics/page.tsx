@@ -28,16 +28,49 @@ export default async function AdminAnalyticsPage() {
       {/* Totals */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          ["Students", a.totals.students],
-          ["Lab attempts", a.totals.labAttempts],
+          ["Active students", a.totals.students],
+          ["Training hours", a.totals.trainingHours],
           ["Boss Fights passed", a.totals.bossFightsCompleted],
-          ["Avg MITRE coverage", `${a.totals.avgMitreCoveragePct}%`],
+          ["Avg first-try success", a.totals.avgFirstAttemptSuccessPct !== null ? `${a.totals.avgFirstAttemptSuccessPct}%` : "—"],
         ].map(([label, value]) => (
           <div key={label as string} className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
             <p className="text-xs text-zinc-500 mb-1">{label}</p>
             <p className="text-2xl font-bold text-white">{value}</p>
           </div>
         ))}
+      </div>
+
+      {/* Top performers */}
+      <div>
+        <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Top performers</h2>
+        {a.topPerformers.length === 0 ? (
+          <p className="text-sm text-zinc-600">No scored students yet.</p>
+        ) : (
+          <div className="rounded-xl border border-white/8 overflow-hidden overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/8 bg-white/2">
+                  <th className="text-left px-4 py-2.5 text-xs text-zinc-500 uppercase tracking-wider font-mono">Student</th>
+                  <th className="text-right px-4 py-2.5 text-xs text-zinc-500 uppercase tracking-wider font-mono">Skill score</th>
+                  <th className="text-right px-4 py-2.5 text-xs text-zinc-500 uppercase tracking-wider font-mono">XP</th>
+                  <th className="text-right px-4 py-2.5 text-xs text-zinc-500 uppercase tracking-wider font-mono">Labs solved</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {a.topPerformers.map((p, i) => (
+                  <tr key={p.id} className="hover:bg-white/2">
+                    <td className="px-4 py-2.5 text-zinc-200">
+                      <span className="text-zinc-600 font-mono mr-2">#{i + 1}</span>{p.name}
+                    </td>
+                    <td className="px-4 py-2.5 text-right text-zinc-300 tabular-nums">{p.skillScore}</td>
+                    <td className="px-4 py-2.5 text-right text-zinc-400 tabular-nums">{p.xp}</td>
+                    <td className="px-4 py-2.5 text-right text-zinc-400 tabular-nums">{p.labsSolved}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Labs — hardest first */}

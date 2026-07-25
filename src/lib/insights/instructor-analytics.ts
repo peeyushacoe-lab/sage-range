@@ -34,13 +34,22 @@ export type PathStat = {
 
 export type WeeklyTrend = { weekStart: string; submissions: number; successRate: number };
 
+export type TopPerformer = { id: string; name: string; skillScore: number; xp: number; labsSolved: number };
+
 export type InstructorAnalytics = {
   labStats: LabStat[];
   bossFightStats: BossFightStat[];
   pathStats: PathStat[];
   mitreGapsCohort: { tactic: string; studentsWithCoverage: number; totalStudents: number; coveragePct: number }[];
   weeklyTrend: WeeklyTrend[];
-  totals: { students: number; labAttempts: number; bossFightsCompleted: number; avgMitreCoveragePct: number };
+  topPerformers: TopPerformer[];
+  totals: {
+    students: number; labAttempts: number; bossFightsCompleted: number; avgMitreCoveragePct: number;
+    // Lab time-on-task only — Boss Fight sessions don't track wall-clock
+    // duration yet, so this undercounts total training time cohort-wide.
+    trainingHours: number;
+    avgFirstAttemptSuccessPct: number | null;
+  };
 };
 
 function pct(numerator: number, denominator: number): number | null {
@@ -312,14 +321,41 @@ async function computeWeeklyTrend(): Promise<WeeklyTrend[]> {
     }));
 }
 
+async function computeTopPerformers(limit = 10): Promise<TopPerformer[]> {
+  const students = await db.user.findMany({
+    where: { role: "STUDENT", hidden: false },
+    orderBy: { skillScore: "desc" },
+    take: limit,
+    select: { id: true, displayName: true, email: true, skillScore: true, xp: true },
+  });
+  if (students.length === 0) return [];
+
+  const solvedCounts = await db.attempt.groupBy({
+    by: ["userId"],
+    where: { userId: { in: students.map((s) => s.id) }, status: "SOLVED" },
+    _count: { id: true },
+  });
+  const solvedByUser = new Map(solvedCounts.map((s) => [s.userId, s._count.id]));
+
+  return students.map((s) => ({
+    id: s.id,
+    name: s.displayName ?? s.email.split("@")[0],
+    skillScore: s.skillScore,
+    xp: s.xp,
+    labsSolved: solvedByUser.get(s.id) ?? 0,
+  }));
+}
+
 export async function buildInstructorAnalytics(): Promise<InstructorAnalytics> {
-  const [labStats, bossFightStats, pathStats, mitreGapsCohort, weeklyTrend, studentCount] = await Promise.all([
+  const [labStats, bossFightStats, pathStats, mitreGapsCohort, weeklyTrend, topPerformers, studentCount, timeAgg] = await Promise.all([
     computeLabStats(),
     computeBossFightStats(),
     computePathStats(),
     computeMitreGapsCohort(),
     computeWeeklyTrend(),
+    computeTopPerformers(),
     db.user.count({ where: { role: "STUDENT" } }),
+    db.attempt.aggregate({ where: { status: "SOLVED" }, _sum: { timeTakenSec: true } }),
   ]);
 
   const labAttempts = labStats.reduce((s, l) => s + l.attempts, 0);
@@ -328,12 +364,25 @@ export async function buildInstructorAnalytics(): Promise<InstructorAnalytics> {
     ? Math.round(mitreGapsCohort.reduce((s, m) => s + m.coveragePct, 0) / mitreGapsCohort.length)
     : 0;
 
+  const ratedLabs = labStats.filter((l) => l.firstAttemptSuccessRate !== null);
+  const avgFirstAttemptSuccessPct = ratedLabs.length
+    ? Math.round(ratedLabs.reduce((s, l) => s + (l.firstAttemptSuccessRate ?? 0), 0) / ratedLabs.length)
+    : null;
+
   return {
     labStats: labStats.sort((a, b) => (a.firstAttemptSuccessRate ?? 100) - (b.firstAttemptSuccessRate ?? 100)),
     bossFightStats: bossFightStats.sort((a, b) => a.completionRate - b.completionRate),
     pathStats,
     mitreGapsCohort,
     weeklyTrend,
-    totals: { students: studentCount, labAttempts, bossFightsCompleted, avgMitreCoveragePct },
+    topPerformers,
+    totals: {
+      students: studentCount,
+      labAttempts,
+      bossFightsCompleted,
+      avgMitreCoveragePct,
+      trainingHours: Math.round(((timeAgg._sum.timeTakenSec ?? 0) / 3600) * 10) / 10,
+      avgFirstAttemptSuccessPct,
+    },
   };
 }
