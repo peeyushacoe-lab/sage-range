@@ -9,7 +9,10 @@ export type NotificationType =
   | "scenario_published"
   | "competition_start"
   | "competition_win"
-  | "announcement";
+  | "announcement"
+  | "cert_pending_approval"
+  | "cert_approved"
+  | "cert_rejected";
 
 export async function createNotification(
   userId: string,

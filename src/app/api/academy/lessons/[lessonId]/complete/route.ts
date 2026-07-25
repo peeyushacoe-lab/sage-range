@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
+import { requestCertificateApproval } from "@/lib/certificate-approval";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ lessonId: string }> }) {
   const user = await getOrCreateAppUser();
@@ -37,16 +38,12 @@ export async function POST(_req: Request, { params }: { params: Promise<{ lesson
       where: { userId: user.id, lessonId: { in: allLessonIds }, completedAt: { not: null } },
     });
     if (completedCount >= allLessonIds.length) {
-      const certCode = `SV-${Date.now().toString(36).toUpperCase()}-${user.id.slice(-4).toUpperCase()}`;
-      await db.academyCertificate.upsert({
-        where: { userId_courseId: { userId: user.id, courseId: module.course.id } },
-        create: { userId: user.id, courseId: module.course.id, certCode },
-        update: {},
-      });
       await db.academyEnrollment.updateMany({
         where: { userId: user.id, courseId: module.course.id, completedAt: null },
         data: { completedAt: new Date() },
       });
+      // Certificate isn't granted yet — opens an admin approval request instead.
+      await requestCertificateApproval(user.id, "ACADEMY", module.course.id, module.course.title);
     }
   }
 

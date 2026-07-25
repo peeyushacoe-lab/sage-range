@@ -121,9 +121,50 @@ model User {
   purpleTeamReplaySessions  PurpleTeamReplaySession[]
   incidentHintViews         IncidentHintView[]
   announcementsCreated      Announcement[]
+  certificateApprovals      CertificateApproval[]
+  certApprovalDecisions     CertificateApproval[]     @relation("CertApprovalDecisions")
 
   @@index([skillScore])
   @@index([coins])
+}
+
+// ── Certificate Approval Workflow ─────────────────────────────────────────────
+// Completing a certificate's requirements no longer reveals it directly:
+// a PENDING approval request is created (admins are notified), and the
+// user only sees/claims the certificate once an admin approves.
+
+enum CertApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CertKind {
+  PATH
+  ACADEMY
+  IR
+}
+
+model CertificateApproval {
+  id          String             @id @default(cuid())
+  userId      String
+  kind        CertKind
+  // pathId for PATH, courseId for ACADEMY, "" for the single IR certification —
+  // kept non-null so the compound unique key below works for all kinds.
+  targetId    String             @default("")
+  // Human-readable label captured at request time (path/course title) so the
+  // admin queue doesn't need per-kind joins to render.
+  title       String
+  status      CertApprovalStatus @default(PENDING)
+  requestedAt DateTime           @default(now())
+  decidedAt   DateTime?
+  decidedById String?
+
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  decidedBy User? @relation("CertApprovalDecisions", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, kind, targetId])
+  @@index([status, requestedAt])
 }
 
 model Lab {

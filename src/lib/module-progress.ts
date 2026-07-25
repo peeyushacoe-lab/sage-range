@@ -1,9 +1,10 @@
 import { db } from "./db";
+import { requestCertificateApproval } from "./certificate-approval";
 
 export async function maybeCompletePathFromModule(userId: string, moduleId: string) {
   const mod = await db.module.findUnique({
     where: { id: moduleId },
-    select: { pathId: true },
+    select: { pathId: true, path: { select: { title: true } } },
   });
   if (!mod) return;
 
@@ -27,5 +28,7 @@ export async function maybeCompletePathFromModule(userId: string, moduleId: stri
       update: { completedAt: new Date() },
       create: { userId, pathId: mod.pathId, completedAt: new Date() },
     });
+    // Certificate isn't granted yet — opens an admin approval request instead.
+    await requestCertificateApproval(userId, "PATH", mod.pathId, mod.path.title);
   }
 }

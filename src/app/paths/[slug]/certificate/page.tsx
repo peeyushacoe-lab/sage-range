@@ -70,6 +70,29 @@ export default async function CertificatePage({
 
   if (!canCert || !userProgress) redirect(`/paths/${slug}`);
 
+  const approval = await db.certificateApproval.findUnique({
+    where: { userId_kind_targetId: { userId: user.id, kind: "PATH", targetId: path.id } },
+  });
+
+  if (approval?.status !== "APPROVED") {
+    return (
+      <>
+        <div className="no-print"><Navbar backHref={`/paths/${slug}`} backLabel="Path" /></div>
+        <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
+          <p className="text-5xl">{approval?.status === "REJECTED" ? "✗" : "⏳"}</p>
+          <h1 className="text-2xl font-bold">
+            {approval?.status === "REJECTED" ? "Certificate request not approved" : "Certificate pending admin approval"}
+          </h1>
+          <p className="text-zinc-400 max-w-md">
+            {approval?.status === "REJECTED"
+              ? "An admin reviewed your completed path and did not approve the certificate. Contact your instructor for details."
+              : "You've completed every requirement for this path — an admin needs to approve your certificate before you can view it. You'll get a notification the moment it's approved."}
+          </p>
+        </div>
+      </>
+    );
+  }
+
   const candidateName = user.displayName ?? user.email.split("@")[0];
 
   const irCert = await db.iRCertification.findUnique({

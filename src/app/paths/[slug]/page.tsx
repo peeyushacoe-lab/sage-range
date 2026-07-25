@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { EnrollBtn } from "./_components/enroll-btn";
 import { Navbar } from "@/components/navbar";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
+import { requestCertificateApproval } from "@/lib/certificate-approval";
 
 export const dynamic = "force-dynamic";
 
@@ -82,8 +83,17 @@ export default async function PathDetail({
         data: { completedAt: new Date() },
       });
       isCompleted = true;
+      // Certificate isn't granted yet — opens an admin approval request instead.
+      await requestCertificateApproval(user.id, "PATH", path.id, path.title);
     }
   }
+
+  const certApproval = isCompleted
+    ? await db.certificateApproval.findUnique({
+        where: { userId_kind_targetId: { userId: user.id, kind: "PATH", targetId: path.id } },
+      })
+    : null;
+  const certApproved = certApproval?.status === "APPROVED";
 
   const capstoneSlug = path.capstoneSimulationSlug;
   const capstoneReady = isCompleted && !!capstoneSlug;
@@ -147,33 +157,30 @@ export default async function PathDetail({
           </div>
         )}
 
-        {allModulesDone && isEnrolled && (
+        {((allModulesDone && hasModules) || (!hasModules && allLabsDone)) && isEnrolled && (
           <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-widest text-amber-400 mb-1">Path Complete</p>
-              <p className="font-semibold">All modules finished — your certificate is ready.</p>
+              <p className="font-semibold">
+                {certApproved
+                  ? `All ${hasModules ? "modules" : "labs"} finished — your certificate is ready.`
+                  : certApproval?.status === "REJECTED"
+                  ? "Certificate request was not approved — contact your instructor."
+                  : `All ${hasModules ? "modules" : "labs"} finished — awaiting admin approval for your certificate.`}
+              </p>
             </div>
-            <Link
-              href={`/paths/${slug}/certificate`}
-              className="shrink-0 rounded-lg border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition whitespace-nowrap"
-            >
-              View Certificate →
-            </Link>
-          </div>
-        )}
-
-        {!hasModules && allLabsDone && isEnrolled && (
-          <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-amber-400 mb-1">Path Complete</p>
-              <p className="font-semibold">All labs finished — your certificate is ready.</p>
-            </div>
-            <Link
-              href={`/paths/${slug}/certificate`}
-              className="shrink-0 rounded-lg border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition whitespace-nowrap"
-            >
-              View Certificate →
-            </Link>
+            {certApproved ? (
+              <Link
+                href={`/paths/${slug}/certificate`}
+                className="shrink-0 rounded-lg border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition whitespace-nowrap"
+              >
+                View Certificate →
+              </Link>
+            ) : (
+              <span className="shrink-0 rounded-lg border border-white/10 px-5 py-2.5 text-sm font-semibold text-zinc-500 whitespace-nowrap">
+                {certApproval?.status === "REJECTED" ? "Not Approved" : "Pending Approval"}
+              </span>
+            )}
           </div>
         )}
 

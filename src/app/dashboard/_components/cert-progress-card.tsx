@@ -7,6 +7,7 @@ interface CertStatus {
   eligible: boolean;
   certified: boolean;
   certId: string | null;
+  approvalStatus: "PENDING" | "APPROVED" | "REJECTED" | null;
   simsNeeded: number;
   pathsNeeded: number;
 }
@@ -92,7 +93,19 @@ export function CertProgressCard() {
             </div>
           )}
 
-          {!status.certified && status.eligible && (
+          {!status.certified && status.eligible && status.approvalStatus === "PENDING" && (
+            <div className="pt-2">
+              <span className="inline-block rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400">
+                Pending admin approval
+              </span>
+            </div>
+          )}
+
+          {!status.certified && status.eligible && status.approvalStatus === "REJECTED" && (
+            <p className="text-xs text-red-400 pt-1">Certificate request was not approved. Contact your instructor.</p>
+          )}
+
+          {!status.certified && status.eligible && !status.approvalStatus && (
             <div className="pt-2 space-y-2">
               {error && <p className="text-xs text-red-400">{error}</p>}
               <button
@@ -100,7 +113,7 @@ export function CertProgressCard() {
                 disabled={claiming}
                 className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 transition disabled:opacity-50"
               >
-                {claiming ? "Claiming..." : "Claim Your Certificate"}
+                {claiming ? "Requesting..." : "Request Certificate Approval"}
               </button>
             </div>
           )}

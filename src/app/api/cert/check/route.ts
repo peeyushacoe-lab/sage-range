@@ -1,119 +1,65 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
+import { requestCertificateApproval } from "@/lib/certificate-approval";
 
-function generateCertId(): string {
-  const year = new Date().getFullYear();
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let suffix = "";
-  for (let i = 0; i < 5; i++) {
-    suffix += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return `SR-${year}-${suffix}`;
-}
-
-export async function GET() {
-
-
-
-  const user = await getOrCreateAppUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  const [qualifyingSims, completedPaths, cert] = await Promise.all([
+async function eligibility(userId: string) {
+  const [qualifyingSims, completedPaths, cert, request] = await Promise.all([
     db.simulationSession.count({
-      where: {
-        userId: user.id,
-        status: { in: ["CONTAINED", "BREACHED"] },
-        score: { gte: 75 },
-      },
+      where: { userId, status: { in: ["CONTAINED", "BREACHED"] }, score: { gte: 75 } },
     }),
-    db.userPathProgress.count({
-      where: { userId: user.id, completedAt: { not: null } },
-    }),
-    db.iRCertification.findUnique({ where: { userId: user.id } }),
+    db.userPathProgress.count({ where: { userId, completedAt: { not: null } } }),
+    db.iRCertification.findUnique({ where: { userId } }),
+    db.certificateApproval.findUnique({ where: { userId_kind_targetId: { userId, kind: "IR", targetId: "" } } }),
   ]);
 
   const simsNeeded = Math.max(0, 3 - qualifyingSims);
   const pathsNeeded = Math.max(0, 2 - completedPaths);
   const eligible = simsNeeded === 0 && pathsNeeded === 0;
+
+  return { simsNeeded, pathsNeeded, eligible, cert, request };
+}
+
+export async function GET() {
+  const user = await getOrCreateAppUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const { simsNeeded, pathsNeeded, eligible, cert, request } = await eligibility(user.id);
 
   return NextResponse.json({
     eligible,
     certified: !!cert,
     certId: cert?.certId ?? null,
+    approvalStatus: request?.status ?? null,
     simsNeeded,
     pathsNeeded,
   });
 }
 
+// Requirements met -> opens a PENDING approval request (or returns the
+// existing one). The certificate itself is only created once an admin
+// approves it via /admin/certificates — see requestCertificateApproval().
 export async function POST() {
-
-
-
   const user = await getOrCreateAppUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const [qualifyingSims, completedPaths, existing] = await Promise.all([
-    db.simulationSession.count({
-      where: {
-        userId: user.id,
-        status: { in: ["CONTAINED", "BREACHED"] },
-        score: { gte: 75 },
-      },
-    }),
-    db.userPathProgress.count({
-      where: { userId: user.id, completedAt: { not: null } },
-    }),
-    db.iRCertification.findUnique({ where: { userId: user.id } }),
-  ]);
+  const { simsNeeded, pathsNeeded, eligible, cert } = await eligibility(user.id);
 
-  const simsNeeded = Math.max(0, 3 - qualifyingSims);
-  const pathsNeeded = Math.max(0, 2 - completedPaths);
-  const eligible = simsNeeded === 0 && pathsNeeded === 0;
-
-  if (existing) {
+  if (cert) {
     return NextResponse.json({
-      eligible: true,
-      certified: true,
-      certId: existing.certId,
-      simsNeeded: 0,
-      pathsNeeded: 0,
+      eligible: true, certified: true, certId: cert.certId, approvalStatus: "APPROVED", simsNeeded: 0, pathsNeeded: 0,
     });
   }
 
   if (!eligible) {
     return NextResponse.json({
-      eligible: false,
-      certified: false,
-      certId: null,
-      simsNeeded,
-      pathsNeeded,
+      eligible: false, certified: false, certId: null, approvalStatus: null, simsNeeded, pathsNeeded,
     });
   }
 
-  let cert;
-  let attempts = 0;
-  while (!cert && attempts < 5) {
-    attempts++;
-    const certId = generateCertId();
-    try {
-      cert = await db.iRCertification.create({
-        data: { userId: user.id, certId },
-      });
-    } catch {
-      cert = undefined;
-    }
-  }
-
-  if (!cert) {
-    return NextResponse.json({ error: "internal_error" }, { status: 500 });
-  }
+  const request = await requestCertificateApproval(user.id, "IR", "", "IR Commander Certification");
 
   return NextResponse.json({
-    eligible: true,
-    certified: true,
-    certId: cert.certId,
-    simsNeeded: 0,
-    pathsNeeded: 0,
+    eligible: true, certified: false, certId: null, approvalStatus: request.status, simsNeeded: 0, pathsNeeded: 0,
   });
 }

@@ -111,6 +111,9 @@ async function main() {
   console.log(`  labs: ${labs.length} solved`);
 
   // ── Learning Paths ──────────────────────────────────────────────────────
+  // Completing a path only opens a PENDING CertificateApproval (see
+  // src/lib/certificate-approval.ts) — pre-approve it too so the QA account's
+  // certificates are actually viewable, not stuck behind the admin queue.
   const paths = await db.learningPath.findMany({ where: { published: true } });
   for (const path of paths) {
     await db.userPathProgress.upsert({
@@ -118,8 +121,13 @@ async function main() {
       update: { completedAt: new Date() },
       create: { userId: user.id, pathId: path.id, startedAt: dateForIndex(20), completedAt: new Date() },
     });
+    await db.certificateApproval.upsert({
+      where: { userId_kind_targetId: { userId: user.id, kind: "PATH", targetId: path.id } },
+      update: { status: "APPROVED", decidedAt: new Date() },
+      create: { userId: user.id, kind: "PATH", targetId: path.id, title: path.title, status: "APPROVED", decidedAt: new Date() },
+    });
   }
-  console.log(`  paths: ${paths.length} completed`);
+  console.log(`  paths: ${paths.length} completed (+ certificate pre-approved)`);
 
   // ── Simulations ─────────────────────────────────────────────────────────
   // No unique key on (userId, templateId, n) — idempotency is handled by only
