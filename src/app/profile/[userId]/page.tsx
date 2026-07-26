@@ -8,6 +8,7 @@ import { AvatarUpload } from "./_components/avatar-upload";
 import { computeBadges, TIER_STYLE } from "@/lib/badges";
 import { CyberAvatar } from "@/components/cyber-avatar";
 import { getRankInfo, computeRoleBadge, computeSkillEmblems } from "@/lib/cyber-identity";
+import { EmptyState } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -579,6 +580,18 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
             <Link href={`/profile/${userId}/portfolio`} className="text-xs text-sage-400 hover:underline">Portfolio ↗</Link>
           </div>
         </div>
+
+        {/* First-time / no activity yet */}
+        {target.role === "STUDENT" && solved.length === 0 && simSessions.length === 0 && badges.length === 0 && (
+          <div className="rounded-xl border border-white/8 bg-zinc-900/40">
+            <EmptyState
+              icon="🚀"
+              title="Your profile is ready — now build a track record"
+              description="Solve labs and run simulations to earn badges, skill emblems, and a skill score that recruiters can see."
+              action={{ label: "Browse Labs", href: "/labs" }}
+            />
+          </div>
+        )}
 
         {/* Badges */}
         {badges.length > 0 && (

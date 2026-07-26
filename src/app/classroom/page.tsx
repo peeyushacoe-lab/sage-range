@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { CreateClassroomClient, JoinClassroomClient } from "./_components/classroom-hub-client";
 import { Navbar } from "@/components/navbar";
+import { EmptyState } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,7 @@ export default async function ClassroomHub() {
             </div>
 
             {myClasses.length === 0 ? (
-              <p className="text-sm text-zinc-600">No classes yet. Create one above.</p>
+              <EmptyState icon="🏫" title="No classes yet" description="Create one above to get started." />
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
                 {myClasses.map((c) => (
@@ -89,7 +90,7 @@ export default async function ClassroomHub() {
           </div>
 
           {enrolledClasses.length === 0 ? (
-            <p className="text-sm text-zinc-600">Not enrolled in any classes yet.</p>
+            <EmptyState icon="🎓" title="Not enrolled in any classes yet" description="Enter a join code from your instructor above to get started." />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {enrolledClasses.map(({ classroom }) => (
