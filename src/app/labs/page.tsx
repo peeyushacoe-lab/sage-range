@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "./[slug]/_content";
 import { Navbar } from "@/components/navbar";
+import { EmptyState } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -121,7 +122,12 @@ export default async function LabsIndex({
         </nav>
 
         {labs.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No labs match this filter.</p>
+          <EmptyState
+            icon="🧪"
+            title="No labs match this filter"
+            description="Try a different category or difficulty — or jump into a guided path to build up from the fundamentals."
+            action={{ label: "Explore Learning Paths", href: "/paths" }}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {labs.map((lab, idx) => {

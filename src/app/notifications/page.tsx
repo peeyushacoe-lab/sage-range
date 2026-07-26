@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Card, EmptyState } from "@/components/ui";
 
 type Notif = {
   id: string;
@@ -103,11 +104,14 @@ export default function NotificationsPage() {
             ))}
           </div>
         ) : notifs.length === 0 ? (
-          <div className="rounded-xl border border-white/6 bg-zinc-900/30 py-20 text-center">
-            <p className="text-4xl mb-4">🔔</p>
-            <p className="text-zinc-400 font-medium">You&apos;re all caught up</p>
-            <p className="text-zinc-600 text-sm mt-1">No notifications yet</p>
-          </div>
+          <Card>
+            <EmptyState
+              icon="🔔"
+              title="You're all caught up"
+              description="Badge unlocks, graded simulations, and new challenges will show up here as you progress."
+              action={{ label: "Go to Dashboard", href: "/dashboard" }}
+            />
+          </Card>
         ) : (
           <div className="space-y-6">
             {unread.length > 0 && (
