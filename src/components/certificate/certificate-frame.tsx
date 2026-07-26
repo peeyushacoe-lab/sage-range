@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CEO_SIGNATURE_DATA_URI } from "./signature-data";
 
 // Shared formal certificate design (navy/gold/cream, landscape) used by the
 // Learning Path, Academy, IR verification, and Simulation certificate pages —
@@ -168,7 +169,8 @@ export function CertificateFrame({
               {/* Signature · Seal · Date */}
               <div className="flex flex-wrap items-end justify-between gap-6 mt-10">
                 <div className="text-center">
-                  <Image src="/certificates/ceo-signature-navy.png" alt="CEO signature" width={190} height={32} className="mx-auto" unoptimized />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={CEO_SIGNATURE_DATA_URI} alt="CEO signature" width={190} height={32} className="mx-auto" />
                   <p className="w-48 border-b mb-2" style={{ borderColor: GOLD_SOFT }} />
                   <p className="text-xs font-bold tracking-[0.15em]" style={{ color: NAVY }}>KHURRAM QAMAR</p>
                   <p className="text-[10px] tracking-[0.12em] text-zinc-500">CHIEF EXECUTIVE OFFICER</p>
