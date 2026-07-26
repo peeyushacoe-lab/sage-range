@@ -85,7 +85,7 @@ export function SsrfAttackClient({
           <pre className="font-mono text-xs text-cyan-300 whitespace-pre-wrap">{`GET /fetch?url=http://localhost/admin
 
 HTTP/1.1 200 OK
-{"admin": true, "flag": "SAGE{ssrf_1nt3rn4l_4cc3ss}"}`}</pre>
+{"admin": true, "internal_note": "ssrf_confirmed_admin_access"}`}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">

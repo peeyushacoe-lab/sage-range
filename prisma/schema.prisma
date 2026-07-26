@@ -213,7 +213,14 @@ model Flag {
   labId         String
   value         String
   points        Int     @default(100)
-  caseSensitive Boolean @default(true)
+  // Flags are formatted SAGE{lowercase_leetspeak} — case differences are
+  // never meaningful to whether a submission is correct, and every seed
+  // script has relied on this default without ever setting it explicitly.
+  // Defaulting to case-sensitive here silently rejected objectively correct
+  // answers (e.g. "sage{...}" vs "SAGE{...}") across every non-task-based
+  // lab. Matches the case-insensitive behavior already used by the
+  // per-task checkFlag() validators in labs/[slug]/_components/*.
+  caseSensitive Boolean @default(false)
 
   lab Lab @relation(fields: [labId], references: [id], onDelete: Cascade)
 

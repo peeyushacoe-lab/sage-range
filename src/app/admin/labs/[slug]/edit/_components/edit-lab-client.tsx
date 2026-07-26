@@ -53,7 +53,7 @@ export function EditLabClient({
 
   // ── Flags ─────────────────────────────────────────────────────────────────────
   const [flags, setFlags] = useState<FlagItem[]>(initFlags);
-  const [newFlag, setNewFlag] = useState({ value: "", points: 100, caseSensitive: true });
+  const [newFlag, setNewFlag] = useState({ value: "", points: 100, caseSensitive: false });
   const [flagAdding, setFlagAdding] = useState(false);
 
   async function addFlag() {

@@ -12,7 +12,7 @@ async function requireAdmin() {
 const FlagBody = z.object({
   value:         z.string().min(1).max(500),
   points:        z.number().int().min(0).max(10000),
-  caseSensitive: z.boolean().default(true),
+  caseSensitive: z.boolean().default(false),
 });
 
 export async function POST(
