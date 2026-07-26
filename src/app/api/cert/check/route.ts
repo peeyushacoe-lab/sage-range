@@ -59,7 +59,15 @@ export async function POST() {
 
   const request = await requestCertificateApproval(user.id, "IR", "", "IR Commander Certification");
 
+  // Hidden accounts auto-approve — re-read so we report the real cert/status.
+  const issuedCert = await db.iRCertification.findUnique({ where: { userId: user.id } });
+
   return NextResponse.json({
-    eligible: true, certified: false, certId: null, approvalStatus: request.status, simsNeeded: 0, pathsNeeded: 0,
+    eligible: true,
+    certified: !!issuedCert,
+    certId: issuedCert?.certId ?? null,
+    approvalStatus: issuedCert ? "APPROVED" : request?.status ?? "PENDING",
+    simsNeeded: 0,
+    pathsNeeded: 0,
   });
 }

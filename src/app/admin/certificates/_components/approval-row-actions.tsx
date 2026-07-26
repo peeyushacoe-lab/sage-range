@@ -3,7 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function ApprovalRowActions({ id }: { id: string }) {
+export function ApprovalRowActions(props: {
+  userId: string;
+  kind: "PATH" | "ACADEMY" | "IR";
+  targetId: string;
+  title: string;
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState<"APPROVED" | "REJECTED" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -12,10 +17,10 @@ export function ApprovalRowActions({ id }: { id: string }) {
     setBusy(decision);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/certificates/${id}`, {
+      const res = await fetch(`/api/admin/certificates`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decision }),
+        body: JSON.stringify({ ...props, decision }),
       });
       if (!res.ok) throw new Error();
       router.refresh();
