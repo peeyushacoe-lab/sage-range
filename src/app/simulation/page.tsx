@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -31,25 +32,26 @@ export default async function SimulationsPage() {
     <main className="min-h-screen">
       <Navbar />
       <div className="p-8 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Simulations</h1>
-        </div>
-        <Link
-          href="/simulation/new"
-          className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition"
-        >
-          New Simulation →
-        </Link>
-      </div>
+      <PageHeader
+        className="mb-8"
+        title="Simulations"
+        actions={
+          <Link
+            href="/simulation/new"
+            className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition"
+          >
+            New Simulation →
+          </Link>
+        }
+      />
 
       {sessions.length === 0 && (
-        <div className="rounded-xl border border-white/10 p-12 text-center">
-          <p className="text-zinc-500 text-sm">No simulations yet.</p>
-          <Link href="/simulation/new" className="mt-3 inline-block text-sage-500 text-sm hover:underline">
-            Start your first simulation →
-          </Link>
-        </div>
+        <EmptyState
+          icon="🖥"
+          title="No simulations yet"
+          description="Launch a live incident to put your decisions to the test — scored A–F and visible to recruiters."
+          action={{ label: "Start Your First Simulation", href: "/simulation/new" }}
+        />
       )}
 
       {activeSessions.length > 0 && (

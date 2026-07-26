@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader, StatCard } from "@/components/ui";
 
 const DIFF_COLORS: Record<string, string> = {
   EASY:   "text-sage-500",
@@ -43,20 +44,35 @@ export default async function PathsIndex() {
     completedByLab.get(r.labId)!.add(r.stage);
   }
 
+  const completedPathsCount = paths.filter((p) => !!p.progress[0]?.completedAt).length;
+  const startedPathsCount = paths.filter((p) => !!p.progress[0] && !p.progress[0].completedAt).length;
+
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Learning Paths</h1>
-          <p className="text-zinc-400 mt-2">
-            Structured courses with certificates. Complete all labs to earn your certificate.
-          </p>
-        </header>
+        <PageHeader
+          className="mb-6"
+          title="Learning Paths"
+          subtitle="Structured courses with certificates. Complete all labs to earn your certificate."
+        />
+
+        {paths.length > 0 && (
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <StatCard label="Total Paths" value={paths.length} />
+            <StatCard label="Completed" value={completedPathsCount} sub="certificates earned" />
+            <StatCard label="In Progress" value={startedPathsCount} />
+          </div>
+        )}
 
         {paths.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No learning paths available yet.</p>
+          <EmptyState
+            icon="🗺"
+            title="No learning paths available yet"
+            description="Structured paths are being prepared. In the meantime, explore the individual labs."
+            action={{ label: "Browse Labs", href: "/labs" }}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {paths.map((path) => {

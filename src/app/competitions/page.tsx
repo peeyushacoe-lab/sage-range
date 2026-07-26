@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { JoinCompetitionBtn } from "./_components/join-btn";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -49,13 +50,19 @@ export default async function CompetitionsPage() {
     <main className="min-h-screen">
       <Navbar />
       <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-2">Competitions</h1>
-      <p className="text-zinc-500 mb-8 text-sm">
-        Compete against other students. Complete assigned labs to earn points.
-      </p>
+      <PageHeader
+        className="mb-8"
+        title="Competitions"
+        subtitle="Compete against other students. Complete assigned labs to earn points."
+      />
 
       {competitions.length === 0 ? (
-        <p className="text-zinc-500 text-sm">No competitions available yet. Check back soon.</p>
+        <EmptyState
+          icon="🏆"
+          title="No competitions available yet"
+          description="Check back soon, or sharpen up in the meantime with individual labs."
+          action={{ label: "Browse Labs", href: "/labs" }}
+        />
       ) : (
         <div className="space-y-5">
           {competitions.map((comp) => {

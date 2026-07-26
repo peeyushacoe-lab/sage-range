@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { SOC_LEAGUE_RANKS, getSocLeagueRank } from "@/lib/soc-league";
 import { Navbar } from "@/components/navbar";
+import { PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "SOC League · Sage Vault" };
@@ -26,20 +27,17 @@ export default async function SocLeaguePage() {
       <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
 
-        {/* Header */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">SOC League</p>
-            <h1 className="text-2xl font-bold">Rank Ladder</h1>
-            <p className="text-sm text-zinc-500 mt-1">
-              Earned from lab solves and Daily Hunt bonuses — separate from your skill score.
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-3xl font-black tabular-nums">{me.coins}</p>
-            <p className="text-xs text-zinc-500 mt-0.5">coins</p>
-          </div>
-        </div>
+        <PageHeader
+          eyebrow="SOC League"
+          title="Rank Ladder"
+          subtitle="Earned from lab solves and Daily Hunt bonuses — separate from your skill score."
+          actions={
+            <div className="text-right">
+              <p className="text-3xl font-black tabular-nums">{me.coins}</p>
+              <p className="text-xs text-zinc-500 mt-0.5">coins</p>
+            </div>
+          }
+        />
 
         {/* Current rank card */}
         <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">

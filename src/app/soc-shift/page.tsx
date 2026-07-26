@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -29,16 +30,14 @@ export default async function SocShiftIndex() {
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">SOC Shift Mode</h1>
-          <p className="text-zinc-400 mt-2 max-w-2xl">
-            A batch of alerts drops at once — mostly noise, a few real. Triage everything before the clock runs out.
-            Competitive rounds (marked below) also carry a public leaderboard.
-          </p>
-        </header>
+        <PageHeader
+          className="mb-8"
+          title="SOC Shift Mode"
+          subtitle="A batch of alerts drops at once — mostly noise, a few real. Triage everything before the clock runs out. Competitive rounds (marked below) also carry a public leaderboard."
+        />
 
         {shifts.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No shifts published yet.</p>
+          <EmptyState icon="🚨" title="No shifts published yet" description="Check back soon for a new round of alerts to triage." />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {shifts.map((s) => {

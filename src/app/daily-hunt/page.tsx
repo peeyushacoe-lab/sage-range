@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { computeDailyHuntStatus } from "@/lib/daily-hunt";
 import { Navbar } from "@/components/navbar";
 import { StartHuntButton } from "./_components/start-hunt-button";
+import { PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Daily Hunt · Sage Vault" };
@@ -32,11 +33,11 @@ export default async function DailyHuntPage() {
       <Navbar />
       <main className="max-w-2xl mx-auto px-6 py-8 space-y-8">
 
-        <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">SOC League</p>
-          <h1 className="text-2xl font-bold">Daily Hunt</h1>
-          <p className="text-sm text-zinc-500 mt-1">One mystery incident, every day. Solve it fast for a bonus coin reward.</p>
-        </div>
+        <PageHeader
+          eyebrow="SOC League"
+          title="Daily Hunt"
+          subtitle="One mystery incident, every day. Solve it fast for a bonus coin reward."
+        />
 
         {!status && (
           <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-6 text-center">

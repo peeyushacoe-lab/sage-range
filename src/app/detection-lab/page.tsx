@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -37,16 +38,14 @@ export default async function DetectionLabIndex() {
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Detection Validation Engine</h1>
-          <p className="text-zinc-400 mt-2 max-w-2xl">
-            Write field/operator/value detection rules against a pre-labeled synthetic event log and get graded on
-            precision, recall, and F1 — the same metrics a real detection engineering team lives by.
-          </p>
-        </header>
+        <PageHeader
+          className="mb-8"
+          title="Detection Validation Engine"
+          subtitle="Write field/operator/value detection rules against a pre-labeled synthetic event log and get graded on precision, recall, and F1 — the same metrics a real detection engineering team lives by."
+        />
 
         {challenges.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No detection challenges published yet.</p>
+          <EmptyState icon="🎯" title="No detection challenges published yet" description="Check back soon for a new dataset to hunt through." />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {challenges.map((c) => {

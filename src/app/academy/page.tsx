@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
+import { formatDuration } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -188,6 +189,9 @@ export default async function AcademyPage() {
               const enrolled  = enrolledIds.has(course.id);
               const completed = completedIds.has(course.id);
               const lessons   = totalLessons(course);
+              const totalMinutes = course.modules.reduce(
+                (s, m) => s + m.lessons.reduce((ls, l) => ls + l.durationMin, 0), 0
+              );
               const allCourseLessons = course.modules.flatMap(m => m.lessons.map(l => l.id));
               const doneCount = allCourseLessons.filter(id => completedLessonSet.has(id)).length;
               const pct = allCourseLessons.length > 0 ? Math.round((doneCount / allCourseLessons.length) * 100) : 0;
@@ -231,7 +235,7 @@ export default async function AcademyPage() {
                     </span>
                     <span className="text-[10px] text-zinc-600">{course._count.modules} modules</span>
                     <span className="text-[10px] text-zinc-600">{lessons} lessons</span>
-                    {course.estimatedHrs > 0 && <span className="text-[10px] text-zinc-600">{course.estimatedHrs}h</span>}
+                    {totalMinutes > 0 && <span className="text-[10px] text-zinc-600">{formatDuration(totalMinutes)}</span>}
                     <span className="ml-auto text-[10px] text-zinc-600">{lessons * 25} XP total</span>
                   </div>
                 </Link>

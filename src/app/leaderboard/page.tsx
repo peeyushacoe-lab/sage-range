@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { LabType } from "@prisma/client";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -34,10 +35,11 @@ export default async function Leaderboard({
     <main className="min-h-screen">
       <Navbar />
       <div className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mt-4 mb-2">Leaderboard</h1>
-      <p className="text-zinc-500 mb-6">
-        {filter === "SIM" ? "Top performers ranked by best simulation score." : "Top performers across labs and CTFs."}
-      </p>
+      <PageHeader
+        className="mt-4 mb-6"
+        title="Leaderboard"
+        subtitle={filter === "SIM" ? "Top performers ranked by best simulation score." : "Top performers across labs and CTFs."}
+      />
 
       <nav className="flex gap-2 mb-6">
         {TABS.map((t) => {
@@ -59,7 +61,7 @@ export default async function Leaderboard({
       </nav>
 
       {top.length === 0 ? (
-        <p className="text-zinc-500">No scores yet.</p>
+        <EmptyState icon="🏅" title="No scores yet" description="Be the first to solve a lab and claim the top spot." action={{ label: "Browse Labs", href: "/labs" }} />
       ) : (
         <ol className="rounded-lg border border-white/10 divide-y divide-white/10">
           {top.map((u, i) => (

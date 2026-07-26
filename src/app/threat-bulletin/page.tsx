@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -23,16 +24,14 @@ export default async function ThreatBulletinPage() {
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Weekly Threat Bulletin</h1>
-          <p className="text-zinc-400 mt-2">
-            Current threat intelligence — actors, malware families, new CVEs, IOCs, and TTPs. Simulations and labs
-            published in the same week often use these exact indicators, so read this before you dig in.
-          </p>
-        </header>
+        <PageHeader
+          className="mb-8"
+          title="Weekly Threat Bulletin"
+          subtitle="Current threat intelligence — actors, malware families, new CVEs, IOCs, and TTPs. Simulations and labs published in the same week often use these exact indicators, so read this before you dig in."
+        />
 
         {bulletins.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No bulletins published yet.</p>
+          <EmptyState icon="📰" title="No bulletins published yet" description="The first threat bulletin is being prepared. Check back soon." />
         ) : (
           <div className="space-y-6">
             {bulletins.map((b) => (

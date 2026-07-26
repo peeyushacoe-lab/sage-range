@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { PrintBtn } from "./_components/print-btn";
 import { CertificateFrame, type SidebarStat } from "@/components/certificate/certificate-frame";
 import { certificateQrSvg } from "@/components/certificate/qr";
+import { formatDuration } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +16,15 @@ export default async function CertificatePage({ params }: { params: Promise<{ ce
       user:   { select: { displayName: true, email: true } },
       course: {
         select: {
-          title: true, difficulty: true, estimatedHrs: true,
-          modules: { where: { published: true }, orderBy: { order: "asc" }, select: { title: true } },
+          title: true, difficulty: true,
+          modules: {
+            where: { published: true },
+            orderBy: { order: "asc" },
+            select: {
+              title: true,
+              lessons: { where: { published: true }, select: { durationMin: true } },
+            },
+          },
         },
       },
     },
@@ -25,10 +33,13 @@ export default async function CertificatePage({ params }: { params: Promise<{ ce
 
   const name = cert.user.displayName ?? cert.user.email.split("@")[0];
   const domains = cert.course.modules.map((m) => m.title).slice(0, 6);
+  const totalMinutes = cert.course.modules.reduce(
+    (s, m) => s + m.lessons.reduce((ls, l) => ls + l.durationMin, 0), 0
+  );
 
   const stats: SidebarStat[] = [];
-  if (cert.course.estimatedHrs > 0) {
-    stats.push({ icon: "clock", label: "Training Hours", value: `${cert.course.estimatedHrs} Hours` });
+  if (totalMinutes > 0) {
+    stats.push({ icon: "clock", label: "Training Time", value: formatDuration(totalMinutes) });
   }
   stats.push(
     { icon: "target", label: "Difficulty", value: cert.course.difficulty },

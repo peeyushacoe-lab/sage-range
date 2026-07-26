@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -50,18 +51,14 @@ export default async function IncidentsIndex() {
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Incident Simulations</h1>
-          <p className="text-zinc-400 mt-2 max-w-3xl">
-            Chained, multi-artifact scenarios set inside fictional companies — the kind of 2-3 hour investigation
-            a real SOC shift actually looks like, not a single isolated flag. Work through event logs, Sysmon,
-            Defender detections, PCAP summaries, memory dumps, and registry exports to reconstruct the full attack
-            chain, then write detection logic and an executive summary.
-          </p>
-        </header>
+        <PageHeader
+          className="mb-8"
+          title="Incident Simulations"
+          subtitle="Chained, multi-artifact scenarios set inside fictional companies — the kind of 2-3 hour investigation a real SOC shift actually looks like, not a single isolated flag. Work through event logs, Sysmon, Defender detections, PCAP summaries, memory dumps, and registry exports to reconstruct the full attack chain, then write detection logic and an executive summary."
+        />
 
         {simulations.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No incident simulations published yet.</p>
+          <EmptyState icon="🕵" title="No incident simulations published yet" description="The first scenario is being prepared. Check back soon." />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {simulations.map((sim, idx) => {

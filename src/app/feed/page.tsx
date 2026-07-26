@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { getActivityFeed, getFeedComments, getFeedReactions, serializeFeed } from "@/lib/activity-feed";
 import { Navbar } from "@/components/navbar";
 import { FeedCard } from "./_components/feed-card";
+import { EmptyState } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +37,13 @@ export default async function FeedPage() {
         </div>
 
         {serialized.length === 0 ? (
-          <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-12 text-center">
-            <p className="text-zinc-500 text-sm">No activity yet.</p>
-            <p className="text-zinc-700 text-xs mt-1">Complete a lab or simulation to appear here.</p>
+          <div className="rounded-xl border border-white/8 bg-zinc-900/40">
+            <EmptyState
+              icon="📡"
+              title="No activity yet"
+              description="Complete a lab or simulation to appear here."
+              action={{ label: "Browse Labs", href: "/labs" }}
+            />
           </div>
         ) : (
           <div className="space-y-3">

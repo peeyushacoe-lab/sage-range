@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
+import { EmptyState, PageHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -27,16 +28,14 @@ export default async function PurpleTeamIndex() {
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Purple Team Replay</h1>
-          <p className="text-zinc-400 mt-2 max-w-2xl">
-            Attack sequences revealed step by step. Hold one detection rule and refine it live as the campaign
-            unfolds — the same skill as tuning a real detection in production while an incident is still active.
-          </p>
-        </header>
+        <PageHeader
+          className="mb-8"
+          title="Purple Team Replay"
+          subtitle="Attack sequences revealed step by step. Hold one detection rule and refine it live as the campaign unfolds — the same skill as tuning a real detection in production while an incident is still active."
+        />
 
         {replays.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No replays published yet.</p>
+          <EmptyState icon="🔁" title="No replays published yet" description="Check back soon for a new attack sequence to work." />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {replays.map((r) => {
