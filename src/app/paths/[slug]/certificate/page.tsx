@@ -8,6 +8,7 @@ import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 import { CertificateFrame, type SidebarStat } from "@/components/certificate/certificate-frame";
 import { certificateQrSvg } from "@/components/certificate/qr";
 import { computeMitreCoverage } from "@/lib/insights/mitre";
+import { requestCertificateApproval } from "@/lib/certificate-approval";
 
 export const dynamic = "force-dynamic";
 
@@ -70,9 +71,14 @@ export default async function CertificatePage({
 
   if (!canCert || !userProgress) redirect(`/paths/${slug}`);
 
-  const approval = await db.certificateApproval.findUnique({
+  // Backfill an approval request if the path is complete but none exists yet
+  // (pre-workflow completions / seeded progress). Idempotent.
+  let approval = await db.certificateApproval.findUnique({
     where: { userId_kind_targetId: { userId: user.id, kind: "PATH", targetId: path.id } },
   });
+  if (!approval) {
+    approval = await requestCertificateApproval(user.id, "PATH", path.id, path.title);
+  }
 
   if (approval?.status !== "APPROVED") {
     return (

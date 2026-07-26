@@ -83,16 +83,21 @@ export default async function PathDetail({
         data: { completedAt: new Date() },
       });
       isCompleted = true;
-      // Certificate isn't granted yet — opens an admin approval request instead.
-      await requestCertificateApproval(user.id, "PATH", path.id, path.title);
     }
   }
 
-  const certApproval = isCompleted
+  // Ensure a certificate approval request exists whenever the path is complete —
+  // covers paths that were completed before this workflow existed (or via the
+  // seed script), not just fresh completions. requestCertificateApproval is
+  // idempotent, so this is safe on every load.
+  let certApproval = isCompleted
     ? await db.certificateApproval.findUnique({
         where: { userId_kind_targetId: { userId: user.id, kind: "PATH", targetId: path.id } },
       })
     : null;
+  if (isCompleted && !certApproval) {
+    certApproval = await requestCertificateApproval(user.id, "PATH", path.id, path.title);
+  }
   const certApproved = certApproval?.status === "APPROVED";
 
   const capstoneSlug = path.capstoneSimulationSlug;

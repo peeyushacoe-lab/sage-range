@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { EnrollBtn } from "./_components/enroll-btn";
 import { Navbar } from "@/components/navbar";
+import { requestCertificateApproval } from "@/lib/certificate-approval";
 
 export const dynamic = "force-dynamic";
 
@@ -49,11 +50,16 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
     where: { userId_courseId: { userId: user.id, courseId: course.id } },
   }) : null;
 
-  const certApproval = user && !cert && enrollment?.completedAt
+  // If the course is complete but no cert and no approval request exists yet
+  // (pre-workflow completion), open one. Idempotent.
+  let certApproval = user && !cert && enrollment?.completedAt
     ? await db.certificateApproval.findUnique({
         where: { userId_kind_targetId: { userId: user.id, kind: "ACADEMY", targetId: course.id } },
       })
     : null;
+  if (user && !cert && enrollment?.completedAt && !certApproval) {
+    certApproval = await requestCertificateApproval(user.id, "ACADEMY", course.id, course.title);
+  }
 
   const allLessons = course.modules.flatMap(m => m.lessons);
   const progressPct = allLessons.length > 0 ? Math.round((completedLessonIds.size / allLessons.length) * 100) : 0;
