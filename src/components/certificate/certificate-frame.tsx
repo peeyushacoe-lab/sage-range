@@ -116,7 +116,7 @@ export function CertificateFrame({
             {/* ── Main column ─────────────────────────────────────────── */}
             <div className="px-8 sm:px-12 pt-10 pb-8 text-center" style={{ fontFamily: SERIF }}>
               <div className="flex items-center justify-center gap-3 mb-1">
-                <Image src="/logo.png" alt="" width={54} height={54} className="opacity-95" />
+                <Image src="/logo.png" alt="" width={54} height={54} className="opacity-95" unoptimized />
                 <p className="text-3xl sm:text-4xl font-bold tracking-[0.12em]" style={{ color: NAVY }}>
                   CYBERSAGE
                 </p>
@@ -168,7 +168,7 @@ export function CertificateFrame({
               {/* Signature · Seal · Date */}
               <div className="flex flex-wrap items-end justify-between gap-6 mt-10">
                 <div className="text-center">
-                  <Image src="/certificates/ceo-signature-navy.png" alt="CEO signature" width={165} height={28} className="mx-auto" />
+                  <Image src="/certificates/ceo-signature-navy.png" alt="CEO signature" width={190} height={32} className="mx-auto" unoptimized />
                   <p className="w-48 border-b mb-2" style={{ borderColor: GOLD_SOFT }} />
                   <p className="text-xs font-bold tracking-[0.15em]" style={{ color: NAVY }}>KHURRAM QAMAR</p>
                   <p className="text-[10px] tracking-[0.12em] text-zinc-500">CHIEF EXECUTIVE OFFICER</p>
