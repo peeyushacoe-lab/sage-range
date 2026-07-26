@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "./[slug]/_content";
 import { Navbar } from "@/components/navbar";
-import { EmptyState } from "@/components/ui";
+import { EmptyState, PageHeader, StatCard } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +52,9 @@ export default async function LabsIndex({
   ]);
 
   const statusByLab = new Map(attempts.map((a) => [a.labId, a.status]));
+  const solvedCount = attempts.filter((a) => a.status === "SOLVED").length;
+  const inProgressCount = attempts.filter((a) => a.status === "IN_PROGRESS").length;
+  const completionPct = labs.length > 0 ? Math.round((solvedCount / labs.length) * 100) : 0;
 
   const completedByLab = new Map<string, Set<string>>();
   for (const r of labResponses) {
@@ -64,21 +67,26 @@ export default async function LabsIndex({
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Labs</h1>
-            <p className="text-zinc-400 mt-2">
-              Hands-on challenges across CTF, Blue Team, and Red Team disciplines — from log analysis and detection engineering to
-              AI security, DFIR, and cloud misconfigurations. Complete all tasks in a room to capture the flag.
-            </p>
-          </div>
-          <Link
-            href="/labs/graph"
-            className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
-          >
-            Skill Graph →
-          </Link>
-        </header>
+        <PageHeader
+          className="mb-6"
+          title="Labs"
+          subtitle="Hands-on challenges across CTF, Blue Team, and Red Team disciplines — from log analysis and detection engineering to AI security, DFIR, and cloud misconfigurations. Complete all tasks in a room to capture the flag."
+          actions={
+            <Link
+              href="/labs/graph"
+              className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+            >
+              Skill Graph →
+            </Link>
+          }
+        />
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <StatCard label="Total Labs" value={labs.length} sub={filter === "ALL" ? "all categories" : filter.replace("_", " ").toLowerCase()} />
+          <StatCard label="Solved" value={solvedCount} sub={`${completionPct}% complete`} />
+          <StatCard label="In Progress" value={inProgressCount} sub="attempts started" />
+          <StatCard label="Remaining" value={Math.max(0, labs.length - solvedCount)} sub="left to solve" />
+        </div>
 
         {/* Simulation callout */}
         <div className="mb-8 rounded-xl border border-sage-500/30 bg-sage-500/5 p-5 flex items-center justify-between gap-4">
