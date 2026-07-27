@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
+import { Icon } from "@/components/ui/icon";
 export function WelcomeCtfClient({
   labId,
   completedStages: initial,
@@ -120,7 +121,7 @@ export function WelcomeCtfClient({
 
       {allDone && (
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete ✓</h3>
+          <h3 className="font-bold text-sage-400 text-base">Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></h3>
           <ul className="space-y-1 font-mono text-sm">
             <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;w3lc0me_t0_th3_r4nge&#125;</span></li>
             <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;b4se64_is_n0t_encrypti0n&#125;</span></li>

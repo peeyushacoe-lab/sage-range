@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { EmptyState, PageHeader } from "@/components/ui";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
@@ -45,7 +46,7 @@ export default async function DetectionLabIndex() {
         />
 
         {challenges.length === 0 ? (
-          <EmptyState icon="🎯" title="No detection challenges published yet" description="Check back soon for a new dataset to hunt through." />
+          <EmptyState icon="simulations" title="No detection challenges published yet" description="Check back soon for a new dataset to hunt through." />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {challenges.map((c) => {
@@ -67,7 +68,7 @@ export default async function DetectionLabIndex() {
                   <div>
                     <h3 className="font-semibold flex items-center gap-2">
                       {c.title}
-                      {best?.passed && <span className="text-sage-500">✓</span>}
+                      {best?.passed && <span className="text-sage-500"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
                     </h3>
                     <p className="text-sm text-zinc-400 mt-2 line-clamp-2 leading-relaxed">{c.description}</p>
                   </div>

@@ -19,6 +19,7 @@ import { certificateQrSvg } from "@/components/certificate/qr";
 import { isSimCertEligible, SIM_CERT_MIN_SCORE } from "@/lib/sim-certificate";
 import { requestCertificateApproval } from "@/lib/certificate-approval";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function assessmentRating(score: number): { label: string; color: string; border: string } {
@@ -55,7 +56,7 @@ export default async function CertificatePage({
   if (!isSimCertEligible(session.status, score)) {
     return (
       <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
-        <p className="text-5xl">🔒</p>
+        <p className="flex justify-center"><Icon name="lock" size={48} /></p>
         <h1 className="text-2xl font-bold">No certificate for this run</h1>
         <p className="text-zinc-400 max-w-md">
           Simulation certificates require the incident to be contained with a score of {SIM_CERT_MIN_SCORE}+.
@@ -78,7 +79,7 @@ export default async function CertificatePage({
   if (approval?.status !== "APPROVED") {
     return (
       <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
-        <p className="text-5xl">{approval?.status === "REJECTED" ? "✗" : "⏳"}</p>
+        <p className="text-5xl flex justify-center">{approval?.status === "REJECTED" ? <Icon name="cross" size={48} /> : "⏳"}</p>
         <h1 className="text-2xl font-bold">
           {approval?.status === "REJECTED" ? "Certificate request not approved" : "Certificate pending admin approval"}
         </h1>

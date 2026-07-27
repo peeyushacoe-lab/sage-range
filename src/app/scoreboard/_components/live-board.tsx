@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 type RankInfo = { label: string; tier: string; color: string };
 type User     = { rank: number; id: string; name: string; skillScore: number; rankInfo: RankInfo };
 type Activity = { id: string; kind: "LAB" | "SIM"; user: string; userId: string; title: string; detail: string; ts: number };
@@ -34,7 +35,7 @@ function MovementArrow({ delta }: { delta: number }) {
   return               <span className="w-4 text-center text-red-400 text-xs font-bold">↓{Math.abs(delta)}</span>;
 }
 
-const MEDAL = ["🥇", "🥈", "🥉"];
+const MEDAL_TONE = ["gold", "slate", "amber"] as const;
 
 export function LiveBoard({
   initialData,
@@ -129,7 +130,7 @@ export function LiveBoard({
                       className={`transition-colors ${isMe ? "bg-emerald-500/6 hover:bg-emerald-500/10" : "hover:bg-white/3"}`}
                     >
                       <td className="px-4 py-2.5 text-zinc-500 tabular-nums font-mono text-xs w-10">
-                        {u.rank <= 3 ? MEDAL[u.rank - 1] : u.rank}
+                        {u.rank <= 3 ? <Icon name="medal" tone={MEDAL_TONE[u.rank - 1]} size={14} /> : u.rank}
                       </td>
                       <td className="px-2 py-2.5 w-6">
                         <MovementArrow delta={delta} />
@@ -177,7 +178,7 @@ export function LiveBoard({
                   <div key={ev.id} className="px-4 py-3 space-y-0.5">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-sm shrink-0">{ev.kind === "SIM" ? "⚡" : "🚩"}</span>
+                        <Icon name={ev.kind === "SIM" ? "energy" : "challenges"} size={14} className="shrink-0" />
                         <Link href={`/profile/${ev.userId}`}
                           className="text-xs font-semibold text-zinc-300 hover:text-white truncate">
                           {ev.user}

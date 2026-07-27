@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
+import { Icon } from "@/components/ui/icon";
 type Role = "STUDENT" | "INSTRUCTOR" | "RECRUITER";
 
 const ROLES: Array<{
@@ -136,7 +137,7 @@ export default function OnboardingPage() {
               </ul>
               {selected === r.id && (
                 <div className={`mt-4 text-xs font-bold uppercase tracking-wider ${r.color}`}>
-                  Selected ✓
+                  Selected <Icon name="check" size={14} className="inline-block shrink-0" />
                 </div>
               )}
             </button>

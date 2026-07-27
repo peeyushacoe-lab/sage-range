@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 // Minimal markdown-ish renderer: ## headings, paragraphs, inline `code`
@@ -93,7 +94,7 @@ export default async function WriteupPage({ params }: { params: Promise<{ id: st
       <div className="min-h-screen bg-zinc-950 text-white">
         <Navbar />
         <main className="max-w-2xl mx-auto px-6 py-16 text-center space-y-4">
-          <p className="text-5xl">🔒</p>
+          <p className="flex justify-center"><Icon name="lock" size={48} /></p>
           <h1 className="text-xl font-bold">Solve the lab first</h1>
           <p className="text-sm text-zinc-500">You need to solve this challenge before reading writeups.</p>
           <Link href={`/labs/${writeup.lab.slug}`}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 export function TranscriptActions() {
   const [copied, setCopied] = useState(false);
 
@@ -17,7 +18,7 @@ export function TranscriptActions() {
         onClick={copyLink}
         className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-zinc-300 hover:border-white/30 hover:text-white transition"
       >
-        {copied ? "Copied ✓" : "Copy link"}
+        {copied ? <><Icon name="check" size={12} /> Copied</> : "Copy link"}
       </button>
       <button
         onClick={() => window.print()}

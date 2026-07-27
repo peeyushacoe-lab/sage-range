@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ACHIEVEMENT_CATEGORIES, type Achievement } from "@/lib/insights/achievements";
 
+import { Icon } from "@/components/ui/icon";
 export function AchievementsGrid({ achievements }: { achievements: Achievement[] }) {
   return (
     <>
@@ -28,7 +29,7 @@ export function AchievementsGrid({ achievements }: { achievements: Achievement[]
                   >
                     <div className="flex items-start justify-between gap-2">
                       <span className={`text-2xl leading-none ${unlocked ? "" : "grayscale"}`}>
-                        {ach.emoji}
+                        <Icon name={ach.icon} size={24} />
                       </span>
                       {unlocked && (
                         <span className="text-[10px] font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-500/8 rounded px-1.5 py-0.5 shrink-0">

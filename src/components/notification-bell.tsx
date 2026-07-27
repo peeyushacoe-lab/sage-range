@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 type Notif = {
   id: string;
   type: string;
@@ -13,19 +14,19 @@ type Notif = {
   createdAt: string;
 };
 
-const TYPE_ICON: Record<string, string> = {
-  lab_assigned:          "🧪",
-  sim_complete:          "🛡️",
-  badge_earned:          "🏅",
-  writeup_approved:      "✅",
-  writeup_rejected:      "❌",
-  scenario_published:    "🎯",
-  competition_start:     "⚔️",
-  competition_win:       "🏆",
-  announcement:          "📣",
-  cert_pending_approval: "📋",
-  cert_approved:         "🎓",
-  cert_rejected:         "⚠️",
+const TYPE_ICON: Record<string, IconName> = {
+  lab_assigned:          "labs",
+  sim_complete:          "simulations",
+  badge_earned:          "medal",
+  writeup_approved:      "checkCircle",
+  writeup_rejected:      "cross",
+  scenario_published:    "simulations",
+  competition_start:     "redTeam",
+  competition_win:       "trophy",
+  announcement:          "announce",
+  cert_pending_approval: "clipboard",
+  cert_approved:         "graduation",
+  cert_rejected:         "warning",
 };
 
 function timeAgo(iso: string) {
@@ -121,7 +122,7 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
             <div className="px-4 py-6 text-center text-xs text-zinc-600">Loading…</div>
           ) : notifs.length === 0 ? (
             <div className="px-4 py-8 text-center">
-              <p className="text-2xl mb-2">🔔</p>
+              <p className="mb-2 flex justify-center"><Icon name="bell" size={24} /></p>
               <p className="text-xs text-zinc-600">No notifications yet</p>
             </div>
           ) : (
@@ -129,7 +130,7 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
               {notifs.map((n) => {
                 const inner = (
                   <div className={`px-4 py-3 flex gap-3 hover:bg-white/3 transition-colors group ${!n.read ? "bg-zinc-800/40" : ""}`}>
-                    <span className="shrink-0 text-base leading-none mt-0.5">{TYPE_ICON[n.type] ?? "🔔"}</span>
+                    <Icon name={TYPE_ICON[n.type] ?? "bell"} size={16} className="shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className={`text-xs font-medium leading-snug ${!n.read ? "text-zinc-100" : "text-zinc-400"}`}>{n.title}</p>
                       {n.body && <p className="text-[11px] text-zinc-600 mt-0.5 truncate">{n.body}</p>}
@@ -139,7 +140,7 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
                       onClick={(e) => dismiss(n.id, e)}
                       className="shrink-0 text-zinc-700 hover:text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs"
                       aria-label="Dismiss"
-                    >✕</button>
+                    ><Icon name="close" size={14} className="inline-block shrink-0" /></button>
                   </div>
                 );
                 return n.href ? (

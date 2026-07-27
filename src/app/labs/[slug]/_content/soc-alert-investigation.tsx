@@ -3,6 +3,7 @@ import { SocInvestigationForm } from "../_components/soc-investigation-form";
 import { SocTask2Containment } from "../_components/soc-task2-containment";
 import { SocTask3ThreatHunt } from "../_components/soc-task3-threathunt";
 
+import { Icon } from "@/components/ui/icon";
 export async function SocAlertInvestigation({ labId, userId }: { labId: string; userId: string }) {
   const existing = await db.labResponse.findMany({
     where: { userId, labId },
@@ -22,7 +23,7 @@ export async function SocAlertInvestigation({ labId, userId }: { labId: string; 
             TASK 1
           </span>
           <h3 className="font-semibold text-zinc-200">Log Analysis &amp; Identification</h3>
-          {task1Done && <span className="text-xs text-sage-500 ml-auto">✓ Complete</span>}
+          {task1Done && <span className="text-xs text-sage-500 ml-auto"><Icon name="check" size={14} className="inline-block shrink-0" /> Complete</span>}
         </div>
         <SocInvestigationForm labId={labId} existing={existing} />
       </section>
@@ -35,7 +36,7 @@ export async function SocAlertInvestigation({ labId, userId }: { labId: string; 
               TASK 2
             </span>
             <h3 className="font-semibold text-zinc-200">Containment Planning</h3>
-            {task2Done && <span className="text-xs text-sage-500 ml-auto">✓ Complete</span>}
+            {task2Done && <span className="text-xs text-sage-500 ml-auto"><Icon name="check" size={14} className="inline-block shrink-0" /> Complete</span>}
           </div>
           <SocTask2Containment labId={labId} alreadyDone={task2Done} />
         </section>
@@ -49,7 +50,7 @@ export async function SocAlertInvestigation({ labId, userId }: { labId: string; 
               TASK 3
             </span>
             <h3 className="font-semibold text-zinc-200">Threat Hunting — Lateral Movement</h3>
-            {completedStages.has("task_3") && <span className="text-xs text-sage-500 ml-auto">✓ Complete</span>}
+            {completedStages.has("task_3") && <span className="text-xs text-sage-500 ml-auto"><Icon name="check" size={14} className="inline-block shrink-0" /> Complete</span>}
           </div>
           <SocTask3ThreatHunt labId={labId} alreadyDone={completedStages.has("task_3")} />
         </section>

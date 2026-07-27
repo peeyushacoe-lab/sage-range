@@ -7,6 +7,7 @@ import { Navbar } from "@/components/navbar";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 import { requestCertificateApproval } from "@/lib/certificate-approval";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
@@ -252,7 +253,7 @@ export default async function PathDetail({
                           ? "border-zinc-700 text-zinc-600"
                           : "border-zinc-700 text-zinc-500"
                       }`}>
-                        {isDone ? "✓" : locked ? "🔒" : idx + 1}
+                        {isDone ? <Icon name="check" size={13} /> : locked ? <Icon name="lock" size={13} /> : idx + 1}
                       </div>
                       <div className="min-w-0">
                         <p className={`font-medium truncate ${locked ? "text-zinc-500" : ""}`}>{mod.title}</p>
@@ -262,12 +263,12 @@ export default async function PathDetail({
                           )}
                           {hasQuiz && (
                             <span className={`border px-1.5 py-0.5 rounded-full ${prog?.quizPassed ? "border-sage-500/40 text-sage-500" : "border-white/10"}`}>
-                              Quiz{prog?.quizPassed ? " ✓" : ""}
+                              Quiz{prog?.quizPassed && <Icon name="check" size={11} className="inline-block ml-1" />}
                             </span>
                           )}
                           {hasAssessment && (
                             <span className={`border px-1.5 py-0.5 rounded-full ${prog?.assessmentDone ? "border-sage-500/40 text-sage-500" : "border-white/10"}`}>
-                              Assessment{prog?.assessmentDone ? " ✓" : ""}
+                              Assessment{prog?.assessmentDone && <Icon name="check" size={11} className="inline-block ml-1" />}
                             </span>
                           )}
                           {!hasQuiz && !hasAssessment && (
@@ -327,7 +328,7 @@ export default async function PathDetail({
                           isDone ? "border-sage-500 bg-sage-500 text-zinc-950" : "border-zinc-700 text-zinc-500"
                         }`}
                       >
-                        {isDone ? "✓" : idx + 1}
+                        {isDone ? <Icon name="check" size={13} /> : idx + 1}
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium truncate">{lab.title}</p>

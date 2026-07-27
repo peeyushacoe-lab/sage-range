@@ -7,6 +7,7 @@ import { Navbar } from "@/components/navbar";
 import { EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { requestCertificateApproval } from "@/lib/certificate-approval";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const TYPES = [
@@ -159,7 +160,7 @@ export default async function LabsIndex({
 
         {labs.length === 0 ? (
           <EmptyState
-            icon="🧪"
+            icon="labs"
             title="No labs match this filter"
             description="Try a different category or difficulty — or jump into a guided path to build up from the fundamentals."
             action={{ label: "Explore Learning Paths", href: "/paths" }}
@@ -200,7 +201,7 @@ export default async function LabsIndex({
                   <div>
                     <h3 className="font-semibold flex items-center gap-2 leading-snug">
                       {lab.title}
-                      {solved && <span className="text-sage-500">✓</span>}
+                      {solved && <span className="text-sage-500"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
                       {inProgress && <span className="text-amber-400 text-xs font-mono">IN PROGRESS</span>}
                     </h3>
                     <p className="text-sm text-zinc-500 mt-1.5 line-clamp-2 leading-relaxed">{lab.description}</p>

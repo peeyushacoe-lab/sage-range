@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 export function CopyCodeBtn({ code }: { code: string }) {
   const [copied, setCopied] = useState<"code" | "link" | null>(null);
 
@@ -25,13 +26,13 @@ export function CopyCodeBtn({ code }: { code: string }) {
         className="font-mono text-sm text-sage-400 bg-sage-500/10 px-3 py-1 rounded border border-sage-500/20 tracking-widest hover:bg-sage-500/20 transition"
         title="Copy join code"
       >
-        {code} {copied === "code" ? "✓" : "⎘"}
+        {code} {copied === "code" ? <Icon name="check" size={13} /> : "⎘"}
       </button>
       <button
         onClick={copyLink}
         className="text-xs font-semibold text-zinc-400 border border-white/10 px-3 py-1 rounded hover:text-zinc-200 hover:border-white/20 transition"
       >
-        {copied === "link" ? "Copied ✓" : "Copy Invite Link"}
+        {copied === "link" ? <><Icon name="check" size={12} /> Copied</> : "Copy Invite Link"}
       </button>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 export type ReplayEvent = {
   id: string;
   type: string;
@@ -33,12 +34,12 @@ const STAGE_COLOR: Record<string, { dot: string; bg: string; text: string }> = {
 
 const EVENT_ICON: Record<string, string> = {
   SESSION_STARTED:    "▶",
-  STAGE_ADVANCE:      "⚡",
-  STUDENT_ACTION:     "🛡",
-  CONSEQUENCE:        "💥",
-  PRESSURE_EVENT:     "⚠",
-  CONTROL_PREVENTION: "✓",
-  ADVERSARY_MOVE:     "👾",
+  STAGE_ADVANCE:      "energy",
+  STUDENT_ACTION:     "blueTeam",
+  CONSEQUENCE:        "impact",
+  PRESSURE_EVENT:     "warning",
+  CONTROL_PREVENTION: "check",
+  ADVERSARY_MOVE:     "adversary",
 };
 
 const SPEEDS = [1, 5, 20, 60] as const;
@@ -256,7 +257,7 @@ export function ReplayPlayer({
             : "border-red-500/30 bg-red-500/8"
         }`}>
           <p className={`text-xl font-black ${outcome === "CONTAINED" ? "text-emerald-400" : "text-red-400"}`}>
-            {outcome === "CONTAINED" ? "🛡 Threat Contained" : "💥 Breach Occurred"}
+            {outcome === "CONTAINED" ? <><Icon name="blueTeam" size={16} /> Threat Contained</> : <><Icon name="impact" size={16} /> Breach Occurred</>}
           </p>
           <p className="text-sm text-zinc-400 mt-1">Final score: <span className="font-bold text-zinc-200">{score}</span></p>
         </div>

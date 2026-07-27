@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 type QuestionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "MULTIPLE_SELECT" | "SHORT_ANSWER";
 
 interface Question {
@@ -93,7 +94,7 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
             {result.correct} / {result.total} correct · Pass mark {quiz.passMark}%
           </p>
           <p className={`text-sm font-semibold ${result.passed ? "text-sage-400" : "text-red-400"}`}>
-            {result.passed ? "Passed ✓" : "Not passed — review the material and try again"}
+            {result.passed ? <><Icon name="check" size={12} /> Passed</> : "Not passed — review the material and try again"}
           </p>
         </div>
 
@@ -131,7 +132,7 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
     <div className="space-y-6">
       {priorAttempt && (
         <div className={`rounded-xl border p-4 text-sm ${priorAttempt.passed ? "border-sage-500/30 bg-sage-500/5 text-sage-400" : "border-white/8 text-zinc-400"}`}>
-          Previous attempt: {priorAttempt.score}% — {priorAttempt.passed ? "Passed ✓" : "Not passed"}
+          Previous attempt: {priorAttempt.score}% — {priorAttempt.passed ? <><Icon name="check" size={12} /> Passed</> : "Not passed"}
         </div>
       )}
 

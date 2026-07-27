@@ -3,6 +3,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function relativeTime(d: Date): string {
@@ -119,7 +120,7 @@ export default async function AdminWriteupsPage({
                     <input type="hidden" name="id" value={w.id} />
                     <button type="submit"
                       className="px-4 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition">
-                      ✓ Approve
+                      <Icon name="check" size={14} className="inline-block shrink-0" /> Approve
                     </button>
                   </form>
                   <form action={reject} className="flex items-center gap-2 flex-1">
@@ -128,7 +129,7 @@ export default async function AdminWriteupsPage({
                       className="flex-1 bg-zinc-800 border border-white/10 rounded px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-red-500/40" />
                     <button type="submit"
                       className="px-4 py-1.5 rounded-lg bg-red-700 text-white text-xs font-bold hover:bg-red-600 transition">
-                      ✗ Reject
+                      <Icon name="cross" size={14} className="inline-block shrink-0" /> Reject
                     </button>
                   </form>
                 </div>

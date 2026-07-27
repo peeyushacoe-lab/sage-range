@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 type Category = "FUNDAMENTALS"|"BLUE_TEAM"|"RED_TEAM"|"FORENSICS"|"SECURITY_ENGINEERING"|"NETWORKING"|"CLOUD";
 type Difficulty = "EASY"|"MEDIUM"|"HARD"|"INSANE";
 
@@ -149,7 +150,7 @@ export function EditCourseClient({ course: init, modules: initModules }: { cours
             <button onClick={() => void saveMeta()} disabled={metaStatus === "saving"} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-lg transition">
               {metaStatus === "saving" ? "Saving…" : "Save Changes"}
             </button>
-            {metaStatus === "saved" && <span className="text-xs text-emerald-400">Saved ✓</span>}
+            {metaStatus === "saved" && <span className="text-xs text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
             {metaStatus === "error"  && <span className="text-xs text-red-400">Save failed</span>}
           </div>
         </div>

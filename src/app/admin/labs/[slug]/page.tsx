@@ -3,6 +3,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { BumpVersionForm } from "./_components/bump-version-form";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function LabVersionHistoryPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -45,7 +46,7 @@ export default async function LabVersionHistoryPage({ params }: { params: Promis
 
       {staleCount > 0 && (
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 mb-6 flex items-center gap-3">
-          <span className="text-amber-400">⚠</span>
+          <span className="text-amber-400"><Icon name="warning" size={14} className="inline-block shrink-0" /></span>
           <p className="text-sm text-amber-300">
             <span className="font-semibold">{staleCount} student{staleCount !== 1 ? "s" : ""}</span> currently working on an older version of this lab.
           </p>

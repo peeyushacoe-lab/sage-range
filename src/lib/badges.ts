@@ -1,8 +1,9 @@
+import { type IconName } from "@/components/ui/icon";
 export type Badge = {
   id: string;
   label: string;
   description: string;
-  icon: string;
+  icon: IconName;
   tier: "bronze" | "silver" | "gold" | "platinum";
 };
 
@@ -26,23 +27,23 @@ export function computeBadges(params: {
 
   const earned: Badge[] = [];
 
-  if (totalSolved >= 1) earned.push({ id: "first_blood", label: "First Blood", description: "Solved your first lab", icon: "🎯", tier: "bronze" });
-  if (ctfSolved >= 1)   earned.push({ id: "ctf_hunter", label: "CTF Hunter", description: `Solved ${ctfSolved} CTF lab${ctfSolved > 1 ? "s" : ""}`, icon: "🚩", tier: ctfSolved >= 8 ? "gold" : ctfSolved >= 4 ? "silver" : "bronze" });
-  if (blueSolved >= 1)  earned.push({ id: "blue_analyst", label: "Blue Analyst", description: `Solved ${blueSolved} Blue Team lab${blueSolved > 1 ? "s" : ""}`, icon: "🛡️", tier: blueSolved >= 8 ? "gold" : blueSolved >= 4 ? "silver" : "bronze" });
-  if (redSolved >= 1)   earned.push({ id: "red_operator", label: "Red Operator", description: `Solved ${redSolved} Red Team lab${redSolved > 1 ? "s" : ""}`, icon: "⚔️", tier: redSolved >= 8 ? "gold" : redSolved >= 4 ? "silver" : "bronze" });
-  if (totalSolved >= 10) earned.push({ id: "lab_veteran", label: "Lab Veteran", description: "Solved 10+ labs", icon: "💎", tier: totalSolved >= 20 ? "gold" : "silver" });
-  if (ctfSolved >= 1 && blueSolved >= 1 && redSolved >= 1) earned.push({ id: "all_rounder", label: "All-Rounder", description: "Solved labs across all 3 categories", icon: "🌟", tier: "silver" });
+  if (totalSolved >= 1) earned.push({ id: "first_blood", label: "First Blood", description: "Solved your first lab", icon: "blood", tier: "bronze" });
+  if (ctfSolved >= 1)   earned.push({ id: "ctf_hunter", label: "CTF Hunter", description: `Solved ${ctfSolved} CTF lab${ctfSolved > 1 ? "s" : ""}`, icon: "challenges", tier: ctfSolved >= 8 ? "gold" : ctfSolved >= 4 ? "silver" : "bronze" });
+  if (blueSolved >= 1)  earned.push({ id: "blue_analyst", label: "Blue Analyst", description: `Solved ${blueSolved} Blue Team lab${blueSolved > 1 ? "s" : ""}`, icon: "blueTeam", tier: blueSolved >= 8 ? "gold" : blueSolved >= 4 ? "silver" : "bronze" });
+  if (redSolved >= 1)   earned.push({ id: "red_operator", label: "Red Operator", description: `Solved ${redSolved} Red Team lab${redSolved > 1 ? "s" : ""}`, icon: "redTeam", tier: redSolved >= 8 ? "gold" : redSolved >= 4 ? "silver" : "bronze" });
+  if (totalSolved >= 10) earned.push({ id: "lab_veteran", label: "Lab Veteran", description: "Solved 10+ labs", icon: "gem", tier: totalSolved >= 20 ? "gold" : "silver" });
+  if (ctfSolved >= 1 && blueSolved >= 1 && redSolved >= 1) earned.push({ id: "all_rounder", label: "All-Rounder", description: "Solved labs across all 3 categories", icon: "star", tier: "silver" });
 
-  if (completedSims.length >= 1)  earned.push({ id: "soc_responder", label: "SOC Responder", description: "Completed your first simulation", icon: "🔒", tier: "bronze" });
-  if (completedSims.length >= 5)  earned.push({ id: "ir_veteran", label: "IR Veteran", description: "Completed 5+ simulations", icon: "🚨", tier: "silver" });
-  if (bestSim >= 90)               earned.push({ id: "grade_a", label: "Grade A Analyst", description: "Scored 90+ in a simulation", icon: "🏅", tier: "gold" });
-  if (bestSim >= 95)               earned.push({ id: "elite", label: "Elite Responder", description: "Scored 95+ in a simulation", icon: "⭐", tier: "platinum" });
+  if (completedSims.length >= 1)  earned.push({ id: "soc_responder", label: "SOC Responder", description: "Completed your first simulation", icon: "soc", tier: "bronze" });
+  if (completedSims.length >= 5)  earned.push({ id: "ir_veteran", label: "IR Veteran", description: "Completed 5+ simulations", icon: "alert", tier: "silver" });
+  if (bestSim >= 90)               earned.push({ id: "grade_a", label: "Grade A Analyst", description: "Scored 90+ in a simulation", icon: "medal", tier: "gold" });
+  if (bestSim >= 95)               earned.push({ id: "elite", label: "Elite Responder", description: "Scored 95+ in a simulation", icon: "verified", tier: "platinum" });
 
-  if (skillScore >= 500)   earned.push({ id: "rising_talent", label: "Rising Talent", description: "500+ skill score", icon: "📈", tier: "bronze" });
-  if (skillScore >= 1000)  earned.push({ id: "analyst_ii", label: "Analyst II", description: "1000+ skill score", icon: "🔬", tier: "silver" });
-  if (skillScore >= 2000)  earned.push({ id: "principal", label: "Principal", description: "2000+ skill score", icon: "🏆", tier: "gold" });
+  if (skillScore >= 500)   earned.push({ id: "rising_talent", label: "Rising Talent", description: "500+ skill score", icon: "progress", tier: "bronze" });
+  if (skillScore >= 1000)  earned.push({ id: "analyst_ii", label: "Analyst II", description: "1000+ skill score", icon: "research", tier: "silver" });
+  if (skillScore >= 2000)  earned.push({ id: "principal", label: "Principal", description: "2000+ skill score", icon: "trophy", tier: "gold" });
 
-  if (hasCert) earned.push({ id: "certified", label: "Certified", description: "Earned a verified platform certificate", icon: "🎓", tier: "gold" });
+  if (hasCert) earned.push({ id: "certified", label: "Certified", description: "Earned a verified platform certificate", icon: "graduation", tier: "gold" });
 
   return earned;
 }

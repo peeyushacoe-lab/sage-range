@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 type HintRow = { level: 1 | 2 | 3; text: string; pointCost: number; saved: boolean };
 type StageHints = Record<string, HintRow[]>;
 
@@ -302,7 +303,7 @@ export function HintEditor({
             onClick={loadDefaults}
             className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition"
           >
-            {loadedDefaults ? "Defaults loaded ✓" : "Load default hints"}
+            {loadedDefaults ? <><Icon name="check" size={12} /> Defaults loaded</> : "Load default hints"}
           </button>
         )}
         <button
@@ -324,7 +325,7 @@ export function HintEditor({
           {([1, 2, 3] as const).map((lvl) => {
             const entry = form[stage][lvl];
             const statusColor = entry.status === "saved" ? "text-emerald-400" : entry.status === "error" ? "text-red-400" : "text-zinc-600";
-            const statusLabel = entry.status === "saved" ? "Saved ✓" : entry.status === "saving" ? "Saving…" : entry.status === "error" ? "Error" : "";
+            const statusLabel = entry.status === "saved" ? "Saved" : entry.status === "saving" ? "Saving…" : entry.status === "error" ? "Error" : "";
 
             return (
               <div key={lvl} className="space-y-2">

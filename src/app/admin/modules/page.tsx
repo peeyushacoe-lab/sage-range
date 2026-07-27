@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { CreateModuleForm } from "./_components/create-module-form";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function AdminModulesPage() {
@@ -70,14 +71,14 @@ export default async function AdminModulesPage() {
                         </td>
                         <td className="px-4 py-3 text-center">
                           {mod.quiz ? (
-                            <span className="text-emerald-400 text-xs">✓</span>
+                            <span className="text-emerald-400 text-xs"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                           ) : (
                             <span className="text-zinc-600 text-xs">—</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-center">
                           {mod.assessment ? (
-                            <span className="text-emerald-400 text-xs">✓</span>
+                            <span className="text-emerald-400 text-xs"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                           ) : (
                             <span className="text-zinc-600 text-xs">—</span>
                           )}

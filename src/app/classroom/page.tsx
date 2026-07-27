@@ -53,7 +53,7 @@ export default async function ClassroomHub() {
             </div>
 
             {myClasses.length === 0 ? (
-              <EmptyState icon="🏫" title="No classes yet" description="Create one above to get started." />
+              <EmptyState icon="org" title="No classes yet" description="Create one above to get started." />
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
                 {myClasses.map((c) => (
@@ -90,7 +90,7 @@ export default async function ClassroomHub() {
           </div>
 
           {enrolledClasses.length === 0 ? (
-            <EmptyState icon="🎓" title="Not enrolled in any classes yet" description="Enter a join code from your instructor above to get started." />
+            <EmptyState icon="graduation" title="Not enrolled in any classes yet" description="Enter a join code from your instructor above to get started." />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {enrolledClasses.map(({ classroom }) => (

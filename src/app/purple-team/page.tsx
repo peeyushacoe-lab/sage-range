@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { EmptyState, PageHeader } from "@/components/ui";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
@@ -35,7 +36,7 @@ export default async function PurpleTeamIndex() {
         />
 
         {replays.length === 0 ? (
-          <EmptyState icon="🔁" title="No replays published yet" description="Check back soon for a new attack sequence to work." />
+          <EmptyState icon="progress" title="No replays published yet" description="Check back soon for a new attack sequence to work." />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {replays.map((r) => {
@@ -55,7 +56,7 @@ export default async function PurpleTeamIndex() {
                     <span className="text-xs font-bold text-zinc-400 font-mono">{r.points} pts</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold flex items-center gap-2">{r.title}{done && <span className="text-sage-500">✓</span>}</h3>
+                    <h3 className="font-semibold flex items-center gap-2">{r.title}{done && <span className="text-sage-500"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}</h3>
                     <p className="text-sm text-zinc-400 mt-2 line-clamp-2 leading-relaxed">{r.description}</p>
                   </div>
                   <p className="text-xs font-mono text-zinc-500 mt-auto pt-1">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 const LOGS = {
   "auth.log": `2026-05-09 08:14:03  sshd: Failed password for root from 203.0.113.18 port 44121 ssh2
 2026-05-09 08:14:05  sshd: Failed password for admin from 203.0.113.18 port 44123 ssh2
@@ -281,7 +282,7 @@ export function SocInvestigationForm({
           )}
 
           <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-4 text-sm">
-            <p className="text-zinc-300 font-medium">Report recorded ✓</p>
+            <p className="text-zinc-300 font-medium">Report recorded <Icon name="check" size={14} className="inline-block shrink-0" /></p>
             <p className="text-zinc-500 mt-1">Proceed to Task 2 — containment planning.</p>
           </div>
 
@@ -347,11 +348,11 @@ function Result({
     <div className="flex items-start justify-between p-3 gap-4">
       <div>
         <p className="text-zinc-400 text-xs">{label}</p>
-        <p className={correct ? "text-sage-500" : "text-zinc-300"}>{correct ? "Correct ✓" : "Incorrect"}</p>
+        <p className={correct ? "text-sage-500" : "text-zinc-300"}>{correct ? <><Icon name="check" size={13} /> Correct</> : "Incorrect"}</p>
         {hint && <p className="text-xs text-zinc-500 mt-0.5">{hint}</p>}
       </div>
       <span className={correct ? "text-sage-500" : "text-red-400"}>
-        {correct ? "✓" : "✗"}
+        {correct ? <Icon name="check" size={13} /> : <Icon name="cross" size={13} />}
       </span>
     </div>
   );

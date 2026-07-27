@@ -3,6 +3,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My Stats · Sage Vault" };
 
@@ -293,7 +294,7 @@ export default async function StatsPage() {
               {solved.slice(0, 8).map((a) => (
                 <div key={a.id} className="flex items-center justify-between py-2.5">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-emerald-500 text-xs shrink-0">✓</span>
+                    <span className="text-emerald-500 text-xs shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                     <span className="text-sm text-zinc-300 truncate">{a.lab.title}</span>
                     <span className="text-[10px] text-zinc-600 uppercase font-mono shrink-0">{a.lab.type.replace("_", " ")}</span>
                   </div>

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 
+import { Icon, type IconName } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
 const PRODUCTS = [
   {
     name: "Sage Vault",
@@ -67,24 +69,24 @@ const WHO_WE_SERVE = [
   "Red Team and Blue Team practitioners",
 ];
 
-const COMMITMENTS = [
+const COMMITMENTS: { icon: IconName; title: string; body: string }[] = [
   {
-    icon: "🧠",
+    icon: "aiMentor",
     title: "Intelligence",
     body: "Every product we build leverages AI to surface threats, generate scenarios, and personalise learning — making advanced capabilities accessible without enterprise complexity.",
   },
   {
-    icon: "🎯",
+    icon: "simulations",
     title: "Simulation",
     body: "The best way to stop cyber attacks is to simulate them first. Our scenarios are based on real-world incidents — from ransomware campaigns to nation-state APT activity — so training reflects actual threats.",
   },
   {
-    icon: "🛡️",
+    icon: "blueTeam",
     title: "Resilience",
     body: "We measure success not by certifications but by outcomes — did the analyst make better decisions? Did the SOC team contain the breach faster? Resilience is built through practice, not theory.",
   },
   {
-    icon: "🔓",
+    icon: "graduation",
     title: "Accessibility",
     body: "Cybersecurity training should not be gated by budget. Students access Sage Vault free. We monetise through institutions and employers — ensuring that talent can be discovered regardless of financial background.",
   },
@@ -179,7 +181,7 @@ export default function AboutPage() {
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {p.capabilities.map((c) => (
                   <li key={c} className="flex items-start gap-2 text-sm text-zinc-300">
-                    <span className={`shrink-0 mt-0.5 ${p.current ? "text-sage-500" : "text-zinc-600"}`}>✓</span>
+                    <span className={`shrink-0 mt-0.5 ${p.current ? "text-sage-500" : "text-zinc-600"}`}><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                     {c}
                   </li>
                 ))}
@@ -234,7 +236,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {COMMITMENTS.map((c) => (
               <div key={c.title} className="rounded-2xl border border-white/8 bg-zinc-900/40 p-6">
-                <span className="text-2xl mb-3 block">{c.icon}</span>
+                <IconTile name={c.icon} size={44} className="mb-3" />
                 <h3 className="font-bold text-base mb-2">{c.title}</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">{c.body}</p>
               </div>

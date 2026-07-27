@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 type SearchResult = {
   type: "lab" | "path" | "course" | "incident" | "scenario" | "user" | "writeup";
   id: string;
@@ -11,14 +12,14 @@ type SearchResult = {
   href: string;
 };
 
-const TYPE_ICON: Record<string, string> = {
-  lab:      "🧪",
-  path:     "🗺️",
-  course:   "📚",
-  incident: "🕵",
-  scenario: "🛡️",
-  user:     "👤",
-  writeup:  "📝",
+const TYPE_ICON: Record<string, IconName> = {
+  lab:      "labs",
+  path:     "recon",
+  course:   "learning",
+  incident: "investigate",
+  scenario: "simulations",
+  user:     "user",
+  writeup:  "note",
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -149,7 +150,7 @@ export function SearchModal() {
                           selected === idx ? "bg-white/6" : "hover:bg-white/3"
                         }`}
                       >
-                        <span className="text-base leading-none shrink-0">{TYPE_ICON[type]}</span>
+                        <Icon name={TYPE_ICON[type]} size={16} className="shrink-0" />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-zinc-100 truncate">{result.title}</p>
                           <p className="text-xs text-zinc-500 truncate">{result.subtitle}</p>
@@ -171,17 +172,17 @@ export function SearchModal() {
         ) : query.trim().length < 2 ? (
           <div className="py-6 px-4 grid grid-cols-2 gap-2">
             {[
-              { href: "/academy",        icon: "📚", label: "Academy" },
-              { href: "/labs",           icon: "🧪", label: "Browse Labs" },
-              { href: "/simulation/new", icon: "🛡️", label: "Simulations" },
-              { href: "/achievements",   icon: "🏅", label: "Achievements" },
+              { href: "/academy",        icon: "learning" as IconName, label: "Academy" },
+              { href: "/labs",           icon: "labs" as IconName, label: "Browse Labs" },
+              { href: "/simulation/new", icon: "simulations" as IconName, label: "Simulations" },
+              { href: "/achievements",   icon: "achievements" as IconName, label: "Achievements" },
             ].map((s) => (
               <button
                 key={s.href}
                 onClick={() => navigate(s.href)}
                 className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-white/8 hover:border-white/15 hover:bg-white/3 text-sm text-zinc-400 hover:text-zinc-200 transition-colors text-left"
               >
-                <span>{s.icon}</span>
+                <Icon name={s.icon} size={16} />
                 {s.label}
               </button>
             ))}

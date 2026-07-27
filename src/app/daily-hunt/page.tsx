@@ -6,6 +6,7 @@ import { Navbar } from "@/components/navbar";
 import { StartHuntButton } from "./_components/start-hunt-button";
 import { PageHeader } from "@/components/ui";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Daily Hunt · Sage Vault" };
 
@@ -60,7 +61,7 @@ export default async function DailyHuntPage() {
 
             <div className="flex items-center gap-4 text-xs text-zinc-500">
               <span>⏱ {formatMinSec(status.hunt.timeLimitSec)} time limit</span>
-              <span>🪙 +{status.hunt.bonusCoins} bonus coins</span>
+              <span className="flex items-center gap-1"><Icon name="coin" size={14} /> +{status.hunt.bonusCoins} bonus coins</span>
             </div>
 
             <div className="pt-2 border-t border-white/8">

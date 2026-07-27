@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 interface Props {
   moduleId: string;
   existing: { id: string; title: string; instructions: string } | null;
@@ -46,7 +47,7 @@ export function AssessmentForm({ moduleId, existing }: Props) {
       </div>
       {error && <p className="text-xs text-red-400">{error}</p>}
       <button onClick={submit} disabled={loading} className={`rounded-lg px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${saved ? "bg-emerald-500/25 border border-emerald-500/40 text-emerald-400" : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25"}`}>
-        {loading ? "Saving…" : saved ? "Saved ✓" : existing ? "Update Assessment" : "Create Assessment"}
+        {loading ? "Saving…" : saved ? <><Icon name="check" size={12} /> Saved</> : existing ? "Update Assessment" : "Create Assessment"}
       </button>
     </div>
   );

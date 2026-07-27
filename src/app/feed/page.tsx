@@ -39,7 +39,7 @@ export default async function FeedPage() {
         {serialized.length === 0 ? (
           <div className="rounded-xl border border-white/8 bg-zinc-900/40">
             <EmptyState
-              icon="📡"
+              icon="recon"
               title="No activity yet"
               description="Complete a lab or simulation to appear here."
               action={{ label: "Browse Labs", href: "/labs" }}

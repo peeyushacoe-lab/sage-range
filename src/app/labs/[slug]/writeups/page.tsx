@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function relativeTime(d: Date): string {
@@ -39,7 +40,7 @@ export default async function LabWriteupsPage({
       <div className="min-h-screen bg-zinc-950 text-white">
         <Navbar />
         <main className="max-w-2xl mx-auto px-6 py-16 text-center space-y-4">
-          <p className="text-5xl">🔒</p>
+          <p className="flex justify-center"><Icon name="lock" size={48} /></p>
           <h1 className="text-xl font-bold">Solve the lab to unlock writeups</h1>
           <p className="text-sm text-zinc-500">Community writeups are only visible after you&apos;ve solved the challenge.</p>
           <Link href={`/labs/${slug}`}
@@ -86,7 +87,7 @@ export default async function LabWriteupsPage({
         {/* Submission confirmation */}
         {submitted === "1" && (
           <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/8 px-4 py-3 text-sm text-emerald-400">
-            ✓ Writeup submitted for review. It will appear here once approved.
+            <Icon name="check" size={14} className="inline-block shrink-0" /> Writeup submitted for review. It will appear here once approved.
           </div>
         )}
 
@@ -99,7 +100,7 @@ export default async function LabWriteupsPage({
           }`}>
             {myWriteup.status === "PENDING"
               ? "⏳ Your writeup is under review and not yet public."
-              : `✗ Your writeup was rejected${myWriteup.verdict ? `: ${myWriteup.verdict}` : ""}. `}
+              : <><Icon name="cross" size={13} className="inline-block" /> {`Your writeup was rejected${myWriteup.verdict ? `: ${myWriteup.verdict}` : ""}. `}</>}
             {myWriteup.status === "REJECTED" && (
               <Link href={`/labs/${slug}/writeups/submit`} className="underline ml-1">Update and resubmit →</Link>
             )}
@@ -109,7 +110,7 @@ export default async function LabWriteupsPage({
         {/* Writeup list */}
         {writeups.length === 0 ? (
           <div className="rounded-xl border border-white/8 bg-zinc-900/40 py-16 text-center">
-            <p className="text-3xl mb-3">✍️</p>
+            <p className="mb-3 flex justify-center"><Icon name="note" size={32} /></p>
             <p className="text-zinc-400 text-sm font-medium">No approved writeups yet</p>
             <p className="text-zinc-600 text-xs mt-1">Be the first to share your approach!</p>
           </div>

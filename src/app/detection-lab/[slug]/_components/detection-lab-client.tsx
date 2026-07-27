@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 type Event = { id: string; raw: string; fields: Record<string, string> };
 type Condition = { field: string; operator: string; value: string };
 
@@ -113,7 +114,7 @@ export function DetectionLabClient({
                     <p className="text-zinc-300 whitespace-pre-wrap break-all">{e.raw}</p>
                     {label !== undefined && (
                       <p className={`mt-1 font-semibold ${label ? "text-sage-400" : "text-red-400"}`}>
-                        {label ? "✓ correctly matched (malicious)" : "✗ matched, but this one was benign (false positive)"}
+                        {label ? <><Icon name="check" size={12} /> correctly matched (malicious)</> : <><Icon name="cross" size={12} /> matched, but this one was benign (false positive)</>}
                       </p>
                     )}
                   </div>
@@ -173,7 +174,7 @@ export function DetectionLabClient({
                     disabled={conditions.length === 1}
                     className="text-zinc-600 hover:text-red-400 disabled:opacity-30 px-1"
                   >
-                    ✕
+                    <Icon name="close" size={14} className="inline-block shrink-0" />
                   </button>
                 </div>
               ))}

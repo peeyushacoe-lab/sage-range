@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 type KCOption = { id: string; text: string };
 type Block = {
   id: string;
@@ -120,7 +121,7 @@ export function LessonViewer({
                     className={`flex items-center gap-2 px-4 py-1.5 text-[11px] transition ${l.id === lesson.id ? "text-white bg-white/6" : "text-zinc-500 hover:text-zinc-200 hover:bg-white/3"}`}
                   >
                     <span className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center text-[8px] ${l.completed ? "bg-emerald-500 border-emerald-500 text-black" : l.id === lesson.id ? "border-white/40" : "border-zinc-700"}`}>
-                      {l.completed ? "✓" : <span className="text-zinc-600">{i + 1}</span>}
+                      {l.completed ? <Icon name="check" size={13} /> : <span className="text-zinc-600">{i + 1}</span>}
                     </span>
                     <span className="truncate leading-tight">{l.title}</span>
                   </Link>
@@ -186,7 +187,7 @@ export function LessonViewer({
               </button>
             ) : (
               <span className="text-xs text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg bg-emerald-500/10 font-semibold">
-                ✓ Complete
+                <Icon name="check" size={14} className="inline-block shrink-0" /> Complete
               </span>
             )}
           </div>
@@ -268,7 +269,7 @@ export function LessonViewer({
             <aside className="w-72 shrink-0 border-l border-white/8 bg-zinc-900/60 flex flex-col p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">My Notes</p>
-                {noteSaved && <span className="text-[10px] text-emerald-400">Saved ✓</span>}
+                {noteSaved && <span className="text-[10px] text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
               </div>
               <textarea
                 value={note}
@@ -306,8 +307,8 @@ const CALLOUT_STYLE: Record<string, string> = {
   important: "border-purple-500/30 bg-purple-500/8 text-purple-300",
 };
 
-const CALLOUT_ICON: Record<string, string> = {
-  info: "ℹ", warning: "⚠", tip: "✓", danger: "✕", important: "★",
+const CALLOUT_ICON: Record<string, IconName> = {
+  info: "info", warning: "warning", tip: "check", danger: "close", important: "star",
 };
 
 function BlockRenderer({ block }: { block: Block }) {
@@ -360,11 +361,11 @@ function BlockRenderer({ block }: { block: Block }) {
   const variant = String(c.variant ?? "info");
   const calloutTitle = c.title ? String(c.title) : null;
   const style = CALLOUT_STYLE[variant] ?? CALLOUT_STYLE.info;
-  const icon = CALLOUT_ICON[variant] ?? "ℹ";
+  const icon = CALLOUT_ICON[variant] ?? "info";
   return (
     <div className={`rounded-xl border px-5 py-4 ${style}`}>
       <div className="flex items-start gap-3">
-        <span className="text-base mt-0.5 flex-shrink-0">{icon}</span>
+        <Icon name={icon} size={16} className="mt-0.5 flex-shrink-0" />
         <div>
           {calloutTitle && <p className="font-semibold text-sm mb-1">{calloutTitle}</p>}
           <p className="text-sm leading-relaxed">{String(c.text ?? "")}</p>
@@ -422,8 +423,8 @@ function KnowledgeCheckBlock({ content }: { content: Record<string, unknown> }) 
               >
                 <span className="font-mono font-bold w-5 flex-shrink-0 text-[11px] mt-0.5">{opt.id}.</span>
                 <span className="leading-relaxed">{opt.text}</span>
-                {revealed && opt.id === correct && <span className="ml-auto text-emerald-400 flex-shrink-0">✓</span>}
-                {revealed && opt.id === selected && opt.id !== correct && <span className="ml-auto text-red-400 flex-shrink-0">✗</span>}
+                {revealed && opt.id === correct && <span className="ml-auto text-emerald-400 flex-shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+                {revealed && opt.id === selected && opt.id !== correct && <span className="ml-auto text-red-400 flex-shrink-0"><Icon name="cross" size={14} className="inline-block shrink-0" /></span>}
               </button>
             );
           })}

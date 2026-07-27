@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 type BlockType = "TEXT" | "CODE" | "IMAGE" | "CALLOUT" | "KNOWLEDGE_CHECK";
 type Block = { id: string; type: BlockType; order: number; content: Record<string, unknown> };
 type Flashcard = { id: string; front: string; back: string; order: number };
@@ -138,7 +139,7 @@ export function LessonEditorClient({ courseId, moduleId, lesson: initLesson, mod
             <button onClick={() => void saveMeta()} disabled={metaStatus === "saving"} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-lg transition">
               {metaStatus === "saving" ? "Saving…" : "Save"}
             </button>
-            {metaStatus === "saved" && <span className="text-xs text-emerald-400">Saved ✓</span>}
+            {metaStatus === "saved" && <span className="text-xs text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
           </div>
         </div>
       </Section>
@@ -179,7 +180,7 @@ export function LessonEditorClient({ courseId, moduleId, lesson: initLesson, mod
           <button onClick={() => void saveBlocks()} disabled={blockStatus === "saving"} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-lg transition">
             {blockStatus === "saving" ? "Saving…" : "Save All Blocks"}
           </button>
-          {blockStatus === "saved" && <span className="text-xs text-emerald-400">Saved ✓</span>}
+          {blockStatus === "saved" && <span className="text-xs text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
           {blockStatus === "error"  && <span className="text-xs text-red-400">Save failed</span>}
         </div>
       </Section>

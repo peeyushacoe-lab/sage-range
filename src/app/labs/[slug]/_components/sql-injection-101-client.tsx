@@ -4,6 +4,7 @@ import { useState } from "react";
 import { TaskShell, QueryDisplay, MonoInput, SubmitBtn } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
+import { Icon } from "@/components/ui/icon";
 const PRODUCTS: Record<string, { name: string; desc: string }[]> = {
   electronics: [
     { name: "Wireless Adapter", desc: "802.11ac dual-band USB dongle" },
@@ -186,7 +187,7 @@ function Task2({ onComplete, completed }: { onComplete: () => void; completed: b
 // ---------------------------------------------------------------------------
 function Task3({ onComplete, completed }: { onComplete: () => void; completed: boolean }) {
   const [input, setInput] = useState("");
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
   const [trueDetected, setTrueDetected] = useState(false);
   const [falseDetected, setFalseDetected] = useState(false);
   const [flagRevealed, setFlagRevealed] = useState(completed);
@@ -199,12 +200,12 @@ function Task3({ onComplete, completed }: { onComplete: () => void; completed: b
 
     if (isBool) {
       const isFalse = lower.includes("='0") || lower.includes("= 0--") || lower.includes("1=0");
-      if (isFalse) { setResult("✗ User not found"); setFalseDetected(true); }
-      else { setResult("✓ User exists"); setTrueDetected(true); }
+      if (isFalse) { setResult({ ok: false, text: "User not found" }); setFalseDetected(true); }
+      else { setResult({ ok: true, text: "User exists" }); setTrueDetected(true); }
     } else if (lower === "admin") {
-      setResult("✓ User exists");
+      setResult({ ok: true, text: "User exists" });
     } else if (input.trim()) {
-      setResult("✗ User not found");
+      setResult({ ok: false, text: "User not found" });
     }
   }
 
@@ -223,8 +224,9 @@ function Task3({ onComplete, completed }: { onComplete: () => void; completed: b
       </form>
 
       {result && (
-        <p className={`font-mono text-sm font-medium ${result.startsWith("✓") ? "text-sage-400" : "text-red-400"}`}>
-          {result}
+        <p className={`font-mono text-sm font-medium flex items-center gap-1.5 ${result.ok ? "text-sage-400" : "text-red-400"}`}>
+          <Icon name={result.ok ? "check" : "cross"} size={13} />
+          {result.text}
         </p>
       )}
       {(trueDetected || falseDetected) && !flagRevealed && (

@@ -47,7 +47,7 @@ export default async function SimulationsPage() {
 
       {sessions.length === 0 && (
         <EmptyState
-          icon="🖥"
+          icon="soc"
           title="No simulations yet"
           description="Launch a live incident to put your decisions to the test — scored A–F and visible to recruiters."
           action={{ label: "Start Your First Simulation", href: "/simulation/new" }}

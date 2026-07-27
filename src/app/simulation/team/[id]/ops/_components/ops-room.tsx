@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 type Member = { userId: string; role: string | null; name: string };
 type Note = { id: string; content: string; authorName: string; createdAt: string };
 type Evidence = { id: string; title: string; content: string; tag: string; pinnedByName: string; createdAt: string };
@@ -223,7 +224,7 @@ export function OpsRoom({
               href={`/simulation/${data.sessionId}`}
               className="inline-flex items-center gap-1 border border-sage-500/30 bg-sage-500/10 text-sage-400 rounded-full px-2.5 py-0.5 text-xs font-medium hover:bg-sage-500/20 transition"
             >
-              ⚡ Live Sim →
+              <Icon name="energy" size={14} className="inline-block" /> Live Sim →
             </Link>
           )}
         </div>
@@ -360,7 +361,7 @@ export function OpsRoom({
 
             {data.evidence.length === 0 && !showEvForm ? (
               <div className="text-center py-16 text-zinc-600">
-                <p className="text-3xl mb-3">📌</p>
+                <p className="mb-3 flex justify-center"><Icon name="clipboard" size={32} /></p>
                 <p className="text-sm">No evidence pinned yet.</p>
                 <p className="text-xs mt-1">Pin indicators, IOCs, and affected systems from the timeline.</p>
               </div>
@@ -392,7 +393,7 @@ export function OpsRoom({
             <div className="flex-1 overflow-y-auto p-6 space-y-2">
               {data.notes.length === 0 ? (
                 <div className="text-center py-16 text-zinc-600">
-                  <p className="text-3xl mb-3">📝</p>
+                  <p className="mb-3 flex justify-center"><Icon name="note" size={32} /></p>
                   <p className="text-sm">No notes yet. Share findings with your team.</p>
                 </div>
               ) : (
@@ -517,7 +518,7 @@ export function OpsRoom({
               )}
               {data.tasks.length === 0 && !showTaskForm && (
                 <div className="text-center py-16 text-zinc-600">
-                  <p className="text-3xl mb-3">✅</p>
+                  <p className="text-3xl mb-3"><Icon name="checkCircle" size={14} className="inline-block shrink-0" /></p>
                   <p className="text-sm">No tasks yet. Add tasks and assign them to roles.</p>
                 </div>
               )}

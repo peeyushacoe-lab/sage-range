@@ -6,6 +6,7 @@ import { JoinCompetitionBtn } from "./_components/join-btn";
 import { Navbar } from "@/components/navbar";
 import { EmptyState, PageHeader } from "@/components/ui";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function getStatus(startDate: Date, endDate: Date): "Upcoming" | "Active" | "Ended" {
@@ -58,7 +59,7 @@ export default async function CompetitionsPage() {
 
       {competitions.length === 0 ? (
         <EmptyState
-          icon="🏆"
+          icon="trophy"
           title="No competitions available yet"
           description="Check back soon, or sharpen up in the meantime with individual labs."
           action={{ label: "Browse Labs", href: "/labs" }}
@@ -122,7 +123,7 @@ export default async function CompetitionsPage() {
                 {/* Winner for ended */}
                 {status === "Ended" && comp.entries[0] && (
                   <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex items-center gap-3">
-                    <span className="text-amber-400 text-base">🏆</span>
+                    <Icon name="trophy" size={16} tone="gold" />
                     <div>
                       <p className="text-xs text-zinc-500">Winner</p>
                       <p className="text-sm font-semibold text-amber-400">

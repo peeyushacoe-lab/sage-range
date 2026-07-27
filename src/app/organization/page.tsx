@@ -6,6 +6,7 @@ import { getRankInfo } from "@/lib/cyber-identity";
 import { JoinOrganizationClient } from "./_components/join-organization-client";
 import { Navbar } from "@/components/navbar";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Organization · Sage Vault" };
 
@@ -287,7 +288,7 @@ export default async function OrganizationPage() {
                   {leaderboard.map((m, i) => (
                     <tr key={m.member.id} className={`hover:bg-white/3 ${i === 0 ? "bg-amber-500/4" : ""}`}>
                       <td className="px-4 py-2.5 text-zinc-500 text-xs w-8">
-                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                        {i < 3 ? <Icon name="medal" size={15} tone={(["gold","slate","amber"] as const)[i]} /> : i + 1}
                       </td>
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-2">
@@ -337,7 +338,7 @@ export default async function OrganizationPage() {
               {feed.map((item) => (
                 <div key={item.id} className="px-4 py-3 flex gap-3 items-start">
                   <span className={`mt-0.5 text-sm shrink-0 ${item.kind === "lab" ? "text-emerald-500" : item.status === "CONTAINED" ? "text-blue-400" : "text-red-400"}`}>
-                    {item.kind === "lab" ? "✓" : item.status === "CONTAINED" ? "🛡" : "💥"}
+                    {item.kind === "lab" ? <Icon name="check" size={13} /> : item.status === "CONTAINED" ? <Icon name="blueTeam" size={13} /> : <Icon name="alert" size={13} />}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-zinc-300 truncate">

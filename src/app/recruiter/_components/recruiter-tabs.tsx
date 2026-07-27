@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { AssessmentTab } from "./assessment-tab";
 
+import { Icon } from "@/components/ui/icon";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type SimGrade = "A" | "B" | "C" | "D" | "F";
@@ -426,7 +427,7 @@ function CandidatesTab({
                           : "text-zinc-600 hover:text-sage-400"
                       }`}
                     >
-                      {isBookmarked ? "★" : "☆"}
+                      {isBookmarked ? <Icon name="star" size={14} tone="gold" variant="gradient" /> : <Icon name="star" size={14} />}
                     </button>
                   </td>
                   <td className="p-4">

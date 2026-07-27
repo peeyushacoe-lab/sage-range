@@ -11,6 +11,7 @@ import { CopyCodeBtn } from "./_components/copy-code-btn";
 import { Navbar } from "@/components/navbar";
 import { listScenarios } from "@/lib/simulation/runtime/scenarios/manifest";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
@@ -246,7 +247,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
                               return (
                                 <td key={lab.id} className="p-3 text-center">
                                   {total === 0 ? <span className="text-zinc-700">—</span>
-                                    : solved ? <span className="text-sage-400 font-semibold">✓</span>
+                                    : solved ? <span className="text-sage-400 font-semibold"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                                     : done > 0 ? <span className="text-amber-400 font-mono text-xs">{done}/{total}</span>
                                     : <span className="text-zinc-700 text-xs">0/{total}</span>}
                                 </td>
@@ -366,7 +367,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
                     }`}>
                     <div className="min-w-0">
                       <p className="font-semibold flex items-center gap-2">
-                        {lab.title}{solved && <span className="text-sage-500 text-sm">✓</span>}
+                        {lab.title}{solved && <span className="text-sage-500 text-sm"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
                       </p>
                       <p className="text-xs text-zinc-500 mt-0.5">{lab.category} · <span className={DIFF_COLORS[lab.difficulty]}>{lab.difficulty}</span></p>
                       {due && <p className={`text-xs mt-0.5 ${due.pastDue ? "text-red-400" : "text-zinc-600"}`}>{due.label}</p>}

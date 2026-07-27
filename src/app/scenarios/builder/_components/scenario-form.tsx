@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 const PERSONAS = [
   { id: "ransomware_gang",  label: "Ransomware Gang",    color: "text-red-400",    badge: "border-red-500/40 bg-red-500/8 text-red-400" },
   { id: "nation_state_apt", label: "Nation-State APT",   color: "text-purple-400", badge: "border-purple-500/40 bg-purple-500/8 text-purple-400" },
@@ -275,7 +276,7 @@ export function ScenarioForm() {
                     className="shrink-0 px-2 text-zinc-600 hover:text-red-400 transition-colors"
                     aria-label="Remove"
                   >
-                    ✕
+                    <Icon name="close" size={14} className="inline-block shrink-0" />
                   </button>
                 )}
               </div>
@@ -298,7 +299,7 @@ export function ScenarioForm() {
             {tags.map((t) => (
               <span key={t} className="flex items-center gap-1 text-xs border border-white/10 rounded px-2 py-0.5 text-zinc-400">
                 {t}
-                <button type="button" onClick={() => removeTag(t)} className="text-zinc-600 hover:text-red-400">✕</button>
+                <button type="button" onClick={() => removeTag(t)} className="text-zinc-600 hover:text-red-400"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
               </span>
             ))}
           </div>

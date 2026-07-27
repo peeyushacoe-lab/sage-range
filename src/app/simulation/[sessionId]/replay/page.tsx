@@ -9,6 +9,7 @@ import { Navbar } from "@/components/navbar";
 import { ReplayPlayer } from "./_components/replay-player";
 import type { ReplayEvent, StageMarker } from "./_components/replay-player";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function ReplayPage({ params }: { params: Promise<{ sessionId: string }> }) {
@@ -102,7 +103,7 @@ export default async function ReplayPage({ params }: { params: Promise<{ session
               className="text-[10px] border border-white/8 bg-zinc-900/50 rounded px-2 py-1 text-zinc-500"
             >
               {s.label}
-              {s.wasBlocked && <span className="text-emerald-500 ml-1">✓</span>}
+              {s.wasBlocked && <span className="text-emerald-500 ml-1"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
             </span>
           ))}
         </div>

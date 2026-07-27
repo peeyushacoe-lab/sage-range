@@ -1,19 +1,21 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./button";
+import { type IconName } from "./icon";
+import { IconTile } from "./icon-tile";
 
 // Professional empty state: icon → title → description → optional CTA. Replaces
 // ad-hoc "No X found" text so every empty surface reads as intentional and
 // points the user at their next action.
 
 export function EmptyState({
-  icon = "✦",
+  icon = "sageVault",
   title,
   description,
   action,
   className,
 }: {
-  icon?: React.ReactNode;
+  icon?: IconName;
   title: string;
   description?: string;
   action?: { label: string; href: string };
@@ -21,12 +23,7 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex flex-col items-center justify-center text-center px-6 py-14", className)}>
-      <div
-        className="w-14 h-14 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center text-2xl text-zinc-500 mb-4"
-        aria-hidden
-      >
-        {icon}
-      </div>
+      <IconTile name={icon} size={56} interactive={false} className="mb-4" />
       <p className="text-base font-semibold text-zinc-200">{title}</p>
       {description && <p className="text-sm text-zinc-500 mt-1.5 max-w-sm leading-relaxed">{description}</p>}
       {action && (

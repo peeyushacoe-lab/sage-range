@@ -6,6 +6,7 @@ import { getLabContent, TASK_STAGES } from "./_content";
 import { FlagForm } from "./_components/flag-form";
 import { Navbar } from "@/components/navbar";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
@@ -50,7 +51,7 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
       <Navbar backHref="/labs" backLabel="Labs" />
       {labUpdated && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-2.5 flex items-center gap-2">
-          <span className="text-amber-400 text-sm">⚠</span>
+          <span className="text-amber-400 text-sm"><Icon name="warning" size={14} className="inline-block shrink-0" /></span>
           <p className="text-xs text-amber-300">
             This lab has been updated (v{lab.version}) since you started (v{attempt!.labVersion}). Review the instructions for any changes.
           </p>
@@ -72,7 +73,7 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
           {alreadySolved && (
             <>
               <span className="text-zinc-600">·</span>
-              <span className="text-sage-500 font-semibold">✓ SOLVED</span>
+              <span className="text-sage-500 font-semibold"><Icon name="check" size={14} className="inline-block shrink-0" /> SOLVED</span>
             </>
           )}
         </div>
@@ -92,7 +93,7 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
               <p className="text-xs uppercase tracking-wider text-zinc-500">Room Progress</p>
               <p className="text-xs text-zinc-400">
                 {completedTaskCount} / {taskStages.length} tasks
-                {alreadySolved && <span className="ml-2 text-sage-500 font-medium">· Room Complete ✓</span>}
+                {alreadySolved && <span className="ml-2 text-sage-500 font-medium">· Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
               </p>
             </div>
             <div className="flex gap-2">
@@ -108,7 +109,7 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
                     />
                     <p className={`text-[10px] mt-1.5 font-medium ${done ? "text-sage-500" : current ? "text-amber-400" : "text-zinc-600"}`}>
                       Task {i + 1}
-                      {done && " ✓"}
+                      {done && <Icon name="check" size={12} className="inline-block ml-1" />}
                     </p>
                   </div>
                 );

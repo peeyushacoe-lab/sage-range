@@ -31,7 +31,7 @@ export default async function ThreatBulletinPage() {
         />
 
         {bulletins.length === 0 ? (
-          <EmptyState icon="📰" title="No bulletins published yet" description="The first threat bulletin is being prepared. Check back soon." />
+          <EmptyState icon="news" title="No bulletins published yet" description="The first threat bulletin is being prepared. Check back soon." />
         ) : (
           <div className="space-y-6">
             {bulletins.map((b) => (

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 import { PrintBtn } from "./_components/print-btn";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
@@ -215,7 +216,7 @@ export default async function ClassroomReportPage({
                               {total === 0 ? (
                                 <span className="text-zinc-400">—</span>
                               ) : solved ? (
-                                <span className="text-sage-500 font-semibold">✓</span>
+                                <span className="text-sage-500 font-semibold"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                               ) : done > 0 ? (
                                 <span className="text-amber-500 font-mono text-xs">
                                   {done}/{total}

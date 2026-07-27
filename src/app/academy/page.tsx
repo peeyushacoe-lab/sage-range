@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { formatDuration } from "@/lib/utils";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_STYLE: Record<string, string> = {
@@ -179,7 +180,7 @@ export default async function AcademyPage() {
 
         {courses.length === 0 ? (
           <div className="text-center py-24 text-zinc-600">
-            <p className="text-5xl mb-4">🛡</p>
+            <p className="mb-4 flex justify-center"><Icon name="blueTeam" size={48} /></p>
             <p className="text-lg font-semibold mb-2">Courses coming soon</p>
             <p className="text-sm">The first courses are being prepared. Check back soon.</p>
           </div>
@@ -207,7 +208,7 @@ export default async function AcademyPage() {
                       {CAT_LABEL[course.category] ?? course.category}
                     </span>
                     {completed ? (
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">✓ Complete</span>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20"><Icon name="check" size={14} className="inline-block shrink-0" /> Complete</span>
                     ) : enrolled && doneCount > 0 ? (
                       <span className="text-[10px] text-zinc-500 border border-white/8 px-2 py-0.5 rounded">{pct}% done</span>
                     ) : enrolled ? (

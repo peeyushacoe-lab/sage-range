@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 type Template = { slug: string; name: string };
 
 type Props = {
@@ -153,14 +154,14 @@ export function TeamHubClient({ templates }: Props) {
       <div className="sm:col-span-2 rounded-xl border border-white/8 bg-zinc-900/20 p-5">
         <p className="text-xs uppercase tracking-widest text-zinc-600 font-semibold mb-3">Team Roles</p>
         <div className="grid sm:grid-cols-4 gap-3">
-          {[
-            { role: "IR_LEAD", label: "IR Lead", icon: "🎯", desc: "Command decisions", color: "bg-sage-500/10 text-sage-400 border-sage-500/30" },
-            { role: "FORENSICS", label: "Forensics", icon: "🔬", desc: "Collect evidence", color: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
-            { role: "LEGAL", label: "Legal", icon: "⚖️", desc: "Manage disclosure", color: "bg-purple-500/10 text-purple-400 border-purple-500/30" },
-            { role: "COMMS", label: "Comms", icon: "📢", desc: "Handle communications", color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
-          ].map((r) => (
+          {([
+            { role: "IR_LEAD", label: "IR Lead", icon: "simulations", desc: "Command decisions", color: "bg-sage-500/10 text-sage-400 border-sage-500/30" },
+            { role: "FORENSICS", label: "Forensics", icon: "forensics", desc: "Collect evidence", color: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
+            { role: "LEGAL", label: "Legal", icon: "balance", desc: "Manage disclosure", color: "bg-purple-500/10 text-purple-400 border-purple-500/30" },
+            { role: "COMMS", label: "Comms", icon: "announce", desc: "Handle communications", color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
+          ] as const).map((r) => (
             <div key={r.role} className={`rounded-lg border px-3 py-2.5 ${r.color}`}>
-              <p className="text-base mb-0.5">{r.icon} <span className="text-xs font-bold tracking-wider">{r.label}</span></p>
+              <p className="mb-0.5 flex items-center gap-1.5"><Icon name={r.icon} size={16} /><span className="text-xs font-bold tracking-wider">{r.label}</span></p>
               <p className="text-[11px] opacity-70">{r.desc}</p>
             </div>
           ))}

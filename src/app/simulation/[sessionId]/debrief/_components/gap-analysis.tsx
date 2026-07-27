@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 type GapData = {
   weakestArea: string;
   gapSummary: string;
@@ -8,12 +9,12 @@ type GapData = {
   nextSimulation: string;
 };
 
-const ITEMS: { key: keyof GapData; emoji: string; label: string }[] = [
-  { key: "weakestArea", emoji: "🎯", label: "Weakest Area" },
-  { key: "gapSummary", emoji: "📊", label: "Gap Summary" },
-  { key: "recommendedLabs", emoji: "🧪", label: "Recommended Labs" },
-  { key: "recommendedPaths", emoji: "🛤️", label: "Recommended Paths" },
-  { key: "nextSimulation", emoji: "⚡", label: "Next Simulation" },
+const ITEMS: { key: keyof GapData; icon: IconName; label: string }[] = [
+  { key: "weakestArea", icon: "simulations" as IconName, label: "Weakest Area" },
+  { key: "gapSummary", icon: "reports" as IconName, label: "Gap Summary" },
+  { key: "recommendedLabs", icon: "labs" as IconName, label: "Recommended Labs" },
+  { key: "recommendedPaths", icon: "progress" as IconName, label: "Recommended Paths" },
+  { key: "nextSimulation", icon: "energy" as IconName, label: "Next Simulation" },
 ];
 
 export function GapAnalysis({ gap }: { gap: GapData }) {
@@ -23,10 +24,10 @@ export function GapAnalysis({ gap }: { gap: GapData }) {
       <div className="rounded-xl border border-white/10 bg-zinc-900/40 p-6">
         <p className="text-xs text-zinc-600 mb-5">AI-generated based on your performance</p>
         <div className="space-y-3">
-          {ITEMS.map(({ key, emoji, label }) =>
+          {ITEMS.map(({ key, icon, label }) =>
             gap[key] ? (
               <div key={key} className="flex gap-3 text-sm">
-                <span className="shrink-0 text-base">{emoji}</span>
+                <Icon name={icon} size={16} className="shrink-0" />
                 <div>
                   <span className="text-zinc-500 text-xs uppercase tracking-wide">{label}</span>
                   <p className={`mt-0.5 ${key === "weakestArea" ? "text-zinc-200 font-medium" : "text-zinc-300"}`}>

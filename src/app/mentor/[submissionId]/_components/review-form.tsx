@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 type ReviewStatus = "APPROVED" | "REJECTED" | "CHANGES_REQUESTED";
 
 interface RubricCriterion {
@@ -87,7 +88,7 @@ export function ReviewForm({ submissionId, existingReview, rubricCriteria }: Pro
   if (done) {
     return (
       <div className="rounded-xl border border-sage-500/30 bg-sage-500/5 p-5 text-center">
-        <p className="text-sage-400 font-semibold">Review submitted ✓</p>
+        <p className="text-sage-400 font-semibold">Review submitted <Icon name="check" size={14} className="inline-block shrink-0" /></p>
       </div>
     );
   }

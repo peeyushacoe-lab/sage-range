@@ -6,6 +6,7 @@ import { EnrollBtn } from "./_components/enroll-btn";
 import { Navbar } from "@/components/navbar";
 import { requestCertificateApproval } from "@/lib/certificate-approval";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -117,7 +118,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
             <ul className="space-y-2">
               {course.objectives.map((obj, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                  <span className="text-emerald-500 shrink-0 mt-0.5">✓</span>
+                  <span className="text-emerald-500 shrink-0 mt-0.5"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                   <span>{obj}</span>
                 </li>
               ))}
@@ -144,7 +145,7 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
                     return (
                       <div key={lesson.id} className="flex items-center gap-3 px-5 py-3">
                         <span className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center text-[10px] ${done ? "bg-emerald-500 border-emerald-500 text-black" : "border-zinc-700"}`}>
-                          {done ? "✓" : ""}
+                          {done ? <Icon name="check" size={13} /> : ""}
                         </span>
                         {enrollment ? (
                           <Link href={`/academy/${slug}/learn/${lesson.id}`} className="text-sm text-zinc-300 hover:text-white transition flex-1">

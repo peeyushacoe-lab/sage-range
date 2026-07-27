@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 
+import { Icon } from "@/components/ui/icon";
 type Event = { id: string; raw: string; fields: Record<string, string> };
 type Step = { step: number; narrative: string; events: Event[] };
 type Condition = { field: string; operator: string; value: string };
@@ -103,7 +104,7 @@ export function PurpleTeamClient({
         <p className="text-zinc-400 mt-2 max-w-3xl leading-relaxed">{description}</p>
         <p className="text-xs font-mono text-zinc-500 mt-2">
           {points} pts · step {currentStep}/{steps.length}
-          {completed && <span className="text-sage-400 ml-2">✓ completed (best F1 {bestF1.toFixed(2)})</span>}
+          {completed && <span className="text-sage-400 ml-2 inline-flex items-center gap-1"><Icon name="check" size={12} /> completed (best F1 {bestF1.toFixed(2)})</span>}
         </p>
       </header>
 
@@ -125,7 +126,7 @@ export function PurpleTeamClient({
                   <p className="text-zinc-300 whitespace-pre-wrap break-all">{e.raw}</p>
                   {label !== undefined && (
                     <p className={`mt-1 font-semibold ${label ? "text-sage-400" : "text-red-400"}`}>
-                      {label ? "✓ correctly matched (malicious)" : "✗ matched, but this one was benign"}
+                      {label ? <><Icon name="check" size={12} /> correctly matched (malicious)</> : <><Icon name="cross" size={12} /> matched, but this one was benign</>}
                     </p>
                   )}
                 </div>
@@ -161,7 +162,7 @@ export function PurpleTeamClient({
                     {OPERATORS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                   <input value={c.value} onChange={(e) => updateCondition(i, { value: e.target.value })} placeholder="value" className="flex-1 min-w-0 rounded-md bg-zinc-950 border border-white/10 px-2 py-1.5 text-xs text-zinc-100 font-mono" />
-                  <button onClick={() => removeCondition(i)} disabled={conditions.length === 1} className="text-zinc-600 hover:text-red-400 disabled:opacity-30 px-1">✕</button>
+                  <button onClick={() => removeCondition(i)} disabled={conditions.length === 1} className="text-zinc-600 hover:text-red-400 disabled:opacity-30 px-1"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
                 </div>
               ))}
             </div>

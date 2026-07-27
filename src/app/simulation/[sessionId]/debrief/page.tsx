@@ -21,6 +21,7 @@ import { MitreHeatmap } from "./_components/mitre-heatmap";
 import { AttackTimeline } from "./_components/attack-timeline";
 import { Navbar } from "@/components/navbar";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 
@@ -115,7 +116,7 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
                 href={`/simulation/${sessionId}/graph`}
                 className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20 transition"
               >
-                ⬡ Attack Graph
+                <Icon name="networkMap" size={14} className="inline-block" /> Attack Graph
               </Link>
             </div>
           </div>

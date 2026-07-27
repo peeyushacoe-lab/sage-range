@@ -6,6 +6,7 @@ import { timeAgo } from "@/lib/activity-feed";
 import type { SerializedComment, SerializedFeedEntry } from "@/lib/activity-feed";
 import { CyberAvatar } from "@/components/cyber-avatar";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 type ReactionKey = "useful" | "congrats" | "impressive" | "smart";
 
 const REACTIONS: { key: ReactionKey; emoji: string; label: string }[] = [
@@ -22,10 +23,10 @@ const DIFF_STYLE: Record<string, string> = {
   INSANE: "text-purple-400 bg-purple-500/10 border-purple-500/20",
 };
 
-const TYPE_ICON: Record<string, string> = {
-  CTF:       "🚩",
-  BLUE_TEAM: "🛡️",
-  RED_TEAM:  "⚔️",
+const TYPE_ICON: Record<string, IconName> = {
+  CTF:       "challenges",
+  BLUE_TEAM: "blueTeam",
+  RED_TEAM:  "redTeam",
 };
 
 function formatTime(secs: number): string {
@@ -158,7 +159,7 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             {isLab ? (
               <>
-                <span className="text-sm">{TYPE_ICON[entry.labType] ?? "🔬"}</span>
+                <Icon name={TYPE_ICON[entry.labType] ?? "research"} size={15} />
                 <span className="text-xs text-zinc-500">{entry.labType.replace("_", " ")}</span>
                 <span className={`text-[10px] font-bold uppercase border rounded px-1.5 py-0.5 ${DIFF_STYLE[entry.labDifficulty] ?? ""}`}>
                   {entry.labDifficulty}
@@ -172,7 +173,7 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
               </>
             ) : (
               <>
-                <span className="text-sm">⚡</span>
+                <Icon name="energy" size={15} />
                 <span className="text-xs text-zinc-500">Simulation</span>
                 <span className="text-xs font-bold text-zinc-200">{entry.simScore}/100</span>
                 {(() => {

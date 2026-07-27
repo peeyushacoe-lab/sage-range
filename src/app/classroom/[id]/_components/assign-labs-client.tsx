@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 type Lab = { id: string; slug: string; title: string; difficulty: string };
 
 export function AssignLabsClient({
@@ -77,7 +78,7 @@ export function AssignLabsClient({
                     : "bg-zinc-800 text-zinc-400 hover:bg-sage-500/10 hover:text-sage-400 border border-white/8 hover:border-sage-500/30"
                 }`}
               >
-                {loading ? "…" : assigned ? "Assigned ✓" : "Assign"}
+                {loading ? "…" : assigned ? <><Icon name="check" size={12} /> Assigned</> : "Assign"}
               </button>
             </div>
           </div>

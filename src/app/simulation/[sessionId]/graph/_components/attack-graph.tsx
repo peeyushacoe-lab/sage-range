@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { Icon } from "@/components/ui/icon";
 export type GraphNode = {
   id: string;
   label: string;
@@ -244,7 +245,7 @@ export function AttackGraph({
               <div key={i} className="flex items-center gap-3 px-4 py-2 text-xs">
                 <span className="text-zinc-600 tabular-nums w-10 shrink-0">{fmtMs(ev.relativeMs)}</span>
                 <span className={ev.status === "OFFLINE" ? "text-red-400" : "text-orange-400"}>
-                  {ev.status === "OFFLINE" ? "💥" : "⚠"}
+                  {ev.status === "OFFLINE" ? <Icon name="alert" size={13} /> : <Icon name="warning" size={13} />}
                 </span>
                 <span className="text-zinc-300 flex-1">{ev.label}</span>
               </div>
@@ -257,7 +258,7 @@ export function AttackGraph({
       {playheadMs >= totalMs && totalMs > 0 && (
         <div className={`rounded-xl border p-4 text-center ${outcome === "CONTAINED" ? "border-emerald-500/30 bg-emerald-500/8" : "border-red-500/30 bg-red-500/8"}`}>
           <p className={`font-black text-lg ${outcome === "CONTAINED" ? "text-emerald-400" : "text-red-400"}`}>
-            {outcome === "CONTAINED" ? "🛡 Threat Contained" : "💥 Breach Occurred"}
+            {outcome === "CONTAINED" ? <><Icon name="blueTeam" size={16} /> Threat Contained</> : <><Icon name="impact" size={16} /> Breach Occurred</>}
           </p>
           <p className="text-xs text-zinc-400 mt-1">Score: {score}</p>
         </div>

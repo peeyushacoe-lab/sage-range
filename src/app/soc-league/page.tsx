@@ -6,6 +6,7 @@ import { SOC_LEAGUE_RANKS, getSocLeagueRank } from "@/lib/soc-league";
 import { Navbar } from "@/components/navbar";
 import { PageHeader } from "@/components/ui";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "SOC League · Sage Vault" };
 
@@ -91,7 +92,7 @@ export default async function SocLeaguePage() {
                   return (
                     <tr key={u.id} className={u.id === me.id ? "bg-emerald-500/5" : ""}>
                       <td className="px-4 py-2.5 text-zinc-500 text-xs w-8">
-                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                        {i < 3 ? <Icon name="medal" size={15} tone={(["gold","slate","amber"] as const)[i]} /> : i + 1}
                       </td>
                       <td className="px-4 py-2.5">
                         <Link href={`/profile/${u.id}`} className="font-medium text-zinc-200 hover:text-emerald-400 transition-colors">

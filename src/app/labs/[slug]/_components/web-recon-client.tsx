@@ -154,7 +154,7 @@ type CrtRow = {
 const CRT_ROWS: CrtRow[] = [
   { subdomain: "dev.target.com",           issued: "2026-01-15", interesting: false, note: "Development environment. Expected subdomain. May have different auth requirements." },
   { subdomain: "api.target.com",           issued: "2026-01-15", interesting: false, note: "API subdomain. Useful for direct API enumeration but likely rate-limited." },
-  { subdomain: "admin-staging.target.com", issued: "2025-11-02", interesting: true,  note: "⭐ HIGH VALUE: Combines admin access with staging security posture. Older cert — possibly forgotten. Worth direct investigation." },
+  { subdomain: "admin-staging.target.com", issued: "2025-11-02", interesting: true,  note: "HIGH VALUE: Combines admin access with staging security posture. Older cert — possibly forgotten. Worth direct investigation." },
   { subdomain: "mail.target.com",          issued: "2026-01-20", interesting: false, note: "Mail server. Less likely to have exploitable web attack surface." },
 ];
 

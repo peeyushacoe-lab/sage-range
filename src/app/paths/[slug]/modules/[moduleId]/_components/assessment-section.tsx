@@ -32,7 +32,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Awaiting Review",
-  APPROVED: "Approved ✓",
+  APPROVED: "Approved",
   REJECTED: "Rejected",
   CHANGES_REQUESTED: "Changes Requested",
 };

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 type Member = {
   id: string;
   userId: string;
@@ -35,9 +36,9 @@ const TEMPLATE_NAMES: Record<string, string> = {
 };
 
 const ROLES = [
-  { value: "FORENSICS", label: "Forensics", icon: "🔬", desc: "Collect evidence", color: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
-  { value: "LEGAL", label: "Legal", icon: "⚖️", desc: "Manage disclosure", color: "bg-purple-500/10 text-purple-400 border-purple-500/30" },
-  { value: "COMMS", label: "Comms", icon: "📢", desc: "Handle communications", color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
+  { value: "FORENSICS", label: "Forensics", icon: "forensics", desc: "Collect evidence", color: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
+  { value: "LEGAL", label: "Legal", icon: "balance", desc: "Manage disclosure", color: "bg-purple-500/10 text-purple-400 border-purple-500/30" },
+  { value: "COMMS", label: "Comms", icon: "announce", desc: "Handle communications", color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
 ] as const;
 
 const ROLE_COLORS: Record<string, string> = {
@@ -211,7 +212,7 @@ export function TeamLobbyClient({ teamId, currentUserId, initialData }: Props) {
                   disabled={taken}
                   className={`rounded-lg border px-3 py-3 text-left transition ${r.color} ${taken ? "opacity-40 cursor-not-allowed" : "hover:opacity-90 cursor-pointer"}`}
                 >
-                  <p className="text-base mb-0.5">{r.icon} <span className="text-xs font-bold">{r.label}</span></p>
+                  <p className="mb-0.5 flex items-center gap-1.5"><Icon name={r.icon} size={16} /><span className="text-xs font-bold">{r.label}</span></p>
                   <p className="text-[11px] opacity-70">{taken ? "Taken" : r.desc}</p>
                 </button>
               );

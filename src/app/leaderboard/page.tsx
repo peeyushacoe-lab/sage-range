@@ -61,7 +61,7 @@ export default async function Leaderboard({
       </nav>
 
       {top.length === 0 ? (
-        <EmptyState icon="🏅" title="No scores yet" description="Be the first to solve a lab and claim the top spot." action={{ label: "Browse Labs", href: "/labs" }} />
+        <EmptyState icon="medal" title="No scores yet" description="Be the first to solve a lab and claim the top spot." action={{ label: "Browse Labs", href: "/labs" }} />
       ) : (
         <ol className="rounded-lg border border-white/10 divide-y divide-white/10">
           {top.map((u, i) => (

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HintPanel } from "./hint-panel";
 
+import { Icon } from "@/components/ui/icon";
 const CONTAINMENT_STEPS = [
   { id: "preserve", label: "Preserve forensic evidence — export SIEM/EDR logs before any changes", required: true },
   { id: "block_c2", label: "Block identified C2 server at perimeter firewall — terminate active beacon", required: true },
@@ -57,7 +58,7 @@ export function SocTask2Containment({ labId, alreadyDone }: { labId: string; alr
   if (submitted) {
     return (
       <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
-        <p className="text-sage-500 font-medium mb-2">Containment plan accepted ✓</p>
+        <p className="text-sage-500 font-medium mb-2">Containment plan accepted <Icon name="check" size={14} className="inline-block shrink-0" /></p>
         <p className="text-zinc-400">Correct sequence: Preserve evidence → Block C2 + Isolate host → Reset credentials → Notify CISO/Legal</p>
         <p className="text-zinc-500 mt-2">Proceed to Task 3 — threat hunt for lateral movement.</p>
       </div>
@@ -96,7 +97,7 @@ export function SocTask2Containment({ labId, alreadyDone }: { labId: string; alr
 
         {wrong.length > 0 && (
           <div className="rounded border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-400">
-            {wrong.map((w) => <p key={w}>✗ {w}</p>)}
+            {wrong.map((w) => <p key={w} className="flex items-center gap-1"><Icon name="cross" size={12} /> {w}</p>)}
           </div>
         )}
 

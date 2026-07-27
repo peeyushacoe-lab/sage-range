@@ -5,6 +5,7 @@ import Link from "next/link";
 import { resolveNetworkState, type NetworkNode, type NetworkEvent } from "@/lib/network-map";
 import { NetworkMap } from "./network-map";
 
+import { Icon } from "@/components/ui/icon";
 type Artifact = {
   id: string;
   type: string;
@@ -207,7 +208,7 @@ function TaskCard({
         </div>
       )}
 
-      {completed && <p className="text-sm font-mono text-sage-400">✓ Completed</p>}
+      {completed && <p className="text-sm font-mono text-sage-400"><Icon name="check" size={14} className="inline-block shrink-0" /> Completed</p>}
     </div>
   );
 }

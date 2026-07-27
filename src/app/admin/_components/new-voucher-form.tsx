@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 export function NewVoucherForm() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -61,7 +62,7 @@ export function NewVoucherForm() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-zinc-950 w-full max-w-md">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-white">New Voucher</p>
-        <button type="button" onClick={() => { setOpen(false); reset(); }} className="text-zinc-500 hover:text-white text-xs">✕ Cancel</button>
+        <button type="button" onClick={() => { setOpen(false); reset(); }} className="text-zinc-500 hover:text-white text-xs"><Icon name="close" size={14} className="inline-block shrink-0" /> Cancel</button>
       </div>
 
       <div className="flex flex-col gap-1">

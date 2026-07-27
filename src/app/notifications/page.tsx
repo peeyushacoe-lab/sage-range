@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, EmptyState } from "@/components/ui";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 type Notif = {
   id: string;
   type: string;
@@ -15,34 +16,34 @@ type Notif = {
   createdAt: string;
 };
 
-const TYPE_ICON: Record<string, string> = {
-  lab_assigned:          "🧪",
-  sim_complete:          "🛡️",
-  badge_earned:          "🏅",
-  writeup_approved:      "✅",
-  writeup_rejected:      "❌",
-  scenario_published:    "🎯",
-  competition_start:     "⚔️",
-  competition_win:       "🏆",
-  announcement:          "📣",
-  cert_pending_approval: "📋",
-  cert_approved:         "🎓",
-  cert_rejected:         "⚠️",
+const TYPE_ICON: Record<string, IconName> = {
+  lab_assigned:          "labs",
+  sim_complete:          "simulations",
+  badge_earned:          "medal",
+  writeup_approved:      "checkCircle",
+  writeup_rejected:      "cross",
+  scenario_published:    "simulations",
+  competition_start:     "redTeam",
+  competition_win:       "trophy",
+  announcement:          "announce",
+  cert_pending_approval: "clipboard",
+  cert_approved:         "graduation",
+  cert_rejected:         "warning",
 };
 
 const TYPE_COLOR: Record<string, string> = {
-  lab_assigned:          "border-l-blue-500",
-  sim_complete:          "border-l-sage-500",
-  badge_earned:          "border-l-amber-500",
-  writeup_approved:      "border-l-emerald-500",
-  writeup_rejected:      "border-l-red-500",
-  scenario_published:    "border-l-purple-500",
-  competition_start:     "border-l-orange-500",
-  competition_win:       "border-l-amber-400",
-  announcement:          "border-l-zinc-500",
-  cert_pending_approval: "border-l-blue-400",
-  cert_approved:         "border-l-emerald-400",
-  cert_rejected:         "border-l-red-400",
+  lab_assigned:          "labs",
+  sim_complete:          "simulations",
+  badge_earned:          "medal",
+  writeup_approved:      "checkCircle",
+  writeup_rejected:      "cross",
+  scenario_published:    "simulations",
+  competition_start:     "redTeam",
+  competition_win:       "trophy",
+  announcement:          "announce",
+  cert_pending_approval: "clipboard",
+  cert_approved:         "graduation",
+  cert_rejected:         "warning",
 };
 
 function timeAgo(iso: string) {
@@ -112,7 +113,7 @@ export default function NotificationsPage() {
         ) : notifs.length === 0 ? (
           <Card>
             <EmptyState
-              icon="🔔"
+              icon="bell"
               title="You're all caught up"
               description="Badge unlocks, graded simulations, and new challenges will show up here as you progress."
               action={{ label: "Go to Dashboard", href: "/dashboard" }}
@@ -148,7 +149,7 @@ function NotifCard({ n, onDismiss }: { n: Notif; onDismiss: (id: string) => void
 
   const inner = (
     <div className={`group flex items-start gap-4 rounded-xl border border-white/6 bg-zinc-900/40 px-4 py-4 border-l-2 ${borderColor} hover:border-white/10 transition-colors ${!n.read ? "bg-zinc-800/30" : ""}`}>
-      <span className="text-xl leading-none shrink-0 mt-0.5">{TYPE_ICON[n.type] ?? "🔔"}</span>
+      <Icon name={TYPE_ICON[n.type] ?? "bell"} size={20} className="shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-medium leading-snug ${!n.read ? "text-zinc-100" : "text-zinc-400"}`}>{n.title}</p>
         {n.body && <p className="text-xs text-zinc-500 mt-1">{n.body}</p>}

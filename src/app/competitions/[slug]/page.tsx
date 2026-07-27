@@ -7,6 +7,7 @@ import { Countdown } from "./_components/countdown";
 import { Navbar } from "@/components/navbar";
 import { createNotification } from "@/lib/notifications";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function getStatus(startDate: Date, endDate: Date): "Upcoming" | "Active" | "Ended" {
@@ -22,7 +23,7 @@ function statusBadge(status: ReturnType<typeof getStatus>) {
   return "bg-zinc-700/50 text-zinc-400 border-zinc-700";
 }
 
-const MEDAL = ["🥇", "🥈", "🥉"];
+const MEDAL_TONE = ["gold", "slate", "amber"] as const;
 
 export default async function CompetitionDetailPage({
   params,
@@ -108,7 +109,7 @@ export default async function CompetitionDetailPage({
           <h1 className="text-3xl font-bold">{competition.name}</h1>
           <p className="text-zinc-400 mt-2">{competition.description}</p>
           {competition.prizeDesc && (
-            <p className="mt-2 text-sm text-amber-400 font-medium">🏆 {competition.prizeDesc}</p>
+            <p className="mt-2 text-sm text-amber-400 font-medium flex items-center gap-1.5"><Icon name="trophy" size={15} /> {competition.prizeDesc}</p>
           )}
           <div className="flex flex-wrap gap-3 mt-4">
             {status === "Upcoming" && (
@@ -146,7 +147,7 @@ export default async function CompetitionDetailPage({
                       : "border-amber-700/30 bg-amber-900/10"
                   }`}
                 >
-                  <p className="text-2xl mb-2">{MEDAL[i]}</p>
+                  <p className="text-2xl mb-2"><Icon name="medal" size={16} tone={MEDAL_TONE[i]} /></p>
                   <p className="text-sm font-semibold text-zinc-100 truncate">
                     {entry.user.displayName ?? entry.user.email.split("@")[0]}
                   </p>
@@ -229,7 +230,7 @@ export default async function CompetitionDetailPage({
               {competition.entries.map((entry, i) => {
                 const isMe = entry.userId === user.id;
                 const labsDone = completionsByUser.get(entry.userId) ?? 0;
-                const medal = MEDAL[i];
+                const medal = MEDAL_TONE[i];
                 return (
                   <div
                     key={entry.id}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 const PLANS = ["TRIAL", "BASIC", "PRO", "ENTERPRISE"] as const;
 const DEFAULT_SEATS: Record<string, number> = { TRIAL: 30, BASIC: 100, PRO: 500, ENTERPRISE: 9999 };
 
@@ -62,7 +63,7 @@ export function NewOrganizationForm() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-zinc-950 w-full max-w-lg">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold">New Organization</p>
-        <button type="button" onClick={() => setOpen(false)} className="text-zinc-500 hover:text-white text-xs">✕ Cancel</button>
+        <button type="button" onClick={() => setOpen(false)} className="text-zinc-500 hover:text-white text-xs"><Icon name="close" size={14} className="inline-block shrink-0" /> Cancel</button>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Organization name"

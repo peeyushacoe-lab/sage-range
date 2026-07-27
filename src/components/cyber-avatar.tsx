@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getRankInfo } from "@/lib/cyber-identity";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 const SIZES = {
   sm: { px: 36, strokeW: 7,   fontSize: 13 },
   md: { px: 48, strokeW: 6.5, fontSize: 17 },
@@ -23,7 +24,7 @@ interface CyberAvatarProps {
   skillScore: number;
   avatarUrl?: string | null;
   size?: "sm" | "md" | "lg";
-  roleBadgeIcon?: string;
+  roleBadgeIcon?: IconName;
 }
 
 const R = 44;
@@ -88,7 +89,7 @@ export function CyberAvatar({ initial, skillScore, avatarUrl, size = "md", roleB
           className="absolute bottom-0 right-0 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800"
           style={{ width: badgePx, height: badgePx, fontSize: Math.round(badgePx * 0.6) }}
         >
-          {roleBadgeIcon}
+          <Icon name={roleBadgeIcon} size={Math.round(badgePx * 0.6)} />
         </div>
       )}
     </div>

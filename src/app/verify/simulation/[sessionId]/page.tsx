@@ -15,6 +15,7 @@ import { computeLeadershipAssessment } from "@/lib/simulation/runtime/coaching";
 import type { CompanyProfile } from "@/lib/simulation/types";
 import { isSimCertEligible } from "@/lib/sim-certificate";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function rating(score: number) {
@@ -77,7 +78,7 @@ export default async function VerifySimulationPage({
     return (
       <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
         <div className="w-full max-w-lg text-center space-y-4">
-          <p className="text-5xl font-bold text-red-400">✗</p>
+          <p className="text-5xl font-bold text-red-400"><Icon name="cross" size={14} className="inline-block shrink-0" /></p>
           <h1 className="text-2xl font-bold">Certificate Not Found</h1>
           <p className="text-zinc-400 text-sm">
             This simulation certificate could not be verified. It may not exist, may still be in progress, or the ID may be incorrect.
@@ -108,7 +109,7 @@ export default async function VerifySimulationPage({
     return (
       <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
         <div className="w-full max-w-lg text-center space-y-4">
-          <p className="text-5xl font-bold text-red-400">✗</p>
+          <p className="text-5xl font-bold text-red-400"><Icon name="cross" size={14} className="inline-block shrink-0" /></p>
           <h1 className="text-2xl font-bold">Certificate Not Found</h1>
           <p className="text-zinc-400 text-sm">
             This simulation certificate could not be verified. It may not exist, may not have been approved, or the ID may be incorrect.
@@ -154,7 +155,7 @@ export default async function VerifySimulationPage({
         {/* Verified banner */}
         <div className="rounded-2xl border border-sage-500/30 bg-sage-500/5 p-8 flex flex-col items-center text-center gap-4">
           <div className="h-16 w-16 rounded-full bg-sage-500/15 border border-sage-500/30 flex items-center justify-center">
-            <span className="text-3xl text-sage-400">✓</span>
+            <span className="text-3xl text-sage-400"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-1">Verified Certificate</p>

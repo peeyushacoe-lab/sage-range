@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
 import { Countdown } from "./_components/countdown";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Daily Challenge · Sage Vault" };
 
@@ -116,11 +117,11 @@ export default async function DailyChallengePage() {
           {/* Solved badge */}
           {myAttempt && (
             <div className="flex items-center gap-2">
-              <span className="text-emerald-400 text-lg">✓</span>
+              <span className="text-emerald-400 text-lg"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
               <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Solved Today</span>
               {myPosition && myPosition <= 3 && (
                 <span className="text-xs text-zinc-500">
-                  — {myPosition === 1 ? "🥇 First blood!" : myPosition === 2 ? "🥈 Second!" : "🥉 Third!"}
+                  — {myPosition === 1 ? <><Icon name="medal" size={14} tone="gold" /> First blood!</> : myPosition === 2 ? <><Icon name="medal" size={14} tone="slate" /> Second!</> : <><Icon name="medal" size={14} tone="amber" /> Third!</>}
                 </span>
               )}
             </div>
@@ -188,7 +189,7 @@ export default async function DailyChallengePage() {
                   <div key={s.id} className={`flex items-center justify-between px-5 py-3 ${isMe ? "bg-emerald-500/5" : ""}`}>
                     <div className="flex items-center gap-3">
                       <span className="text-zinc-600 text-xs w-5 text-right">
-                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                        {i < 3 ? <Icon name="medal" size={15} tone={(["gold","slate","amber"] as const)[i]} /> : i + 1}
                       </span>
                       <Link href={`/profile/${s.user.id}`} className={`text-sm font-medium hover:text-emerald-400 transition-colors ${isMe ? "text-emerald-300" : "text-zinc-200"}`}>
                         {s.user.displayName ?? s.user.email.split("@")[0]}
@@ -215,7 +216,7 @@ export default async function DailyChallengePage() {
               {" "}— <span className="text-zinc-600">{tomorrowLab.category}</span>
             </p>
           </div>
-          <span className="text-zinc-700 text-xs">🔒</span>
+          <Icon name="lock" size={13} className="text-zinc-700" />
         </div>
 
       </main>

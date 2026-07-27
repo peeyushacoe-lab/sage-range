@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 
+import { Icon } from "@/components/ui/icon";
 const UPDATED = "1 June 2026";
 
 const COOKIES = [
@@ -94,10 +95,10 @@ export default function CookiePolicyPage() {
           <section>
             <h2 className="text-base font-semibold text-white mb-3">What we do NOT use</h2>
             <ul className="space-y-2 text-zinc-400">
-              <li className="flex items-start gap-2"><span className="text-red-400 shrink-0">✗</span> Advertising or tracking cookies</li>
-              <li className="flex items-start gap-2"><span className="text-red-400 shrink-0">✗</span> Third-party analytics cookies (Google Analytics, Facebook Pixel, etc.)</li>
-              <li className="flex items-start gap-2"><span className="text-red-400 shrink-0">✗</span> Fingerprinting or cross-site tracking</li>
-              <li className="flex items-start gap-2"><span className="text-red-400 shrink-0">✗</span> Persistent advertising identifiers</li>
+              <li className="flex items-start gap-2"><span className="text-red-400 shrink-0"><Icon name="cross" size={14} className="inline-block shrink-0" /></span> Advertising or tracking cookies</li>
+              <li className="flex items-start gap-2"><span className="text-red-400 shrink-0"><Icon name="cross" size={14} className="inline-block shrink-0" /></span> Third-party analytics cookies (Google Analytics, Facebook Pixel, etc.)</li>
+              <li className="flex items-start gap-2"><span className="text-red-400 shrink-0"><Icon name="cross" size={14} className="inline-block shrink-0" /></span> Fingerprinting or cross-site tracking</li>
+              <li className="flex items-start gap-2"><span className="text-red-400 shrink-0"><Icon name="cross" size={14} className="inline-block shrink-0" /></span> Persistent advertising identifiers</li>
             </ul>
           </section>
 

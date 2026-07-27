@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { InvestigationArtifact, ArtifactType, Severity } from "@/lib/simulation/runtime/evidence";
 
+import { Icon } from "@/components/ui/icon";
 const TYPE_LABELS: Record<ArtifactType, string> = {
   SIEM:         "SIEM",
   EDR:          "EDR",
@@ -88,7 +89,7 @@ function ArtifactCard({
             {artifact.severity}
           </span>
           {isRead ? (
-            <span className="text-[10px] text-sage-500 font-bold">✓ READ</span>
+            <span className="text-[10px] text-sage-500 font-bold"><Icon name="check" size={14} className="inline-block shrink-0" /> READ</span>
           ) : (
             <span className="text-[9px] font-bold text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded tracking-wider">
               UNREAD

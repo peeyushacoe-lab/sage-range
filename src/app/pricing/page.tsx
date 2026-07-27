@@ -3,6 +3,7 @@ import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { CheckoutBtn } from "./_components/checkout-btn";
 
+import { Icon } from "@/components/ui/icon";
 const TIERS = [
   {
     name: "Student",
@@ -143,7 +144,7 @@ export default function PricingPage() {
                 <ul className="space-y-2.5 flex-1 mb-8">
                   {tier.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-zinc-300">
-                      <span className="text-sage-500 shrink-0 mt-0.5">✓</span>
+                      <span className="text-sage-500 shrink-0 mt-0.5"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                       <span>{f}</span>
                     </li>
                   ))}

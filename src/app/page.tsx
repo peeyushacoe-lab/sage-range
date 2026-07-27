@@ -4,11 +4,12 @@ import { auth } from "@/auth";
 import { MarketingNav } from "@/components/marketing-nav";
 import { MarketingFooter } from "@/components/marketing-footer";
 
-const FEATURES = [
+import { Icon, type IconName } from "@/components/ui/icon";
+const FEATURES: { tag: string; color: string; icon: IconName; title: string; description: string; items: string[] }[] = [
   {
     tag: "Training",
     color: "text-sage-400 bg-sage-500/10 border-sage-500/20",
-    icon: "⬡",
+    icon: "labs",
     title: "Labs that teach through doing",
     description: "14 interactive labs across CTF, Blue Team, and Red Team. Every task is gated — you unlock the next stage by proving you understood the last one. No skipping, no guessing.",
     items: ["SQL injection, privilege escalation, memory forensics", "Evidence-gated task progression", "3-level hint system (costs XP)", "MITRE ATT&CK tracked per lab"],
@@ -16,7 +17,7 @@ const FEATURES = [
   {
     tag: "Cyber Range",
     color: "text-red-400 bg-red-500/10 border-red-500/20",
-    icon: "◈",
+    icon: "simulations",
     title: "Live incident simulations — not walkthroughs",
     description: "REDai generates a unique company, employees, attack timeline, and kill chain for every session. You run the SOC. Your decisions are scored. The organization reacts to what you do.",
     items: ["Ransomware → APT → Insider → Data breach → Cloud misconfig", "Evidence panel + live threat feed", "Employee panic scores and org health", "A–F leadership grade + AI debrief"],
@@ -24,7 +25,7 @@ const FEATURES = [
   {
     tag: "Education",
     color: "text-blue-400 bg-blue-500/10 border-blue-500/20",
-    icon: "◻",
+    icon: "learning",
     title: "Classrooms built for cyber instructors",
     description: "Create a classroom, share a code, assign labs and simulations, watch students in real time, download reports. Designed for university modules and enterprise bootcamps.",
     items: ["Live observation mode during simulations", "MITRE ATT&CK coverage per student", "Printable class-wide reports", "Webhook integrations for LMS"],
@@ -32,7 +33,7 @@ const FEATURES = [
   {
     tag: "Talent",
     color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-    icon: "◇",
+    icon: "certificates",
     title: "Hire based on verified performance",
     description: "Recruiters see simulation scores, decision speed, MITRE coverage, and lab solve history — all verified by the platform. Post requirements, we surface candidates who qualify.",
     items: ["EXCEPTIONAL / STRONG / ADEQUATE ratings", "Decision speed + error pattern analysis", "Auto-matched candidates per job posting", "Publicly verifiable performance certificates"],
@@ -46,11 +47,11 @@ const STATS = [
   { value: "100%",  label: "Browser-based",     sub: "No setup required" },
 ];
 
-const HOW_IT_WORKS = [
+const HOW_IT_WORKS: { role: string; color: string; icon: IconName; steps: string[] }[] = [
   {
     role: "Student / Analyst",
     color: "sage",
-    icon: "⬡",
+    icon: "learning",
     steps: [
       "Sign up and get started immediately",
       "Choose a learning path or jump into labs",
@@ -62,7 +63,7 @@ const HOW_IT_WORKS = [
   {
     role: "Instructor / Educator",
     color: "blue",
-    icon: "◻",
+    icon: "graduation",
     steps: [
       "Create a classroom with a join code",
       "Assign specific labs and sim scenarios",
@@ -74,7 +75,7 @@ const HOW_IT_WORKS = [
   {
     role: "Recruiter / Hiring Manager",
     color: "amber",
-    icon: "◇",
+    icon: "users",
     steps: [
       "Browse candidates filtered by verified score",
       "Filter by simulation grade (A–F)",
@@ -254,7 +255,7 @@ export default async function Home() {
                 <div className={`absolute inset-0 opacity-10 ${f.color.split(" ")[0].replace("text-", "bg-")}`}
                   style={{ background: `radial-gradient(ellipse at center, ${f.tag === "Training" ? "rgba(16,185,129,0.15)" : f.tag === "Cyber Range" ? "rgba(239,68,68,0.15)" : f.tag === "Education" ? "rgba(59,130,246,0.15)" : "rgba(245,158,11,0.15)"} 0%, transparent 70%)` }}
                 />
-                <span className="relative text-6xl font-black opacity-20">{f.icon}</span>
+                <Icon name={f.icon} size={72} className="relative opacity-20" />
                 <div className="relative text-center">
                   <p className={`text-xs font-mono font-bold uppercase tracking-widest ${f.color.split(" ")[0]}`}>{f.tag}</p>
                   <p className="text-xs text-zinc-600 mt-1">{f.items.length} capabilities</p>
@@ -284,7 +285,7 @@ export default async function Home() {
               return (
                 <div key={h.role} className={`card-hover rounded-xl border ${borderColor} ${bgColor} p-6`}>
                   <div className="flex items-center gap-2 mb-5">
-                    <span className={`text-lg ${textColor}`}>{h.icon}</span>
+                    <Icon name={h.icon} size={20} variant="current" className={textColor} />
                     <p className={`text-xs font-bold uppercase tracking-widest ${textColor}`}>{h.role}</p>
                   </div>
                   <ol className="space-y-3">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 interface CertStatus {
   eligible: boolean;
   certified: boolean;
@@ -47,7 +48,7 @@ export function CertProgressCard() {
         </p>
         {status?.certified && (
           <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-0.5 text-xs font-semibold text-emerald-400">
-            Certified ✓
+            Certified <Icon name="check" size={14} className="inline-block shrink-0" />
           </span>
         )}
       </div>
@@ -62,7 +63,7 @@ export function CertProgressCard() {
                 status.simsNeeded === 0 ? "text-emerald-400" : "text-amber-400"
               }`}
             >
-              {status.simsNeeded === 0 ? "✓" : "○"}
+              {status.simsNeeded === 0 ? <Icon name="check" size={13} /> : "○"}
             </span>
             <p className="text-sm text-zinc-300">
               {3 - status.simsNeeded}/3 B+ simulations
@@ -74,7 +75,7 @@ export function CertProgressCard() {
                 status.pathsNeeded === 0 ? "text-emerald-400" : "text-amber-400"
               }`}
             >
-              {status.pathsNeeded === 0 ? "✓" : "○"}
+              {status.pathsNeeded === 0 ? <Icon name="check" size={13} /> : "○"}
             </span>
             <p className="text-sm text-zinc-300">
               {2 - status.pathsNeeded}/2 paths completed

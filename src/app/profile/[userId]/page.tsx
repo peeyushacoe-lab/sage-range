@@ -10,6 +10,7 @@ import { CyberAvatar } from "@/components/cyber-avatar";
 import { getRankInfo, computeRoleBadge, computeSkillEmblems } from "@/lib/cyber-identity";
 import { EmptyState } from "@/components/ui";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function toRating(score: number) {
@@ -130,7 +131,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                       {target.university && <p className="text-xs text-zinc-600 mt-0.5">{target.university}</p>}
                       {roleBadge && (
                         <p className={`text-xs font-semibold mt-1 ${roleBadge.color}`}>
-                          {roleBadge.icon} {roleBadge.label}
+                          <Icon name={roleBadge.icon} size={14} /> {roleBadge.label}
                         </p>
                       )}
                     </div>
@@ -155,7 +156,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                   {solved.slice(0, 6).map((a) => (
                     <div key={a.id} className="flex items-center justify-between text-sm py-2 border-b border-white/5 last:border-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-emerald-500 text-xs">✓</span>
+                        <span className="text-emerald-500 text-xs"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                         <span className="text-zinc-300">Solved <span className="font-medium">{a.lab.title}</span></span>
                         <span className="text-[10px] text-zinc-600 font-mono uppercase">{a.lab.type.replace("_", " ")}</span>
                       </div>
@@ -232,7 +233,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                             : "border-zinc-700/60 bg-zinc-900/60 text-zinc-500"
                         }`}
                       >
-                        <span>{e.icon}</span>
+                        <Icon name={e.icon} size={16} />
                         <span>{e.category}</span>
                         <span className="opacity-50 tabular-nums">({e.count})</span>
                       </span>
@@ -250,7 +251,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                       const s = TIER_STYLE[b.tier];
                       return (
                         <div key={b.id} title={b.description} className={`flex items-center gap-1.5 text-xs border rounded-full px-2.5 py-1 ${s.border} ${s.bg} ${s.text}`}>
-                          <span>{b.icon}</span>
+                          <Icon name={b.icon} size={16} />
                           <span className="font-semibold">{b.label}</span>
                         </div>
                       );
@@ -313,12 +314,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                     <h1 className="text-xl font-bold">{target.displayName ?? target.email.split("@")[0]}</h1>
                     {target.certification && (
                       <Link href={`/verify/${target.certification.certId}`} className="text-xs font-bold border border-emerald-500/40 bg-emerald-500/8 text-emerald-400 rounded-full px-2.5 py-0.5 hover:bg-emerald-500/15 transition">
-                        IR Commander ✓
+                        IR Commander <Icon name="check" size={14} className="inline-block shrink-0" />
                       </Link>
                     )}
                   </div>
                   {roleBadge && (
-                    <p className={`text-xs font-semibold mb-1 ${roleBadge.color}`}>{roleBadge.icon} {roleBadge.label}</p>
+                    <p className={`text-xs font-semibold mb-1 ${roleBadge.color}`}><Icon name={roleBadge.icon} size={14} /> {roleBadge.label}</p>
                   )}
                   {target.university && <p className="text-xs text-zinc-500">{target.university}</p>}
                   {target.jobTitle && <p className="text-sm text-zinc-300">{target.jobTitle}{target.company ? ` · ${target.company}` : ""}</p>}
@@ -368,7 +369,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                         : "border-zinc-700/60 bg-zinc-900/60 text-zinc-500"
                     }`}
                   >
-                    <span>{e.icon}</span><span>{e.category}</span><span className="opacity-50 tabular-nums">({e.count})</span>
+                    <Icon name={e.icon} size={16} /><span>{e.category}</span><span className="opacity-50 tabular-nums">({e.count})</span>
                   </span>
                 ))}
               </div>
@@ -384,7 +385,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                   const s = TIER_STYLE[b.tier];
                   return (
                     <div key={b.id} title={b.description} className={`flex items-center gap-2 border rounded-xl px-3 py-2 ${s.border} ${s.bg}`}>
-                      <span className="text-lg">{b.icon}</span>
+                      <Icon name={b.icon} size={20} />
                       <div>
                         <p className={`text-xs font-bold ${s.text}`}>{b.label}</p>
                         <p className="text-[10px] text-zinc-600">{b.description}</p>
@@ -406,7 +407,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                     {solved.slice(0, 8).map((a) => (
                       <div key={a.id} className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-emerald-500 text-xs shrink-0">✓</span>
+                          <span className="text-emerald-500 text-xs shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                           <span className="text-zinc-300 truncate">{a.lab.title}</span>
                         </div>
                         <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ml-2 shrink-0 ${
@@ -483,13 +484,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                   <h1 className="text-2xl font-bold">{target.displayName ?? target.email.split("@")[0]}</h1>
                   {target.certification && (
                     <Link href={`/verify/${target.certification.certId}`} className="text-xs font-bold border border-emerald-500/40 bg-emerald-500/8 text-emerald-400 rounded-full px-2.5 py-0.5 hover:bg-emerald-500/15 transition">
-                      IR Commander ✓
+                      IR Commander <Icon name="check" size={14} className="inline-block shrink-0" />
                     </Link>
                   )}
                 </div>
                 {roleBadge && (
                   <p className={`text-xs font-semibold mb-1 ${roleBadge.color}`}>
-                    {roleBadge.icon} {roleBadge.label}
+                    <Icon name={roleBadge.icon} size={14} /> {roleBadge.label}
                   </p>
                 )}
                 {target.jobTitle && <p className="text-sm text-zinc-300">{target.jobTitle}{target.company ? ` · ${target.company}` : ""}</p>}
@@ -562,7 +563,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                         : "border-zinc-700/60 bg-zinc-900/60 text-zinc-500"
                     }`}
                   >
-                    <span>{e.icon}</span>
+                    <Icon name={e.icon} size={16} />
                     <span>{e.category}</span>
                     <span className="opacity-50 tabular-nums">({e.count})</span>
                   </span>
@@ -585,7 +586,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
         {target.role === "STUDENT" && solved.length === 0 && simSessions.length === 0 && badges.length === 0 && (
           <div className="rounded-xl border border-white/8 bg-zinc-900/40">
             <EmptyState
-              icon="🚀"
+              icon="launch"
               title="Your profile is ready — now build a track record"
               description="Solve labs and run simulations to earn badges, skill emblems, and a skill score that recruiters can see."
               action={{ label: "Browse Labs", href: "/labs" }}
@@ -602,7 +603,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                 const s = TIER_STYLE[b.tier];
                 return (
                   <div key={b.id} title={b.description} className={`flex items-center gap-2 border rounded-xl px-3 py-2 ${s.border} ${s.bg}`}>
-                    <span className="text-lg">{b.icon}</span>
+                    <Icon name={b.icon} size={20} />
                     <div>
                       <p className={`text-xs font-bold ${s.text}`}>{b.label}</p>
                       <p className="text-[10px] text-zinc-600">{b.description}</p>
@@ -624,7 +625,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                   {solved.slice(0, 8).map((a) => (
                     <div key={a.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-emerald-500 text-xs shrink-0">✓</span>
+                        <span className="text-emerald-500 text-xs shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                         <span className="text-zinc-300 truncate">{a.lab.title}</span>
                       </div>
                       <span className="text-[10px] text-zinc-600 font-mono uppercase ml-2 shrink-0">{a.lab.type.replace("_", " ")}</span>
@@ -702,7 +703,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                     "border-amber-500/40 text-amber-400 hover:bg-amber-500/10"
                   }`}
                 >
-                  {target.role === r ? `${r} ✓` : r}
+                  {target.role === r ? <>{r} <Icon name="check" size={11} className="inline-block" /></> : r}
                 </a>
               ))}
             </div>

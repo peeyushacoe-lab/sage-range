@@ -7,15 +7,16 @@ import { ModuleTabs } from "./_components/module-tabs";
 import { QuizSection } from "./_components/quiz-section";
 import { AssessmentSection } from "./_components/assessment-section";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
-const RESOURCE_ICONS: Record<string, string> = {
-  PDF: "📄",
-  ARTICLE: "📰",
-  DOCUMENTATION: "📚",
-  GITHUB: "🔗",
-  EXTERNAL_LINK: "🌐",
-  TOOL_DOWNLOAD: "🛠",
+const RESOURCE_ICONS: Record<string, IconName> = {
+  PDF: "doc",
+  ARTICLE: "news",
+  DOCUMENTATION: "learning",
+  GITHUB: "link",
+  EXTERNAL_LINK: "globe",
+  TOOL_DOWNLOAD: "download",
 };
 
 const RESOURCE_LABELS: Record<string, string> = {
@@ -186,7 +187,7 @@ export default async function ModuleDetail({
                           rel="noopener noreferrer"
                           className="flex items-center gap-4 rounded-xl border border-white/8 p-4 hover:border-sage-500/40 hover:bg-sage-500/5 transition group"
                         >
-                          <span className="text-2xl shrink-0">{RESOURCE_ICONS[r.type] ?? "🔗"}</span>
+                          <Icon name={RESOURCE_ICONS[r.type] ?? "link"} size={22} className="shrink-0" />
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-sm group-hover:text-sage-400 transition truncate">{r.title}</p>
                             <p className="text-xs text-zinc-500 mt-0.5">{RESOURCE_LABELS[r.type] ?? r.type}</p>

@@ -1,9 +1,10 @@
 import { db } from "@/lib/db";
 import { calcStreak } from "./streak";
 
+import { type IconName } from "@/components/ui/icon";
 export type Achievement = {
   id: string;
-  emoji: string;
+  icon: IconName;
   name: string;
   description: string;
   category: "labs" | "simulations" | "streaks" | "rank" | "mastery";
@@ -88,7 +89,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     // ── Labs ──
     {
       id: "first-blood",
-      emoji: "🩸",
+      icon: "blood",
       name: "First Blood",
       description: "Solve your very first lab",
       category: "labs",
@@ -96,7 +97,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "flag-collector",
-      emoji: "🚩",
+      icon: "challenges",
       name: "Flag Collector",
       description: "Solve 10 labs",
       category: "labs",
@@ -104,7 +105,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "ctf-veteran",
-      emoji: "⚔️",
+      icon: "redTeam",
       name: "CTF Veteran",
       description: "Solve 25 labs",
       category: "labs",
@@ -112,7 +113,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "century",
-      emoji: "💯",
+      icon: "verified",
       name: "Century",
       description: "Solve 100 labs",
       category: "labs",
@@ -120,7 +121,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "insane-mode",
-      emoji: "💀",
+      icon: "bossFight",
       name: "Insane Mode",
       description: "Solve an Insane difficulty lab",
       category: "labs",
@@ -128,7 +129,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "speed-runner",
-      emoji: "⚡",
+      icon: "energy",
       name: "Speed Runner",
       description: "Solve a Hard lab in under 30 minutes",
       category: "labs",
@@ -136,7 +137,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "all-rounder",
-      emoji: "🔄",
+      icon: "layers",
       name: "All Rounder",
       description: "Solve at least one CTF, Blue Team, and Red Team lab",
       category: "labs",
@@ -144,7 +145,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "hint-free",
-      emoji: "🎯",
+      icon: "simulations",
       name: "Hint Free",
       description: "Solve 5+ labs without ever using a hint",
       category: "labs",
@@ -152,7 +153,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "hard-hitter",
-      emoji: "🔨",
+      icon: "tools",
       name: "Hard Hitter",
       description: "Solve 5 Hard or Insane difficulty labs",
       category: "labs",
@@ -160,7 +161,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "explorer",
-      emoji: "🌐",
+      icon: "globe",
       name: "Explorer",
       description: "Complete labs from 5+ different skill categories",
       category: "labs",
@@ -170,7 +171,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     // ── Simulations ──
     {
       id: "first-responder",
-      emoji: "🚨",
+      icon: "alert",
       name: "First Responder",
       description: "Complete your first simulation",
       category: "simulations",
@@ -178,7 +179,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "threat-contained",
-      emoji: "🛡️",
+      icon: "blueTeam",
       name: "Threat Contained",
       description: "Successfully CONTAIN a threat in a simulation",
       category: "simulations",
@@ -186,7 +187,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "high-scorer",
-      emoji: "⭐",
+      icon: "star",
       name: "High Scorer",
       description: "Score 90 or above in any simulation",
       category: "simulations",
@@ -194,7 +195,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "perfect-score",
-      emoji: "💎",
+      icon: "gem",
       name: "Perfect Score",
       description: "Achieve a score of 100 in any simulation",
       category: "simulations",
@@ -202,7 +203,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "sim-veteran",
-      emoji: "🎖️",
+      icon: "medal",
       name: "Sim Veteran",
       description: "Complete 5 simulations",
       category: "simulations",
@@ -210,7 +211,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "relentless",
-      emoji: "🔥",
+      icon: "streak",
       name: "Relentless",
       description: "Complete 10 simulations",
       category: "simulations",
@@ -220,7 +221,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     // ── Streaks ──
     {
       id: "daily-grind",
-      emoji: "📅",
+      icon: "dailyMissions",
       name: "Daily Grind",
       description: "Maintain a 3-day activity streak",
       category: "streaks",
@@ -228,7 +229,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "week-warrior",
-      emoji: "🗓️",
+      icon: "dailyMissions",
       name: "Week Warrior",
       description: "Maintain a 7-day activity streak",
       category: "streaks",
@@ -236,7 +237,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "month-strong",
-      emoji: "💪",
+      icon: "progress",
       name: "Month Strong",
       description: "Maintain a 14-day activity streak",
       category: "streaks",
@@ -246,7 +247,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     // ── Rank ──
     {
       id: "rising-star",
-      emoji: "🌟",
+      icon: "xp",
       name: "Rising Star",
       description: "Reach Bronze rank (1,000+ skill score)",
       category: "rank",
@@ -254,7 +255,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "silver-bullet",
-      emoji: "🥈",
+      icon: "medal",
       name: "Silver Bullet",
       description: "Reach Silver rank (600+ skill score)",
       category: "rank",
@@ -262,7 +263,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "gold-standard",
-      emoji: "🥇",
+      icon: "trophy",
       name: "Gold Standard",
       description: "Reach Gold rank (1,000+ skill score)",
       category: "rank",
@@ -270,7 +271,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "elite-operator",
-      emoji: "👁️",
+      icon: "eye",
       name: "Elite Operator",
       description: "Reach Elite rank (2,000+ skill score)",
       category: "rank",
@@ -280,7 +281,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     // ── Mastery ──
     {
       id: "tactical-mind",
-      emoji: "🗺️",
+      icon: "recon",
       name: "Tactical Mind",
       description: "Complete simulations across 3+ different scenarios",
       category: "mastery",
@@ -288,7 +289,7 @@ export async function computeAchievements(userId: string): Promise<AchievementsR
     },
     {
       id: "full-spectrum",
-      emoji: "⛓️",
+      icon: "skills",
       name: "Full Spectrum",
       description: "Solve 5+ Hard labs AND complete 5+ simulations",
       category: "mastery",

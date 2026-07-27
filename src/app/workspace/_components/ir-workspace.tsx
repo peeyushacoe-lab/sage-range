@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 
+import { Icon } from "@/components/ui/icon";
 // ── Case data ──────────────────────────────────────────────────────────────────
 
 const CASE = {
@@ -206,7 +207,7 @@ export function IrWorkspace() {
                   <div key={l.key} className="flex items-start gap-2 text-xs bg-emerald-500/8 border border-emerald-500/20 rounded px-2 py-1.5">
                     <span className="text-zinc-600 shrink-0 font-mono">{l.ts}</span>
                     <span className="text-zinc-300 leading-relaxed">{l.text}</span>
-                    <button onClick={() => togglePin(l.key)} className="shrink-0 text-zinc-600 hover:text-red-400 ml-auto">✕</button>
+                    <button onClick={() => togglePin(l.key)} className="shrink-0 text-zinc-600 hover:text-red-400 ml-auto"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
                   </div>
                 ))}
               </div>
@@ -342,7 +343,7 @@ export function IrWorkspace() {
                     return (
                       <div key={key} className={`rounded-lg border px-3 py-2.5 text-xs ${correct ? "border-emerald-500/30 bg-emerald-500/5" : "border-red-500/30 bg-red-500/5"}`}>
                         <div className="flex items-center gap-2 mb-1">
-                          <span>{correct ? "✓" : "✗"}</span>
+                          <span>{correct ? <Icon name="check" size={13} /> : <Icon name="cross" size={13} />}</span>
                           <span className="font-medium text-zinc-300">{label}</span>
                         </div>
                         <p className="text-zinc-400">{answer}</p>

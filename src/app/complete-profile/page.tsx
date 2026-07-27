@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 const SKILL_OPTIONS = [
   "Network Security", "Incident Response", "Malware Analysis", "OSINT",
   "Penetration Testing", "Digital Forensics", "Threat Intelligence",
@@ -89,7 +90,7 @@ export default function CompleteProfilePage() {
                   s.n === 2 ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 animate-glow-pulse" :
                   "border-zinc-700 bg-zinc-900 text-zinc-600"
                 }`}>
-                  {s.n < 2 ? "✓" : s.n}
+                  {s.n < 2 ? <Icon name="check" size={13} /> : s.n}
                 </div>
                 <span className={`text-[10px] font-mono uppercase tracking-wider ${s.n === 2 ? "text-emerald-400" : "text-zinc-600"}`}>
                   {s.label}
@@ -160,7 +161,7 @@ export default function CompleteProfilePage() {
                           : "border-white/8 bg-zinc-800/50 text-zinc-500 hover:border-white/20 hover:text-zinc-300"
                       }`}
                     >
-                      {selected && <span className="mr-1">✓</span>}{skill}
+                      {selected && <span className="mr-1"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}{skill}
                     </button>
                   );
                 })}

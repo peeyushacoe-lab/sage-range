@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HintPanel } from "./hint-panel";
 
+import { Icon } from "@/components/ui/icon";
 const HUNT_LOGS = `2026-05-09 14:08:45  Sysmon EventID 3   it-ws-admin
   svchost.exe → 10.0.0.31:445 (SMB)
   (SCCM maintenance push — scheduled)
@@ -70,7 +71,7 @@ export function SocTask3ThreatHunt({ labId, alreadyDone }: { labId: string; alre
   if (submitted) {
     return (
       <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
-        <p className="text-sage-500 font-medium mb-2">Threat hunt complete ✓</p>
+        <p className="text-sage-500 font-medium mb-2">Threat hunt complete <Icon name="check" size={14} className="inline-block shrink-0" /></p>
         <p className="text-zinc-400">
           The attacker used WMI remote process creation (<code className="font-mono text-zinc-300">wmic /node: process call create</code>) to pivot from finance-ws01 to FINANCE-SERVER01. A second C2 beacon was established and 42 MB of patient records were read. The SCCM activity on HR-SERVER02 was a red herring.
         </p>
@@ -129,7 +130,7 @@ export function SocTask3ThreatHunt({ labId, alreadyDone }: { labId: string; alre
 
         {errors.length > 0 && (
           <div className="rounded border border-red-500/30 bg-red-500/5 p-3 space-y-1">
-            {errors.map((e) => <p key={e} className="text-sm text-red-400">✗ {e}</p>)}
+            {errors.map((e) => <p key={e} className="text-sm text-red-400 flex items-center gap-1"><Icon name="cross" size={12} /> {e}</p>)}
           </div>
         )}
 

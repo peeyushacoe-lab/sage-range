@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { EmptyState, PageHeader } from "@/components/ui";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
@@ -58,7 +59,7 @@ export default async function IncidentsIndex() {
         />
 
         {simulations.length === 0 ? (
-          <EmptyState icon="🕵" title="No incident simulations published yet" description="The first scenario is being prepared. Check back soon." />
+          <EmptyState icon="investigate" title="No incident simulations published yet" description="The first scenario is being prepared. Check back soon." />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {simulations.map((sim, idx) => {
@@ -87,7 +88,7 @@ export default async function IncidentsIndex() {
                   <div>
                     <h3 className="font-semibold flex items-center gap-2 leading-snug">
                       {sim.title}
-                      {solved && <span className="text-sage-500">✓</span>}
+                      {solved && <span className="text-sage-500"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
                     </h3>
                     <p className="text-xs text-zinc-500 mt-1">
                       {sim.company.name} · {INDUSTRY_LABEL[sim.company.industry] ?? sim.company.industry}

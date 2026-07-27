@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { CEO_SIGNATURE_DATA_URI } from "./signature-data";
 
+import { Icon } from "@/components/ui/icon";
 // Shared formal certificate design (navy/gold/cream, landscape) used by the
 // Learning Path, Academy, IR verification, and Simulation certificate pages —
 // single source of truth so all four render the same brand design.
@@ -98,7 +99,7 @@ function GoldSeal() {
       <text x="60" y="73" textAnchor="middle" fontSize="10.5" fontWeight="bold" fill="#3d2f10" style={{ fontFamily: SERIF }}>
         CYBERSAGE
       </text>
-      <text x="60" y="88" textAnchor="middle" fontSize="9" fill="#3d2f10">★ ★ ★</text>
+      <text x="60" y="88" textAnchor="middle" fontSize="9" fill="#3d2f10"><Icon name="star" size={14} className="inline-block shrink-0" /> <Icon name="star" size={14} className="inline-block shrink-0" /> <Icon name="star" size={14} className="inline-block shrink-0" /></text>
     </svg>
   );
 }
@@ -155,7 +156,7 @@ export function CertificateFrame({
               {capstone && (
                 <div className="inline-flex items-center gap-3 border rounded-lg px-5 py-3 mt-6 text-left" style={{ borderColor: GOLD }}>
                   <span className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-sm" style={{ background: NAVY, color: CREAM }}>
-                    ★
+                    <Icon name="star" size={14} className="inline-block shrink-0" />
                   </span>
                   <span>
                     <span className="block text-[10px] font-bold tracking-[0.25em]" style={{ color: GOLD }}>
@@ -204,7 +205,7 @@ export function CertificateFrame({
                     <span className="block text-[10px] font-bold tracking-[0.18em] text-zinc-500 uppercase mb-1.5">{l.label}</span>
                     {l.items.map((item) => (
                       <span key={item} className="flex items-center gap-1.5 text-[13px] leading-6" style={{ color: NAVY }}>
-                        <span style={{ color: GOLD }}>✓</span> {item}
+                        <span style={{ color: GOLD }}><Icon name="check" size={14} className="inline-block shrink-0" /></span> {item}
                       </span>
                     ))}
                   </span>
@@ -233,13 +234,13 @@ export function CertificateFrame({
           {/* ── Bottom bar ──────────────────────────────────────────── */}
           <div className="flex flex-wrap items-center justify-between gap-3 px-8 py-3 text-[11px] tracking-wide" style={{ background: NAVY, color: "#e8e2d4" }}>
             <span className="flex items-center gap-1.5">
-              <span aria-hidden>🌐</span> www.cybersagevault.uk
+              <Icon name="globe" size={12} className="inline-block" /> www.cybersagevault.uk
             </span>
             <span className="italic" style={{ fontFamily: SERIF }}>
               Professional Training. Practical Skills. Real-World Impact.
             </span>
             <span className="flex items-center gap-1.5">
-              <span aria-hidden style={{ color: GOLD }}>🛡</span> cybersagevault.uk/verify
+              <Icon name="verified" size={12} tone="amber" className="inline-block" /> cybersagevault.uk/verify
             </span>
           </div>
         </div>

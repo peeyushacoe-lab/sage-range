@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function SubmitWriteupPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -65,7 +66,7 @@ export default async function SubmitWriteupPage({ params }: { params: Promise<{ 
             : existing.status === "REJECTED" ? "border-red-500/30 bg-red-500/8 text-red-400"
             : "border-amber-500/30 bg-amber-500/8 text-amber-400"
           }`}>
-            {existing.status === "APPROVED" && "✓ Your writeup is approved and visible to others."}
+            {existing.status === "APPROVED" && <><Icon name="check" size={13} className="inline-block" /> Your writeup is approved and visible to others.</>}
             {existing.status === "PENDING"  && "⏳ Your writeup is under review. You can update and resubmit below."}
             {existing.status === "REJECTED" && (
               <>Rejected{existing.verdict ? `: ${existing.verdict}` : ""}. Update and resubmit below.</>

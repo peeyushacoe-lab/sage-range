@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 type QuestionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "MULTIPLE_SELECT" | "SHORT_ANSWER";
 
 interface Question {
@@ -126,7 +127,7 @@ export function QuizBuilder({ moduleId, existingQuiz }: Props) {
                   </button>
                 ))}
               </div>
-              <button onClick={() => removeQuestion(idx)} className="text-xs text-zinc-600 hover:text-red-400 transition ml-auto shrink-0">✕</button>
+              <button onClick={() => removeQuestion(idx)} className="text-xs text-zinc-600 hover:text-red-400 transition ml-auto shrink-0"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
             </div>
 
             <textarea value={q.question} onChange={(e) => updateQuestion(idx, { question: e.target.value })} rows={2} placeholder="Question text..." className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50 resize-none" />
@@ -192,7 +193,7 @@ export function QuizBuilder({ moduleId, existingQuiz }: Props) {
       {error && <p className="text-xs text-red-400">{error}</p>}
 
       <button onClick={save} disabled={loading} className={`rounded-lg px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${saved ? "bg-emerald-500/25 border border-emerald-500/40 text-emerald-400" : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25"}`}>
-        {loading ? "Saving…" : saved ? "Saved ✓" : existingQuiz ? "Update Quiz" : "Create Quiz"}
+        {loading ? "Saving…" : saved ? <><Icon name="check" size={12} /> Saved</> : existingQuiz ? "Update Quiz" : "Create Quiz"}
       </button>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 type LabType = "CTF" | "BLUE_TEAM" | "RED_TEAM";
 type Difficulty = "EASY" | "MEDIUM" | "HARD" | "INSANE";
 
@@ -210,7 +211,7 @@ export function EditLabClient({
             >
               {metaStatus === "saving" ? "Saving…" : "Save changes"}
             </button>
-            {metaStatus === "saved" && <span className="text-xs text-emerald-400">Saved ✓</span>}
+            {metaStatus === "saved" && <span className="text-xs text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
             {metaStatus === "error" && <span className="text-xs text-red-400">Save failed</span>}
           </div>
         </div>
@@ -296,7 +297,7 @@ export function EditLabClient({
                           />
                           <span className="text-[10px] text-zinc-600">pts</span>
                         </div>
-                        {entry.status === "saved" && <span className="text-[10px] text-emerald-400">Saved ✓</span>}
+                        {entry.status === "saved" && <span className="text-[10px] text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
                         {entry.status === "error"  && <span className="text-[10px] text-red-400">Error</span>}
                         {entry.status === "saving" && <span className="text-[10px] text-zinc-500">Saving…</span>}
                       </div>

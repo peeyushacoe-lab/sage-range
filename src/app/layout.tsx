@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SessionProvider } from "@/components/session-provider";
 import { CookieConsent } from "@/components/cookie-consent";
 import { SearchModal } from "@/components/search-modal";
+import { IconGradients } from "@/components/ui/icon-gradients";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="antialiased">
+        <IconGradients />
         <SessionProvider>
           {children}
           <CookieConsent />

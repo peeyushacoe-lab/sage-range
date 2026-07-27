@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { TASK_STAGES } from "../[slug]/_content";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Skill Graph · Sage Vault" };
 
@@ -22,10 +23,10 @@ const DIFF_DOT: Record<string, string> = {
   INSANE: "bg-red-500",
 };
 
-const TYPE_ICON: Record<string, string> = {
-  CTF:       "🚩",
-  BLUE_TEAM: "🛡️",
-  RED_TEAM:  "⚔️",
+const TYPE_ICON: Record<string, IconName> = {
+  CTF:       "challenges",
+  BLUE_TEAM: "blueTeam",
+  RED_TEAM:  "redTeam",
 };
 
 function difficultyOrder(d: string) {
@@ -141,7 +142,7 @@ export default async function LabGraphPage() {
                     {/* Path header */}
                     <div className="flex items-center justify-between gap-4 mb-4">
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-base">🗺️</span>
+                        <Icon name="recon" size={16} />
                         <div className="min-w-0">
                           <Link href={`/paths/${path.slug}`} className="font-semibold text-sm hover:text-sage-400 transition truncate block">
                             {path.title}
@@ -186,7 +187,7 @@ export default async function LabGraphPage() {
                                       : "bg-zinc-700"
                                   }`}
                                 />
-                                <p className="text-[10px] text-zinc-500 mb-1">{TYPE_ICON[pl.lab.type]} {idx + 1}</p>
+                                <p className="text-[10px] text-zinc-500 mb-1 flex items-center gap-1"><Icon name={TYPE_ICON[pl.lab.type]} size={10} /> {idx + 1}</p>
                                 <p className="text-xs font-medium leading-tight text-zinc-200 line-clamp-2">
                                   {pl.lab.title}
                                 </p>
@@ -235,7 +236,7 @@ export default async function LabGraphPage() {
                 return (
                   <div key={labType}>
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="text-base">{TYPE_ICON[labType]}</span>
+                      <Icon name={TYPE_ICON[labType]} size={16} />
                       <h3 className="text-sm font-semibold text-zinc-300">{typeLabels[labType]}</h3>
                       <span className="text-xs text-zinc-700">{typeDone}/{sorted.length} complete</span>
                     </div>
@@ -274,7 +275,7 @@ export default async function LabGraphPage() {
 
         {allLabs.length === 0 && (
           <div className="text-center py-20 text-zinc-600">
-            <p className="text-4xl mb-4">🗺️</p>
+            <p className="mb-4 flex justify-center"><Icon name="recon" size={40} /></p>
             <p>No labs published yet.</p>
           </div>
         )}

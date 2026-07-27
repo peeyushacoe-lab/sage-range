@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 type Lesson = { id: string; title: string; summary: string; order: number; published: boolean; durationMin: number; blockCount: number; cardCount: number };
 type QuizQuestion = { id: string; type: string; question: string; options: unknown; correctAnswer: unknown; explanation: string; order: number };
 type Quiz = { id: string; title: string; description: string; passMark: number; questions: QuizQuestion[] };
@@ -123,7 +124,7 @@ export function ModuleLessonsClient({ courseId, courseTitle, module: initMod, le
             <button onClick={() => void saveMod()} disabled={modStatus === "saving"} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-lg transition">
               {modStatus === "saving" ? "Saving…" : "Save Module"}
             </button>
-            {modStatus === "saved" && <span className="text-xs text-emerald-400">Saved ✓</span>}
+            {modStatus === "saved" && <span className="text-xs text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
           </div>
         </div>
       </Section>

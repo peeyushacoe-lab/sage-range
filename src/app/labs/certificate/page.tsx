@@ -5,6 +5,7 @@ import { Navbar } from "@/components/navbar";
 import { CertificateFrame, type SidebarStat } from "@/components/certificate/certificate-frame";
 import { requestCertificateApproval } from "@/lib/certificate-approval";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function LabsCertificatePage() {
@@ -45,7 +46,7 @@ export default async function LabsCertificatePage() {
       <>
         <div className="no-print"><Navbar backHref="/labs" backLabel="Labs" /></div>
         <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
-          <p className="text-5xl">{approval?.status === "REJECTED" ? "✗" : "⏳"}</p>
+          <p className="text-5xl flex justify-center">{approval?.status === "REJECTED" ? <Icon name="cross" size={48} /> : "⏳"}</p>
           <h1 className="text-2xl font-bold">
             {approval?.status === "REJECTED" ? "Certificate request not approved" : "Certificate pending admin approval"}
           </h1>

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { CertificateFrame } from "@/components/certificate/certificate-frame";
 import { certificateQrSvg } from "@/components/certificate/qr";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function formatDate(date: Date) {
@@ -52,7 +53,7 @@ export default async function VerifyPage({
     return (
       <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
         <div className="w-full max-w-lg text-center space-y-4">
-          <p className="text-5xl font-bold text-red-400">✗</p>
+          <p className="text-5xl font-bold text-red-400"><Icon name="cross" size={14} className="inline-block shrink-0" /></p>
           <h1 className="text-2xl font-bold">Certificate Not Found</h1>
           <p className="text-zinc-400">
             Certificate not found or revoked.
@@ -75,7 +76,7 @@ export default async function VerifyPage({
     <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-4 sm:px-6 py-16">
       <div className="w-full max-w-5xl">
         <div className="flex items-center justify-center gap-2 mb-6">
-          <p className="text-emerald-400 font-bold text-sm tracking-[0.3em] uppercase">✓ Verified — this certification is on record</p>
+          <p className="text-emerald-400 font-bold text-sm tracking-[0.3em] uppercase"><Icon name="check" size={14} className="inline-block shrink-0" /> Verified — this certification is on record</p>
         </div>
         <CertificateFrame
           recipientName={candidateName}

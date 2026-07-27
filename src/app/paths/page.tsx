@@ -68,7 +68,7 @@ export default async function PathsIndex() {
 
         {paths.length === 0 ? (
           <EmptyState
-            icon="🗺"
+            icon="recon"
             title="No learning paths available yet"
             description="Structured paths are being prepared. In the meantime, explore the individual labs."
             action={{ label: "Browse Labs", href: "/labs" }}

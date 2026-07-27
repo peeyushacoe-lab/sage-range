@@ -3,6 +3,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { BillingClient } from "./_components/billing-client";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function BillingPage({
@@ -28,7 +29,7 @@ export default async function BillingPage({
 
           {success === "1" && (
             <div className="rounded-xl border border-sage-500/30 bg-sage-500/8 p-4 mb-6 flex items-center gap-3">
-              <span className="text-sage-400 text-lg">✓</span>
+              <span className="text-sage-400 text-lg"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
               <div>
                 <p className="font-semibold text-sage-400 text-sm">Subscription activated</p>
                 <p className="text-xs text-zinc-400 mt-0.5">Your 14-day trial has started. Full Classroom access is now unlocked.</p>
@@ -62,7 +63,7 @@ export default async function BillingPage({
                 "Email support",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-2 text-sm text-zinc-300">
-                  <span className="text-sage-500 shrink-0">✓</span>
+                  <span className="text-sage-500 shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                   {f}
                 </li>
               ))}

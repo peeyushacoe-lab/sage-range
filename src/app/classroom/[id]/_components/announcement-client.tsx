@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 type Ann = { id: string; content: string; createdAt: string };
 
 export function AnnouncementClient({
@@ -69,7 +70,7 @@ export function AnnouncementClient({
                 <p className="text-sm text-zinc-200 leading-relaxed">{a.content}</p>
                 <p className="text-xs text-zinc-600 mt-1">{new Date(a.createdAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
               </div>
-              <button onClick={() => remove(a.id)} className="text-zinc-700 hover:text-red-400 transition text-xs shrink-0">✕</button>
+              <button onClick={() => remove(a.id)} className="text-zinc-700 hover:text-red-400 transition text-xs shrink-0"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
             </div>
           ))}
         </div>

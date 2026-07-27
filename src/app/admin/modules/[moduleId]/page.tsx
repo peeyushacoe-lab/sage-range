@@ -8,15 +8,25 @@ import { RubricBuilder } from "./_components/rubric-builder";
 import { ModulePublishToggle } from "./_components/module-publish-toggle";
 import { RequiredToggle } from "./_components/required-toggle";
 
+import { Icon, type IconName } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
+const RESOURCE_ICONS: Record<string, IconName> = {
+  PDF: "doc",
+  ARTICLE: "news",
+  DOCUMENTATION: "learning",
+  GITHUB: "link",
+  EXTERNAL_LINK: "globe",
+  TOOL_DOWNLOAD: "download",
+};
+
 const RESOURCE_LABELS: Record<string, string> = {
-  PDF: "📄 PDF",
-  ARTICLE: "📰 Article",
-  DOCUMENTATION: "📚 Documentation",
-  GITHUB: "🔗 GitHub",
-  EXTERNAL_LINK: "🌐 Link",
-  TOOL_DOWNLOAD: "🛠 Download",
+  PDF: "PDF",
+  ARTICLE: "Article",
+  DOCUMENTATION: "Documentation",
+  GITHUB: "GitHub",
+  EXTERNAL_LINK: "Link",
+  TOOL_DOWNLOAD: "Download",
 };
 
 export default async function AdminModuleDetail({
@@ -70,7 +80,7 @@ export default async function AdminModuleDetail({
               <tbody className="divide-y divide-white/4">
                 {mod.resources.map((r) => (
                   <tr key={r.id} className="hover:bg-white/2 transition">
-                    <td className="px-4 py-3 text-xs text-zinc-500 w-28">{RESOURCE_LABELS[r.type] ?? r.type}</td>
+                    <td className="px-4 py-3 text-xs text-zinc-500 w-28"><span className="flex items-center gap-1.5">{RESOURCE_ICONS[r.type] && <Icon name={RESOURCE_ICONS[r.type]} size={14} />}{RESOURCE_LABELS[r.type] ?? r.type}</span></td>
                     <td className="px-4 py-3 text-zinc-200">{r.title}</td>
                     <td className="px-4 py-3 text-right">
                       <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-xs text-zinc-500 hover:text-emerald-400 transition">

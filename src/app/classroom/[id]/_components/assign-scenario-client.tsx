@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 type ScenarioOption = {
   id: string; title: string; subtitle: string;
   difficulty: string; estimatedMinutes: number; personaId: string;
@@ -86,7 +87,7 @@ export function AssignScenarioClient({
                 on ? "bg-blue-500/15 text-blue-400 hover:bg-red-500/15 hover:text-red-400" : "bg-zinc-800 text-zinc-400 hover:bg-blue-500/15 hover:text-blue-400"
               }`}
             >
-              {loading ? "…" : on ? "Assigned ✓" : "Assign"}
+              {loading ? "…" : on ? <><Icon name="check" size={12} /> Assigned</> : "Assign"}
             </button>
           </div>
         );

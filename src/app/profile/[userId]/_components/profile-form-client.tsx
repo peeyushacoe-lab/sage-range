@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 type Project = { name: string; description: string; url: string };
 
 type Initial = {
@@ -179,7 +180,7 @@ export function ProfileFormClient({ userId, role, initial }: {
             <div className="space-y-3">
               {form.projects.map((p, i) => (
                 <div key={i} className="rounded-lg border border-white/8 p-4 space-y-2 relative">
-                  <button type="button" onClick={() => removeProject(i)} className="absolute top-3 right-3 text-zinc-600 hover:text-red-400 text-xs transition">✕</button>
+                  <button type="button" onClick={() => removeProject(i)} className="absolute top-3 right-3 text-zinc-600 hover:text-red-400 text-xs transition"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
                   <input value={p.name} onChange={(e) => updateProject(i, "name", e.target.value)}
                     placeholder="Project name" className={inputBase} />
                   <textarea value={p.description} onChange={(e) => updateProject(i, "description", e.target.value)}
@@ -228,7 +229,7 @@ export function ProfileFormClient({ userId, role, initial }: {
       {error && <p className="text-xs text-red-400">{error}</p>}
       <button type="submit" disabled={isPending}
         className="rounded-lg bg-zinc-100 text-zinc-900 px-5 py-2.5 text-sm font-bold hover:bg-white disabled:opacity-50 transition">
-        {saved ? "Saved ✓" : isPending ? "Saving…" : "Save Profile"}
+        {saved ? <><Icon name="check" size={12} /> Saved</> : isPending ? "Saving…" : "Save Profile"}
       </button>
     </form>
   );

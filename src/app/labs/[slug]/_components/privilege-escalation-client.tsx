@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
 
+import { Icon } from "@/components/ui/icon";
 const SUID_OUTPUT = `/usr/bin/passwd
 /usr/bin/su
 /usr/bin/find
@@ -207,7 +208,7 @@ export function PrivilegeEscalationClient({
 
       {allDone && (
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete ✓</h3>
+          <h3 className="font-bold text-sage-400 text-base">Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></h3>
           <p className="text-sm text-zinc-400 mt-2">
             All three privilege escalation paths identified — SUID abuse, sudo misconfiguration, and root flag retrieval. Your solve is recorded.
           </p>

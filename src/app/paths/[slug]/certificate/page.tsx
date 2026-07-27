@@ -10,6 +10,7 @@ import { certificateQrSvg } from "@/components/certificate/qr";
 import { computeMitreCoverage } from "@/lib/insights/mitre";
 import { requestCertificateApproval } from "@/lib/certificate-approval";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function CertificatePage({
@@ -85,7 +86,7 @@ export default async function CertificatePage({
       <>
         <div className="no-print"><Navbar backHref={`/paths/${slug}`} backLabel="Path" /></div>
         <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
-          <p className="text-5xl">{approval?.status === "REJECTED" ? "✗" : "⏳"}</p>
+          <p className="text-5xl flex justify-center">{approval?.status === "REJECTED" ? <Icon name="cross" size={48} /> : "⏳"}</p>
           <h1 className="text-2xl font-bold">
             {approval?.status === "REJECTED" ? "Certificate request not approved" : "Certificate pending admin approval"}
           </h1>

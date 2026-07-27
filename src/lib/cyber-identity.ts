@@ -1,3 +1,4 @@
+import { type IconName } from "@/components/ui/icon";
 // ── Rank System ────────────────────────────────────────────────────────────────
 // 5 deterministic tiers, single source of truth
 
@@ -35,13 +36,13 @@ export function getRankInfo(skillScore: number): RankInfo {
 // ── Role Badge ─────────────────────────────────────────────────────────────────
 // >60% dominance required; Explorer is the fallback (no blank state)
 
-export type RoleBadge = { label: string; icon: string; color: string };
+export type RoleBadge = { label: string; icon: IconName; color: string };
 
 export function computeRoleBadge(solvedLabTypes: string[]): RoleBadge {
   const total = solvedLabTypes.length;
 
   if (total === 0) {
-    return { label: "Explorer", icon: "🔭", color: "text-zinc-500" };
+    return { label: "Explorer", icon: "compass", color: "text-zinc-500" };
   }
 
   const ctf  = solvedLabTypes.filter((t) => t === "CTF").length;
@@ -50,16 +51,16 @@ export function computeRoleBadge(solvedLabTypes: string[]): RoleBadge {
 
   // Full Spectrum: 6+ labs in EACH of the 3 types
   if (ctf >= 6 && blue >= 6 && red >= 6) {
-    return { label: "Full Spectrum", icon: "🎯", color: "text-purple-400" };
+    return { label: "Full Spectrum", icon: "simulations", color: "text-purple-400" };
   }
 
   // >60% dominance
-  if (ctf / total > 0.6)  return { label: "CTF Specialist", icon: "🚩", color: "text-amber-400" };
-  if (red / total > 0.6)  return { label: "Red Team",       icon: "⚔️",  color: "text-red-400"  };
-  if (blue / total > 0.6) return { label: "Blue Team",      icon: "🛡️",  color: "text-blue-400" };
+  if (ctf / total > 0.6)  return { label: "CTF Specialist", icon: "challenges", color: "text-amber-400" };
+  if (red / total > 0.6)  return { label: "Red Team",       icon: "redTeam",  color: "text-red-400"  };
+  if (blue / total > 0.6) return { label: "Blue Team",      icon: "blueTeam",  color: "text-blue-400" };
 
   // No dominant type
-  return { label: "Explorer", icon: "🔭", color: "text-zinc-400" };
+  return { label: "Explorer", icon: "compass", color: "text-zinc-400" };
 }
 
 // ── Skill Emblems ──────────────────────────────────────────────────────────────
@@ -86,7 +87,7 @@ export type SolvedLabInput = {
 
 export type SkillEmblem = {
   category: string;
-  icon: string;
+  icon: IconName;
   score: number;
   count: number;
   confidence: number; // 0–100 normalised relative to top skill
@@ -135,30 +136,30 @@ export function computeSkillEmblems(
 
 // ── Category Icons ─────────────────────────────────────────────────────────────
 
-const CATEGORY_ICON: Record<string, string> = {
-  "web":                  "🌐",
-  "web application":      "🌐",
-  "active directory":     "🏢",
-  "forensics":            "🔍",
-  "network forensics":    "🔍",
-  "memory forensics":     "🔍",
-  "osint":                "👁️",
-  "network":              "🕸️",
-  "malware":              "🦠",
-  "malware analysis":     "🦠",
-  "privilege escalation": "⬆️",
-  "incident response":    "🚨",
-  "cryptography":         "🔐",
-  "reverse engineering":  "🔧",
-  "phishing":             "🎣",
-  "sql injection":        "💉",
-  "xss":                  "✂️",
-  "social engineering":   "🎭",
-  "cloud":                "☁️",
-  "recon":                "🗺️",
-  "enumeration":          "📡",
+const CATEGORY_ICON: Record<string, IconName> = {
+  "web":                  "globe",
+  "web application":      "globe",
+  "active directory":     "org",
+  "forensics":            "forensics",
+  "network forensics":    "forensics",
+  "memory forensics":     "forensics",
+  "osint":                "eye",
+  "network":              "networkMap",
+  "malware":              "malware",
+  "malware analysis":     "malware",
+  "privilege escalation": "escalate",
+  "incident response":    "alert",
+  "cryptography":         "crypto",
+  "reverse engineering":  "tools",
+  "phishing":             "phishing",
+  "sql injection":        "injection",
+  "xss":                  "socialEng",
+  "social engineering":   "socialEng",
+  "cloud":                "cloud",
+  "recon":                "recon",
+  "enumeration":          "recon",
 };
 
-export function getCategoryIcon(category: string): string {
-  return CATEGORY_ICON[category.toLowerCase()] ?? "🔬";
+export function getCategoryIcon(category: string): IconName {
+  return CATEGORY_ICON[category.toLowerCase()] ?? "research";
 }

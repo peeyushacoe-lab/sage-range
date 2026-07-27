@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { EmptyState, PageHeader } from "@/components/ui";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 export default async function SocShiftIndex() {
@@ -37,7 +38,7 @@ export default async function SocShiftIndex() {
         />
 
         {shifts.length === 0 ? (
-          <EmptyState icon="🚨" title="No shifts published yet" description="Check back soon for a new round of alerts to triage." />
+          <EmptyState icon="alert" title="No shifts published yet" description="Check back soon for a new round of alerts to triage." />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {shifts.map((s) => {
@@ -54,7 +55,7 @@ export default async function SocShiftIndex() {
                     <span className="text-xs uppercase tracking-widest text-zinc-500 font-mono">
                       {s.alerts.length} alerts · {Math.round(s.timeLimitSec / 60)} min
                     </span>
-                    {best && <span className="text-sage-500 text-xs font-bold">✓ {best.score} pts</span>}
+                    {best && <span className="text-sage-500 text-xs font-bold flex items-center gap-1"><Icon name="check" size={12} /> {best.score} pts</span>}
                   </div>
                   <div>
                     <h3 className="font-semibold">{s.title}</h3>

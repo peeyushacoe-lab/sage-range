@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { Navbar } from "@/components/navbar";
 
+import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 function toRating(score: number) {
@@ -192,7 +193,7 @@ export default async function RecruiterAnalyticsPage() {
                       return (
                         <tr key={c.user.id} className="hover:bg-white/3 transition">
                           <td className="p-3 pl-4 text-zinc-600 text-xs font-mono">
-                            {i < 3 ? ["🥇", "🥈", "🥉"][i] : i + 1}
+                            {i < 3 ? <Icon name="medal" size={15} tone={(["gold","slate","amber"] as const)[i]} /> : i + 1}
                           </td>
                           <td className="p-3">
                             <Link href={`/profile/${c.user.id}`} className="hover:text-amber-400 transition">
@@ -216,7 +217,7 @@ export default async function RecruiterAnalyticsPage() {
                           </td>
                           <td className="p-3 pr-4 text-right">
                             <span className="font-bold text-white">{c.score}</span>
-                            {isBookmarked && <span className="ml-1.5 text-[10px] text-amber-400">★</span>}
+                            {isBookmarked && <span className="ml-1.5 text-[10px] text-amber-400"><Icon name="star" size={14} className="inline-block shrink-0" /></span>}
                           </td>
                         </tr>
                       );

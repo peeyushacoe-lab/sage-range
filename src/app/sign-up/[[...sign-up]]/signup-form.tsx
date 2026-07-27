@@ -147,7 +147,7 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
     const newFinal = applyDiscount(base, data.discountPct ?? 0, data.discountAmt ?? 0);
     setVoucherMsg(
       newFinal === 0
-        ? "🎉 Full discount! No payment required."
+        ? "Full discount! No payment required."
         : `Voucher applied — saving ${formatPrice(base - newFinal)}/mo.`
     );
   }

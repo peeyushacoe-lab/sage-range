@@ -5,6 +5,8 @@ import { JoinClassroomClient } from "@/app/classroom/_components/classroom-hub-c
 import { buildHomeDashboard, type ContinueLearning } from "@/lib/insights/home-dashboard";
 import type { AppUser } from "@/lib/current-user";
 
+import { Icon, type IconName } from "@/components/ui/icon";
+import { IconTile } from "@/components/ui/icon-tile";
 const GREETING_LABEL: Record<string, string> = {
   morning: "Good morning",
   afternoon: "Good afternoon",
@@ -18,15 +20,15 @@ const DIFF_COLOR: Record<string, string> = {
   INSANE: "text-purple-400 border-purple-500/30 bg-purple-500/8",
 };
 
-const QUICK_ACCESS = [
-  { href: "/academy", label: "Learning", icon: "📚" },
-  { href: "/labs", label: "Labs", icon: "🧪" },
-  { href: "/simulation/new", label: "Simulations", icon: "🎯" },
-  { href: "/competitions", label: "Challenges", icon: "🏆" },
-  { href: "/stats", label: "Progress", icon: "📊" },
-  { href: "/transcript", label: "Certificates", icon: "🏅" },
-  { href: "/scoreboard", label: "Ranking", icon: "📈" },
-  { href: "/feed", label: "Community", icon: "👥" },
+const QUICK_ACCESS: { href: string; label: string; icon: IconName }[] = [
+  { href: "/academy", label: "Learning", icon: "learning" },
+  { href: "/labs", label: "Labs", icon: "labs" },
+  { href: "/simulation/new", label: "Simulations", icon: "simulations" },
+  { href: "/competitions", label: "Challenges", icon: "challenges" },
+  { href: "/stats", label: "Progress", icon: "progress" },
+  { href: "/transcript", label: "Certificates", icon: "certificates" },
+  { href: "/scoreboard", label: "Ranking", icon: "leaderboard" },
+  { href: "/feed", label: "Community", icon: "users" },
 ];
 
 function continueLearningHref(cl: NonNullable<ContinueLearning>) {
@@ -141,7 +143,7 @@ export async function StudentHome({ user }: { user: AppUser }) {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <p className="text-xs text-zinc-500 uppercase tracking-widest font-mono">Investigate</p>
-                {dashboard.todaysMission.solved && <span className="text-xs text-emerald-400 font-semibold">✓ Solved today</span>}
+                {dashboard.todaysMission.solved && <span className="text-xs text-emerald-400 font-semibold"><Icon name="check" size={14} className="inline-block shrink-0" /> Solved today</span>}
               </div>
               <p className="text-lg font-bold text-zinc-100">{dashboard.todaysMission.title}</p>
               <div className="flex items-center gap-3 mt-2 text-xs">
@@ -173,7 +175,7 @@ export async function StudentHome({ user }: { user: AppUser }) {
                 <span className={`shrink-0 h-6 w-6 rounded-full flex items-center justify-center text-xs ${
                   step.status === "done" ? "bg-emerald-500 text-zinc-950" : step.status === "current" ? "border-2 border-amber-400 text-amber-400 animate-pulse" : "border border-zinc-700 text-zinc-700"
                 }`}>
-                  {step.status === "done" ? "✓" : step.status === "current" ? "🔥" : "🔒"}
+                  {step.status === "done" ? <Icon name="check" size={13} /> : step.status === "current" ? <Icon name="streak" size={13} /> : <Icon name="lock" size={13} />}
                 </span>
                 <span className={`text-sm ${step.status === "done" ? "text-emerald-400" : step.status === "current" ? "text-amber-400 font-semibold" : "text-zinc-600"}`}>
                   {step.title}
@@ -190,7 +192,7 @@ export async function StudentHome({ user }: { user: AppUser }) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {QUICK_ACCESS.map((q) => (
             <Link key={q.href} href={q.href} className="card-hover rounded-xl border border-white/8 bg-zinc-900/60 p-4 flex flex-col items-center gap-2 text-center hover:border-emerald-500/30 transition">
-              <span className="text-2xl">{q.icon}</span>
+              <IconTile name={q.icon} size={44} />
               <span className="text-xs font-semibold text-zinc-300">{q.label}</span>
             </Link>
           ))}
@@ -265,7 +267,7 @@ export async function StudentHome({ user }: { user: AppUser }) {
           <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5 grid grid-cols-2 gap-3">
             {dashboard.achievementsPreview.map((a) => (
               <div key={a.id} className={`rounded-lg border p-3 flex items-center gap-2.5 ${a.earnedAt ? "border-emerald-500/30 bg-emerald-500/5" : "border-white/8 opacity-50"}`}>
-                <span className="text-xl">{a.emoji}</span>
+                <Icon name={a.icon} size={20} />
                 <p className="text-xs font-semibold text-zinc-200 leading-tight">{a.name}</p>
               </div>
             ))}
@@ -285,7 +287,7 @@ export async function StudentHome({ user }: { user: AppUser }) {
                 <div key={row.id} className={`flex items-center justify-between px-4 py-3 ${row.isMe ? "bg-emerald-500/5" : ""}`}>
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-zinc-600 w-5 text-right font-mono">
-                      {row.rank === 1 ? "🥇" : row.rank === 2 ? "🥈" : row.rank === 3 ? "🥉" : `#${row.rank}`}
+                      {row.rank <= 3 ? <Icon name="medal" size={15} tone={(["gold","slate","amber"] as const)[row.rank - 1]} /> : `#${row.rank}`}
                     </span>
                     <span className={`text-sm ${row.isMe ? "text-emerald-300 font-semibold" : "text-zinc-300"}`}>
                       {row.name}{row.isMe && <span className="ml-1.5 text-[10px] text-zinc-500">(you)</span>}

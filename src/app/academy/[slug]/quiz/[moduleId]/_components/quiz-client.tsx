@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { Icon } from "@/components/ui/icon";
 type Option = { id: string; text: string };
 type Question = { id: string; type: string; question: string; options: Option[] | null; explanation: string };
 type Quiz = { id: string; title: string; description: string; passMark: number; questions: Question[] };
@@ -123,7 +124,7 @@ export function QuizClient({ courseSlug, courseTitle, quiz, lastAttempt }: {
                     return (
                       <label key={opt.id} className={`flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition ${sel ? "border-emerald-500/40 bg-emerald-500/10" : "border-white/8 hover:border-white/20"}`}>
                         <input type="checkbox" checked={sel} onChange={() => toggleSelect(q.id, opt.id)} className="sr-only" />
-                        <span className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center text-[10px] ${sel ? "border-emerald-500 bg-emerald-500 text-black" : "border-zinc-600"}`}>{sel ? "✓" : ""}</span>
+                        <span className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center text-[10px] ${sel ? "border-emerald-500 bg-emerald-500 text-black" : "border-zinc-600"}`}>{sel ? <Icon name="check" size={11} /> : ""}</span>
                         <span className="text-sm text-zinc-300">{opt.text}</span>
                       </label>
                     );

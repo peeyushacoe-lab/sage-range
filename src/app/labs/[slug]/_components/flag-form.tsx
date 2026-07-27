@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { Icon } from "@/components/ui/icon";
 type Result =
   | { kind: "idle" }
   | { kind: "correct"; points: number; alreadySolved: boolean }
@@ -55,7 +56,7 @@ export function FlagForm({ labSlug, alreadySolved }: { labSlug: string; alreadyS
   if (alreadySolved && result.kind === "idle") {
     return (
       <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
-        <p className="text-sage-500 font-medium">✓ Solved</p>
+        <p className="text-sage-500 font-medium"><Icon name="check" size={14} className="inline-block shrink-0" /> Solved</p>
         <p className="text-zinc-400 mt-1">You&apos;ve already captured this flag.</p>
       </div>
     );
@@ -84,11 +85,11 @@ export function FlagForm({ labSlug, alreadySolved }: { labSlug: string; alreadyS
         <p className="text-sm text-sage-500">
           {result.alreadySolved
             ? "Correct — already counted."
-            : `✓ Correct! +${result.points} points.`}
+            : <><Icon name="check" size={13} className="inline-block" /> {`Correct! +${result.points} points.`}</>}
         </p>
       )}
       {result.kind === "wrong" && (
-        <p className="text-sm text-red-400">✗ Not quite. Keep digging.</p>
+        <p className="text-sm text-red-400"><Icon name="cross" size={14} className="inline-block shrink-0" /> Not quite. Keep digging.</p>
       )}
       {result.kind === "error" && (
         <p className="text-sm text-red-400">{result.message}</p>
