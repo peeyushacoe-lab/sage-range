@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 
 import { Icon } from "@/components/ui/icon";
+import { NoCopy } from "@/components/ui/no-copy";
+
 type Option = { id: string; text: string };
 type Question = { id: string; type: string; question: string; options: Option[] | null; explanation: string };
 type Quiz = { id: string; title: string; description: string; passMark: number; questions: Question[] };
@@ -101,7 +103,7 @@ export function QuizClient({ courseSlug, courseTitle, quiz, lastAttempt }: {
 
         <div className="space-y-8">
           {quiz.questions.map((q, i) => (
-            <div key={q.id} className="rounded-xl border border-white/8 bg-zinc-900/40 p-5">
+            <NoCopy key={q.id} className="rounded-xl border border-white/8 bg-zinc-900/40 p-5">
               <p className="text-xs text-zinc-500 mb-2">{i + 1} of {quiz.questions.length}</p>
               <p className="font-semibold text-zinc-200 mb-4 leading-relaxed">{q.question}</p>
 
@@ -151,7 +153,7 @@ export function QuizClient({ courseSlug, courseTitle, quiz, lastAttempt }: {
                   placeholder="Your answer…"
                 />
               )}
-            </div>
+            </NoCopy>
           ))}
         </div>
 

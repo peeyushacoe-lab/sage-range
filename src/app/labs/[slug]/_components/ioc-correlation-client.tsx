@@ -11,7 +11,7 @@ Alert C: host 10.0.9.30 beacons to c2-relay-node88.net every 60s
 Threat feed: c2-relay-node88.net flagged as active C2 for "Operation Slatepine"`;
 
 function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
   return strip(value) === strip(expected);
 }
 

@@ -8,7 +8,7 @@ const LOGIN_DATA = `Normal daily noise: ~15 failed logins/day, spread across ~5 
 Suspicious window: 480 failed logins in 10 minutes, across 460 distinct usernames, all from 1 source IP`;
 
 function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
   return strip(value) === strip(expected);
 }
 

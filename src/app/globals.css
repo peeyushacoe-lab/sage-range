@@ -211,3 +211,25 @@ button:hover > .sv-tile--tilt,
 .delay-300 { animation-delay: 300ms; }
 .delay-500 { animation-delay: 500ms; }
 .delay-700 { animation-delay: 700ms; }
+
+/* ── Copy deterrent for assessed content ────────────────────────────────────
+   Applied to lab tasks, quiz questions, and knowledge checks so question text
+   can't be trivially selected/copied into an LLM. Inputs stay fully editable —
+   selection is re-enabled for form controls so answers can still be typed,
+   corrected, and pasted into. This is a deterrent against casual copying, not
+   real protection: page source, devtools, and screenshots remain accessible. */
+.no-copy {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.no-copy input,
+.no-copy textarea,
+.no-copy select,
+.no-copy [contenteditable="true"] {
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}

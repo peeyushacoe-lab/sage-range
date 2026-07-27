@@ -6,6 +6,7 @@ import { resolveNetworkState, type NetworkNode, type NetworkEvent } from "@/lib/
 import { NetworkMap } from "./network-map";
 
 import { Icon } from "@/components/ui/icon";
+import { NoCopy } from "@/components/ui/no-copy";
 type Artifact = {
   id: string;
   type: string;
@@ -139,7 +140,7 @@ function TaskCard({
   }
 
   return (
-    <div
+    <NoCopy
       className={`rounded-xl border p-5 transition ${
         completed
           ? "border-sage-500/40 bg-sage-500/5"
@@ -209,7 +210,7 @@ function TaskCard({
       )}
 
       {completed && <p className="text-sm font-mono text-sage-400"><Icon name="check" size={14} className="inline-block shrink-0" /> Completed</p>}
-    </div>
+    </NoCopy>
   );
 }
 

@@ -10,7 +10,7 @@ AI summary: "3 IPs show suspicious beaconing patterns: 45.33.12.9, 91.204.10.5, 
 You have not yet independently examined the raw logs for these IPs.`;
 
 function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
   return strip(value) === strip(expected);
 }
 

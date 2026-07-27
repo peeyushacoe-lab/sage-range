@@ -9,7 +9,7 @@ Alert 2: Domain admin account logged in from a new country at 3 AM, followed by 
 Alert 3: Antivirus quarantined a known adware sample on a kiosk PC, no further activity`;
 
 function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
   return strip(value) === strip(expected);
 }
 

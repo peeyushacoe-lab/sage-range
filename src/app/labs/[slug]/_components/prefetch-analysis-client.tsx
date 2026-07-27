@@ -14,7 +14,7 @@ const PATH_DETAIL = `UPDATE_HELPER.EXE-7A1D.pf — referenced path:
 const PHISHING_ALERT = `Phishing alert timestamp: 2026-03-05 02:11:45 — attachment "invoice_update.xlsm" opened`;
 
 function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
   return strip(value) === strip(expected);
 }
 

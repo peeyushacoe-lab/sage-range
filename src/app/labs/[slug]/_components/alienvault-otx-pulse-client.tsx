@@ -31,7 +31,7 @@ const FIREWALL_LOG = `2026-01-15 09:12:03 ALLOW  10.0.4.22 -> 91.223.10.15:443  
 2026-01-15 09:15:40 ALLOW  10.0.4.61 -> 172.217.10.14:443  WKSTN-HR-02`;
 
 function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
   return strip(value) === strip(expected);
 }
 

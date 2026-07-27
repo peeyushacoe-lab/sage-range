@@ -35,7 +35,7 @@ export function WelcomeCtfClient({
 
   function checkFlag(stage: "task_1" | "task_2" | "task_3", value: string, expected: string) {
     const strip = (s: string) =>
-      s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+      s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
     if (strip(value) === strip(expected)) {
       setErrors((p) => ({ ...p, [stage]: "" }));
       void saveStage(stage);

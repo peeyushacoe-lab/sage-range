@@ -17,7 +17,7 @@ const SHELLBAG_ENTRY = `Shellbag entry — Explorer folder view state:
 const DLP_LOG = `DLP Alert: 3.4 GB copied to E:\\ (removable media) — 2026-04-09 17:41:02 to 17:44:01`;
 
 function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
   return strip(value) === strip(expected);
 }
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Icon, type IconName } from "@/components/ui/icon";
+import { NoCopy } from "@/components/ui/no-copy";
 type KCOption = { id: string; text: string };
 type Block = {
   id: string;
@@ -397,7 +398,7 @@ function KnowledgeCheckBlock({ content }: { content: Record<string, unknown> }) 
   }
 
   return (
-    <div className="rounded-xl border border-purple-500/25 bg-purple-500/6 overflow-hidden">
+    <NoCopy className="rounded-xl border border-purple-500/25 bg-purple-500/6 overflow-hidden">
       <div className="flex items-center gap-2 px-5 py-3 border-b border-purple-500/15">
         <span className="text-purple-400 text-xs font-bold uppercase tracking-wider">Knowledge Check</span>
         <span className="text-[10px] text-purple-500/60">— choose the best answer</span>
@@ -447,7 +448,7 @@ function KnowledgeCheckBlock({ content }: { content: Record<string, unknown> }) 
           </div>
         )}
       </div>
-    </div>
+    </NoCopy>
   );
 }
 

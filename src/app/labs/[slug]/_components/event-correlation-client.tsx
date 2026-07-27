@@ -9,7 +9,7 @@ Host B — Sysmon 3 (Network): LogonId 0x3E7A21, powershell.exe -> 10.0.9.44:445
 Host C — Security 4672: LogonId 0x3E7A21, Special privileges assigned, 2026-05-11 22:04:55`;
 
 function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase();
+  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
   return strip(value) === strip(expected);
 }
 

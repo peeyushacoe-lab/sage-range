@@ -1,5 +1,7 @@
 "use client";
 
+import { NoCopy } from "@/components/ui/no-copy";
+
 // Shared presentational components used by lab client components
 
 export function TaskShell({
@@ -16,7 +18,7 @@ export function TaskShell({
   children: React.ReactNode;
 }) {
   return (
-    <div
+    <NoCopy
       className={`rounded-lg border p-5 transition-colors ${
         completed
           ? "border-sage-500/40 bg-sage-500/5"
@@ -39,7 +41,7 @@ export function TaskShell({
         </span>
       </div>
       {unlocked && children}
-    </div>
+    </NoCopy>
   );
 }
 
