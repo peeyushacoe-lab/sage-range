@@ -16,27 +16,33 @@ type Notif = {
 };
 
 const TYPE_ICON: Record<string, string> = {
-  lab_assigned:       "🧪",
-  sim_complete:       "🛡️",
-  badge_earned:       "🏅",
-  writeup_approved:   "✅",
-  writeup_rejected:   "❌",
-  scenario_published: "🎯",
-  competition_start:  "⚔️",
-  competition_win:    "🏆",
-  announcement:       "📣",
+  lab_assigned:          "🧪",
+  sim_complete:          "🛡️",
+  badge_earned:          "🏅",
+  writeup_approved:      "✅",
+  writeup_rejected:      "❌",
+  scenario_published:    "🎯",
+  competition_start:     "⚔️",
+  competition_win:       "🏆",
+  announcement:          "📣",
+  cert_pending_approval: "📋",
+  cert_approved:         "🎓",
+  cert_rejected:         "⚠️",
 };
 
 const TYPE_COLOR: Record<string, string> = {
-  lab_assigned:       "border-l-blue-500",
-  sim_complete:       "border-l-sage-500",
-  badge_earned:       "border-l-amber-500",
-  writeup_approved:   "border-l-emerald-500",
-  writeup_rejected:   "border-l-red-500",
-  scenario_published: "border-l-purple-500",
-  competition_start:  "border-l-orange-500",
-  competition_win:    "border-l-amber-400",
-  announcement:       "border-l-zinc-500",
+  lab_assigned:          "border-l-blue-500",
+  sim_complete:          "border-l-sage-500",
+  badge_earned:          "border-l-amber-500",
+  writeup_approved:      "border-l-emerald-500",
+  writeup_rejected:      "border-l-red-500",
+  scenario_published:    "border-l-purple-500",
+  competition_start:     "border-l-orange-500",
+  competition_win:       "border-l-amber-400",
+  announcement:          "border-l-zinc-500",
+  cert_pending_approval: "border-l-blue-400",
+  cert_approved:         "border-l-emerald-400",
+  cert_rejected:         "border-l-red-400",
 };
 
 function timeAgo(iso: string) {

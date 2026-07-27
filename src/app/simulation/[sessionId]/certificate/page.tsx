@@ -16,6 +16,8 @@ import { CertActions } from "./_components/print-btn";
 import { track } from "@/lib/analytics";
 import { CertificateFrame } from "@/components/certificate/certificate-frame";
 import { certificateQrSvg } from "@/components/certificate/qr";
+import { isSimCertEligible, SIM_CERT_MIN_SCORE } from "@/lib/sim-certificate";
+import { requestCertificateApproval } from "@/lib/certificate-approval";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +52,48 @@ export default async function CertificatePage({
     : undefined;
   const score = computeFinalScore(session.template.slug, worldState, certElapsed);
 
+  if (!isSimCertEligible(session.status, score)) {
+    return (
+      <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
+        <p className="text-5xl">🔒</p>
+        <h1 className="text-2xl font-bold">No certificate for this run</h1>
+        <p className="text-zinc-400 max-w-md">
+          Simulation certificates require the incident to be contained with a score of {SIM_CERT_MIN_SCORE}+.
+          This session scored {score} ({session.status === "CONTAINED" ? "contained" : "breached"}).
+        </p>
+        <Link href={`/simulation/${sessionId}/debrief`} className="text-sm text-emerald-400 hover:text-emerald-300 transition">
+          ← Back to Debrief
+        </Link>
+      </main>
+    );
+  }
+
+  let approval = await db.certificateApproval.findUnique({
+    where: { userId_kind_targetId: { userId: user.id, kind: "SIMULATION", targetId: sessionId } },
+  });
+  if (!approval) {
+    approval = await requestCertificateApproval(user.id, "SIMULATION", sessionId, session.template.name);
+  }
+
+  if (approval?.status !== "APPROVED") {
+    return (
+      <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
+        <p className="text-5xl">{approval?.status === "REJECTED" ? "✗" : "⏳"}</p>
+        <h1 className="text-2xl font-bold">
+          {approval?.status === "REJECTED" ? "Certificate request not approved" : "Certificate pending admin approval"}
+        </h1>
+        <p className="text-zinc-400 max-w-md">
+          {approval?.status === "REJECTED"
+            ? "An admin reviewed this session and did not approve the certificate. Contact your instructor for details."
+            : "You qualify for a certificate on this run — an admin needs to approve it before you can view it. You'll get a notification the moment it's approved."}
+        </p>
+        <Link href={`/simulation/${sessionId}/debrief`} className="text-sm text-emerald-400 hover:text-emerald-300 transition">
+          ← Back to Debrief
+        </Link>
+      </main>
+    );
+  }
+
   const timedEvents = session.events.map((e) => ({
     id: e.id, type: e.type, actor: e.actor, payload: e.payload,
     narrative: e.narrative, createdAt: e.createdAt.toISOString(),
@@ -76,10 +120,6 @@ export default async function CertificatePage({
   const durationMin = session.endedAt
     ? Math.round((session.endedAt.getTime() - session.startedAt.getTime()) / 60000)
     : null;
-
-  const completedDate = (session.endedAt ?? session.startedAt).toLocaleDateString("en-GB", {
-    day: "numeric", month: "long", year: "numeric",
-  });
 
   const displayName = user.displayName || user.email?.split("@")[0] || "Analyst";
   const verifyQr = await certificateQrSvg(`https://www.cybersagevault.uk/verify/simulation/${sessionId}`);
@@ -156,26 +196,6 @@ export default async function CertificatePage({
             ))}
           </div>
 
-          {/* Footer */}
-          <div className="border-t border-white/10 print:border-zinc-200 pt-6 flex items-end justify-between">
-            <div>
-              <p className="text-xs text-zinc-500 print:text-zinc-400">Issued</p>
-              <p className="text-sm font-semibold print:text-zinc-900">{completedDate}</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-sage-500 print:text-emerald-600 tracking-widest mb-0.5">
-                SAGE VAULT
-              </div>
-              <p className="text-[10px] text-zinc-600 uppercase tracking-wider">Cyber Security Training Platform</p>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-zinc-500 print:text-zinc-400">Verification ID</p>
-              <p className="font-mono text-xs text-zinc-600 print:text-zinc-400">{sessionId.slice(0, 16).toUpperCase()}</p>
-              <p className="text-[10px] text-zinc-700 print:text-zinc-400 mt-0.5 break-all">
-                sage-vault.com/verify/simulation/{sessionId}
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </main>

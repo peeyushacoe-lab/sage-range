@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "./[slug]/_content";
 import { Navbar } from "@/components/navbar";
 import { EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { requestCertificateApproval } from "@/lib/certificate-approval";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,17 @@ export default async function LabsIndex({
     completedByLab.get(r.labId)!.add(r.stage);
   }
 
+  // Whole-platform completion (independent of the current type filter) gates
+  // the "All Labs" certificate — the hardest certificate on the platform.
+  const totalPublishedLabs = await db.lab.count({ where: { published: true } });
+  const totalSolvedLabs = await db.attempt.count({
+    where: { userId: user.id, status: "SOLVED", lab: { published: true } },
+  });
+  const allLabsComplete = totalPublishedLabs > 0 && totalSolvedLabs >= totalPublishedLabs;
+  if (allLabsComplete) {
+    await requestCertificateApproval(user.id, "LABS", "", "All Labs Completed");
+  }
+
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
@@ -87,6 +99,22 @@ export default async function LabsIndex({
           <StatCard label="In Progress" value={inProgressCount} sub="attempts started" />
           <StatCard label="Remaining" value={Math.max(0, labs.length - solvedCount)} sub="left to solve" />
         </div>
+
+        {allLabsComplete && (
+          <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-amber-400 mb-1">Every Lab Completed</p>
+              <p className="font-semibold">You've solved every published lab on Sage Vault.</p>
+              <p className="text-sm text-zinc-400 mt-1">Your certificate is ready to claim — pending admin approval.</p>
+            </div>
+            <a
+              href="/labs/certificate"
+              className="shrink-0 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-amber-400 transition whitespace-nowrap"
+            >
+              View Certificate →
+            </a>
+          </div>
+        )}
 
         {/* Simulation callout */}
         <div className="mb-8 rounded-xl border border-sage-500/30 bg-sage-500/5 p-5 flex items-center justify-between gap-4">

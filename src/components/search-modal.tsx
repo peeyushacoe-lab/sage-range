@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 type SearchResult = {
-  type: "lab" | "path" | "scenario" | "user" | "writeup";
+  type: "lab" | "path" | "course" | "incident" | "scenario" | "user" | "writeup";
   id: string;
   title: string;
   subtitle: string;
@@ -14,6 +14,8 @@ type SearchResult = {
 const TYPE_ICON: Record<string, string> = {
   lab:      "🧪",
   path:     "🗺️",
+  course:   "📚",
+  incident: "🕵",
   scenario: "🛡️",
   user:     "👤",
   writeup:  "📝",
@@ -22,6 +24,8 @@ const TYPE_ICON: Record<string, string> = {
 const TYPE_LABEL: Record<string, string> = {
   lab:      "Lab",
   path:     "Learning Path",
+  course:   "Academy Course",
+  incident: "Incident Simulation",
   scenario: "Scenario",
   user:     "Profile",
   writeup:  "Writeup",
@@ -126,7 +130,7 @@ export function SearchModal() {
         {results.length > 0 ? (
           <div className="max-h-[60vh] overflow-y-auto py-2">
             {/* Group by type */}
-            {(["lab", "path", "scenario", "user", "writeup"] as const).map((type) => {
+            {(["lab", "path", "course", "incident", "scenario", "user", "writeup"] as const).map((type) => {
               const group = results.filter((r) => r.type === type);
               if (group.length === 0) return null;
               return (
@@ -199,7 +203,7 @@ export function SearchTrigger() {
     <button
       onClick={() => window.dispatchEvent(new Event("openSearch"))}
       aria-label="Search"
-      className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-colors hidden sm:flex items-center gap-1.5"
+      className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-colors flex items-center gap-1.5"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

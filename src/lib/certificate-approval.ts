@@ -60,9 +60,13 @@ export async function decideCertificate(opts: {
         data: { completedAt: new Date() },
       });
       viewHref = `/academy/certificate/${cert.certCode}`;
-    } else {
+    } else if (kind === "PATH") {
       const path = await db.learningPath.findUnique({ where: { id: targetId }, select: { slug: true } });
       if (path) viewHref = `/paths/${path.slug}/certificate`;
+    } else if (kind === "LABS") {
+      viewHref = `/labs/certificate`;
+    } else if (kind === "SIMULATION") {
+      viewHref = `/simulation/${targetId}/certificate`;
     }
   }
 

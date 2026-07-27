@@ -33,7 +33,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ quizId:
     let isCorrect = false;
 
     if (q.type === "MULTIPLE_CHOICE" || q.type === "FILL_BLANK" || q.type === "TRUE_FALSE") {
-      isCorrect = String(given).toLowerCase() === String(ca).toLowerCase();
+      isCorrect = String(given).trim().toLowerCase() === String(ca).trim().toLowerCase();
     } else if (q.type === "MULTIPLE_SELECT") {
       const givenArr = (Array.isArray(given) ? given : [given]).map(String).sort();
       const caArr = (Array.isArray(ca) ? ca : [ca]).map(String).sort();

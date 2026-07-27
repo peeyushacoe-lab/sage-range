@@ -14,15 +14,18 @@ type Notif = {
 };
 
 const TYPE_ICON: Record<string, string> = {
-  lab_assigned:       "🧪",
-  sim_complete:       "🛡️",
-  badge_earned:       "🏅",
-  writeup_approved:   "✅",
-  writeup_rejected:   "❌",
-  scenario_published: "🎯",
-  competition_start:  "⚔️",
-  competition_win:    "🏆",
-  announcement:       "📣",
+  lab_assigned:          "🧪",
+  sim_complete:          "🛡️",
+  badge_earned:          "🏅",
+  writeup_approved:      "✅",
+  writeup_rejected:      "❌",
+  scenario_published:    "🎯",
+  competition_start:     "⚔️",
+  competition_win:       "🏆",
+  announcement:          "📣",
+  cert_pending_approval: "📋",
+  cert_approved:         "🎓",
+  cert_rejected:         "⚠️",
 };
 
 function timeAgo(iso: string) {

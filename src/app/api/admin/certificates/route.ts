@@ -5,7 +5,7 @@ import { decideCertificate } from "@/lib/certificate-approval";
 
 const Body = z.object({
   userId:   z.string().min(1),
-  kind:     z.enum(["PATH", "ACADEMY", "IR"]),
+  kind:     z.enum(["PATH", "ACADEMY", "IR", "LABS", "SIMULATION"]),
   targetId: z.string(),           // "" for IR
   title:    z.string().min(1),
   decision: z.enum(["APPROVED", "REJECTED"]),

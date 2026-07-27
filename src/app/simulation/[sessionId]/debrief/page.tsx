@@ -14,6 +14,7 @@ import { generateCoachingPlan } from "@/lib/simulation/narrator";
 import { generateIRReport, generateGapAnalysis, parseGapAnalysis } from "@/lib/simulation/runtime/ai-reports";
 import type { CompanyProfile } from "@/lib/simulation/types";
 import { userCanAccessSession } from "@/lib/simulation/team-access";
+import { isSimCertEligible, SIM_CERT_MIN_SCORE } from "@/lib/sim-certificate";
 import { CopyReportBtn } from "./_components/copy-report-btn";
 import { GapAnalysis } from "./_components/gap-analysis";
 import { MitreHeatmap } from "./_components/mitre-heatmap";
@@ -282,13 +283,19 @@ export default async function DebriefPage({ params }: { params: Promise<{ sessio
           </section>
 
           <div className="flex flex-col gap-2">
-            <Link
-              href={`/simulation/${sessionId}/certificate`}
-              target="_blank"
-              className="rounded-lg bg-sage-500 px-4 py-2.5 text-sm font-semibold text-black text-center hover:bg-sage-700 hover:text-white transition"
-            >
-              Download Certificate →
-            </Link>
+            {isSimCertEligible(status, finalScore) ? (
+              <Link
+                href={`/simulation/${sessionId}/certificate`}
+                target="_blank"
+                className="rounded-lg bg-sage-500 px-4 py-2.5 text-sm font-semibold text-black text-center hover:bg-sage-700 hover:text-white transition"
+              >
+                Claim Certificate →
+              </Link>
+            ) : (
+              <div className="rounded-lg border border-white/10 px-4 py-2.5 text-xs text-zinc-500 text-center">
+                No certificate this run — requires containment and a score of {SIM_CERT_MIN_SCORE}+.
+              </div>
+            )}
             <Link href="/simulation/new" className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-center text-zinc-400 hover:text-white hover:border-white/30 transition">
               Run Again
             </Link>

@@ -47,6 +47,40 @@ export async function GET(req: Request) {
     results.push({ type: "path", id: p.slug, title: p.title, subtitle: p.description.slice(0, 80), href: `/paths` });
   }
 
+  // Academy courses
+  const courses = await db.academyCourse.findMany({
+    where: {
+      published: true,
+      OR: [
+        { title:       { contains: q, mode: "insensitive" } },
+        { subtitle:    { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ],
+    },
+    select: { slug: true, title: true, subtitle: true, difficulty: true },
+    take: 4,
+  });
+  for (const c of courses) {
+    results.push({ type: "course", id: c.slug, title: c.title, subtitle: c.subtitle ?? c.difficulty, href: `/academy/${c.slug}` });
+  }
+
+  // Incident simulations
+  const incidents = await db.incidentSimulation.findMany({
+    where: {
+      published: true,
+      OR: [
+        { title:    { contains: q, mode: "insensitive" } },
+        { codename: { contains: q, mode: "insensitive" } },
+        { briefing: { contains: q, mode: "insensitive" } },
+      ],
+    },
+    select: { slug: true, title: true, codename: true, difficulty: true },
+    take: 4,
+  });
+  for (const i of incidents) {
+    results.push({ type: "incident", id: i.slug, title: i.title, subtitle: `${i.codename} · ${i.difficulty}`, href: `/incidents/${i.slug}` });
+  }
+
   // Built-in scenarios (in-memory)
   for (const s of listScenarios()) {
     if (

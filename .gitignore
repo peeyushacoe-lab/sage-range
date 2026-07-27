@@ -7,10 +7,12 @@ dist
 .env
 .env.local
 .env.*.local
-
+.certi-design.png
+handoff-remaining-work.md
+claude.md
 *.log
 .DS_Store
-
+*.csv
 next-env.d.ts
 .vercel
 .env*

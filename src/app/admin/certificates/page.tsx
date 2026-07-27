@@ -1,17 +1,21 @@
 import { db } from "@/lib/db";
 import { ApprovalRowActions } from "./_components/approval-row-actions";
+import { isSimCertEligible } from "@/lib/sim-certificate";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Certificate Approvals — Admin" };
 
-const KIND_LABEL: Record<string, string> = { PATH: "Learning Path", ACADEMY: "Academy Course", IR: "IR Commander" };
+const KIND_LABEL: Record<string, string> = {
+  PATH: "Learning Path", ACADEMY: "Academy Course", IR: "IR Commander",
+  LABS: "All Labs", SIMULATION: "Simulation Run",
+};
 
 type PendingItem = {
   key: string;
   userId: string;
   userName: string;
   userEmail: string;
-  kind: "PATH" | "ACADEMY" | "IR";
+  kind: "PATH" | "ACADEMY" | "IR" | "LABS" | "SIMULATION";
   targetId: string;
   title: string;
   completedAt: Date | null;
@@ -60,6 +64,31 @@ export default async function AdminCertificatesPage() {
     ? await db.user.findMany({ where: { id: { in: irEligibleIds }, hidden: false }, select: { id: true, displayName: true, email: true } })
     : [];
 
+  // ── All-labs completion (100% of currently published labs) ───────────────
+  const totalPublishedLabs = await db.lab.count({ where: { published: true } });
+  const solvedGroups = totalPublishedLabs > 0
+    ? await db.attempt.groupBy({
+        by: ["userId"],
+        where: { status: "SOLVED", lab: { published: true }, user: { hidden: false } },
+        _count: true,
+      })
+    : [];
+  const labsEligibleIds = solvedGroups.filter((g) => g._count >= totalPublishedLabs).map((g) => g.userId);
+  const labsUsers = labsEligibleIds.length
+    ? await db.user.findMany({ where: { id: { in: labsEligibleIds } }, select: { id: true, displayName: true, email: true } })
+    : [];
+
+  // ── Simulation sessions that clear the certificate bar ────────────────────
+  const candidateSessions = await db.simulationSession.findMany({
+    where: { status: "CONTAINED", user: { hidden: false } },
+    select: {
+      id: true, userId: true, score: true, status: true, endedAt: true,
+      template: { select: { name: true } },
+      user: { select: { id: true, displayName: true, email: true } },
+    },
+  });
+  const eligibleSessions = candidateSessions.filter((s) => isSimCertEligible(s.status, s.score ?? 0));
+
   const pending: PendingItem[] = [
     ...pathProgress
       .filter((p) => isOpen(p.userId, "PATH", p.pathId))
@@ -81,6 +110,20 @@ export default async function AdminCertificatesPage() {
         key: `IR|${u.id}`,
         userId: u.id, userName: u.displayName ?? u.email.split("@")[0], userEmail: u.email,
         kind: "IR" as const, targetId: "", title: "IR Commander Certification", completedAt: null,
+      })),
+    ...labsUsers
+      .filter((u) => isOpen(u.id, "LABS", ""))
+      .map((u) => ({
+        key: `LABS|${u.id}`,
+        userId: u.id, userName: u.displayName ?? u.email.split("@")[0], userEmail: u.email,
+        kind: "LABS" as const, targetId: "", title: "All Labs Completed", completedAt: null,
+      })),
+    ...eligibleSessions
+      .filter((s) => isOpen(s.userId, "SIMULATION", s.id))
+      .map((s) => ({
+        key: `SIMULATION|${s.userId}|${s.id}`,
+        userId: s.userId, userName: s.user.displayName ?? s.user.email.split("@")[0], userEmail: s.user.email,
+        kind: "SIMULATION" as const, targetId: s.id, title: `${s.template.name} (score ${s.score})`, completedAt: s.endedAt,
       })),
   ];
 

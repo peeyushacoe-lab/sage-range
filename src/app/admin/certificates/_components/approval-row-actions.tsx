@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export function ApprovalRowActions(props: {
   userId: string;
-  kind: "PATH" | "ACADEMY" | "IR";
+  kind: "PATH" | "ACADEMY" | "IR" | "LABS" | "SIMULATION";
   targetId: string;
   title: string;
 }) {

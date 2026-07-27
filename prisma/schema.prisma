@@ -143,6 +143,8 @@ enum CertKind {
   PATH
   ACADEMY
   IR
+  LABS
+  SIMULATION
 }
 
 model CertificateApproval {

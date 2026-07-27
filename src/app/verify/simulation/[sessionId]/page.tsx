@@ -13,6 +13,7 @@ import { applyContagion } from "@/lib/simulation/runtime/social/contagion";
 import { computeOrganizationHealth } from "@/lib/simulation/runtime/social/sentiment";
 import { computeLeadershipAssessment } from "@/lib/simulation/runtime/coaching";
 import type { CompanyProfile } from "@/lib/simulation/types";
+import { isSimCertEligible } from "@/lib/sim-certificate";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +97,30 @@ export default async function VerifySimulationPage({
     ? Math.floor((session.endedAt.getTime() - session.startedAt.getTime()) / 1000)
     : undefined;
   const score = computeFinalScore(session.template.slug, worldState, verifyElapsed);
+
+  const approval = isSimCertEligible(session.status, score)
+    ? await db.certificateApproval.findUnique({
+        where: { userId_kind_targetId: { userId: session.userId, kind: "SIMULATION", targetId: sessionId } },
+      })
+    : null;
+
+  if (approval?.status !== "APPROVED") {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
+        <div className="w-full max-w-lg text-center space-y-4">
+          <p className="text-5xl font-bold text-red-400">✗</p>
+          <h1 className="text-2xl font-bold">Certificate Not Found</h1>
+          <p className="text-zinc-400 text-sm">
+            This simulation certificate could not be verified. It may not exist, may not have been approved, or the ID may be incorrect.
+          </p>
+          <p className="font-mono text-xs text-zinc-600 break-all">{sessionId}</p>
+          <Link href="/" className="text-xs text-zinc-500 hover:text-zinc-300">
+            ← Sage Vault
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const timedEvents = session.events.map((e) => ({
     id: e.id, type: e.type, actor: e.actor, payload: e.payload,
