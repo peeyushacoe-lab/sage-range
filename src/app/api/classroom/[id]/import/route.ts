@@ -19,36 +19,26 @@ export async function POST(
 
   const body = await req.json().catch(() => null) as { emails?: unknown[] } | null;
   const rawEmails = Array.isArray(body?.emails) ? body.emails : [];
-  const emails: string[] = rawEmails
-    .filter((e): e is string => typeof e === "string")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
+  const emails: string[] = [...new Set(
+    rawEmails
+      .filter((e): e is string => typeof e === "string")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean)
+  )].slice(0, 500);
 
   if (emails.length === 0) {
     return NextResponse.json({ enrolled: 0, notFound: 0, errors: ["No emails provided"] });
   }
 
-  let enrolled = 0;
-  let notFound = 0;
-  const errors: string[] = [];
+  const found = await db.user.findMany({ where: { email: { in: emails } }, select: { id: true, email: true } });
+  const notFound = emails.length - found.length;
 
-  for (const email of emails) {
-    try {
-      const found = await db.user.findFirst({ where: { email } });
-      if (!found) {
-        notFound++;
-        continue;
-      }
-      await db.classroomEnrollment.upsert({
-        where: { classroomId_userId: { classroomId: id, userId: found.id } },
-        create: { classroomId: id, userId: found.id },
-        update: {},
-      });
-      enrolled++;
-    } catch (err) {
-      errors.push(`${email}: ${err instanceof Error ? err.message : "unknown error"}`);
-    }
-  }
+  const result = found.length > 0
+    ? await db.classroomEnrollment.createMany({
+        data: found.map((u) => ({ classroomId: id, userId: u.id })),
+        skipDuplicates: true,
+      })
+    : { count: 0 };
 
-  return NextResponse.json({ enrolled, notFound, errors });
+  return NextResponse.json({ enrolled: result.count, notFound, errors: [] });
 }
