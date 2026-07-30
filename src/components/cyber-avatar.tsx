@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getRankInfo } from "@/lib/cyber-identity";
+import { getRankInfo, TOP_RANK_TIER } from "@/lib/cyber-identity";
 
 import { Icon, type IconName } from "@/components/ui/icon";
 const SIZES = {
@@ -9,15 +9,19 @@ const SIZES = {
 };
 
 const TIER_BG: Record<string, string> = {
-  recruit: "rgba(39,39,42,0.9)",
-  bronze:  "rgba(67,20,7,0.6)",
-  silver:  "rgba(30,41,59,0.6)",
-  gold:    "rgba(69,26,3,0.6)",
-  elite:   "rgba(6,46,37,0.6)",
+  recruit:  "rgba(39,39,42,0.9)",
+  bronze:   "rgba(67,20,7,0.6)",
+  silver:   "rgba(30,41,59,0.6)",
+  gold:     "rgba(69,26,3,0.6)",
+  platinum: "rgba(19,58,55,0.6)",
+  diamond:  "rgba(12,45,68,0.6)",
+  elite:    "rgba(46,26,74,0.6)",
+  master:   "rgba(74,20,48,0.6)",
+  legend:   "rgba(69,58,6,0.6)",
 };
 
-// Elite-only: static soft glow (no animation — just visual prestige)
-const ELITE_FILTER = "drop-shadow(0 0 5px rgba(16,185,129,0.55)) drop-shadow(0 0 10px rgba(16,185,129,0.25))";
+// Top-tier-only: static soft glow (no animation — just visual prestige)
+const TOP_TIER_FILTER = "drop-shadow(0 0 5px rgba(250,204,21,0.55)) drop-shadow(0 0 10px rgba(250,204,21,0.25))";
 
 interface CyberAvatarProps {
   initial: string;
@@ -35,7 +39,7 @@ export function CyberAvatar({ initial, skillScore, avatarUrl, size = "md", roleB
   const { px, strokeW, fontSize } = SIZES[size];
   const offset = CIRC * (1 - rank.pct / 100);
   const badgePx = Math.round(px * 0.3);
-  const isElite = rank.tier === "elite";
+  const isTopTier = rank.tier === TOP_RANK_TIER;
 
   return (
     <div className="relative shrink-0" style={{ width: px, height: px }}>
@@ -45,7 +49,7 @@ export function CyberAvatar({ initial, skillScore, avatarUrl, size = "md", roleB
         style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
           transform: "rotate(-90deg)",
-          filter: isElite ? ELITE_FILTER : undefined,
+          filter: isTopTier ? TOP_TIER_FILTER : undefined,
         }}
         aria-hidden="true"
       >

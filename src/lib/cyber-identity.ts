@@ -1,16 +1,38 @@
 import { type IconName } from "@/components/ui/icon";
 // ── Rank System ────────────────────────────────────────────────────────────────
-// 5 deterministic tiers, single source of truth
+// 9 deterministic tiers, single source of truth. Spread out to ~30k so real
+// skill-score growth (labs currently award up to ~27k+ for active players)
+// doesn't flatten everyone into the top tier with no further progression.
 
 export const RANKS = [
-  { tier: "recruit", label: "Recruit", min: 0,    nextMin: 100,  color: "#52525b" },
-  { tier: "bronze",  label: "Bronze",  min: 100,  nextMin: 600,  color: "#f97316" },
-  { tier: "silver",  label: "Silver",  min: 600,  nextMin: 1000, color: "#94a3b8" },
-  { tier: "gold",    label: "Gold",    min: 1000, nextMin: 2000, color: "#f59e0b" },
-  { tier: "elite",   label: "Elite",   min: 2000, nextMin: null, color: "#10b981" },
+  { tier: "recruit",  label: "Recruit",  min: 0,     nextMin: 100,   color: "#52525b" },
+  { tier: "bronze",   label: "Bronze",   min: 100,   nextMin: 600,   color: "#f97316" },
+  { tier: "silver",   label: "Silver",   min: 600,   nextMin: 1500,  color: "#94a3b8" },
+  { tier: "gold",     label: "Gold",     min: 1500,  nextMin: 3500,  color: "#f59e0b" },
+  { tier: "platinum", label: "Platinum", min: 3500,  nextMin: 7000,  color: "#2dd4bf" },
+  { tier: "diamond",  label: "Diamond",  min: 7000,  nextMin: 12000, color: "#38bdf8" },
+  { tier: "elite",    label: "Elite",    min: 12000, nextMin: 19000, color: "#a78bfa" },
+  { tier: "master",   label: "Master",   min: 19000, nextMin: 30000, color: "#f472b6" },
+  { tier: "legend",   label: "Legend",   min: 30000, nextMin: null,  color: "#facc15" },
 ] as const;
 
-export type RankTier = "recruit" | "bronze" | "silver" | "gold" | "elite";
+export type RankTier = (typeof RANKS)[number]["tier"];
+
+// Shared badge-pill classes so every consumer (org dashboard, member detail
+// page, etc.) stays in sync instead of each keeping its own copy.
+export const RANK_BADGE_CLASS: Record<RankTier, string> = {
+  recruit:  "text-zinc-400 border-zinc-500/30 bg-zinc-500/8",
+  bronze:   "text-orange-400 border-orange-500/30 bg-orange-500/8",
+  silver:   "text-slate-300 border-slate-400/30 bg-slate-400/8",
+  gold:     "text-amber-400 border-amber-500/30 bg-amber-500/8",
+  platinum: "text-teal-300 border-teal-400/30 bg-teal-400/8",
+  diamond:  "text-sky-300 border-sky-400/30 bg-sky-400/8",
+  elite:    "text-violet-300 border-violet-400/30 bg-violet-400/8",
+  master:   "text-pink-300 border-pink-400/30 bg-pink-400/8",
+  legend:   "text-yellow-300 border-yellow-400/30 bg-yellow-400/8",
+};
+
+export const TOP_RANK_TIER: RankTier = RANKS[RANKS.length - 1].tier;
 
 export type RankInfo = {
   label: string;
