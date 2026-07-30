@@ -134,10 +134,10 @@ export function PaymentStep({ role, voucherCode, finalAmount, onSuccess, onBack 
   return (
     <div className="space-y-4">
       {/* Order summary */}
-      <div className="rounded-lg border border-white/10 bg-zinc-900 px-4 py-3 flex items-center justify-between">
+      <div className="rounded-lg border border-edge bg-surface-1 px-4 py-3 flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-white capitalize">{role.toLowerCase()} Plan</p>
-          <p className="text-xs text-zinc-500 mt-0.5">Billed monthly · cancel anytime</p>
+          <p className="text-xs text-ink-3 mt-0.5">Billed monthly · cancel anytime</p>
         </div>
         <p className="text-base font-bold text-white">{formatPrice(finalAmount)}</p>
       </div>
@@ -148,19 +148,19 @@ export function PaymentStep({ role, voucherCode, finalAmount, onSuccess, onBack 
           {status === "loading" && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex flex-col items-center gap-2">
-                <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-xs text-zinc-500">Loading payment form…</p>
+                <div className="w-5 h-5 border-2 border-ok-edge border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs text-ink-3">Loading payment form…</p>
               </div>
             </div>
           )}
 
           {status === "error" && (
-            <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3">
-              <p className="text-sm text-red-400">{initError}</p>
+            <div className="rounded-lg border border-danger-edge bg-danger-wash px-4 py-3">
+              <p className="text-sm text-danger">{initError}</p>
               <button
                 type="button"
                 onClick={init}
-                className="text-xs text-red-300 underline mt-1 hover:text-red-200"
+                className="text-xs text-danger underline mt-1 hover:text-danger"
               >
                 Try again
               </button>
@@ -172,7 +172,7 @@ export function PaymentStep({ role, voucherCode, finalAmount, onSuccess, onBack 
         </div>
 
         {payError && (
-          <p className="text-xs text-red-400 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2">
+          <p className="text-xs text-danger rounded-lg border border-danger-edge bg-danger-wash px-3 py-2">
             {payError}
           </p>
         )}
@@ -182,14 +182,14 @@ export function PaymentStep({ role, voucherCode, finalAmount, onSuccess, onBack 
             type="button"
             onClick={onBack}
             disabled={submitting}
-            className="px-4 py-3 rounded-lg border border-white/10 text-sm text-zinc-400 hover:text-white transition-colors disabled:opacity-40"
+            className="px-4 py-3 rounded-lg border border-edge text-sm text-ink-2 hover:text-white transition-colors disabled:opacity-40"
           >
             ← Back
           </button>
           <button
             type="submit"
             disabled={status !== "ready" || submitting}
-            className="flex-1 rounded-lg bg-emerald-500 px-4 py-3 text-sm font-bold text-black hover:bg-emerald-400 disabled:opacity-50 transition-colors"
+            className="flex-1 rounded-lg bg-accent-fill px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-50 transition-colors"
           >
             {submitting ? (
               <span className="flex items-center justify-center gap-2">
@@ -202,7 +202,7 @@ export function PaymentStep({ role, voucherCode, finalAmount, onSuccess, onBack 
           </button>
         </div>
 
-        <p className="text-center text-xs text-zinc-600 flex items-center justify-center gap-1.5">
+        <p className="text-center text-xs text-ink-3 flex items-center justify-center gap-1.5">
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>

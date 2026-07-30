@@ -50,8 +50,8 @@ export default async function Leaderboard({
               href={t.key === "ALL" ? "/leaderboard" : `/leaderboard?type=${t.key}`}
               className={
                 active
-                  ? "rounded-full bg-sage-500 px-4 py-1.5 text-sm font-medium text-black"
-                  : "rounded-full border border-white/10 px-4 py-1.5 text-sm text-zinc-400 hover:text-white hover:border-white/30"
+                  ? "rounded-full bg-accent-fill px-4 py-1.5 text-sm font-medium text-white"
+                  : "rounded-full border border-edge px-4 py-1.5 text-sm text-ink-2 hover:text-white hover:border-edge-strong"
               }
             >
               {t.label}
@@ -63,25 +63,25 @@ export default async function Leaderboard({
       {top.length === 0 ? (
         <EmptyState icon="medal" title="No scores yet" description="Be the first to solve a lab and claim the top spot." action={{ label: "Browse Labs", href: "/labs" }} />
       ) : (
-        <ol className="rounded-lg border border-white/10 divide-y divide-white/10">
+        <ol className="rounded-lg border border-edge divide-y divide-edge-subtle">
           {top.map((u, i) => (
             <li key={u.id} className="flex items-center justify-between p-4">
               <div className="flex items-center gap-4">
-                <span className="w-6 text-zinc-500 text-sm">{i + 1}</span>
+                <span className="w-6 text-ink-3 text-sm">{i + 1}</span>
                 <div>
                   <p className="font-medium">{u.displayName ?? u.email.split("@")[0]}</p>
-                  {u.university && <p className="text-xs text-zinc-500">{u.university}</p>}
+                  {u.university && <p className="text-xs text-ink-3">{u.university}</p>}
                 </div>
               </div>
               <div className="text-right">
                 <p className="font-semibold">
-                  {u.score} <span className="text-xs text-zinc-500">pts</span>
+                  {u.score} <span className="text-xs text-ink-3">pts</span>
                 </p>
                 {filter === "ALL" && (
-                  <p className="text-xs text-zinc-500">{u.xp} xp</p>
+                  <p className="text-xs text-ink-3">{u.xp} xp</p>
                 )}
                 {"simCount" in u && typeof u.simCount === "number" && u.simCount > 0 && (
-                  <p className="text-xs text-zinc-500">{u.simCount} sim{u.simCount !== 1 ? "s" : ""}</p>
+                  <p className="text-xs text-ink-3">{u.simCount} sim{u.simCount !== 1 ? "s" : ""}</p>
                 )}
               </div>
             </li>

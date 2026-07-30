@@ -39,11 +39,11 @@ function calcStreak(dates: Date[]): number {
 }
 
 const RANK_COLOR: Record<string, string> = {
-  recruit: "text-zinc-400 border-zinc-500/30 bg-zinc-500/8",
-  bronze:  "text-orange-400 border-orange-500/30 bg-orange-500/8",
+  recruit: "text-ink-2 border-edge-strong/30 bg-surface-3",
+  bronze:  "text-sev-high border-sev-high-edge bg-sev-high-wash",
   silver:  "text-slate-300 border-slate-400/30 bg-slate-400/8",
-  gold:    "text-amber-400 border-amber-500/30 bg-amber-500/8",
-  elite:   "text-emerald-400 border-emerald-500/30 bg-emerald-500/8",
+  gold:    "text-warn border-warn-edge bg-warn-wash",
+  elite:   "text-ok border-ok-edge bg-ok-wash",
 };
 
 export default async function OrganizationPage() {
@@ -65,7 +65,7 @@ export default async function OrganizationPage() {
         <Navbar />
         <div className="p-8 max-w-xl mx-auto">
           <h1 className="text-2xl font-bold mt-4 mb-2">Organization Access</h1>
-          <p className="text-zinc-500 text-sm mb-6">
+          <p className="text-ink-3 text-sm mb-6">
             Enter the join code provided by your organization to unlock licensed access.
             If your email domain is already registered, you were joined automatically at signup.
           </p>
@@ -79,10 +79,10 @@ export default async function OrganizationPage() {
   const isLead = membership.isLead;
 
   const planColor =
-    org.plan === "ENTERPRISE" ? "text-purple-400"
-    : org.plan === "PRO" ? "text-amber-400"
-    : org.plan === "BASIC" ? "text-emerald-400"
-    : "text-zinc-400";
+    org.plan === "ENTERPRISE" ? "text-accent"
+    : org.plan === "PRO" ? "text-warn"
+    : org.plan === "BASIC" ? "text-ok"
+    : "text-ink-2";
   const expired = org.expiresAt && org.expiresAt < new Date();
 
   // ── Non-lead: simple confirmation ───────────────────────────────────────────
@@ -94,13 +94,13 @@ export default async function OrganizationPage() {
           <div className="mt-4 mb-8">
             <h1 className="text-2xl font-bold">{org.name}</h1>
             <p className={`text-sm font-semibold mt-0.5 ${planColor}`}>{org.plan} Plan</p>
-            {expired && <p className="text-xs text-red-400 mt-0.5">License expired</p>}
+            {expired && <p className="text-xs text-danger mt-0.5">License expired</p>}
           </div>
-          <div className="p-6 rounded-xl border border-white/10 text-center">
-            <p className="text-zinc-400 text-sm">
+          <div className="p-6 rounded-xl border border-edge text-center">
+            <p className="text-ink-2 text-sm">
               You have licensed access through <strong className="text-white">{org.name}</strong>.
             </p>
-            <Link href="/classroom" className="inline-block mt-4 text-sm text-emerald-400 hover:text-emerald-300">
+            <Link href="/classroom" className="inline-block mt-4 text-sm text-ok hover:text-ok">
               Go to your classroom →
             </Link>
           </div>
@@ -210,38 +210,38 @@ export default async function OrganizationPage() {
   ].sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, 20);
 
   const diffColor = (d: string) =>
-    d === "EASY" ? "text-emerald-400 border-emerald-500/30" :
-    d === "MEDIUM" ? "text-amber-400 border-amber-500/30" :
-    d === "HARD" ? "text-red-400 border-red-500/30" :
-    "text-purple-400 border-purple-500/30";
+    d === "EASY" ? "text-ok border-ok-edge" :
+    d === "MEDIUM" ? "text-warn border-warn-edge" :
+    d === "HARD" ? "text-danger border-danger-edge" :
+    "text-accent border-accent-edge";
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
 
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Team Lead Dashboard</p>
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Team Lead Dashboard</p>
             <h1 className="text-2xl font-bold">{org.name}</h1>
             <p className={`text-sm font-semibold mt-0.5 ${planColor}`}>{org.plan} Plan</p>
-            {expired && <p className="text-xs text-red-400 mt-0.5">License expired</p>}
+            {expired && <p className="text-xs text-danger mt-0.5">License expired</p>}
           </div>
           <a
             href="/api/organization/export"
-            className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 text-black font-semibold hover:bg-emerald-600 transition self-start"
+            className="text-xs px-3 py-1.5 rounded-lg bg-accent-fill text-white font-semibold hover:bg-ok-wash transition self-start"
           >
             Export CSV
           </a>
         </div>
 
         {/* Join code */}
-        <section className="p-4 rounded-xl border border-white/10 bg-zinc-900/60">
-          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-2">Join Code</p>
+        <section className="p-4 rounded-xl border border-edge bg-surface-1">
+          <p className="text-xs text-ink-3 uppercase tracking-widest mb-2">Join Code</p>
           <div className="flex items-center gap-3">
             <code className="text-2xl font-bold font-mono tracking-widest text-white">{org.joinCode}</code>
-            <p className="text-xs text-zinc-600">Share with your team to give them access.</p>
+            <p className="text-xs text-ink-3">Share with your team to give them access.</p>
           </div>
         </section>
 
@@ -253,10 +253,10 @@ export default async function OrganizationPage() {
             { label: "Labs Solved", value: totalSolved, sub: "across all members" },
             { label: "Active This Week", value: activeCount, sub: `of ${members.length} members` },
           ].map((c) => (
-            <div key={c.label} className="rounded-xl border border-white/8 bg-zinc-900/50 p-4">
-              <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">{c.label}</p>
-              <p className="text-3xl font-black tabular-nums text-zinc-100">{c.value}</p>
-              <p className="text-xs text-zinc-600 mt-1">{c.sub}</p>
+            <div key={c.label} className="rounded-xl border border-edge bg-surface-1 p-4">
+              <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-2">{c.label}</p>
+              <p className="text-3xl font-black tabular-nums text-ink">{c.value}</p>
+              <p className="text-xs text-ink-3 mt-1">{c.sub}</p>
             </div>
           ))}
         </div>
@@ -265,15 +265,15 @@ export default async function OrganizationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
           {/* Leaderboard */}
-          <section className="lg:col-span-3 rounded-xl border border-white/8 bg-zinc-900/50 overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between">
-              <p className="text-xs uppercase tracking-widest text-zinc-500">Team Leaderboard</p>
-              <p className="text-xs text-zinc-600">{members.length} members</p>
+          <section className="lg:col-span-3 rounded-xl border border-edge bg-surface-1 overflow-hidden">
+            <div className="px-5 py-4 border-b border-edge flex items-center justify-between">
+              <p className="text-xs uppercase tracking-widest text-ink-3">Team Leaderboard</p>
+              <p className="text-xs text-ink-3">{members.length} members</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/8 text-zinc-500 text-[10px] uppercase tracking-wider">
+                  <tr className="border-b border-edge text-ink-3 text-[10px] uppercase tracking-wider">
                     <th className="text-left px-4 py-2.5">#</th>
                     <th className="text-left px-4 py-2.5">Name</th>
                     <th className="text-right px-4 py-2.5">Score</th>
@@ -284,37 +284,37 @@ export default async function OrganizationPage() {
                     <th className="text-right px-4 py-2.5">Details</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-edge-subtle">
                   {leaderboard.map((m, i) => (
-                    <tr key={m.member.id} className={`hover:bg-white/3 ${i === 0 ? "bg-amber-500/4" : ""}`}>
-                      <td className="px-4 py-2.5 text-zinc-500 text-xs w-8">
+                    <tr key={m.member.id} className={`hover:bg-surface-2 ${i === 0 ? "bg-warn-wash" : ""}`}>
+                      <td className="px-4 py-2.5 text-ink-3 text-xs w-8">
                         {i < 3 ? <Icon name="medal" size={15} tone={(["gold","slate","amber"] as const)[i]} /> : i + 1}
                       </td>
                       <td className="px-4 py-2.5">
                         <div className="flex items-center gap-2">
-                          <Link href={`/profile/${m.member.user.id}`} className="font-medium hover:text-emerald-400 transition-colors text-zinc-200">
+                          <Link href={`/profile/${m.member.user.id}`} className="font-medium hover:text-ok transition-colors text-ink">
                             {m.member.user.displayName ?? "—"}
                           </Link>
-                          {m.member.isLead && <span className="text-[10px] text-amber-400 border border-amber-500/30 rounded px-1">Lead</span>}
+                          {m.member.isLead && <span className="text-[10px] text-warn border border-warn-edge rounded px-1">Lead</span>}
                         </div>
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${RANK_COLOR[m.rank.tier]}`}>
                           {m.rank.label}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 text-right font-bold tabular-nums text-zinc-200">{m.member.user.skillScore}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums text-zinc-400">{m.labsSolved}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums text-zinc-400">{m.simsCompleted}</td>
+                      <td className="px-4 py-2.5 text-right font-bold tabular-nums text-ink">{m.member.user.skillScore}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-ink-2">{m.labsSolved}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums text-ink-2">{m.simsCompleted}</td>
                       <td className="px-4 py-2.5 text-right tabular-nums">
                         {m.streak > 0
-                          ? <span className="text-emerald-400 font-bold text-xs">{m.streak}d</span>
-                          : <span className="text-zinc-600 text-xs">—</span>
+                          ? <span className="text-ok font-bold text-xs">{m.streak}d</span>
+                          : <span className="text-ink-3 text-xs">—</span>
                         }
                       </td>
-                      <td className="px-4 py-2.5 text-right text-xs text-zinc-500">{relativeTime(m.lastActive)}</td>
+                      <td className="px-4 py-2.5 text-right text-xs text-ink-3">{relativeTime(m.lastActive)}</td>
                       <td className="px-4 py-2.5 text-right">
                         <Link
                           href={`/organization/member/${m.member.user.id}`}
-                          className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+                          className="text-xs text-ok hover:text-ok transition-colors"
                         >
                           Details →
                         </Link>
@@ -327,27 +327,27 @@ export default async function OrganizationPage() {
           </section>
 
           {/* Activity Feed */}
-          <section className="lg:col-span-2 rounded-xl border border-white/8 bg-zinc-900/50 overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/8">
-              <p className="text-xs uppercase tracking-widest text-zinc-500">Recent Team Activity</p>
+          <section className="lg:col-span-2 rounded-xl border border-edge bg-surface-1 overflow-hidden">
+            <div className="px-5 py-4 border-b border-edge">
+              <p className="text-xs uppercase tracking-widest text-ink-3">Recent Team Activity</p>
             </div>
-            <div className="divide-y divide-white/5 max-h-[520px] overflow-y-auto">
+            <div className="divide-y divide-edge-subtle max-h-[520px] overflow-y-auto">
               {feed.length === 0 && (
-                <p className="px-5 py-8 text-xs text-zinc-600 text-center">No activity yet</p>
+                <p className="px-5 py-8 text-xs text-ink-3 text-center">No activity yet</p>
               )}
               {feed.map((item) => (
                 <div key={item.id} className="px-4 py-3 flex gap-3 items-start">
-                  <span className={`mt-0.5 text-sm shrink-0 ${item.kind === "lab" ? "text-emerald-500" : item.status === "CONTAINED" ? "text-blue-400" : "text-red-400"}`}>
+                  <span className={`mt-0.5 text-sm shrink-0 ${item.kind === "lab" ? "text-ok" : item.status === "CONTAINED" ? "text-info" : "text-danger"}`}>
                     {item.kind === "lab" ? <Icon name="check" size={13} /> : item.status === "CONTAINED" ? <Icon name="blueTeam" size={13} /> : <Icon name="alert" size={13} />}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-zinc-300 truncate">
-                      <Link href={`/profile/${item.userId}`} className="font-semibold hover:text-emerald-400 transition-colors">
+                    <p className="text-xs text-ink-2 truncate">
+                      <Link href={`/profile/${item.userId}`} className="font-semibold hover:text-ok transition-colors">
                         {item.userName}
                       </Link>
                       {item.kind === "lab"
-                        ? <> solved <span className="text-zinc-200">{item.labTitle}</span></>
-                        : <> completed <span className="text-zinc-200">{item.simName}</span> ({item.score})</>
+                        ? <> solved <span className="text-ink">{item.labTitle}</span></>
+                        : <> completed <span className="text-ink">{item.simName}</span> ({item.score})</>
                       }
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -356,7 +356,7 @@ export default async function OrganizationPage() {
                           {item.difficulty}
                         </span>
                       )}
-                      <span className="text-[10px] text-zinc-600">{relativeTime(item.at)}</span>
+                      <span className="text-[10px] text-ink-3">{relativeTime(item.at)}</span>
                     </div>
                   </div>
                 </div>
@@ -366,34 +366,34 @@ export default async function OrganizationPage() {
         </div>
 
         {/* Skill coverage */}
-        <section className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Team Skill Coverage</p>
+        <section className="rounded-xl border border-edge bg-surface-1 p-5">
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-4">Team Skill Coverage</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
-              { label: "CTF / Attack", key: "CTF", color: "bg-emerald-500" },
-              { label: "Blue Team / Defence", key: "BLUE_TEAM", color: "bg-blue-500" },
-              { label: "Red Team / Offense", key: "RED_TEAM", color: "bg-red-500" },
+              { label: "CTF / Attack", key: "CTF", color: "bg-ok" },
+              { label: "Blue Team / Defence", key: "BLUE_TEAM", color: "bg-info" },
+              { label: "Red Team / Offense", key: "RED_TEAM", color: "bg-danger" },
             ].map((t) => {
               const count = typeCount[t.key] ?? 0;
               const pct = Math.round((count / maxType) * 100);
               return (
                 <div key={t.key}>
                   <div className="flex justify-between text-xs mb-2">
-                    <span className="text-zinc-400">{t.label}</span>
-                    <span className="text-zinc-200 font-bold tabular-nums">{count} solved</span>
+                    <span className="text-ink-2">{t.label}</span>
+                    <span className="text-ink font-bold tabular-nums">{count} solved</span>
                   </div>
-                  <div className="h-2 rounded-full bg-zinc-800">
+                  <div className="h-2 rounded-full bg-surface-2">
                     <div className={`h-full rounded-full ${t.color}`} style={{ width: `${pct}%` }} />
                   </div>
-                  <p className="text-[10px] text-zinc-600 mt-1">{pct}% of strongest category</p>
+                  <p className="text-[10px] text-ink-3 mt-1">{pct}% of strongest category</p>
                 </div>
               );
             })}
           </div>
           {topMember && (
-            <p className="text-xs text-zinc-500 mt-4 pt-4 border-t border-white/8">
+            <p className="text-xs text-ink-3 mt-4 pt-4 border-t border-edge">
               Top performer:{" "}
-              <Link href={`/profile/${topMember.member.user.id}`} className="text-emerald-400 hover:text-emerald-300 font-semibold">
+              <Link href={`/profile/${topMember.member.user.id}`} className="text-ok hover:text-ok font-semibold">
                 {topMember.member.user.displayName ?? topMember.member.user.email}
               </Link>
               {" "}· {topMember.member.user.skillScore} skill score · {topMember.labsSolved} labs solved

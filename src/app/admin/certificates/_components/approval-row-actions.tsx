@@ -32,18 +32,18 @@ export function ApprovalRowActions(props: {
 
   return (
     <div className="flex items-center gap-2 shrink-0">
-      {error && <span className="text-xs text-red-400">{error}</span>}
+      {error && <span className="text-xs text-danger">{error}</span>}
       <button
         onClick={() => decide("APPROVED")}
         disabled={busy !== null}
-        className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition disabled:opacity-50"
+        className="rounded-lg border border-ok-edge bg-ok-wash px-3 py-1.5 text-xs font-semibold text-ok hover:bg-ok-wash transition disabled:opacity-50"
       >
         {busy === "APPROVED" ? "Approving…" : "Approve"}
       </button>
       <button
         onClick={() => decide("REJECTED")}
         disabled={busy !== null}
-        className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-500/20 transition disabled:opacity-50"
+        className="rounded-lg border border-danger-edge bg-danger-wash px-3 py-1.5 text-xs font-semibold text-danger hover:bg-danger-wash transition disabled:opacity-50"
       >
         {busy === "REJECTED" ? "Rejecting…" : "Reject"}
       </button>

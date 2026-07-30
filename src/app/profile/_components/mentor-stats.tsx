@@ -44,53 +44,53 @@ export async function MentorStats({ userId }: MentorStatsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-zinc-200">AI Mentor Stats</h3>
+      <h3 className="text-sm font-semibold text-ink">AI Mentor Stats</h3>
 
       <div className="grid grid-cols-2 gap-3">
         {/* Hints Requested */}
-        <div className="border border-zinc-700 rounded-lg p-4">
+        <div className="border border-edge-strong rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <MessageSquare size={16} className="text-zinc-500" />
-            <span className="text-xs text-zinc-500 font-medium">Hints Used</span>
+            <MessageSquare size={16} className="text-ink-3" />
+            <span className="text-xs text-ink-3 font-medium">Hints Used</span>
           </div>
-          <p className="text-2xl font-bold text-zinc-100">{totalHints}</p>
-          <p className="text-xs text-zinc-600 mt-1">lifetime</p>
+          <p className="text-2xl font-bold text-ink">{totalHints}</p>
+          <p className="text-xs text-ink-3 mt-1">lifetime</p>
         </div>
 
         {/* Helpful Rating */}
-        <div className="border border-zinc-700 rounded-lg p-4">
+        <div className="border border-edge-strong rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Star size={16} className="text-amber-500" />
-            <span className="text-xs text-zinc-500 font-medium">Rating</span>
+            <Star size={16} className="text-warn" />
+            <span className="text-xs text-ink-3 font-medium">Rating</span>
           </div>
-          <p className="text-2xl font-bold text-zinc-100">
+          <p className="text-2xl font-bold text-ink">
             {avgScore > 0 ? avgScore.toFixed(1) : "—"}
           </p>
-          <p className="text-xs text-zinc-600 mt-1">
+          <p className="text-xs text-ink-3 mt-1">
             {ratedHints.length > 0 ? `${ratedHints.length} rated` : "No ratings"}
           </p>
         </div>
 
         {/* Labs Re-learned */}
-        <div className="border border-zinc-700 rounded-lg p-4">
+        <div className="border border-edge-strong rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <RotateCcw size={16} className="text-sage-500" />
-            <span className="text-xs text-zinc-500 font-medium">Replay Access</span>
+            <RotateCcw size={16} className="text-ok" />
+            <span className="text-xs text-ink-3 font-medium">Replay Access</span>
           </div>
-          <p className="text-2xl font-bold text-zinc-100">{replayLabsCount}</p>
-          <p className="text-xs text-zinc-600 mt-1">labs eligible</p>
+          <p className="text-2xl font-bold text-ink">{replayLabsCount}</p>
+          <p className="text-xs text-ink-3 mt-1">labs eligible</p>
         </div>
 
         {/* Time Saved */}
-        <div className="border border-zinc-700 rounded-lg p-4">
+        <div className="border border-edge-strong rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Clock size={16} className="text-blue-500" />
-            <span className="text-xs text-zinc-500 font-medium">Time Saved</span>
+            <Clock size={16} className="text-info" />
+            <span className="text-xs text-ink-3 font-medium">Time Saved</span>
           </div>
-          <p className="text-2xl font-bold text-zinc-100">
+          <p className="text-2xl font-bold text-ink">
             {timeSavedHours}h
           </p>
-          <p className="text-xs text-zinc-600 mt-1">est. learning time</p>
+          <p className="text-xs text-ink-3 mt-1">est. learning time</p>
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export async function MentorStats({ userId }: MentorStatsProps) {
       {replayLabsCount > 0 && (
         <Link
           href="/labs/mentor/replay"
-          className="block text-center text-xs text-sage-400 hover:text-sage-300 py-2 border-t border-zinc-700 pt-4 transition-colors"
+          className="block text-center text-xs text-ok hover:text-ok py-2 border-t border-edge-strong pt-4 transition-colors"
         >
           View replay-eligible labs
         </Link>

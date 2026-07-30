@@ -96,20 +96,20 @@ export function PrivilegeEscalationClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Find the SUID Binary" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           You have a low-privilege shell on the target. Run a search for SUID binaries
           to find one that can be abused for privilege escalation.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <p className="font-mono text-xs text-zinc-500 mb-2">$ find / -perm -4000 2&gt;/dev/null</p>
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SUID_OUTPUT}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <p className="font-mono text-xs text-ink-3 mb-2">$ find / -perm -4000 2&gt;/dev/null</p>
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SUID_OUTPUT}</pre>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
+        <p className="text-xs text-ink-3 mb-4">
           Cross-reference with GTFOBins to identify which binary allows shell escape when run as SUID.
         </p>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Which SUID binary can be abused for privilege escalation?</p>
+            <p className="text-sm text-ink-2 font-medium">Which SUID binary can be abused for privilege escalation?</p>
             <div className="flex flex-wrap gap-3">
               {["passwd", "su", "find", "dbus-daemon"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -121,38 +121,38 @@ export function PrivilegeEscalationClient({
                     onChange={() => setT1Choice(opt)}
                     className="accent-emerald-500"
                   />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">
-            Correct — <span className="text-amber-300">find</span> with SUID can be abused via{" "}
-            <span className="text-amber-300">find . -exec /bin/sh \; -quit</span>.
+          <p className="text-sm font-mono text-ok">
+            Correct — <span className="text-warn">find</span> with SUID can be abused via{" "}
+            <span className="text-warn">find . -exec /bin/sh \; -quit</span>.
           </p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Sudo Misconfiguration" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">
-          Running <code className="font-mono text-amber-300">sudo -l</code> reveals a dangerous
+        <p className="text-ink-2 text-sm mb-3">
+          Running <code className="font-mono text-warn">sudo -l</code> reveals a dangerous
           sudo misconfiguration. Identify the command that spawns a root shell.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <p className="font-mono text-xs text-zinc-500 mb-2">$ sudo -l</p>
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SUDO_OUTPUT}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <p className="font-mono text-xs text-ink-3 mb-2">$ sudo -l</p>
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SUDO_OUTPUT}</pre>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
+        <p className="text-xs text-ink-3 mb-4">
           vim has built-in shell escape commands. Once inside vim with sudo, you can execute arbitrary commands.
         </p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">
+            <p className="text-sm text-ink-2 font-medium">
               What command sequence spawns a root shell from vim&apos;s sudo access?
             </p>
             <div className="flex gap-2 max-w-lg">
@@ -164,29 +164,29 @@ export function PrivilegeEscalationClient({
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">
-            Correct — <span className="text-amber-300">sudo vim</span> then{" "}
-            <span className="text-amber-300">:!sh</span> drops a root shell.
+          <p className="text-sm font-mono text-ok">
+            Correct — <span className="text-warn">sudo vim</span> then{" "}
+            <span className="text-warn">:!sh</span> drops a root shell.
           </p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Read the Root Flag" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           You now have a root shell. The session below shows you&apos;ve successfully escalated.
-          Read the flag from <code className="font-mono text-amber-300">/root/flag.txt</code> and submit the command you used.
+          Read the flag from <code className="font-mono text-warn">/root/flag.txt</code> and submit the command you used.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
           <pre className="font-mono text-xs text-green-400 whitespace-pre-wrap">{ROOT_SHELL_PARTIAL}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What command reads the root flag?</p>
+            <p className="text-sm text-ink-2 font-medium">What command reads the root flag?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
                 value={t3Answer}
@@ -196,20 +196,20 @@ export function PrivilegeEscalationClient({
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Command accepted — root flag captured and your solve recorded.
           </p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></h3>
-          <p className="text-sm text-zinc-400 mt-2">
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5">
+          <h3 className="font-bold text-ok text-base">Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></h3>
+          <p className="text-sm text-ink-2 mt-2">
             All three privilege escalation paths identified — SUID abuse, sudo misconfiguration, and root flag retrieval. Your solve is recorded.
           </p>
         </div>

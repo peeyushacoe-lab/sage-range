@@ -32,10 +32,10 @@ export function VisibilityToggle({ itemId, isPublic: initialPublic }: Props) {
       title={isPublic ? "Visible to recruiters — click to make private" : "Private — click to make public"}
       className={`text-xs font-medium rounded-full border px-2.5 py-1 transition ${
         loading
-          ? "opacity-50 cursor-not-allowed border-white/10 text-zinc-500"
+          ? "opacity-50 cursor-not-allowed border-edge text-ink-3"
           : isPublic
-          ? "border-sage-500/40 text-sage-400 hover:bg-sage-500/10"
-          : "border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-400"
+          ? "border-ok-edge text-ok hover:bg-ok-wash"
+          : "border-edge text-ink-3 hover:border-edge-strong hover:text-ink-2"
       }`}
     >
       {loading ? "…" : isPublic ? "Public" : "Private"}

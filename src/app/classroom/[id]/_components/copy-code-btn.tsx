@@ -23,14 +23,14 @@ export function CopyCodeBtn({ code }: { code: string }) {
     <div className="flex items-center gap-2">
       <button
         onClick={copyCode}
-        className="font-mono text-sm text-sage-400 bg-sage-500/10 px-3 py-1 rounded border border-sage-500/20 tracking-widest hover:bg-sage-500/20 transition"
+        className="font-mono text-sm text-ok bg-ok-wash px-3 py-1 rounded border border-ok-edge tracking-widest hover:bg-ok-wash transition"
         title="Copy join code"
       >
         {code} {copied === "code" ? <Icon name="check" size={13} /> : "⎘"}
       </button>
       <button
         onClick={copyLink}
-        className="text-xs font-semibold text-zinc-400 border border-white/10 px-3 py-1 rounded hover:text-zinc-200 hover:border-white/20 transition"
+        className="text-xs font-semibold text-ink-2 border border-edge px-3 py-1 rounded hover:text-ink hover:border-edge-strong transition"
       >
         {copied === "link" ? <><Icon name="check" size={12} /> Copied</> : "Copy Invite Link"}
       </button>

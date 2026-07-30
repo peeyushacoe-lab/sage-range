@@ -25,10 +25,10 @@ export type AttackEvent = {
 export type StageMarker = { label: string; relativeMs: number; wasBlocked: boolean };
 
 const CRIT_RING: Record<string, string> = {
-  CRITICAL: "stroke-red-500",
-  HIGH:     "stroke-orange-500",
-  MEDIUM:   "stroke-amber-500",
-  LOW:      "stroke-zinc-600",
+  CRITICAL: "stroke-danger",
+  HIGH:     "stroke-sev-high",
+  MEDIUM:   "stroke-warn",
+  LOW:      "stroke-ink-3",
 };
 
 const NODE_STATUS_FILL: Record<string, string> = {
@@ -101,15 +101,15 @@ export function AttackGraph({
     <div className="space-y-4">
 
       {/* Stage pill */}
-      <div className={`rounded-xl border border-white/8 px-4 py-2.5 flex items-center gap-3 ${currentStage?.wasBlocked ? "bg-emerald-950/30" : "bg-zinc-900/60"}`}>
-        <span className={`h-2 w-2 rounded-full shrink-0 ${currentStage?.wasBlocked ? "bg-emerald-500" : "bg-orange-500"} ${playing ? "animate-pulse" : ""}`} />
-        <span className="text-xs font-bold text-zinc-300">{currentStage?.label ?? "Pre-Incident"}</span>
-        {currentStage?.wasBlocked && <span className="text-[10px] text-emerald-400 border border-emerald-500/30 rounded px-1">CONTAINED</span>}
-        <span className="ml-auto text-xs text-zinc-600 tabular-nums">{fmtMs(playheadMs)} / {fmtMs(totalMs)}</span>
+      <div className={`rounded-xl border border-edge px-4 py-2.5 flex items-center gap-3 ${currentStage?.wasBlocked ? "bg-ok-wash" : "bg-surface-1"}`}>
+        <span className={`h-2 w-2 rounded-full shrink-0 ${currentStage?.wasBlocked ? "bg-ok" : "bg-sev-high"} ${playing ? "animate-pulse" : ""}`} />
+        <span className="text-xs font-bold text-ink-2">{currentStage?.label ?? "Pre-Incident"}</span>
+        {currentStage?.wasBlocked && <span className="text-[10px] text-ok border border-ok-edge rounded px-1">CONTAINED</span>}
+        <span className="ml-auto text-xs text-ink-3 tabular-nums">{fmtMs(playheadMs)} / {fmtMs(totalMs)}</span>
       </div>
 
       {/* SVG graph */}
-      <div className="rounded-xl border border-white/8 bg-zinc-900/40 overflow-hidden relative">
+      <div className="rounded-xl border border-edge bg-surface-1 overflow-hidden relative">
         <svg viewBox="0 0 880 420" className="w-full" style={{ minHeight: 280 }}>
           {/* Edges */}
           {edges.map((e, i) => {
@@ -187,10 +187,10 @@ export function AttackGraph({
 
         {/* Hover tooltip */}
         {hoveredNode && (
-          <div className="absolute bottom-3 left-3 bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs pointer-events-none">
-            <p className="font-bold text-zinc-200">{hoveredNode.label}</p>
-            <p className="text-zinc-500">{hoveredNode.assetType.replace(/_/g, " ")} · {hoveredNode.criticality}</p>
-            <p className={`font-semibold mt-0.5 ${hoveredStatus === "OFFLINE" ? "text-red-400" : hoveredStatus === "DEGRADED" ? "text-orange-400" : "text-emerald-400"}`}>
+          <div className="absolute bottom-3 left-3 bg-surface-1 border border-edge rounded-lg px-3 py-2 text-xs pointer-events-none">
+            <p className="font-bold text-ink">{hoveredNode.label}</p>
+            <p className="text-ink-3">{hoveredNode.assetType.replace(/_/g, " ")} · {hoveredNode.criticality}</p>
+            <p className={`font-semibold mt-0.5 ${hoveredStatus === "OFFLINE" ? "text-danger" : hoveredStatus === "DEGRADED" ? "text-sev-high" : "text-ok"}`}>
               {hoveredStatus}
             </p>
           </div>
@@ -198,16 +198,16 @@ export function AttackGraph({
       </div>
 
       {/* Controls */}
-      <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-4 space-y-3">
+      <div className="rounded-xl border border-edge bg-surface-1 p-4 space-y-3">
         {/* Stage markers */}
-        <div className="relative h-1.5 rounded-full bg-zinc-800">
+        <div className="relative h-1.5 rounded-full bg-surface-2">
           {stages.map((s, i) => (
             <div key={i} title={s.label}
-              className={`absolute top-1/2 -translate-y-1/2 h-3 w-1 rounded-sm ${s.wasBlocked ? "bg-emerald-500" : "bg-orange-500"} opacity-70`}
+              className={`absolute top-1/2 -translate-y-1/2 h-3 w-1 rounded-sm ${s.wasBlocked ? "bg-ok" : "bg-sev-high"} opacity-70`}
               style={{ left: `${totalMs > 0 ? (s.relativeMs / totalMs) * 100 : 0}%` }}
             />
           ))}
-          <div className="absolute inset-y-0 left-0 rounded-full bg-red-500/30" style={{ width: `${pct}%` }} />
+          <div className="absolute inset-y-0 left-0 rounded-full bg-danger-wash" style={{ width: `${pct}%` }} />
         </div>
         <input type="range" min={0} max={totalMs} step={100} value={playheadMs}
           onChange={e => { setPlaying(false); setPlayheadMs(Number(e.target.value)); }}
@@ -215,17 +215,17 @@ export function AttackGraph({
         />
         <div className="flex items-center gap-3">
           <button onClick={() => setPlaying(p => !p)}
-            className="px-4 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-500 transition min-w-[64px]">
+            className="px-4 py-1.5 rounded-lg bg-danger text-white text-xs font-bold hover:bg-danger-wash transition min-w-[64px]">
             {playing ? "⏸ Pause" : "▶ Play"}
           </button>
           <button onClick={() => { setPlaying(false); setPlayheadMs(0); }}
-            className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-zinc-400 hover:text-zinc-200 transition">
+            className="px-3 py-1.5 rounded-lg border border-edge text-xs text-ink-2 hover:text-ink transition">
             ↺ Reset
           </button>
           <div className="flex items-center gap-1 ml-auto">
             {SPEEDS.map(s => (
               <button key={s} onClick={() => setSpeed(s)}
-                className={`px-2 py-1 rounded text-[11px] font-mono transition ${speed === s ? "bg-zinc-700 text-zinc-100" : "text-zinc-600 hover:text-zinc-400"}`}>
+                className={`px-2 py-1 rounded text-[11px] font-mono transition ${speed === s ? "bg-surface-3 text-ink" : "text-ink-3 hover:text-ink-2"}`}>
                 {s}×
               </button>
             ))}
@@ -234,20 +234,20 @@ export function AttackGraph({
       </div>
 
       {/* Attack event log */}
-      <div className="rounded-xl border border-white/8 bg-zinc-900/50 overflow-hidden">
-        <div className="px-4 py-3 border-b border-white/8 text-xs uppercase tracking-widest text-zinc-500">
+      <div className="rounded-xl border border-edge bg-surface-1 overflow-hidden">
+        <div className="px-4 py-3 border-b border-edge text-xs uppercase tracking-widest text-ink-3">
           Attack Events — {visibleEvents.length} / {events.filter(e => e.nodeId).length}
         </div>
-        <div className="max-h-48 overflow-y-auto divide-y divide-white/5">
+        <div className="max-h-48 overflow-y-auto divide-y divide-edge-subtle">
           {visibleEvents.length === 0
-            ? <p className="px-4 py-4 text-xs text-zinc-600 text-center">Press play to see the attack propagate</p>
+            ? <p className="px-4 py-4 text-xs text-ink-3 text-center">Press play to see the attack propagate</p>
             : visibleEvents.map((ev, i) => (
               <div key={i} className="flex items-center gap-3 px-4 py-2 text-xs">
-                <span className="text-zinc-600 tabular-nums w-10 shrink-0">{fmtMs(ev.relativeMs)}</span>
-                <span className={ev.status === "OFFLINE" ? "text-red-400" : "text-orange-400"}>
+                <span className="text-ink-3 tabular-nums w-10 shrink-0">{fmtMs(ev.relativeMs)}</span>
+                <span className={ev.status === "OFFLINE" ? "text-danger" : "text-sev-high"}>
                   {ev.status === "OFFLINE" ? <Icon name="alert" size={13} /> : <Icon name="warning" size={13} />}
                 </span>
-                <span className="text-zinc-300 flex-1">{ev.label}</span>
+                <span className="text-ink-2 flex-1">{ev.label}</span>
               </div>
             ))
           }
@@ -256,11 +256,11 @@ export function AttackGraph({
 
       {/* Outcome */}
       {playheadMs >= totalMs && totalMs > 0 && (
-        <div className={`rounded-xl border p-4 text-center ${outcome === "CONTAINED" ? "border-emerald-500/30 bg-emerald-500/8" : "border-red-500/30 bg-red-500/8"}`}>
-          <p className={`font-black text-lg ${outcome === "CONTAINED" ? "text-emerald-400" : "text-red-400"}`}>
+        <div className={`rounded-xl border p-4 text-center ${outcome === "CONTAINED" ? "border-ok-edge bg-ok-wash" : "border-danger-edge bg-danger-wash"}`}>
+          <p className={`font-black text-lg ${outcome === "CONTAINED" ? "text-ok" : "text-danger"}`}>
             {outcome === "CONTAINED" ? <><Icon name="blueTeam" size={16} /> Threat Contained</> : <><Icon name="impact" size={16} /> Breach Occurred</>}
           </p>
-          <p className="text-xs text-zinc-400 mt-1">Score: {score}</p>
+          <p className="text-xs text-ink-2 mt-1">Score: {score}</p>
         </div>
       )}
     </div>

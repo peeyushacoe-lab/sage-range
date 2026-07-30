@@ -56,39 +56,39 @@ export default async function ShareableAchievementPage({ params }: { params: Pro
   void holderCount;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-surface-0 text-white flex flex-col items-center justify-center px-6">
       <div className="max-w-sm w-full">
         {/* Badge card */}
-        <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-zinc-900 to-zinc-950 p-8 text-center shadow-2xl shadow-emerald-500/5 mb-6">
+        <div className="rounded-2xl border border-ok-edge bg-gradient-to-b from-surface-1 to-surface-0 p-8 text-center shadow-2xl shadow-emerald-500/5 mb-6">
           <div className="mb-5 flex justify-center"><IconTile name={ach.icon} size={88} /></div>
-          <div className="inline-flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/8 rounded-full px-3 py-1 text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <div className="inline-flex items-center gap-1.5 border border-ok-edge bg-ok-wash rounded-full px-3 py-1 text-[10px] font-bold text-ink-3 uppercase tracking-widest mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-ok" />
             Achievement Unlocked
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">{ach.name}</h1>
-          <p className="text-zinc-400 text-sm leading-relaxed">{ach.description}</p>
-          <div className="mt-4 pt-4 border-t border-white/6">
-            <p className="text-[10px] uppercase tracking-widest text-zinc-600">{ach.category} · Sage Vault Cyber Range</p>
+          <p className="text-ink-2 text-sm leading-relaxed">{ach.description}</p>
+          <div className="mt-4 pt-4 border-t border-edge-subtle">
+            <p className="text-[10px] uppercase tracking-widest text-ink-3">{ach.category} · Sage Vault Cyber Range</p>
           </div>
         </div>
 
         {/* Verify link */}
-        <div className="rounded-xl border border-white/8 bg-zinc-900/40 px-4 py-3 text-center mb-6">
-          <p className="text-[11px] text-zinc-500 mb-1">Verified achievement from</p>
-          <p className="text-sm font-semibold text-emerald-400">Sage Vault by CyberSage</p>
-          <p className="text-[10px] text-zinc-700 mt-1 font-mono break-all">sagevault.co/achievements/{id}</p>
+        <div className="rounded-xl border border-edge bg-surface-1 px-4 py-3 text-center mb-6">
+          <p className="text-[11px] text-ink-3 mb-1">Verified achievement from</p>
+          <p className="text-sm font-semibold text-ok">Sage Vault by CyberSage</p>
+          <p className="text-[10px] text-ink-3 mt-1 font-mono break-all">sagevault.co/achievements/{id}</p>
         </div>
 
         <div className="flex gap-3">
           <Link
             href="/achievements"
-            className="flex-1 text-center rounded-lg border border-white/10 px-4 py-2.5 text-sm text-zinc-400 hover:text-zinc-200 hover:border-white/20 transition-colors"
+            className="flex-1 text-center rounded-lg border border-edge px-4 py-2.5 text-sm text-ink-2 hover:text-ink hover:border-edge-strong transition-colors"
           >
             All Achievements
           </Link>
           <Link
             href="/sign-in"
-            className="flex-1 text-center rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-bold text-black hover:bg-emerald-400 transition-colors"
+            className="flex-1 text-center rounded-lg bg-accent-fill px-4 py-2.5 text-sm font-bold text-white hover:bg-accent-hover transition-colors"
           >
             Earn This →
           </Link>

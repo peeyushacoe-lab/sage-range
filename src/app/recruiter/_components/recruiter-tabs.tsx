@@ -52,11 +52,11 @@ const GRADE_ORDER: SimGrade[] = ["A", "B", "C", "D", "F"];
 
 function gradeColor(grade: SimGrade): string {
   switch (grade) {
-    case "A": return "text-sage-400";
-    case "B": return "text-emerald-400";
-    case "C": return "text-amber-400";
-    case "D": return "text-orange-400";
-    case "F": return "text-red-400";
+    case "A": return "text-ok";
+    case "B": return "text-ok";
+    case "C": return "text-warn";
+    case "D": return "text-sev-high";
+    case "F": return "text-danger";
   }
 }
 
@@ -96,20 +96,20 @@ export function RecruiterTabs({ students, bookmarkedIds, jobPostings }: Props) {
   return (
     <div className="space-y-6">
       {/* Tab bar */}
-      <div className="flex gap-1 border-b border-white/8">
+      <div className="flex gap-1 border-b border-edge">
         <TabButton active={tab === "candidates"} onClick={() => setTab("candidates")}>
           Find Candidates
-          <span className="ml-2 rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">{students.length}</span>
+          <span className="ml-2 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-ink-2">{students.length}</span>
         </TabButton>
         <TabButton active={tab === "assessments"} onClick={() => setTab("assessments")}>
           Simulation Assessments
-          <span className="ml-2 rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">
+          <span className="ml-2 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-ink-2">
             {students.filter((s) => s.bestSimScore > 0).length}
           </span>
         </TabButton>
         <TabButton active={tab === "postings"} onClick={() => setTab("postings")}>
           My Job Postings
-          <span className="ml-2 rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">{jobPostings.length}</span>
+          <span className="ml-2 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-ink-2">{jobPostings.length}</span>
         </TabButton>
       </div>
 
@@ -138,8 +138,8 @@ function TabButton({
       onClick={onClick}
       className={`flex items-center px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
         active
-          ? "border-sage-500 text-sage-400"
-          : "border-transparent text-zinc-500 hover:text-zinc-300"
+          ? "border-ok-edge text-ok"
+          : "border-transparent text-ink-3 hover:text-ink-2"
       }`}
     >
       {children}
@@ -258,7 +258,7 @@ function CandidatesTab({
           placeholder="Search name, email, university..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-48 rounded-lg border border-white/8 bg-zinc-900/50 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-sage-500/50 focus:outline-none"
+          className="flex-1 min-w-48 rounded-lg border border-edge bg-surface-1 px-3 py-2 text-sm text-ink placeholder-ink-3 focus:border-ok-edge focus:outline-none"
         />
         <input
           type="number"
@@ -266,15 +266,15 @@ function CandidatesTab({
           value={minScore}
           onChange={(e) => setMinScore(e.target.value)}
           min={0}
-          className="w-32 rounded-lg border border-white/8 bg-zinc-900/50 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-sage-500/50 focus:outline-none"
+          className="w-32 rounded-lg border border-edge bg-surface-1 px-3 py-2 text-sm text-ink placeholder-ink-3 focus:border-ok-edge focus:outline-none"
         />
         <select
           value={minGrade}
           onChange={(e) => setMinGrade(e.target.value)}
-          className="rounded-lg border border-white/8 bg-zinc-900/50 px-3 py-2 text-sm text-zinc-100 focus:border-sage-500/50 focus:outline-none"
+          className="rounded-lg border border-edge bg-surface-1 px-3 py-2 text-sm text-ink focus:border-ok-edge focus:outline-none"
         >
           {GRADE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value} className="bg-zinc-900">
+            <option key={o.value} value={o.value} className="bg-surface-1">
               {o.label}
             </option>
           ))}
@@ -282,10 +282,10 @@ function CandidatesTab({
         <select
           value={pathFilter}
           onChange={(e) => setPathFilter(e.target.value)}
-          className="rounded-lg border border-white/8 bg-zinc-900/50 px-3 py-2 text-sm text-zinc-100 focus:border-sage-500/50 focus:outline-none"
+          className="rounded-lg border border-edge bg-surface-1 px-3 py-2 text-sm text-ink focus:border-ok-edge focus:outline-none"
         >
           {PATH_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value} className="bg-zinc-900">
+            <option key={o.value} value={o.value} className="bg-surface-1">
               {o.label}
             </option>
           ))}
@@ -293,22 +293,22 @@ function CandidatesTab({
         {hasFilters && (
           <button
             onClick={clearFilters}
-            className="rounded-lg border border-white/8 px-3 py-2 text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
+            className="rounded-lg border border-edge px-3 py-2 text-sm text-ink-2 hover:text-ink transition-colors"
           >
             Clear
           </button>
         )}
       </div>
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-ink-3">
         Showing {filtered.length} of {students.length} candidates
       </p>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-white/8">
+      <div className="overflow-x-auto rounded-xl border border-edge">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/8 text-zinc-500 text-xs uppercase tracking-wider">
+            <tr className="border-b border-edge text-ink-3 text-xs uppercase tracking-wider">
               <th className="text-left p-4">Rank</th>
               <th className="text-left p-4">Candidate</th>
               <th className="text-left p-4">University</th>
@@ -321,10 +321,10 @@ function CandidatesTab({
               <th className="p-4"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-edge-subtle">
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={10} className="p-8 text-center text-zinc-500">
+                <td colSpan={10} className="p-8 text-center text-ink-3">
                   No candidates match your filters.
                 </td>
               </tr>
@@ -336,24 +336,24 @@ function CandidatesTab({
                 <tr
                   key={s.id}
                   className={`transition-colors ${
-                    isBookmarked ? "bg-sage-500/5 hover:bg-sage-500/8" : "hover:bg-white/3"
+                    isBookmarked ? "bg-ok-wash hover:bg-ok-wash" : "hover:bg-surface-2"
                   }`}
                 >
-                  <td className="p-4 text-zinc-500">{i + 1}</td>
+                  <td className="p-4 text-ink-3">{i + 1}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <div>
-                        <p className="font-medium text-zinc-100">
+                        <p className="font-medium text-ink">
                           {s.displayName ?? s.email.split("@")[0]}
                         </p>
-                        <p className="text-xs text-zinc-500">{s.email}</p>
+                        <p className="text-xs text-ink-3">{s.email}</p>
                         <div className="flex gap-2 mt-1">
                           {s.linkedIn && (
                             <a
                               href={s.linkedIn}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-xs text-sage-500 hover:underline"
+                              className="text-xs text-ok hover:underline"
                             >
                               LinkedIn
                             </a>
@@ -363,7 +363,7 @@ function CandidatesTab({
                               href={s.github}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-xs text-sage-500 hover:underline"
+                              className="text-xs text-ok hover:underline"
                             >
                               GitHub
                             </a>
@@ -371,32 +371,32 @@ function CandidatesTab({
                         </div>
                       </div>
                       {isBookmarked && (
-                        <span className="rounded-full bg-sage-500/15 px-2 py-0.5 text-xs font-medium text-sage-400">
+                        <span className="rounded-full bg-ok-wash px-2 py-0.5 text-xs font-medium text-ok">
                           Saved
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="p-4 text-zinc-400">{s.university ?? "—"}</td>
-                  <td className="p-4 text-right font-semibold text-zinc-100">{s.skillScore}</td>
-                  <td className="p-4 text-right text-zinc-400">{s.labsSolved}</td>
+                  <td className="p-4 text-ink-2">{s.university ?? "—"}</td>
+                  <td className="p-4 text-right font-semibold text-ink">{s.skillScore}</td>
+                  <td className="p-4 text-right text-ink-2">{s.labsSolved}</td>
                   <td className="p-4 text-center">
                     {s.bestSimScore > 0 ? (
                       <span className={`text-sm font-bold ${gradeColor(s.simGrade)}`}>
                         {s.simGrade}
                       </span>
                     ) : (
-                      <span className="text-zinc-600 text-xs">—</span>
+                      <span className="text-ink-3 text-xs">—</span>
                     )}
                   </td>
                   <td className="p-4 text-right">
                     {s.bestSimScore > 0 ? (
-                      <span className="font-semibold text-sage-400">
+                      <span className="font-semibold text-ok">
                         {s.bestSimScore}
-                        <span className="text-zinc-600 font-normal text-xs"> · {s.simCount}x</span>
+                        <span className="text-ink-3 font-normal text-xs"> · {s.simCount}x</span>
                       </span>
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-ink-3">—</span>
                     )}
                   </td>
                   <td className="p-4 text-center">
@@ -404,16 +404,16 @@ function CandidatesTab({
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                           s.aiVerdict === "Strong hire"
-                            ? "bg-sage-500/20 text-sage-500"
+                            ? "bg-ok-wash text-ok"
                             : s.aiVerdict === "Potential hire"
-                            ? "bg-amber-500/20 text-amber-400"
-                            : "bg-red-500/20 text-red-400"
+                            ? "bg-warn-wash text-warn"
+                            : "bg-danger-wash text-danger"
                         }`}
                       >
                         {s.aiVerdict}
                       </span>
                     ) : (
-                      <span className="text-xs text-zinc-600">—</span>
+                      <span className="text-xs text-ink-3">—</span>
                     )}
                   </td>
                   <td className="p-4 text-center">
@@ -423,8 +423,8 @@ function CandidatesTab({
                       title={isBookmarked ? "Remove bookmark" : "Bookmark candidate"}
                       className={`text-xl transition-all disabled:opacity-40 ${
                         isBookmarked
-                          ? "text-sage-400 hover:text-zinc-400"
-                          : "text-zinc-600 hover:text-sage-400"
+                          ? "text-ok hover:text-ink-2"
+                          : "text-ink-3 hover:text-ok"
                       }`}
                     >
                       {isBookmarked ? <Icon name="star" size={14} tone="gold" variant="gradient" /> : <Icon name="star" size={14} />}
@@ -433,7 +433,7 @@ function CandidatesTab({
                   <td className="p-4">
                     <Link
                       href={`/profile/${s.id}`}
-                      className="text-xs text-sage-500 hover:underline whitespace-nowrap"
+                      className="text-xs text-ok hover:underline whitespace-nowrap"
                     >
                       View profile →
                     </Link>
@@ -575,12 +575,12 @@ function PostingsTab({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-ink-2">
           {postings.length} posting{postings.length !== 1 ? "s" : ""}
         </p>
         <button
           onClick={() => { setShowForm((v) => !v); setFormError(null); }}
-          className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-sage-400 transition-colors"
+          className="rounded-lg bg-ok px-4 py-2 text-sm font-semibold text-surface-0 hover:bg-accent-hover transition-colors"
         >
           {showForm ? "Cancel" : "+ New Posting"}
         </button>
@@ -590,70 +590,70 @@ function PostingsTab({
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-white/8 bg-zinc-900/50 p-6 space-y-5"
+          className="rounded-xl border border-edge bg-surface-1 p-6 space-y-5"
         >
-          <h3 className="font-semibold text-zinc-100">New Job Posting</h3>
+          <h3 className="font-semibold text-ink">New Job Posting</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs text-zinc-400 uppercase tracking-wider">Job Title *</label>
+              <label className="text-xs text-ink-2 uppercase tracking-wider">Job Title *</label>
               <input
                 required
                 type="text"
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 placeholder="e.g. Security Analyst"
-                className="w-full rounded-lg border border-white/8 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-sage-500/50 focus:outline-none"
+                className="w-full rounded-lg border border-edge bg-surface-2/50 px-3 py-2 text-sm text-ink placeholder-ink-3 focus:border-ok-edge focus:outline-none"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-zinc-400 uppercase tracking-wider">Company *</label>
+              <label className="text-xs text-ink-2 uppercase tracking-wider">Company *</label>
               <input
                 required
                 type="text"
                 value={form.company}
                 onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
                 placeholder="e.g. Acme Corp"
-                className="w-full rounded-lg border border-white/8 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-sage-500/50 focus:outline-none"
+                className="w-full rounded-lg border border-edge bg-surface-2/50 px-3 py-2 text-sm text-ink placeholder-ink-3 focus:border-ok-edge focus:outline-none"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs text-zinc-400 uppercase tracking-wider">Description *</label>
+            <label className="text-xs text-ink-2 uppercase tracking-wider">Description *</label>
             <textarea
               required
               rows={4}
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               placeholder="Describe the role, responsibilities, and what you're looking for..."
-              className="w-full rounded-lg border border-white/8 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-sage-500/50 focus:outline-none resize-none"
+              className="w-full rounded-lg border border-edge bg-surface-2/50 px-3 py-2 text-sm text-ink placeholder-ink-3 focus:border-ok-edge focus:outline-none resize-none"
             />
           </div>
 
-          <div className="border-t border-white/8 pt-4">
-            <p className="text-xs text-zinc-400 uppercase tracking-wider mb-3">Candidate Requirements (optional)</p>
+          <div className="border-t border-edge pt-4">
+            <p className="text-xs text-ink-2 uppercase tracking-wider mb-3">Candidate Requirements (optional)</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs text-zinc-500">Min Skill Score</label>
+                <label className="text-xs text-ink-3">Min Skill Score</label>
                 <input
                   type="number"
                   min={0}
                   value={form.minScore}
                   onChange={(e) => setForm((f) => ({ ...f, minScore: e.target.value }))}
                   placeholder="e.g. 300"
-                  className="w-full rounded-lg border border-white/8 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-sage-500/50 focus:outline-none"
+                  className="w-full rounded-lg border border-edge bg-surface-2/50 px-3 py-2 text-sm text-ink placeholder-ink-3 focus:border-ok-edge focus:outline-none"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-zinc-500">Min Sim Grade</label>
+                <label className="text-xs text-ink-3">Min Sim Grade</label>
                 <select
                   value={form.minSimGrade}
                   onChange={(e) => setForm((f) => ({ ...f, minSimGrade: e.target.value }))}
-                  className="w-full rounded-lg border border-white/8 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-100 focus:border-sage-500/50 focus:outline-none"
+                  className="w-full rounded-lg border border-edge bg-surface-2/50 px-3 py-2 text-sm text-ink focus:border-ok-edge focus:outline-none"
                 >
                   {GRADE_REQ_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value} className="bg-zinc-900">
+                    <option key={o.value} value={o.value} className="bg-surface-1">
                       {o.label}
                     </option>
                   ))}
@@ -662,7 +662,7 @@ function PostingsTab({
             </div>
 
             <div className="mt-4 space-y-1">
-              <label className="text-xs text-zinc-500">Required Learning Paths</label>
+              <label className="text-xs text-ink-3">Required Learning Paths</label>
               <div className="flex flex-wrap gap-3 mt-2">
                 {PATH_CHECKBOXES.map((p) => (
                   <label key={p.value} className="flex items-center gap-2 cursor-pointer">
@@ -672,7 +672,7 @@ function PostingsTab({
                       onChange={() => handlePathToggle(p.value)}
                       className="accent-sage-500"
                     />
-                    <span className="text-sm text-zinc-300">{p.label}</span>
+                    <span className="text-sm text-ink-2">{p.label}</span>
                   </label>
                 ))}
               </div>
@@ -680,21 +680,21 @@ function PostingsTab({
           </div>
 
           {formError && (
-            <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">{formError}</p>
+            <p className="text-sm text-danger bg-danger-wash rounded-lg px-3 py-2">{formError}</p>
           )}
 
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={() => { setShowForm(false); setForm(EMPTY_FORM); setFormError(null); }}
-              className="rounded-lg border border-white/8 px-4 py-2 text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
+              className="rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-ink transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-sage-400 transition-colors disabled:opacity-50"
+              className="rounded-lg bg-ok px-4 py-2 text-sm font-semibold text-surface-0 hover:bg-accent-hover transition-colors disabled:opacity-50"
             >
               {submitting ? "Creating..." : "Create Posting"}
             </button>
@@ -704,11 +704,11 @@ function PostingsTab({
 
       {/* Postings list */}
       {postings.length === 0 && !showForm ? (
-        <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-10 text-center">
-          <p className="text-zinc-500 text-sm">No job postings yet.</p>
+        <div className="rounded-xl border border-edge bg-surface-1 p-10 text-center">
+          <p className="text-ink-3 text-sm">No job postings yet.</p>
           <button
             onClick={() => setShowForm(true)}
-            className="mt-3 text-sage-500 text-sm hover:underline"
+            className="mt-3 text-ok text-sm hover:underline"
           >
             Create your first posting →
           </button>
@@ -724,26 +724,26 @@ function PostingsTab({
               <div
                 key={posting.id}
                 className={`rounded-xl border transition-colors ${
-                  posting.active ? "border-white/8 bg-zinc-900/50" : "border-white/4 bg-zinc-950/50 opacity-60"
+                  posting.active ? "border-edge bg-surface-1" : "border-edge-subtle bg-surface-0/50 opacity-60"
                 }`}
               >
                 <div className="p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <h3 className="font-semibold text-zinc-100 truncate">{posting.title}</h3>
-                        <span className="text-zinc-400 text-sm">{posting.company}</span>
+                        <h3 className="font-semibold text-ink truncate">{posting.title}</h3>
+                        <span className="text-ink-2 text-sm">{posting.company}</span>
                         <span
                           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                             posting.active
-                              ? "bg-sage-500/15 text-sage-400"
-                              : "bg-zinc-500/15 text-zinc-500"
+                              ? "bg-ok-wash text-ok"
+                              : "bg-surface-3 text-ink-3"
                           }`}
                         >
                           {posting.active ? "Active" : "Inactive"}
                         </span>
                       </div>
-                      <p className="text-sm text-zinc-500 mt-1 line-clamp-2">{posting.description}</p>
+                      <p className="text-sm text-ink-3 mt-1 line-clamp-2">{posting.description}</p>
 
                       {/* Requirements */}
                       <div className="flex flex-wrap gap-2 mt-3">
@@ -765,8 +765,8 @@ function PostingsTab({
                           onClick={() => setExpandedPostingId(isExpanded ? null : posting.id)}
                           className="hover:opacity-80 transition-opacity"
                         >
-                          <p className="text-xl font-bold text-sage-400">{matchCount}</p>
-                          <p className="text-xs text-sage-500 underline underline-offset-2">
+                          <p className="text-xl font-bold text-ok">{matchCount}</p>
+                          <p className="text-xs text-ok underline underline-offset-2">
                             {isExpanded ? "hide" : "view"} matches
                           </p>
                         </button>
@@ -776,8 +776,8 @@ function PostingsTab({
                         disabled={isToggling}
                         className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40 ${
                           posting.active
-                            ? "border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500"
-                            : "border-sage-500/40 text-sage-400 hover:border-sage-500"
+                            ? "border-edge-strong text-ink-2 hover:text-ink hover:border-edge-strong"
+                            : "border-ok-edge text-ok hover:border-ok-edge"
                         }`}
                       >
                         {isToggling ? "..." : posting.active ? "Deactivate" : "Activate"}
@@ -788,48 +788,48 @@ function PostingsTab({
 
                 {/* Matches drill-down */}
                 {isExpanded && (
-                  <div className="border-t border-white/8 px-5 py-4">
+                  <div className="border-t border-edge px-5 py-4">
                     {matches.length === 0 ? (
-                      <p className="text-sm text-zinc-500">No candidates currently meet these requirements.</p>
+                      <p className="text-sm text-ink-3">No candidates currently meet these requirements.</p>
                     ) : (
                       <>
-                        <p className="text-xs text-zinc-500 uppercase tracking-wider mb-3">
+                        <p className="text-xs text-ink-3 uppercase tracking-wider mb-3">
                           {matches.length} qualifying candidate{matches.length !== 1 ? "s" : ""}
                         </p>
                         <div className="space-y-2">
                           {matches.slice(0, 10).map((s) => (
-                            <div key={s.id} className="flex items-center justify-between gap-4 rounded-lg border border-white/6 bg-zinc-950/50 px-4 py-2.5">
+                            <div key={s.id} className="flex items-center justify-between gap-4 rounded-lg border border-edge-subtle bg-surface-0/50 px-4 py-2.5">
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-zinc-100 truncate">
+                                <p className="text-sm font-medium text-ink truncate">
                                   {s.displayName ?? s.email.split("@")[0]}
                                 </p>
-                                <p className="text-xs text-zinc-500 truncate">{s.email}</p>
+                                <p className="text-xs text-ink-3 truncate">{s.email}</p>
                               </div>
                               <div className="flex items-center gap-4 shrink-0 text-xs">
                                 <div className="text-right">
-                                  <p className="text-zinc-400 font-semibold">{s.skillScore}</p>
-                                  <p className="text-zinc-600">score</p>
+                                  <p className="text-ink-2 font-semibold">{s.skillScore}</p>
+                                  <p className="text-ink-3">score</p>
                                 </div>
                                 <div className="text-right">
                                   <p className={`font-bold ${gradeColor(s.simGrade)}`}>
                                     {s.bestSimScore > 0 ? s.simGrade : "—"}
                                   </p>
-                                  <p className="text-zinc-600">sim</p>
+                                  <p className="text-ink-3">sim</p>
                                 </div>
                                 {s.aiVerdict && (
                                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
                                     s.aiVerdict === "Strong hire"
-                                      ? "bg-sage-500/20 text-sage-500"
+                                      ? "bg-ok-wash text-ok"
                                       : s.aiVerdict === "Potential hire"
-                                      ? "bg-amber-500/20 text-amber-400"
-                                      : "bg-red-500/20 text-red-400"
+                                      ? "bg-warn-wash text-warn"
+                                      : "bg-danger-wash text-danger"
                                   }`}>
                                     {s.aiVerdict}
                                   </span>
                                 )}
                                 <a
                                   href={`/profile/${s.id}`}
-                                  className="text-sage-500 hover:underline whitespace-nowrap"
+                                  className="text-ok hover:underline whitespace-nowrap"
                                 >
                                   Profile →
                                 </a>
@@ -837,7 +837,7 @@ function PostingsTab({
                             </div>
                           ))}
                           {matches.length > 10 && (
-                            <p className="text-xs text-zinc-500 text-center pt-1">
+                            <p className="text-xs text-ink-3 text-center pt-1">
                               +{matches.length - 10} more — use Find Candidates tab with filters
                             </p>
                           )}
@@ -857,7 +857,7 @@ function PostingsTab({
 
 function ReqBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-white/8 bg-zinc-800 px-2.5 py-0.5 text-xs text-zinc-400">
+    <span className="rounded-full border border-edge bg-surface-2 px-2.5 py-0.5 text-xs text-ink-2">
       {children}
     </span>
   );

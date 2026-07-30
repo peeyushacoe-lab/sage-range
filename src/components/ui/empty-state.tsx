@@ -24,8 +24,8 @@ export function EmptyState({
   return (
     <div className={cn("flex flex-col items-center justify-center text-center px-6 py-14", className)}>
       <IconTile name={icon} size={56} interactive={false} className="mb-4" />
-      <p className="text-base font-semibold text-zinc-200">{title}</p>
-      {description && <p className="text-sm text-zinc-500 mt-1.5 max-w-sm leading-relaxed">{description}</p>}
+      <p className="text-base font-medium text-ink">{title}</p>
+      {description && <p className="text-sm text-ink-3 mt-1.5 max-w-sm leading-relaxed">{description}</p>}
       {action && (
         <Link href={action.href} className={cn(buttonVariants({ variant: "primary", size: "md" }), "mt-5")}>
           {action.label}

@@ -140,12 +140,12 @@ export default async function ModuleDetail({
     : null;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref={`/paths/${slug}`} backLabel={path.title} />
 
       <div className="max-w-3xl mx-auto px-6 py-8">
         <header className="mb-8">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">
             Module {mod.order + 1}
           </p>
           <h1 className="text-2xl font-bold tracking-tight">{mod.title}</h1>
@@ -159,7 +159,7 @@ export default async function ModuleDetail({
             <>
               {tab === "overview" && (
                 <div className="prose prose-invert prose-sm max-w-none">
-                  <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                  <div className="text-ink-2 leading-relaxed whitespace-pre-wrap">
                     {mod.overview}
                   </div>
                 </div>
@@ -167,7 +167,7 @@ export default async function ModuleDetail({
 
               {tab === "reading" && (
                 <div className="prose prose-invert prose-sm max-w-none">
-                  <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                  <div className="text-ink-2 leading-relaxed whitespace-pre-wrap">
                     {mod.readingMaterial}
                   </div>
                 </div>
@@ -176,7 +176,7 @@ export default async function ModuleDetail({
               {tab === "resources" && (
                 <div>
                   {mod.resources.length === 0 ? (
-                    <p className="text-sm text-zinc-500">No resources added yet.</p>
+                    <p className="text-sm text-ink-3">No resources added yet.</p>
                   ) : (
                     <div className="flex flex-col gap-3">
                       {mod.resources.map((r) => (
@@ -185,14 +185,14 @@ export default async function ModuleDetail({
                           href={r.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-4 rounded-xl border border-white/8 p-4 hover:border-sage-500/40 hover:bg-sage-500/5 transition group"
+                          className="flex items-center gap-4 rounded-xl border border-edge p-4 hover:border-ok-edge hover:bg-ok-wash transition group"
                         >
                           <Icon name={RESOURCE_ICONS[r.type] ?? "link"} size={22} className="shrink-0" />
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm group-hover:text-sage-400 transition truncate">{r.title}</p>
-                            <p className="text-xs text-zinc-500 mt-0.5">{RESOURCE_LABELS[r.type] ?? r.type}</p>
+                            <p className="font-medium text-sm group-hover:text-ok transition truncate">{r.title}</p>
+                            <p className="text-xs text-ink-3 mt-0.5">{RESOURCE_LABELS[r.type] ?? r.type}</p>
                           </div>
-                          <svg className="w-4 h-4 shrink-0 text-zinc-600 group-hover:text-sage-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 shrink-0 text-ink-3 group-hover:text-ok transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                           </svg>
                         </a>
@@ -223,11 +223,11 @@ export default async function ModuleDetail({
         </ModuleTabs>
 
         {/* Prev / Next navigation */}
-        <div className="mt-12 pt-6 border-t border-white/8 flex items-center justify-between gap-4">
+        <div className="mt-12 pt-6 border-t border-edge flex items-center justify-between gap-4">
           {prev ? (
             <Link
               href={`/paths/${slug}/modules/${prev.id}`}
-              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition"
+              className="flex items-center gap-2 text-sm text-ink-2 hover:text-white transition"
             >
               <span>←</span>
               <span className="truncate max-w-[200px]">{prev.title}</span>
@@ -238,7 +238,7 @@ export default async function ModuleDetail({
           {next ? (
             <Link
               href={`/paths/${slug}/modules/${next.id}`}
-              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition"
+              className="flex items-center gap-2 text-sm text-ink-2 hover:text-white transition"
             >
               <span className="truncate max-w-[200px]">{next.title}</span>
               <span>→</span>
@@ -246,7 +246,7 @@ export default async function ModuleDetail({
           ) : (
             <Link
               href={`/paths/${slug}`}
-              className="text-sm text-sage-400 hover:text-sage-300 transition"
+              className="text-sm text-ok hover:text-ok transition"
             >
               Back to path →
             </Link>

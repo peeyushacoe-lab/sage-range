@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Circle } from "lucide-react";
+import { Badge, Button } from "@/components/ui";
 
 import { Icon } from "@/components/ui/icon";
 interface CertStatus {
@@ -41,53 +43,45 @@ export function CertProgressCard() {
   }
 
   return (
-    <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-xs text-zinc-500 uppercase tracking-widest">
+    <div className="rounded-lg border border-edge bg-surface-1 p-5">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">
           IR Commander Certification
         </p>
         {status?.certified && (
-          <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-0.5 text-xs font-semibold text-emerald-400">
+          <Badge tone="ok">
             Certified <Icon name="check" size={14} className="inline-block shrink-0" />
-          </span>
+          </Badge>
         )}
       </div>
 
       {!status ? (
-        <p className="text-xs text-zinc-500">Loading...</p>
+        <p className="text-xs text-ink-3">Loading...</p>
       ) : (
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <span
-              className={`text-sm ${
-                status.simsNeeded === 0 ? "text-emerald-400" : "text-amber-400"
-              }`}
-            >
-              {status.simsNeeded === 0 ? <Icon name="check" size={13} /> : "○"}
-            </span>
-            <p className="text-sm text-zinc-300">
+            {status.simsNeeded === 0
+              ? <Icon name="check" size={13} className="text-ok" />
+              : <Circle aria-hidden="true" className="h-3.5 w-3.5 text-warn" />}
+            <p className="text-sm text-ink-2">
               {3 - status.simsNeeded}/3 B+ simulations
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span
-              className={`text-sm ${
-                status.pathsNeeded === 0 ? "text-emerald-400" : "text-amber-400"
-              }`}
-            >
-              {status.pathsNeeded === 0 ? <Icon name="check" size={13} /> : "○"}
-            </span>
-            <p className="text-sm text-zinc-300">
+            {status.pathsNeeded === 0
+              ? <Icon name="check" size={13} className="text-ok" />
+              : <Circle aria-hidden="true" className="h-3.5 w-3.5 text-warn" />}
+            <p className="text-sm text-ink-2">
               {2 - status.pathsNeeded}/2 paths completed
             </p>
           </div>
 
           {status.certified && status.certId && (
-            <div className="pt-2 space-y-2">
-              <p className="text-xs text-zinc-500 font-mono">{status.certId}</p>
+            <div className="space-y-2 pt-2">
+              <p className="font-mono text-xs text-ink-3">{status.certId}</p>
               <Link
                 href={`/verify/${status.certId}`}
-                className="inline-block text-xs text-emerald-400 hover:underline"
+                className="inline-block text-xs text-accent hover:underline"
               >
                 View certificate →
               </Link>
@@ -96,31 +90,25 @@ export function CertProgressCard() {
 
           {!status.certified && status.eligible && status.approvalStatus === "PENDING" && (
             <div className="pt-2">
-              <span className="inline-block rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400">
-                Pending admin approval
-              </span>
+              <Badge tone="warn" className="px-4 py-2 text-sm">Pending admin approval</Badge>
             </div>
           )}
 
           {!status.certified && status.eligible && status.approvalStatus === "REJECTED" && (
-            <p className="text-xs text-red-400 pt-1">Certificate request was not approved. Contact your instructor.</p>
+            <p className="pt-1 text-xs text-danger">Certificate request was not approved. Contact your instructor.</p>
           )}
 
           {!status.certified && status.eligible && !status.approvalStatus && (
-            <div className="pt-2 space-y-2">
-              {error && <p className="text-xs text-red-400">{error}</p>}
-              <button
-                onClick={claim}
-                disabled={claiming}
-                className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 transition disabled:opacity-50"
-              >
+            <div className="space-y-2 pt-2">
+              {error && <p className="text-xs text-danger">{error}</p>}
+              <Button variant="secondary" size="sm" onClick={claim} disabled={claiming}>
                 {claiming ? "Requesting..." : "Request Certificate Approval"}
-              </button>
+              </Button>
             </div>
           )}
 
           {!status.certified && !status.eligible && (
-            <p className="text-xs text-zinc-600 pt-1">
+            <p className="pt-1 text-xs text-ink-3">
               Complete {status.simsNeeded > 0 ? `${status.simsNeeded} more B+ sim${status.simsNeeded !== 1 ? "s" : ""}` : ""}
               {status.simsNeeded > 0 && status.pathsNeeded > 0 ? " and " : ""}
               {status.pathsNeeded > 0 ? `${status.pathsNeeded} more path${status.pathsNeeded !== 1 ? "s" : ""}` : ""} to unlock.

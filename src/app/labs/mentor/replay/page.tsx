@@ -75,10 +75,10 @@ async function ReplayContent() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <RotateCcw size={24} className="text-sage-500" />
-            <h1 className="text-3xl font-bold text-zinc-100">Replay Eligible</h1>
+            <RotateCcw size={24} className="text-ok" />
+            <h1 className="text-3xl font-bold text-ink">Replay Eligible</h1>
           </div>
-          <p className="text-zinc-400 max-w-2xl">
+          <p className="text-ink-2 max-w-2xl">
             These labs have hints you can re-learn without penalty. Replay labs
             to reinforce key concepts or prepare for advanced challenges. Hints
             remain accessible for 90 days from first use.
@@ -91,39 +91,39 @@ async function ReplayContent() {
             {labs.map((lab) => (
               <div
                 key={lab.labId}
-                className="border border-zinc-700 rounded-lg p-5 hover:border-sage-500/50 hover:bg-black/50 transition-all"
+                className="border border-edge-strong rounded-lg p-5 hover:border-ok-edge hover:bg-black/50 transition-all"
               >
                 <div className="space-y-4">
                   {/* Lab Title */}
                   <div>
-                    <h3 className="text-lg font-semibold text-zinc-100 mb-1">
+                    <h3 className="text-lg font-semibold text-ink mb-1">
                       {lab.labTitle}
                     </h3>
-                    <p className="text-xs text-zinc-600 font-mono">
+                    <p className="text-xs text-ink-3 font-mono">
                       Lab ID: {lab.labId}
                     </p>
                   </div>
 
                   {/* Last Hint Info */}
-                  <div className="space-y-2 text-xs text-zinc-400">
+                  <div className="space-y-2 text-xs text-ink-2">
                     <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-zinc-600" />
+                      <Calendar size={14} className="text-ink-3" />
                       <span>
                         Last hint:{" "}
-                        <span className="text-zinc-300">
+                        <span className="text-ink-2">
                           {formatDate(lab.lastHintShownAt)}
                         </span>
                       </span>
                     </div>
                     <p>
                       Hints learned:{" "}
-                      <span className="text-zinc-300 font-mono">
+                      <span className="text-ink-2 font-mono">
                         {lab.hintCount}
                       </span>
                     </p>
                     <p>
                       Current stage:{" "}
-                      <span className="text-zinc-300 font-mono">
+                      <span className="text-ink-2 font-mono">
                         {lab.stage}
                       </span>
                     </p>
@@ -132,7 +132,7 @@ async function ReplayContent() {
                   {/* Action */}
                   <a
                     href={`/labs/${lab.labId}/hints`}
-                    className="inline-block w-full text-center px-4 py-2 bg-sage-500/20 hover:bg-sage-500/30 border border-sage-500/30 hover:border-sage-500/50 rounded text-sm font-medium text-sage-300 transition-colors mt-2"
+                    className="inline-block w-full text-center px-4 py-2 bg-ok-wash hover:bg-ok-wash border border-ok-edge hover:border-ok-edge rounded text-sm font-medium text-ok transition-colors mt-2"
                   >
                     View Hints
                   </a>
@@ -142,19 +142,19 @@ async function ReplayContent() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <RotateCcw size={48} className="text-zinc-700 mx-auto mb-4" />
-            <p className="text-zinc-500 text-lg mb-2">
+            <RotateCcw size={48} className="text-ink-3 mx-auto mb-4" />
+            <p className="text-ink-3 text-lg mb-2">
               No labs available for replay yet
             </p>
-            <p className="text-zinc-600 text-sm">
+            <p className="text-ink-3 text-sm">
               Complete labs and use hints to unlock replay eligibility
             </p>
           </div>
         )}
 
         {/* Info Box */}
-        <div className="mt-12 p-4 bg-zinc-900/30 rounded border border-zinc-800">
-          <p className="text-xs text-zinc-500">
+        <div className="mt-12 p-4 bg-surface-1 rounded border border-edge-strong">
+          <p className="text-xs text-ink-3">
             Hint replay is available for 90 days from when you first request a
             hint in a lab. This allows you to revisit key concepts and practice
             advanced techniques without using lab attempts.
@@ -171,7 +171,7 @@ export default async function ReplayEligibilityPage() {
       fallback={
         <div className="min-h-screen bg-black">
           <div className="max-w-6xl mx-auto px-4 py-8">
-            <div className="h-10 bg-zinc-900 rounded animate-pulse mb-8" />
+            <div className="h-10 bg-surface-1 rounded animate-pulse mb-8" />
           </div>
         </div>
       }

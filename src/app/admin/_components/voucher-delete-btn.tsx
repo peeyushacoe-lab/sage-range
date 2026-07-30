@@ -25,13 +25,13 @@ export function VoucherDeleteBtn({ id, code }: { id: string; code: string }) {
         <button
           onClick={doDelete}
           disabled={loading}
-          className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 transition disabled:opacity-50"
+          className="text-xs px-2 py-1 rounded bg-danger-wash text-danger hover:bg-danger-wash transition disabled:opacity-50"
         >
           {loading ? "…" : "Confirm"}
         </button>
         <button
           onClick={() => setConfirming(false)}
-          className="text-xs px-2 py-1 rounded text-zinc-500 hover:text-white transition"
+          className="text-xs px-2 py-1 rounded text-ink-3 hover:text-white transition"
         >
           Cancel
         </button>
@@ -43,7 +43,7 @@ export function VoucherDeleteBtn({ id, code }: { id: string; code: string }) {
     <button
       onClick={() => setConfirming(true)}
       title={`Delete ${code}`}
-      className="text-xs px-2 py-1 rounded text-zinc-600 hover:text-red-400 transition"
+      className="text-xs px-2 py-1 rounded text-ink-3 hover:text-danger transition"
     >
       Delete
     </button>

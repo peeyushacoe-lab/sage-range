@@ -30,7 +30,7 @@ export default async function PurpleTeamReplayPage({ params }: { params: Promise
   });
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/purple-team" backLabel="Purple Team Replay" />
       <PurpleTeamClient
         replayId={replay.id}

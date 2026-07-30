@@ -56,14 +56,14 @@ export function SqlInjection101Client({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;cl4ss1c_0r_1_eq_1&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;un10n_s3l3ct_d4t4_l34k&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;bl1nd_bl00l3an_sqli_m4st3r&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;cl4ss1c_0r_1_eq_1&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;un10n_s3l3ct_d4t4_l34k&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;bl1nd_bl00l3an_sqli_m4st3r&#125;</span></li>
           </ul>
-          <p className="text-xs text-zinc-400">Submit any flag from above for credit.</p>
+          <p className="text-xs text-ink-2">Submit any flag from above for credit.</p>
         </div>
       )}
     </div>
@@ -91,7 +91,7 @@ function Task1({ onComplete, completed }: { onComplete: () => void; completed: b
 
   return (
     <div className="space-y-4">
-      <p className="text-zinc-300 text-sm">A small startup left their login form vulnerable. Bypass authentication and retrieve the admin flag.</p>
+      <p className="text-ink-2 text-sm">A small startup left their login form vulnerable. Bypass authentication and retrieve the admin flag.</p>
       <QueryDisplay query={query} />
       <form onSubmit={attempt} className="space-y-3 max-w-sm">
         <MonoInput value={user} onChange={setUser} placeholder="Username" className="w-full" />
@@ -99,7 +99,7 @@ function Task1({ onComplete, completed }: { onComplete: () => void; completed: b
         <SubmitBtn label="Log in" />
       </form>
       {output && (
-        <pre className={`mt-2 rounded p-3 text-xs font-mono whitespace-pre-wrap border ${completed ? "bg-sage-500/5 border-sage-500/30 text-sage-300" : "bg-black/60 border-white/5 text-zinc-300"}`}>
+        <pre className={`mt-2 rounded p-3 text-xs font-mono whitespace-pre-wrap border ${completed ? "bg-ok-wash border-ok-edge text-ok" : "bg-black/60 border-edge-subtle text-ink-2"}`}>
           {output}
         </pre>
       )}
@@ -146,7 +146,7 @@ function Task2({ onComplete, completed }: { onComplete: () => void; completed: b
 
   return (
     <div className="space-y-4">
-      <p className="text-zinc-300 text-sm">This product search appends your input directly. Use a UNION attack to extract data from other tables.</p>
+      <p className="text-ink-2 text-sm">This product search appends your input directly. Use a UNION attack to extract data from other tables.</p>
       <QueryDisplay query={query} />
       <form onSubmit={search} className="flex gap-2 max-w-md">
         <MonoInput value={category} onChange={setCategory} placeholder="electronics / clothing / tools" className="flex-1" />
@@ -156,25 +156,25 @@ function Task2({ onComplete, completed }: { onComplete: () => void; completed: b
       {output === "normal" && (
         <div className="space-y-2">
           {normalRows.map((p) => (
-            <div key={p.name} className="rounded border border-white/8 bg-zinc-950 px-4 py-3">
-              <p className="font-medium text-sm text-zinc-100">{p.name}</p>
-              <p className="text-xs text-zinc-500">{p.desc}</p>
+            <div key={p.name} className="rounded border border-edge bg-surface-0 px-4 py-3">
+              <p className="font-medium text-sm text-ink">{p.name}</p>
+              <p className="text-xs text-ink-3">{p.desc}</p>
             </div>
           ))}
         </div>
       )}
 
       {output === "col_error" && (
-        <p className="text-xs font-mono text-red-400">[!] ERROR: The used SELECT statements have a different number of columns — UNION requires matching column counts.</p>
+        <p className="text-xs font-mono text-danger">[!] ERROR: The used SELECT statements have a different number of columns — UNION requires matching column counts.</p>
       )}
 
       {output === "union" && (
         <div className="space-y-2">
-          <p className="text-xs font-mono text-red-400">[!] UNION injection detected — extra rows appended</p>
-          <div className="rounded border border-red-500/30 bg-red-500/5 px-4 py-3 font-mono text-xs space-y-1">
-            <p className="text-red-300">email: admin@sageforge.local</p>
-            <p className="text-red-300">password_hash: admin123</p>
-            <p className="text-sage-400 mt-2">flag: SAGE&#123;un10n_s3l3ct_d4t4_l34k&#125;</p>
+          <p className="text-xs font-mono text-danger">[!] UNION injection detected — extra rows appended</p>
+          <div className="rounded border border-danger-edge bg-danger-wash px-4 py-3 font-mono text-xs space-y-1">
+            <p className="text-danger">email: admin@sageforge.local</p>
+            <p className="text-danger">password_hash: admin123</p>
+            <p className="text-ok mt-2">flag: SAGE&#123;un10n_s3l3ct_d4t4_l34k&#125;</p>
           </div>
         </div>
       )}
@@ -216,7 +216,7 @@ function Task3({ onComplete, completed }: { onComplete: () => void; completed: b
 
   return (
     <div className="space-y-4">
-      <p className="text-zinc-300 text-sm">This endpoint only reveals &quot;user exists&quot; or &quot;not found.&quot; Use boolean conditions to infer data from the binary response.</p>
+      <p className="text-ink-2 text-sm">This endpoint only reveals &quot;user exists&quot; or &quot;not found.&quot; Use boolean conditions to infer data from the binary response.</p>
       <QueryDisplay query={query} />
       <form onSubmit={check} className="flex gap-2 max-w-md">
         <MonoInput value={input} onChange={setInput} placeholder="Enter username" className="flex-1" />
@@ -224,18 +224,18 @@ function Task3({ onComplete, completed }: { onComplete: () => void; completed: b
       </form>
 
       {result && (
-        <p className={`font-mono text-sm font-medium flex items-center gap-1.5 ${result.ok ? "text-sage-400" : "text-red-400"}`}>
+        <p className={`font-mono text-sm font-medium flex items-center gap-1.5 ${result.ok ? "text-ok" : "text-danger"}`}>
           <Icon name={result.ok ? "check" : "cross"} size={13} />
           {result.text}
         </p>
       )}
       {(trueDetected || falseDetected) && !flagRevealed && (
-        <p className="text-xs text-amber-500 font-mono">[~] boolean branch detected — try the opposite condition to confirm.</p>
+        <p className="text-xs text-warn font-mono">[~] boolean branch detected — try the opposite condition to confirm.</p>
       )}
       {flagRevealed && (
-        <div className="rounded border border-sage-500/30 bg-sage-500/5 p-4 font-mono text-sm space-y-1">
-          <p className="text-red-400 text-xs">[!] blind boolean injection confirmed — both branches exercised</p>
-          <p className="text-sage-400">flag: SAGE&#123;bl1nd_bl00l3an_sqli_m4st3r&#125;</p>
+        <div className="rounded border border-ok-edge bg-ok-wash p-4 font-mono text-sm space-y-1">
+          <p className="text-danger text-xs">[!] blind boolean injection confirmed — both branches exercised</p>
+          <p className="text-ok">flag: SAGE&#123;bl1nd_bl00l3an_sqli_m4st3r&#125;</p>
         </div>
       )}
     </div>

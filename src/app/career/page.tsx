@@ -38,7 +38,7 @@ export default async function CareerPage() {
   const best = snapshots[0] ?? null;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="mx-auto max-w-6xl px-6 py-8">
@@ -61,7 +61,7 @@ export default async function CareerPage() {
 
         {/* ── Role fit ── */}
         <section className="mb-10">
-          <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
+          <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ink-3">
             Role readiness
           </h2>
 
@@ -80,32 +80,32 @@ export default async function CareerPage() {
                     <div className="flex items-start justify-between gap-2">
                       <Link
                         href={`/career/roles/${role.slug}`}
-                        className="text-base font-semibold hover:text-emerald-400"
+                        className="text-base font-semibold hover:text-ok"
                       >
                         {role.title}
                       </Link>
                       <Badge tone="zinc">{role.seniority}</Badge>
                     </div>
 
-                    <p className="line-clamp-2 text-sm text-zinc-400">{role.description}</p>
+                    <p className="line-clamp-2 text-sm text-ink-2">{role.description}</p>
 
                     {snap ? (
                       <div className="mt-auto">
                         <div className="mb-1 flex items-center justify-between text-xs">
-                          <span className="text-zinc-500">{readinessLabel(snap.readiness)}</span>
-                          <span className="font-mono font-bold text-emerald-400">
+                          <span className="text-ink-3">{readinessLabel(snap.readiness)}</span>
+                          <span className="font-mono font-bold text-ok">
                             {snap.readiness}%
                           </span>
                         </div>
                         <ProgressBar value={snap.readiness} />
                         {snap.gaps.length > 0 && (
-                          <p className="mt-2 text-xs text-zinc-600">
+                          <p className="mt-2 text-xs text-ink-3">
                             Weakest: {snap.gaps.slice(0, 2).join(", ")}
                           </p>
                         )}
                       </div>
                     ) : (
-                      <p className="mt-auto text-xs text-zinc-600">Not analysed yet</p>
+                      <p className="mt-auto text-xs text-ink-3">Not analysed yet</p>
                     )}
                   </Card>
                 );
@@ -117,7 +117,7 @@ export default async function CareerPage() {
         {/* ── Credentials ── */}
         {credentials.length > 0 && (
           <section className="mb-10">
-            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
+            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ink-3">
               Your verified credentials
             </h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -127,8 +127,8 @@ export default async function CareerPage() {
                     <Icon name="verified" size={20} />
                     <span className="text-sm font-semibold">{c.assessment.title}</span>
                   </div>
-                  <p className="font-mono text-xs text-emerald-400">{c.code}</p>
-                  <p className="mt-2 text-xs text-zinc-500">
+                  <p className="font-mono text-xs text-ok">{c.code}</p>
+                  <p className="mt-2 text-xs text-ink-3">
                     Scored {c.score}% ·{" "}
                     {c.expiresAt
                       ? `expires ${c.expiresAt.toLocaleDateString("en-GB")}`
@@ -142,7 +142,7 @@ export default async function CareerPage() {
 
         {/* ── Assessments ── */}
         <section className="mb-10">
-          <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
+          <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ink-3">
             Verified assessments
           </h2>
           {assessments.length === 0 ? (
@@ -159,8 +159,8 @@ export default async function CareerPage() {
                     <span className="text-base font-semibold">{a.title}</span>
                     <Badge tone="zinc">{a.domain}</Badge>
                   </div>
-                  <p className="line-clamp-2 text-sm text-zinc-400">{a.description}</p>
-                  <p className="mt-auto text-xs text-zinc-600">
+                  <p className="line-clamp-2 text-sm text-ink-2">{a.description}</p>
+                  <p className="mt-auto text-xs text-ink-3">
                     {Math.round(a.timeLimitSec / 60)} min · pass at {a.passingScore}%
                   </p>
                 </Card>
@@ -171,7 +171,7 @@ export default async function CareerPage() {
 
         {/* ── Interview prep ── */}
         <section>
-          <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
+          <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ink-3">
             Interview practice
           </h2>
           {kits.length === 0 ? (
@@ -188,8 +188,8 @@ export default async function CareerPage() {
                     <span className="text-base font-semibold">{k.title}</span>
                     <Badge tone="zinc">{k.seniority}</Badge>
                   </div>
-                  <p className="line-clamp-2 text-sm text-zinc-400">{k.description}</p>
-                  <p className="mt-auto text-xs text-zinc-600">
+                  <p className="line-clamp-2 text-sm text-ink-2">{k.description}</p>
+                  <p className="mt-auto text-xs text-ink-3">
                     {Math.round(k.timeLimitSec / 60)} min · {k.difficulty}
                   </p>
                 </Card>

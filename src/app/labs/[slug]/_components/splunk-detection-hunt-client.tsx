@@ -79,34 +79,34 @@ export function SplunkDetectionHuntClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Spot the Beacon" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">A week of proxy logs for one workstation, condensed to the relevant lines:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{PROXY_LOG}</pre>
+        <p className="text-ink-2 text-sm mb-3">A week of proxy logs for one workstation, condensed to the relevant lines:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{PROXY_LOG}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What interval pattern indicates likely C2 beaconing to cdn-metrics-sync.info?</p>
+            <p className="text-sm text-ink-2 font-medium">What interval pattern indicates likely C2 beaconing to cdn-metrics-sync.info?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — requests to that domain recur roughly every 60 seconds, a classic beacon interval. Flag: SAGE&#123;60s_1nt3rv4l_b34c0n1ng&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — requests to that domain recur roughly every 60 seconds, a classic beacon interval. Flag: SAGE&#123;60s_1nt3rv4l_b34c0n1ng&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Write the Right Query" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">A colleague's first-pass SPL search:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SPL_DRAFT}</pre>
+        <p className="text-ink-2 text-sm mb-3">A colleague's first-pass SPL search:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SPL_DRAFT}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Which SPL approach best isolates beaconing amid normal browsing traffic?</p>
+            <p className="text-sm text-ink-2 font-medium">Which SPL approach best isolates beaconing amid normal browsing traffic?</p>
             <div className="flex flex-col gap-2">
               {[
                 "stats on time deltas between requests to the same destination, filtering for low variance/regular intervals",
@@ -116,25 +116,25 @@ export function SplunkDetectionHuntClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — computing time deltas per destination and filtering for low variance surfaces regular-interval beacons that a plain count would miss. Flag: SAGE&#123;t1m3_d3lt4_v4r14nc3_4n4lys1s&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — computing time deltas per destination and filtering for low variance surfaces regular-interval beacons that a plain count would miss. Flag: SAGE&#123;t1m3_d3lt4_v4r14nc3_4n4lys1s&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Pivot the Hunt" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">You've confirmed cdn-metrics-sync.info is a beaconing C2 domain on this one host.</p>
+        <p className="text-ink-2 text-sm mb-4">You've confirmed cdn-metrics-sync.info is a beaconing C2 domain on this one host.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the next hunting step?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the next hunting step?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Pivot on that domain across ALL other hosts' proxy logs to find any other infected machines",
@@ -144,17 +144,17 @@ export function SplunkDetectionHuntClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — pivoting the confirmed indicator across the whole fleet's logs is how you find the full blast radius, not just the host you started with.
             Flag: SAGE&#123;p1v0t_4cr0ss_4ll_h0sts&#125;
           </p>
@@ -162,12 +162,12 @@ export function SplunkDetectionHuntClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;60s_1nt3rv4l_b34c0n1ng&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;t1m3_d3lt4_v4r14nc3_4n4lys1s&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;p1v0t_4cr0ss_4ll_h0sts&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;60s_1nt3rv4l_b34c0n1ng&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;t1m3_d3lt4_v4r14nc3_4n4lys1s&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;p1v0t_4cr0ss_4ll_h0sts&#125;</span></li>
           </ul>
         </div>
       )}

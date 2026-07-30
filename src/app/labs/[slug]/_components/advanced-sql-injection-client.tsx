@@ -78,13 +78,13 @@ export function AdvancedSqlInjectionClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Confirm Blind Injection" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">A login form shows no SQL errors at all. Two test payloads:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{BOOLEAN_TEST}</pre>
+        <p className="text-ink-2 text-sm mb-3">A login form shows no SQL errors at all. Two test payloads:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{BOOLEAN_TEST}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What does the different response between these two payloads confirm, even with no visible SQL errors?</p>
+            <p className="text-sm text-ink-2 font-medium">What does the different response between these two payloads confirm, even with no visible SQL errors?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Boolean-based blind SQL injection is possible — the app's behavior itself leaks true/false conditions",
@@ -94,46 +94,46 @@ export function AdvancedSqlInjectionClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the differing response between true and false conditions confirms boolean-blind SQLi. Flag: SAGE&#123;b00l3an_bl1nd_sql1_c0nf1rm3d&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — the differing response between true and false conditions confirms boolean-blind SQLi. Flag: SAGE&#123;b00l3an_bl1nd_sql1_c0nf1rm3d&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Extract Data With Timing" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">A follow-up payload used to extract the database name character by character:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-red-300 whitespace-pre-wrap overflow-x-auto">{TIME_TEST}</pre>
+        <p className="text-ink-2 text-sm mb-3">A follow-up payload used to extract the database name character by character:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-danger whitespace-pre-wrap overflow-x-auto">{TIME_TEST}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What SQLi technique uses response delay instead of visible differences to extract data?</p>
+            <p className="text-sm text-ink-2 font-medium">What SQLi technique uses response delay instead of visible differences to extract data?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t2Answer} onChange={setT2Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — this is time-based blind SQL injection, extracting data via response delay. Flag: SAGE&#123;t1m3_b4s3d_bl1nd_3xtr4ct10n&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — this is time-based blind SQL injection, extracting data via response delay. Flag: SAGE&#123;t1m3_b4s3d_bl1nd_3xtr4ct10n&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Understand Why It Still Works" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">Suppose the app's error page and success page were made to look byte-for-byte identical.</p>
+        <p className="text-ink-2 text-sm mb-4">Suppose the app's error page and success page were made to look byte-for-byte identical.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Why is time-based blind SQLi still viable even when boolean-blind differences are hidden by identical page content?</p>
+            <p className="text-sm text-ink-2 font-medium">Why is time-based blind SQLi still viable even when boolean-blind differences are hidden by identical page content?</p>
             <div className="flex flex-col gap-2">
               {[
                 "It relies purely on measurable response delay, which exists regardless of what content the page shows",
@@ -143,17 +143,17 @@ export function AdvancedSqlInjectionClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — the delay itself is the signal, independent of any content difference on the page.
             Flag: SAGE&#123;d3l4y_1nd3p3nd3nt_0f_c0nt3nt&#125;
           </p>
@@ -161,12 +161,12 @@ export function AdvancedSqlInjectionClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;b00l3an_bl1nd_sql1_c0nf1rm3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;t1m3_b4s3d_bl1nd_3xtr4ct10n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;d3l4y_1nd3p3nd3nt_0f_c0nt3nt&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;b00l3an_bl1nd_sql1_c0nf1rm3d&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;t1m3_b4s3d_bl1nd_3xtr4ct10n&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;d3l4y_1nd3p3nd3nt_0f_c0nt3nt&#125;</span></li>
           </ul>
         </div>
       )}

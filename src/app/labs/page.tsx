@@ -4,7 +4,8 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "./[slug]/_content";
 import { Navbar } from "@/components/navbar";
-import { EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { cn } from "@/lib/utils";
+import { Badge, Button, EmptyState, PageHeader, Severity, StatCard, toSeverity } from "@/components/ui";
 import { requestCertificateApproval } from "@/lib/certificate-approval";
 
 import { Icon } from "@/components/ui/icon";
@@ -17,11 +18,13 @@ const TYPES = [
   { key: "RED_TEAM",  label: "Red Team" },
 ] as const;
 
-const DIFF_COLORS: Record<string, string> = {
-  EASY:   "text-sage-500",
-  MEDIUM: "text-amber-400",
-  HARD:   "text-orange-400",
-  INSANE: "text-red-400",
+// Difficulty is genuinely ordered, same shape as severity — EASY reads as
+// "low risk to attempt", INSANE as "critical".
+const DIFF_SEVERITY: Record<string, ReturnType<typeof toSeverity>> = {
+  EASY: "low",
+  MEDIUM: "medium",
+  HARD: "high",
+  INSANE: "critical",
 };
 
 export default async function LabsIndex({
@@ -76,67 +79,56 @@ export default async function LabsIndex({
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-ink">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="mx-auto max-w-5xl px-6 py-8">
         <PageHeader
           className="mb-6"
           title="Labs"
           subtitle="Hands-on challenges across CTF, Blue Team, and Red Team disciplines — from log analysis and detection engineering to AI security, DFIR, and cloud misconfigurations. Complete all tasks in a room to capture the flag."
           actions={
-            <Link
-              href="/labs/graph"
-              className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
-            >
-              Skill Graph →
-            </Link>
+            <Link href="/labs/graph"><Button variant="secondary">Skill Graph →</Button></Link>
           }
         />
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard label="Total Labs" value={labs.length} sub={filter === "ALL" ? "all categories" : filter.replace("_", " ").toLowerCase()} />
-          <StatCard label="Solved" value={solvedCount} sub={`${completionPct}% complete`} />
-          <StatCard label="In Progress" value={inProgressCount} sub="attempts started" />
+          <StatCard label="Solved" value={solvedCount} tone="ok" sub={`${completionPct}% complete`} />
+          <StatCard label="In Progress" value={inProgressCount} tone="warn" sub="attempts started" />
           <StatCard label="Remaining" value={Math.max(0, labs.length - solvedCount)} sub="left to solve" />
         </div>
 
         {allLabsComplete && (
-          <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex items-center justify-between gap-4">
+          <div className="mb-8 flex items-center justify-between gap-4 rounded-lg border border-ok-edge bg-ok-wash p-5">
             <div>
-              <p className="text-xs uppercase tracking-widest text-amber-400 mb-1">Every Lab Completed</p>
-              <p className="font-semibold">You've solved every published lab on Sage Vault.</p>
-              <p className="text-sm text-zinc-400 mt-1">Your certificate is ready to claim — pending admin approval.</p>
+              <p className="mb-1 font-mono text-xs uppercase tracking-[0.14em] text-ok">Every Lab Completed</p>
+              <p className="font-medium text-ink">You've solved every published lab on Sage Vault.</p>
+              <p className="mt-1 text-sm text-ink-2">Your certificate is ready to claim — pending admin approval.</p>
             </div>
-            <a
-              href="/labs/certificate"
-              className="shrink-0 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-amber-400 transition whitespace-nowrap"
-            >
-              View Certificate →
-            </a>
+            <Link href="/labs/certificate" className="shrink-0">
+              <Button variant="primary">View Certificate →</Button>
+            </Link>
           </div>
         )}
 
-        {/* Simulation callout */}
-        <div className="mb-8 rounded-xl border border-sage-500/30 bg-sage-500/5 p-5 flex items-center justify-between gap-4">
+        {/* Simulation callout — a promotional CTA, not a success state, so it stays on accent rather than ok */}
+        <div className="mb-8 flex items-center justify-between gap-4 rounded-lg border border-accent-edge bg-accent-wash p-5">
           <div>
-            <p className="text-xs uppercase tracking-widest text-sage-500 mb-1">Live Simulation Mode</p>
-            <p className="font-semibold">Ready for a real incident?</p>
-            <p className="text-sm text-zinc-400 mt-1">
+            <p className="mb-1 font-mono text-xs uppercase tracking-[0.14em] text-accent">Live Simulation Mode</p>
+            <p className="font-medium text-ink">Ready for a real incident?</p>
+            <p className="mt-1 text-sm text-ink-2">
               Simulations put you inside a live organization under attack. AI generates the company, employees, and attacker behavior.
               Your decisions are scored A–F and visible to recruiters.
             </p>
           </div>
-          <Link
-            href="/simulation/new"
-            className="shrink-0 rounded-lg bg-sage-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition whitespace-nowrap"
-          >
-            Launch Simulation →
+          <Link href="/simulation/new" className="shrink-0">
+            <Button variant="primary">Launch Simulation →</Button>
           </Link>
         </div>
 
         {/* Type filter */}
-        <nav className="flex gap-2 mb-6">
+        <nav className="mb-6 flex gap-2">
           {TYPES.map((t) => {
             const active = t.key === filter;
             const params = new URLSearchParams();
@@ -146,11 +138,12 @@ export default async function LabsIndex({
               <Link
                 key={t.key}
                 href={qs ? `/labs?${qs}` : "/labs"}
-                className={
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-sm transition-colors duration-fast",
                   active
-                    ? "rounded-full bg-sage-500 px-4 py-1.5 text-sm font-medium text-black"
-                    : "rounded-full border border-white/10 px-4 py-1.5 text-sm text-zinc-400 hover:text-white hover:border-white/30"
-                }
+                    ? "bg-accent-fill font-medium text-white"
+                    : "border border-edge-strong text-ink-2 hover:border-edge-strong hover:text-ink"
+                )}
               >
                 {t.label}
               </Link>
@@ -166,7 +159,7 @@ export default async function LabsIndex({
             action={{ label: "Explore Learning Paths", href: "/paths" }}
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {labs.map((lab, idx) => {
               const status = statusByLab.get(lab.id);
               const solved = status === "SOLVED";
@@ -179,47 +172,41 @@ export default async function LabsIndex({
                 <Link
                   key={lab.id}
                   href={`/labs/${lab.slug}`}
-                  className={`card-hover rounded-xl border p-5 flex flex-col gap-3 relative overflow-hidden animate-fade-up ${
-                    solved
-                      ? "border-sage-500/40 bg-sage-500/5"
-                      : "border-white/8 bg-zinc-900/60"
-                  }`}
+                  className={cn(
+                    "animate-fade-up flex flex-col gap-3 rounded-lg border p-5 transition-colors duration-fast",
+                    solved ? "border-ok-edge bg-ok-wash hover:border-ok" : "border-edge bg-surface-1 hover:border-edge-strong hover:bg-surface-2"
+                  )}
                   style={{ animationDelay: `${idx * 40}ms` }}
                 >
-                  {/* Solved corner accent */}
-                  {solved && <div className="absolute -top-4 -right-4 w-16 h-16 bg-emerald-500/15 rounded-full blur-xl" />}
-
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-widest text-sage-500 font-mono">
+                    <span className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">
                       {lab.type.replace("_", " ")}
                     </span>
-                    <span className={`text-xs font-bold font-mono ${DIFF_COLORS[lab.difficulty] ?? "text-zinc-400"}`}>
-                      {lab.difficulty}
-                    </span>
+                    <Severity level={DIFF_SEVERITY[lab.difficulty] ?? "low"}>{lab.difficulty}</Severity>
                   </div>
 
                   <div>
-                    <h3 className="font-semibold flex items-center gap-2 leading-snug">
+                    <h3 className="flex items-center gap-2 font-medium leading-snug text-ink">
                       {lab.title}
-                      {solved && <span className="text-sage-500"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
-                      {inProgress && <span className="text-amber-400 text-xs font-mono">IN PROGRESS</span>}
+                      {solved && <span className="text-ok"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+                      {inProgress && <Badge tone="warn">In progress</Badge>}
                     </h3>
-                    <p className="text-sm text-zinc-500 mt-1.5 line-clamp-2 leading-relaxed">{lab.description}</p>
+                    <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-3">{lab.description}</p>
                   </div>
 
-                  <div className="flex items-center justify-between mt-auto pt-1">
-                    <div className="flex items-center gap-2 text-xs text-zinc-600 font-mono">
+                  <div className="mt-auto flex items-center justify-between pt-1">
+                    <div className="flex items-center gap-2 font-mono text-xs text-ink-3">
                       <span>{lab.category}</span>
                       {taskCount > 0 && (
                         <>
                           <span>·</span>
-                          <span className={solved ? "text-sage-500" : inProgress ? "text-amber-400" : ""}>
+                          <span className={solved ? "text-ok" : inProgress ? "text-warn" : ""}>
                             {doneCount > 0 && !solved ? `${doneCount}/${taskCount}` : `${taskCount}`} tasks
                           </span>
                         </>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-zinc-400 font-mono">{lab.points} pts</span>
+                    <span className="font-mono text-xs font-medium text-ink-2">{lab.points} pts</span>
                   </div>
 
                   {taskCount > 0 && doneCount > 0 && (
@@ -227,11 +214,10 @@ export default async function LabsIndex({
                       {taskStages.map((stage) => (
                         <div
                           key={stage}
-                          className={`flex-1 h-0.5 rounded-full transition-all ${
-                            completedByLab.get(lab.id)?.has(stage)
-                              ? "bg-sage-500"
-                              : "bg-zinc-800"
-                          }`}
+                          className={cn(
+                            "h-0.5 flex-1 rounded-full transition-colors duration-slow",
+                            completedByLab.get(lab.id)?.has(stage) ? "bg-ok" : "bg-surface-inset"
+                          )}
                         />
                       ))}
                     </div>

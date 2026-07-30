@@ -96,19 +96,19 @@ export default async function CohortDetail({
   const atRiskCount = memberRows.filter((r) => r.atRisk).length;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref={isInstructor ? "/admin/cohorts" : "/dashboard"} backLabel={isInstructor ? "Cohorts" : "Dashboard"} />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
         <header className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight">{cohort.name}</h1>
-          {cohort.description && <p className="text-zinc-400 text-sm mt-1">{cohort.description}</p>}
-          <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500">
+          {cohort.description && <p className="text-ink-2 text-sm mt-1">{cohort.description}</p>}
+          <div className="flex items-center gap-4 mt-3 text-xs text-ink-3">
             {cohort.startDate && <span>Starts {new Date(cohort.startDate).toLocaleDateString()}</span>}
             {cohort.endDate && <span>Ends {new Date(cohort.endDate).toLocaleDateString()}</span>}
             <span>{cohort.members.length} member{cohort.members.length !== 1 ? "s" : ""}</span>
             {atRiskCount > 0 && (
-              <span className="text-amber-400 font-semibold">{atRiskCount} at risk</span>
+              <span className="text-warn font-semibold">{atRiskCount} at risk</span>
             )}
           </div>
         </header>
@@ -116,13 +116,13 @@ export default async function CohortDetail({
         {/* Paths overview */}
         {cohort.paths.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Learning Paths</h2>
+            <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-3">Learning Paths</h2>
             <div className="flex flex-wrap gap-2">
               {cohort.paths.map((cp) => (
                 <Link
                   key={cp.id}
                   href={`/paths/${cp.path.slug}`}
-                  className="rounded-lg border border-white/8 px-4 py-2 text-sm text-zinc-300 hover:border-sage-500/40 hover:text-sage-400 transition"
+                  className="rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:border-ok-edge hover:text-ok transition"
                 >
                   {cp.path.title} · {cp.path.modules.length} modules
                 </Link>
@@ -133,51 +133,51 @@ export default async function CohortDetail({
 
         {/* Member progress table */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Member Progress</h2>
-          <div className="rounded-xl border border-white/8 overflow-hidden">
+          <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-4">Member Progress</h2>
+          <div className="rounded-xl border border-edge overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/8 bg-white/2">
-                  <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Intern</th>
-                  <th className="text-center px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Progress</th>
-                  <th className="text-center px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Modules</th>
-                  <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Last Active</th>
-                  <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Status</th>
+                <tr className="border-b border-edge bg-white/2">
+                  <th className="text-left px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Intern</th>
+                  <th className="text-center px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Progress</th>
+                  <th className="text-center px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Modules</th>
+                  <th className="text-right px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Last Active</th>
+                  <th className="text-right px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/4">
+              <tbody className="divide-y divide-edge-subtle">
                 {memberRows.map(({ member, completed, pct, daysInactive, atRisk }) => (
-                  <tr key={member.id} className="hover:bg-white/2 transition">
+                  <tr key={member.id} className="hover:bg-surface-2 transition">
                     <td className="px-4 py-3">
-                      <Link href={`/profile/${member.userId}`} className="font-medium text-zinc-200 hover:text-sage-400 transition">
+                      <Link href={`/profile/${member.userId}`} className="font-medium text-ink hover:text-ok transition">
                         {member.user.displayName ?? member.user.email.split("@")[0]}
                       </Link>
-                      <p className="text-xs text-zinc-600">{member.user.email}</p>
+                      <p className="text-xs text-ink-3">{member.user.email}</p>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-1.5 w-24 bg-surface-2 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full ${pct === 100 ? "bg-sage-500" : atRisk ? "bg-amber-500" : "bg-blue-500"}`}
+                            className={`h-full rounded-full ${pct === 100 ? "bg-ok" : atRisk ? "bg-warn" : "bg-info"}`}
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="text-xs text-zinc-500 w-9 text-right">{pct}%</span>
+                        <span className="text-xs text-ink-3 w-9 text-right">{pct}%</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center text-xs text-zinc-400">
+                    <td className="px-4 py-3 text-center text-xs text-ink-2">
                       {completed}/{totalModules}
                     </td>
-                    <td className="px-4 py-3 text-right text-xs text-zinc-500">
+                    <td className="px-4 py-3 text-right text-xs text-ink-3">
                       {daysInactive !== null ? `${daysInactive}d ago` : "Never"}
                     </td>
                     <td className="px-4 py-3 text-right">
                       {pct === 100 ? (
-                        <span className="text-xs font-semibold text-sage-400">Complete</span>
+                        <span className="text-xs font-semibold text-ok">Complete</span>
                       ) : atRisk ? (
-                        <span className="text-xs font-semibold text-amber-400">At Risk</span>
+                        <span className="text-xs font-semibold text-warn">At Risk</span>
                       ) : (
-                        <span className="text-xs text-zinc-500">Active</span>
+                        <span className="text-xs text-ink-3">Active</span>
                       )}
                     </td>
                   </tr>

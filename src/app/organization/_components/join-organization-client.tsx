@@ -35,16 +35,16 @@ export function JoinOrganizationClient() {
         onChange={(e) => setCode(e.target.value.toUpperCase())}
         placeholder="Enter organization code (e.g. A1B2C3D4)"
         maxLength={8}
-        className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm font-mono text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60 uppercase tracking-widest"
+        className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm font-mono text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge uppercase tracking-widest"
       />
       <button
         type="submit"
         disabled={loading || code.length < 4}
-        className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white disabled:opacity-40 transition"
+        className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white disabled:opacity-40 transition"
       >
         {loading ? "Joining…" : "Join Organization"}
       </button>
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </form>
   );
 }

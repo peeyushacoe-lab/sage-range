@@ -65,17 +65,17 @@ export default async function TicketHistory({
 
   const getStatusBadge = (action: string) => {
     const colors: Record<string, string> = {
-      CLOSED: 'bg-emerald-500/20 text-emerald-400',
-      ESCALATED: 'bg-orange-500/20 text-orange-400',
-      RESOLVED: 'bg-blue-500/20 text-blue-400',
+      CLOSED: 'bg-ok-wash text-ok',
+      ESCALATED: 'bg-sev-high-wash text-sev-high',
+      RESOLVED: 'bg-info-wash text-info',
       IGNORED: 'bg-gray-500/20 text-gray-400',
-      MONITOR: 'bg-amber-500/20 text-amber-400',
+      MONITOR: 'bg-warn-wash text-warn',
     };
-    return colors[action] || 'bg-zinc-500/20 text-zinc-400';
+    return colors[action] || 'bg-surface-3 text-ink-2';
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
@@ -86,7 +86,7 @@ export default async function TicketHistory({
           actions={
             <Link
               href="/labs/tickets"
-              className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+              className="shrink-0 rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
             >
               Back to Shifts →
             </Link>
@@ -102,8 +102,8 @@ export default async function TicketHistory({
               className={cn(
                 'rounded-full px-4 py-1.5 text-sm font-medium transition',
                 (statusParam === s.key || (!statusParam && s.key === 'ALL'))
-                  ? 'bg-sage-500 text-black'
-                  : 'border border-white/10 text-zinc-400 hover:text-white hover:border-white/30'
+                  ? 'bg-accent-fill text-white'
+                  : 'border border-edge text-ink-2 hover:text-white hover:border-edge-strong'
               )}
             >
               {s.label}
@@ -125,26 +125,26 @@ export default async function TicketHistory({
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-white/10">
-                      <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                    <tr className="border-b border-edge">
+                      <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-ink-3 font-semibold">
                         Ticket
                       </th>
-                      <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                      <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-ink-3 font-semibold">
                         Category
                       </th>
-                      <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                      <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-ink-3 font-semibold">
                         Your Action
                       </th>
-                      <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                      <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                         Confidence
                       </th>
-                      <th className="px-5 py-3 text-center text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                      <th className="px-5 py-3 text-center text-xs uppercase tracking-widest text-ink-3 font-semibold">
                         Result
                       </th>
-                      <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                      <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                         Points
                       </th>
-                      <th className="px-5 py-3 text-center text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                      <th className="px-5 py-3 text-center text-xs uppercase tracking-widest text-ink-3 font-semibold">
                         Status
                       </th>
                     </tr>
@@ -153,17 +153,17 @@ export default async function TicketHistory({
                     {triages.map((triage) => (
                       <tr
                         key={triage.id}
-                        className="border-t border-white/5 hover:bg-zinc-900/50 transition"
+                        className="border-t border-edge-subtle hover:bg-surface-1 transition"
                       >
                         <td className="px-5 py-4">
                           <Link
                             href={`/labs/tickets/leaderboard/${triage.ticket.shiftId}`}
-                            className="font-medium text-sage-400 hover:text-sage-500 truncate max-w-xs"
+                            className="font-medium text-ok hover:text-ok truncate max-w-xs"
                           >
                             {triage.ticket.title}
                           </Link>
                         </td>
-                        <td className="px-5 py-4 text-zinc-400 text-sm">
+                        <td className="px-5 py-4 text-ink-2 text-sm">
                           {triage.ticket.category}
                         </td>
                         <td className="px-5 py-4">
@@ -175,26 +175,26 @@ export default async function TicketHistory({
                           </span>
                         </td>
                         <td className="px-5 py-4 text-right">
-                          <span className="text-sm font-mono text-zinc-300">
+                          <span className="text-sm font-mono text-ink-2">
                             {triage.confidence}%
                           </span>
                         </td>
                         <td className="px-5 py-4 text-center">
                           {triage.isCorrect !== null && (
-                            <span className={triage.isCorrect ? 'text-emerald-400 font-bold text-lg' : 'text-red-400 font-bold text-lg'}>
+                            <span className={triage.isCorrect ? 'text-ok font-bold text-lg' : 'text-danger font-bold text-lg'}>
                               {triage.isCorrect ? '✓' : '✗'}
                             </span>
                           )}
                         </td>
-                        <td className="px-5 py-4 text-right font-bold text-sage-400 font-mono">
+                        <td className="px-5 py-4 text-right font-bold text-ok font-mono">
                           {triage.score || '-'}
                         </td>
                         <td className="px-5 py-4 text-center">
                           <span className={cn(
                             'text-xs font-semibold uppercase tracking-widest px-2.5 py-1 rounded',
                             triage.gradedAt
-                              ? 'bg-emerald-500/20 text-emerald-400'
-                              : 'bg-amber-500/20 text-amber-400'
+                              ? 'bg-ok-wash text-ok'
+                              : 'bg-warn-wash text-warn'
                           )}>
                             {triage.gradedAt ? 'Graded' : 'Pending'}
                           </span>
@@ -209,7 +209,7 @@ export default async function TicketHistory({
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-6 flex items-center justify-between">
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-ink-3">
                   Showing {offset + 1} to {Math.min(offset + limit, totalCount)} of {totalCount}
                 </p>
 
@@ -217,7 +217,7 @@ export default async function TicketHistory({
                   {page > 1 && (
                     <Link
                       href={`/labs/tickets/history?status=${statusParam || ''}&page=${page - 1}`}
-                      className="px-3 py-2 rounded-lg border border-white/10 text-white hover:border-white/30 transition text-sm"
+                      className="px-3 py-2 rounded-lg border border-edge text-white hover:border-edge-strong transition text-sm"
                     >
                       Previous
                     </Link>
@@ -236,8 +236,8 @@ export default async function TicketHistory({
                         className={cn(
                           'px-3 py-2 rounded-lg text-sm transition',
                           p === page
-                            ? 'bg-sage-500 text-black'
-                            : 'border border-white/10 text-white hover:border-white/30'
+                            ? 'bg-accent-fill text-white'
+                            : 'border border-edge text-white hover:border-edge-strong'
                         )}
                       >
                         {p}
@@ -248,7 +248,7 @@ export default async function TicketHistory({
                   {page < totalPages && (
                     <Link
                       href={`/labs/tickets/history?status=${statusParam || ''}&page=${page + 1}`}
-                      className="px-3 py-2 rounded-lg border border-white/10 text-white hover:border-white/30 transition text-sm"
+                      className="px-3 py-2 rounded-lg border border-edge text-white hover:border-edge-strong transition text-sm"
                     >
                       Next
                     </Link>

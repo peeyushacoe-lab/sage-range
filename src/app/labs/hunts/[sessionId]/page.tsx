@@ -65,41 +65,41 @@ export default async function HuntSessionPage({
   if (session.userId !== user.id) notFound();
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="max-w-full h-[calc(100vh-64px)] overflow-hidden flex">
         {/* Left Panel: Dataset Info */}
-        <div className="hidden lg:flex lg:w-80 border-r border-white/8 flex-col overflow-y-auto">
+        <div className="hidden lg:flex lg:w-80 border-r border-edge flex-col overflow-y-auto">
           <Card className="m-4 border-0">
             <CardHeader>
               <div className="flex items-center gap-2 mb-2">
                 <Icon name="investigate" size={20} />
                 <h3 className="font-semibold">{session.dataset.name}</h3>
               </div>
-              <p className="text-xs text-zinc-400">{session.dataset.category}</p>
+              <p className="text-xs text-ink-2">{session.dataset.category}</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Log entries:</span>
+                  <span className="text-ink-2">Log entries:</span>
                   <span className="text-white font-semibold">{session.dataset.logCount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Expected artifacts:</span>
+                  <span className="text-ink-2">Expected artifacts:</span>
                   <span className="text-white font-semibold">{session.dataset.expectedArtifacts.length}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Found:</span>
-                  <span className="text-emerald-400 font-semibold">
+                  <span className="text-ink-2">Found:</span>
+                  <span className="text-ok font-semibold">
                     {session.artifacts.filter((a) => a.matched).length}
                   </span>
                 </div>
               </div>
 
               {/* Expected Artifacts List */}
-              <div className="border-t border-white/8 pt-4">
-                <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Expected artifacts</p>
+              <div className="border-t border-edge pt-4">
+                <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">Expected artifacts</p>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {session.dataset.expectedArtifacts.map((artifact, idx) => {
                     const found = session.artifacts.some((a) => a.value === artifact && a.matched);
@@ -108,8 +108,8 @@ export default async function HuntSessionPage({
                         key={idx}
                         className={`flex items-center gap-2 text-xs px-2 py-1 rounded ${
                           found
-                            ? "bg-emerald-500/10 text-emerald-400"
-                            : "bg-white/5 text-zinc-400"
+                            ? "bg-ok-wash text-ok"
+                            : "bg-surface-2 text-ink-2"
                         }`}
                       >
                         <Icon
@@ -127,16 +127,16 @@ export default async function HuntSessionPage({
         </div>
 
         {/* Middle Panel: Query Console */}
-        <div className="flex-1 border-r border-white/8 flex flex-col overflow-hidden">
+        <div className="flex-1 border-r border-edge flex flex-col overflow-hidden">
           <QueryConsole sessionId={sessionId} />
         </div>
 
         {/* Right Panel: Artifact Form & Progress */}
-        <div className="hidden xl:flex xl:w-96 border-l border-white/8 flex-col overflow-hidden">
+        <div className="hidden xl:flex xl:w-96 border-l border-edge flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
             <HuntProgress session={session} />
           </div>
-          <div className="border-t border-white/8 p-4 flex-shrink-0">
+          <div className="border-t border-edge p-4 flex-shrink-0">
             <ArtifactForm sessionId={sessionId} />
           </div>
         </div>

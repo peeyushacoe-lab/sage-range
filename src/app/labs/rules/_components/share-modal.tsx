@@ -97,16 +97,16 @@ export function ShareModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-xl border border-white/10 bg-zinc-900 shadow-2xl">
+      <div className="w-full max-w-md rounded-xl border border-edge bg-surface-1 shadow-2xl">
         {/* Header */}
-        <div className="border-b border-white/10 px-6 py-4 flex items-center justify-between">
+        <div className="border-b border-edge px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-white">Share Rule</h2>
-            <p className="text-xs text-zinc-500 mt-1">Control who can see this rule</p>
+            <p className="text-xs text-ink-3 mt-1">Control who can see this rule</p>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-white transition"
+            className="text-ink-3 hover:text-white transition"
           >
             <X size={20} />
           </button>
@@ -122,8 +122,8 @@ export function ShareModal({
                   className={cn(
                     'flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-all',
                     visibility === key
-                      ? 'border-emerald-500/40 bg-emerald-500/10'
-                      : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                      ? 'border-ok-edge bg-ok-wash'
+                      : 'border-edge bg-surface-2 hover:bg-surface-2 hover:border-edge-strong'
                   )}
                 >
                   <input
@@ -136,7 +136,7 @@ export function ShareModal({
                   />
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-white">{config.label}</p>
-                    <p className="text-xs text-zinc-400 mt-1">{config.description}</p>
+                    <p className="text-xs text-ink-2 mt-1">{config.description}</p>
                   </div>
                 </label>
               )
@@ -149,19 +149,19 @@ export function ShareModal({
               className={cn(
                 'mt-4 rounded-lg p-3 flex gap-2',
                 message.type === 'success'
-                  ? 'border border-emerald-500/30 bg-emerald-500/10'
-                  : 'border border-red-500/30 bg-red-500/10'
+                  ? 'border border-ok-edge bg-ok-wash'
+                  : 'border border-danger-edge bg-danger-wash'
               )}
             >
               {message.type === 'success' ? (
-                <Check size={16} className="text-emerald-400 flex-none mt-0.5" />
+                <Check size={16} className="text-ok flex-none mt-0.5" />
               ) : (
-                <AlertCircle size={16} className="text-red-400 flex-none mt-0.5" />
+                <AlertCircle size={16} className="text-danger flex-none mt-0.5" />
               )}
               <p
                 className={cn(
                   'text-xs',
-                  message.type === 'success' ? 'text-emerald-300' : 'text-red-300'
+                  message.type === 'success' ? 'text-ok' : 'text-danger'
                 )}
               >
                 {message.text}
@@ -171,7 +171,7 @@ export function ShareModal({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/10 px-6 py-4 flex items-center justify-between gap-3">
+        <div className="border-t border-edge px-6 py-4 flex items-center justify-between gap-3">
           <Button
             variant="ghost"
             onClick={onClose}

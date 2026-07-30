@@ -40,7 +40,7 @@ export default async function DetectionChallengePage({ params }: { params: Promi
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/detection-lab" backLabel="Detection Lab" />
       <DetectionLabClient
         challengeId={challenge.id}

@@ -20,3 +20,7 @@ next-env.d.ts
 
 # Local design reference — never commit (owner request)
 certi-design.png
+
+# Third-party design skill toolkit, vendored locally. Not app code, and its
+# own CLI sources break `tsc --noEmit` for the whole project.
+ui-ux-pro-max-skill/

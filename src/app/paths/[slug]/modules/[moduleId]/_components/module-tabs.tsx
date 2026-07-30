@@ -29,15 +29,15 @@ export function ModuleTabs({ hasQuiz, hasAssessment, children }: Props) {
 
   return (
     <div>
-      <div className="flex gap-1 mb-8 border-b border-white/8 overflow-x-auto">
+      <div className="flex gap-1 mb-8 border-b border-edge overflow-x-auto">
         {visibleTabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
             className={`shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 transition -mb-px ${
               activeTab === t.id
-                ? "border-sage-500 text-sage-400"
-                : "border-transparent text-zinc-500 hover:text-zinc-300"
+                ? "border-ok-edge text-ok"
+                : "border-transparent text-ink-3 hover:text-ink-2"
             }`}
           >
             {t.label}

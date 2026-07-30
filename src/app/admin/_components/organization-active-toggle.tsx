@@ -25,8 +25,8 @@ export function OrganizationActiveToggle({ id, active }: { id: string; active: b
   return (
     <button onClick={toggle} disabled={loading}
       className={`text-xs px-3 py-1 rounded-full font-semibold transition disabled:opacity-50 ${
-        on ? "bg-sage-500/20 text-sage-500 hover:bg-red-500/10 hover:text-red-400"
-           : "bg-zinc-500/20 text-zinc-400 hover:bg-sage-500/20 hover:text-sage-400"
+        on ? "bg-ok-wash text-ok hover:bg-danger-wash hover:text-danger"
+           : "bg-surface-3 text-ink-2 hover:bg-ok-wash hover:text-ok"
       }`}>
       {loading ? "…" : on ? "Active" : "Inactive"}
     </button>

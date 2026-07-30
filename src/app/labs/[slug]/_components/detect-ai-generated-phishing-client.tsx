@@ -82,31 +82,31 @@ export function DetectAiGeneratedPhishingClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Spot the Missing Tell" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">An email flagged by a finance employee:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{EMAIL}</pre>
+        <p className="text-ink-2 text-sm mb-3">An email flagged by a finance employee:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{EMAIL}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What traditional phishing tell is now missing because AI wrote this email?</p>
+            <p className="text-sm text-ink-2 font-medium">What traditional phishing tell is now missing because AI wrote this email?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the email has no grammar or spelling mistakes at all, unlike classic phishing. Flag: SAGE&#123;n0_gr4mm4r_4w4rd_ph1sh1ng&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — the email has no grammar or spelling mistakes at all, unlike classic phishing. Flag: SAGE&#123;n0_gr4mm4r_4w4rd_ph1sh1ng&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Shift Your Detection Focus" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-4">Grammar-based filters won't catch this one.</p>
+        <p className="text-ink-2 text-sm mb-4">Grammar-based filters won't catch this one.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Since grammar is no longer a reliable signal, what should detection focus on instead?</p>
+            <p className="text-sm text-ink-2 font-medium">Since grammar is no longer a reliable signal, what should detection focus on instead?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Behavioral and metadata signals — sender domain mismatch, urgency + payment request combo, unusual send time — rather than writing quality",
@@ -116,25 +116,25 @@ export function DetectAiGeneratedPhishingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — domain mismatch, urgency, and payment requests together are the real signal now. Flag: SAGE&#123;f0cus_0n_m3t4d4t4_n0t_wr1t1ng&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — domain mismatch, urgency, and payment requests together are the real signal now. Flag: SAGE&#123;f0cus_0n_m3t4d4t4_n0t_wr1t1ng&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Recommend the Control" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">Even a well-tuned detection filter can't catch every attempt.</p>
+        <p className="text-ink-2 text-sm mb-4">Even a well-tuned detection filter can't catch every attempt.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the most reliable technical control against this kind of CEO-fraud attack, regardless of how well-written it is?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the most reliable technical control against this kind of CEO-fraud attack, regardless of how well-written it is?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Out-of-band verification of any payment/wire request through a separate, known-good channel",
@@ -144,17 +144,17 @@ export function DetectAiGeneratedPhishingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — verifying wire requests through a separate known-good channel defeats this regardless of email quality.
             Flag: SAGE&#123;0ut_0f_b4nd_v3r1f1c4t10n&#125;
           </p>
@@ -162,12 +162,12 @@ export function DetectAiGeneratedPhishingClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;n0_gr4mm4r_4w4rd_ph1sh1ng&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;f0cus_0n_m3t4d4t4_n0t_wr1t1ng&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;0ut_0f_b4nd_v3r1f1c4t10n&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;n0_gr4mm4r_4w4rd_ph1sh1ng&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;f0cus_0n_m3t4d4t4_n0t_wr1t1ng&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;0ut_0f_b4nd_v3r1f1c4t10n&#125;</span></li>
           </ul>
         </div>
       )}

@@ -22,10 +22,10 @@ interface TicketDetailProps {
 }
 
 const SEVERITY_COLORS: Record<string, { bg: string; text: string; icon: string }> = {
-  CRITICAL: { bg: 'bg-red-500/10', text: 'text-red-400', icon: 'alert-circle' },
-  HIGH: { bg: 'bg-orange-500/10', text: 'text-orange-400', icon: 'alert-triangle' },
-  MEDIUM: { bg: 'bg-amber-500/10', text: 'text-amber-400', icon: 'info' },
-  LOW: { bg: 'bg-blue-500/10', text: 'text-blue-400', icon: 'circle-check' },
+  CRITICAL: { bg: 'bg-danger-wash', text: 'text-danger', icon: 'alert-circle' },
+  HIGH: { bg: 'bg-sev-high-wash', text: 'text-sev-high', icon: 'alert-triangle' },
+  MEDIUM: { bg: 'bg-warn-wash', text: 'text-warn', icon: 'info' },
+  LOW: { bg: 'bg-info-wash', text: 'text-info', icon: 'circle-check' },
 };
 
 export function TicketDetail({ ticket, isLoading = false }: TicketDetailProps) {
@@ -39,9 +39,9 @@ export function TicketDetail({ ticket, isLoading = false }: TicketDetailProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4 animate-pulse">
-            <div className="h-8 bg-zinc-800 rounded w-3/4" />
-            <div className="h-24 bg-zinc-800 rounded" />
-            <div className="h-12 bg-zinc-800 rounded" />
+            <div className="h-8 bg-surface-2 rounded w-3/4" />
+            <div className="h-24 bg-surface-2 rounded" />
+            <div className="h-12 bg-surface-2 rounded" />
           </div>
         </CardContent>
       </Card>
@@ -55,7 +55,7 @@ export function TicketDetail({ ticket, isLoading = false }: TicketDetailProps) {
           <CardTitle>Ticket Detail</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-zinc-500 text-center py-8">
+          <p className="text-sm text-ink-3 text-center py-8">
             Select a ticket from the queue to view details
           </p>
         </CardContent>
@@ -82,7 +82,7 @@ export function TicketDetail({ ticket, isLoading = false }: TicketDetailProps) {
               {ticket.severity}
             </span>
             {isOverSLA && (
-              <span className="text-xs font-bold uppercase tracking-widest text-red-400 ml-auto">
+              <span className="text-xs font-bold uppercase tracking-widest text-ink-3 ml-auto">
                 OVER SLA
               </span>
             )}
@@ -91,25 +91,25 @@ export function TicketDetail({ ticket, isLoading = false }: TicketDetailProps) {
 
         {/* Title */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Title</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Title</p>
           <h3 className="text-lg font-semibold text-white leading-snug">{ticket.title}</h3>
         </div>
 
         {/* Category */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Category</p>
-          <p className="text-sm font-mono text-zinc-300">{ticket.category}</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Category</p>
+          <p className="text-sm font-mono text-ink-2">{ticket.category}</p>
         </div>
 
         {/* SLA */}
         <div className={cn(
           'p-3 rounded-lg',
-          isOverSLA ? 'bg-red-500/10 border border-red-500/30' : 'bg-zinc-800/50 border border-zinc-700/50'
+          isOverSLA ? 'bg-danger-wash border border-danger-edge' : 'bg-surface-2/50 border border-edge-strong/50'
         )}>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">SLA Deadline</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">SLA Deadline</p>
           <p className={cn(
             'text-sm font-mono font-semibold',
-            isOverSLA ? 'text-red-400' : 'text-zinc-300'
+            isOverSLA ? 'text-danger' : 'text-ink-2'
           )}>
             {slaDeadline.toLocaleString()}
           </p>
@@ -117,8 +117,8 @@ export function TicketDetail({ ticket, isLoading = false }: TicketDetailProps) {
 
         {/* Description */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">Description</p>
-          <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">Description</p>
+          <p className="text-sm text-ink-2 leading-relaxed whitespace-pre-wrap">
             {ticket.description}
           </p>
         </div>
@@ -128,15 +128,15 @@ export function TicketDetail({ ticket, isLoading = false }: TicketDetailProps) {
           <div>
             <button
               onClick={() => setShowRawAlert(!showRawAlert)}
-              className="flex items-center gap-2 text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-400 transition mb-2"
+              className="flex items-center gap-2 text-xs uppercase tracking-widest text-ink-3 hover:text-ink-2 transition mb-2"
             >
               <Icon name={showRawAlert ? 'chevronDown' : 'chevronRight'} size={14} />
               Raw Alert (JSON)
             </button>
 
             {showRawAlert && (
-              <div className="p-3 rounded-lg bg-zinc-950/50 border border-zinc-800 overflow-x-auto">
-                <pre className="text-xs text-zinc-400 font-mono">
+              <div className="p-3 rounded-lg bg-surface-0/50 border border-edge-strong overflow-x-auto">
+                <pre className="text-xs text-ink-2 font-mono">
                   {JSON.stringify(ticket.rawAlert, null, 2)}
                 </pre>
               </div>

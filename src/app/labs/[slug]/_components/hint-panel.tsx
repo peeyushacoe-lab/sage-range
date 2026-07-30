@@ -67,42 +67,42 @@ export function HintPanel({ labId, stage }: { labId: string; stage: string }) {
   }
 
   return (
-    <div className="mt-4 border-t border-white/5 pt-3">
+    <div className="mt-4 border-t border-edge-subtle pt-3">
       <button
         type="button"
         onClick={toggle}
-        className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+        className="text-xs text-ink-3 hover:text-ink-2 transition-colors"
       >
         {open ? "Hints ▴" : "Hints ▾"}
       </button>
 
       {open && (
         <div className="mt-3 space-y-2">
-          {loading && <p className="text-xs text-zinc-600 font-mono">Loading hints…</p>}
+          {loading && <p className="text-xs text-ink-3 font-mono">Loading hints…</p>}
           {hints.map((hint) => (
             <div key={hint.level}>
               {hint.unlocked && hint.text ? (
-                <div className="rounded bg-zinc-800 p-3">
-                  <p className="text-xs text-zinc-500 mb-1">Hint {hint.level}</p>
-                  <p className="text-xs text-zinc-400 font-mono">{hint.text}</p>
+                <div className="rounded bg-surface-2 p-3">
+                  <p className="text-xs text-ink-3 mb-1">Hint {hint.level}</p>
+                  <p className="text-xs text-ink-2 font-mono">{hint.text}</p>
                 </div>
               ) : (
-                <div className="flex items-center justify-between rounded bg-zinc-900/50 border border-white/5 px-3 py-2">
-                  <span className="text-xs text-zinc-600">
+                <div className="flex items-center justify-between rounded bg-surface-1 border border-edge-subtle px-3 py-2">
+                  <span className="text-xs text-ink-3">
                     Hint {hint.level} — costs {hint.pointCost} pts
                   </span>
                   <button
                     type="button"
                     disabled={buying === hint.level}
                     onClick={() => void buyHint(hint.level)}
-                    className="text-xs border border-zinc-700 rounded px-2 py-0.5 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-colors disabled:opacity-50"
+                    className="text-xs border border-edge-strong rounded px-2 py-0.5 text-ink-2 hover:border-edge-strong hover:text-ink transition-colors disabled:opacity-50"
                   >
                     {buying === hint.level ? "…" : "Buy"}
                   </button>
                 </div>
               )}
               {errors[hint.level] && (
-                <p className="text-xs text-red-400 font-mono mt-1">{errors[hint.level]}</p>
+                <p className="text-xs text-danger font-mono mt-1">{errors[hint.level]}</p>
               )}
             </div>
           ))}

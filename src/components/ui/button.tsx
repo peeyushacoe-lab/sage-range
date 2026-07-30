@@ -1,27 +1,36 @@
 import { cn } from "@/lib/utils";
 
-// Vault button. `buttonVariants()` is exported so <Link> can share the exact
+// Range button. `buttonVariants()` is exported so <Link> can share the exact
 // same styling (link-that-looks-like-a-button) without duplicating classes.
+//
+// One primary action per screen; everything else is secondary or ghost.
+// `danger` is outlined rather than filled — destructive actions should be
+// findable, not loud. Fill it only when destroying IS the primary action.
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
-  primary:   "bg-emerald-600 hover:bg-emerald-500 text-white border border-transparent",
-  secondary: "border border-white/10 bg-white/5 text-zinc-200 hover:bg-white/10 hover:border-white/20",
-  ghost:     "border border-transparent text-zinc-400 hover:text-white hover:bg-white/5",
-  danger:    "border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20",
+  primary:   "bg-accent-fill text-white border border-transparent hover:bg-accent-hover",
+  secondary: "border border-edge-strong bg-surface-2 text-ink hover:bg-surface-3",
+  ghost:     "border border-transparent text-ink-2 hover:text-ink hover:bg-surface-2",
+  danger:    "border border-danger-edge bg-transparent text-danger hover:bg-danger-wash",
 };
 
+// Minimum 36px keeps pointer targets comfortable; `lg` clears the 44px
+// touch-target floor and is the right choice for a primary action on mobile.
 const SIZES: Record<Size, string> = {
-  sm: "text-xs px-3 py-1.5 rounded-lg gap-1.5",
-  md: "text-sm px-4 py-2 rounded-lg gap-2",
-  lg: "text-sm px-5 py-2.5 rounded-xl gap-2",
+  sm: "min-h-[28px] text-xs px-3 rounded-md gap-1.5",
+  md: "min-h-[36px] text-sm px-4 rounded-md gap-2",
+  lg: "min-h-[44px] text-base px-5 rounded-md gap-2",
 };
 
 export function buttonVariants({ variant = "primary", size = "md" }: { variant?: Variant; size?: Size } = {}) {
   return cn(
-    "inline-flex items-center justify-center font-semibold whitespace-nowrap transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
+    "inline-flex items-center justify-center font-medium whitespace-nowrap cursor-pointer",
+    "transition-colors duration-fast ease-out",
+    "disabled:opacity-50 disabled:pointer-events-none",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-0",
     VARIANTS[variant],
     SIZES[size]
   );

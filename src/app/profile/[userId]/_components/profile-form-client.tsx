@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { Icon } from "@/components/ui/icon";
+import { Button } from "@/components/ui";
 type Project = { name: string; description: string; url: string };
 
 type Initial = {
@@ -42,14 +43,14 @@ function ChipSelector({
   onChange: (v: string[]) => void; color?: string;
 }) {
   const colors: Record<string, string> = {
-    sage:   "border-sage-500/60 bg-sage-500/10 text-sage-400",
-    blue:   "border-blue-500/60 bg-blue-500/10 text-blue-400",
-    amber:  "border-amber-500/60 bg-amber-500/10 text-amber-400",
+    sage:   "border-ok-edge bg-ok-wash text-ok",
+    blue:   "border-info-edge bg-info-wash text-info",
+    amber:  "border-warn-edge bg-warn-wash text-warn",
   };
   const active = colors[color] ?? colors.sage;
   return (
     <div>
-      <label className="block text-xs text-zinc-500 uppercase tracking-wider mb-2">{label}</label>
+      <label className="block text-xs text-ink-3 uppercase tracking-wider mb-2">{label}</label>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => {
           const on = selected.includes(o);
@@ -58,7 +59,7 @@ function ChipSelector({
               key={o}
               type="button"
               onClick={() => onChange(on ? selected.filter((x) => x !== o) : [...selected, o])}
-              className={`text-xs border rounded-full px-3 py-1 transition-all ${on ? active : "border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300"}`}
+              className={`text-xs border rounded-full px-3 py-1 transition-all ${on ? active : "border-edge text-ink-3 hover:border-edge-strong hover:text-ink-2"}`}
             >
               {o}
             </button>
@@ -75,10 +76,10 @@ function Field({
   label: string; value: string; onChange: (v: string) => void;
   placeholder?: string; type?: string; rows?: number;
 }) {
-  const base = "w-full rounded-lg border border-white/10 bg-zinc-900 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition";
+  const base = "w-full rounded-lg border border-edge bg-surface-1 px-3 py-2.5 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-edge-strong transition";
   return (
     <div>
-      <label className="block text-xs text-zinc-500 uppercase tracking-wider mb-1.5">{label}</label>
+      <label className="block text-xs text-ink-3 uppercase tracking-wider mb-1.5">{label}</label>
       {rows ? (
         <textarea rows={rows} value={value} onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder} className={`${base} resize-none`} />
@@ -146,7 +147,7 @@ export function ProfileFormClient({ userId, role, initial }: {
     }
   }
 
-  const inputBase = "w-full rounded-lg border border-white/10 bg-zinc-900 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 transition";
+  const inputBase = "w-full rounded-lg border border-edge bg-surface-1 px-3 py-2.5 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-edge-strong transition";
 
   return (
     <form onSubmit={save} className="space-y-6">
@@ -174,13 +175,13 @@ export function ProfileFormClient({ userId, role, initial }: {
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs text-zinc-500 uppercase tracking-wider">Projects</label>
-              <button type="button" onClick={addProject} className="text-xs text-sage-400 hover:text-sage-300 transition">+ Add project</button>
+              <label className="text-xs text-ink-3 uppercase tracking-wider">Projects</label>
+              <button type="button" onClick={addProject} className="text-xs text-ok hover:text-ok transition">+ Add project</button>
             </div>
             <div className="space-y-3">
               {form.projects.map((p, i) => (
-                <div key={i} className="rounded-lg border border-white/8 p-4 space-y-2 relative">
-                  <button type="button" onClick={() => removeProject(i)} className="absolute top-3 right-3 text-zinc-600 hover:text-red-400 text-xs transition"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
+                <div key={i} className="rounded-lg border border-edge p-4 space-y-2 relative">
+                  <button type="button" onClick={() => removeProject(i)} className="absolute top-3 right-3 text-ink-3 hover:text-danger text-xs transition"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
                   <input value={p.name} onChange={(e) => updateProject(i, "name", e.target.value)}
                     placeholder="Project name" className={inputBase} />
                   <textarea value={p.description} onChange={(e) => updateProject(i, "description", e.target.value)}
@@ -190,7 +191,7 @@ export function ProfileFormClient({ userId, role, initial }: {
                 </div>
               ))}
               {form.projects.length === 0 && (
-                <p className="text-xs text-zinc-600 italic">No projects added yet. Showcase your work to recruiters.</p>
+                <p className="text-xs text-ink-3 italic">No projects added yet. Showcase your work to recruiters.</p>
               )}
             </div>
           </div>
@@ -226,11 +227,10 @@ export function ProfileFormClient({ userId, role, initial }: {
         )}
       </div>
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      <button type="submit" disabled={isPending}
-        className="rounded-lg bg-zinc-100 text-zinc-900 px-5 py-2.5 text-sm font-bold hover:bg-white disabled:opacity-50 transition">
+      {error && <p className="text-xs text-danger">{error}</p>}
+      <Button type="submit" variant="primary" disabled={isPending}>
         {saved ? <><Icon name="check" size={12} /> Saved</> : isPending ? "Saving…" : "Save Profile"}
-      </button>
+      </Button>
     </form>
   );
 }

@@ -49,10 +49,10 @@ async function getUserProgress(
 }
 
 const DIFF_COLORS: Record<string, string> = {
-  EASY: "text-sage-500 border-sage-500/40",
-  MEDIUM: "text-amber-400 border-amber-500/40",
-  HARD: "text-orange-400 border-orange-500/40",
-  INSANE: "text-red-400 border-red-500/40",
+  EASY: "text-ok border-ok-edge",
+  MEDIUM: "text-warn border-warn-edge",
+  HARD: "text-sev-high border-sev-high-edge",
+  INSANE: "text-danger border-danger-edge",
 };
 
 function getStatusBadge(
@@ -87,7 +87,7 @@ export default async function CaseDetail({
     notFound();
   }
 
-  const diffColor = DIFF_COLORS[weeklyCase.difficulty] ?? "text-zinc-400 border-white/8";
+  const diffColor = DIFF_COLORS[weeklyCase.difficulty] ?? "text-ink-2 border-edge";
 
   const deadline = new Date(weeklyCase.deadlineTime);
   const now = new Date();
@@ -99,7 +99,7 @@ export default async function CaseDetail({
   const status = getStatusBadge(progress?.completed ?? false, progress?.completedAt ?? null);
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/labs/incidents/weekly" backLabel="Weekly Incidents" />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
@@ -116,14 +116,14 @@ export default async function CaseDetail({
           <div className={`rounded-lg border px-4 py-2 font-semibold ${diffColor}`}>
             {weeklyCase.difficulty}
           </div>
-          <div className="flex items-center gap-2 text-sm text-zinc-400">
-            <Icon name="star" size={16} className="text-amber-400" />
+          <div className="flex items-center gap-2 text-sm text-ink-2">
+            <Icon name="star" size={16} className="text-warn" />
             <span>{weeklyCase.points} points</span>
           </div>
           {isDeadlineClose && (
-            <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30">
-              <Icon name="clock" size={14} className="text-red-400" />
-              <span className="text-sm font-medium text-red-400">
+            <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg bg-danger-wash border border-danger-edge">
+              <Icon name="clock" size={14} className="text-danger" />
+              <span className="text-sm font-medium text-danger">
                 {hoursRemaining}h remaining
               </span>
             </div>
@@ -177,13 +177,13 @@ export default async function CaseDetail({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Link
             href={`/incidents/${weeklyCase.incidentSlug}`}
-            className="rounded-lg bg-sage-500 px-6 py-3 text-center font-semibold text-black hover:bg-sage-600 transition"
+            className="rounded-lg bg-accent-fill px-6 py-3 text-center font-semibold text-white hover:bg-ok-wash transition"
           >
             Start Investigation →
           </Link>
           <Link
             href={`/labs/incidents/weekly/${caseId}/leaderboard`}
-            className="rounded-lg border border-white/20 px-6 py-3 text-center font-semibold text-white hover:border-white/40 hover:bg-white/5 transition"
+            className="rounded-lg border border-edge-strong px-6 py-3 text-center font-semibold text-white hover:border-edge-strong hover:bg-surface-2 transition"
           >
             View Leaderboard
           </Link>
@@ -193,10 +193,10 @@ export default async function CaseDetail({
         <div className="mb-8">
           <Link
             href={`/labs/incidents/weekly/${caseId}/certificate`}
-            className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-6 flex items-center justify-between hover:bg-amber-500/10 transition"
+            className="rounded-lg border border-warn-edge bg-warn-wash p-6 flex items-center justify-between hover:bg-warn-wash transition"
           >
             <div>
-              <p className="text-xs uppercase tracking-widest text-amber-400 mb-1">
+              <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">
                 Certificate
               </p>
               <p className="font-semibold text-white">
@@ -204,41 +204,41 @@ export default async function CaseDetail({
                   ? "Certificate Earned"
                   : "Complete by Sunday 23:59 UTC"}
               </p>
-              <p className="text-sm text-zinc-400 mt-1">
+              <p className="text-sm text-ink-2 mt-1">
                 {progress?.completed
                   ? "Claim your certificate and share your achievement"
                   : "Finish the investigation to earn your weekly certificate"}
               </p>
             </div>
-            <Icon name="arrowRight" size={20} className="text-amber-400" />
+            <Icon name="arrowRight" size={20} className="text-warn" />
           </Link>
         </div>
 
         {/* Timeline info */}
-        <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-6">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">
+        <div className="rounded-lg border border-edge bg-surface-1 p-6">
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-4">
             Timeline
           </p>
           <div className="space-y-3">
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 rounded-full bg-sage-500 mt-2 shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-ok mt-2 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-zinc-100">Released</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-sm font-semibold text-ink">Released</p>
+                <p className="text-xs text-ink-3">
                   {new Date(weeklyCase.releaseTime).toLocaleString()}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${isDeadlineClose ? "bg-red-500" : "bg-zinc-600"}`} />
+              <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${isDeadlineClose ? "bg-danger" : "bg-surface-3"}`} />
               <div>
-                <p className="text-sm font-semibold text-zinc-100">
+                <p className="text-sm font-semibold text-ink">
                   Deadline
                   {isDeadlineClose && (
-                    <span className="ml-2 text-xs text-red-400">Urgent</span>
+                    <span className="ml-2 text-xs text-danger">Urgent</span>
                   )}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-ink-3">
                   {new Date(weeklyCase.deadlineTime).toLocaleString()}
                 </p>
               </div>

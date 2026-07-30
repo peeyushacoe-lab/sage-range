@@ -75,34 +75,34 @@ export function UsbForensicsClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Filter the Relevant Files" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">LNK files recovered from an employee's workstation, and the case context:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-3">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{LNK_FILES}</pre>
+        <p className="text-ink-2 text-sm mb-3">LNK files recovered from an employee's workstation, and the case context:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-3">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{LNK_FILES}</pre>
         </div>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-zinc-300 whitespace-pre-wrap">{CONTEXT}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-ink-2 whitespace-pre-wrap">{CONTEXT}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Which files were accessed from E: on the employee's actual last working day, and how many?</p>
+            <p className="text-sm text-ink-2 font-medium">Which files were accessed from E: on the employee's actual last working day, and how many?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 2 confidential files were accessed from E: on June 14, the last working day. Flag: SAGE&#123;2_c0nf1d3nt14l_f1l3s_jun14&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — 2 confidential files were accessed from E: on June 14, the last working day. Flag: SAGE&#123;2_c0nf1d3nt14l_f1l3s_jun14&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Filter Out the Noise" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-4">The vacation photo LNK is dated over a month earlier than the other two.</p>
+        <p className="text-ink-2 text-sm mb-4">The vacation photo LNK is dated over a month earlier than the other two.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Why does that older LNK entry matter for this investigation?</p>
+            <p className="text-sm text-ink-2 font-medium">Why does that older LNK entry matter for this investigation?</p>
             <div className="flex flex-col gap-2">
               {[
                 "It shows the E: drive was used before too, but only the June 14 files matter for the exfiltration timeline",
@@ -112,25 +112,25 @@ export function UsbForensicsClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — it's prior, unrelated device use; stay focused on the June 14 confidential file access for this timeline. Flag: SAGE&#123;f0cus_0n_r3l3v4nt_t1m3fr4m3&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — it's prior, unrelated device use; stay focused on the June 14 confidential file access for this timeline. Flag: SAGE&#123;f0cus_0n_r3l3v4nt_t1m3fr4m3&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Decide the Next Step" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">The physical USB device itself has not yet been recovered — you only have the LNK evidence.</p>
+        <p className="text-ink-2 text-sm mb-4">The physical USB device itself has not yet been recovered — you only have the LNK evidence.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the appropriate action given LNK evidence alone?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the appropriate action given LNK evidence alone?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Treat this as strong circumstantial evidence, secure it for HR/Legal, and attempt to recover the physical device if still on-site",
@@ -140,17 +140,17 @@ export function UsbForensicsClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — LNK evidence is strong circumstantial support, not a smoking gun on its own; preserve it properly and try to recover the physical device.
             Flag: SAGE&#123;pr3s3rv3_4s_c1rcumst4nt14l_3v1d3nc3&#125;
           </p>
@@ -158,12 +158,12 @@ export function UsbForensicsClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;2_c0nf1d3nt14l_f1l3s_jun14&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;f0cus_0n_r3l3v4nt_t1m3fr4m3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;pr3s3rv3_4s_c1rcumst4nt14l_3v1d3nc3&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;2_c0nf1d3nt14l_f1l3s_jun14&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;f0cus_0n_r3l3v4nt_t1m3fr4m3&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;pr3s3rv3_4s_c1rcumst4nt14l_3v1d3nc3&#125;</span></li>
           </ul>
         </div>
       )}

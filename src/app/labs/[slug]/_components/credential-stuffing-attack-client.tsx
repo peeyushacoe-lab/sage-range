@@ -74,31 +74,31 @@ export function CredentialStuffingAttackClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Name the Attack" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">A surge of login attempts hits your site:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{LOGIN_ATTEMPTS}</pre>
+        <p className="text-ink-2 text-sm mb-3">A surge of login attempts hits your site:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{LOGIN_ATTEMPTS}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What attack technique uses previously breached credentials from other sites against this login page?</p>
+            <p className="text-sm text-ink-2 font-medium">What attack technique uses previously breached credentials from other sites against this login page?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — this is credential stuffing, reusing credentials leaked from a totally different site. Flag: SAGE&#123;cr3d3nt14l_stuff1ng&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — this is credential stuffing, reusing credentials leaked from a totally different site. Flag: SAGE&#123;cr3d3nt14l_stuff1ng&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Distinguish From Brute Force" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-4">A junior analyst calls this "just brute forcing."</p>
+        <p className="text-ink-2 text-sm mb-4">A junior analyst calls this "just brute forcing."</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Why does this differ meaningfully from a traditional brute-force attack against one account?</p>
+            <p className="text-sm text-ink-2 font-medium">Why does this differ meaningfully from a traditional brute-force attack against one account?</p>
             <div className="flex flex-col gap-2">
               {[
                 "It targets many different accounts with pre-obtained, likely-valid credential pairs, rather than guessing passwords for one account repeatedly",
@@ -108,25 +108,25 @@ export function CredentialStuffingAttackClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — it spreads across many accounts using pre-obtained, likely-valid pairs, unlike guessing one account's password repeatedly. Flag: SAGE&#123;m4ny_4cc0unts_kn0wn_cr3ds&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — it spreads across many accounts using pre-obtained, likely-valid pairs, unlike guessing one account's password repeatedly. Flag: SAGE&#123;m4ny_4cc0unts_kn0wn_cr3ds&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Choose the Long-Term Fix" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">3.2% of the attempts succeeded because those users reused the same password here.</p>
+        <p className="text-ink-2 text-sm mb-4">3.2% of the attempts succeeded because those users reused the same password here.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the most effective long-term defense against credential stuffing specifically?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the most effective long-term defense against credential stuffing specifically?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Enforce multi-factor authentication, since it defeats stolen-but-correct password/username pairs",
@@ -136,17 +136,17 @@ export function CredentialStuffingAttackClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — MFA defeats credential stuffing because a correct password alone is no longer enough to authenticate.
             Flag: SAGE&#123;mfa_d3f34ts_stuff1ng&#125;
           </p>
@@ -154,12 +154,12 @@ export function CredentialStuffingAttackClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;cr3d3nt14l_stuff1ng&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;m4ny_4cc0unts_kn0wn_cr3ds&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;mfa_d3f34ts_stuff1ng&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;cr3d3nt14l_stuff1ng&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;m4ny_4cc0unts_kn0wn_cr3ds&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;mfa_d3f34ts_stuff1ng&#125;</span></li>
           </ul>
         </div>
       )}

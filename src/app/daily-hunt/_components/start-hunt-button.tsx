@@ -32,11 +32,11 @@ export function StartHuntButton() {
         type="button"
         disabled={loading}
         onClick={() => void start()}
-        className="rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-emerald-400 transition-colors disabled:opacity-50"
+        className="rounded-lg bg-accent-fill px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-hover transition-colors disabled:opacity-50"
       >
         {loading ? "Starting…" : "Start Hunt"}
       </button>
-      {error && <p className="text-xs text-red-400 font-mono mt-2">{error}</p>}
+      {error && <p className="text-xs text-danger font-mono mt-2">{error}</p>}
     </div>
   );
 }

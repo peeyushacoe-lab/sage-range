@@ -104,7 +104,7 @@ export function CommunityRulesClient() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <PageHeader
@@ -114,7 +114,7 @@ export function CommunityRulesClient() {
           actions={
             <Link
               href="/labs/rules/builder"
-              className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition"
+              className="rounded-lg bg-ok hover:bg-ok-wash px-4 py-2 text-sm font-semibold text-white transition"
             >
               Create Rule →
             </Link>
@@ -123,13 +123,13 @@ export function CommunityRulesClient() {
 
         {/* Search Bar */}
         <div className="mb-6 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" size={18} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search rules by name or description..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-white/10 bg-zinc-950 text-white placeholder-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-edge bg-surface-0 text-white placeholder-ink-3 focus:border-ok-edge focus:outline-none focus:ring-1 focus:ring-ok"
           />
         </div>
 
@@ -140,8 +140,8 @@ export function CommunityRulesClient() {
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-lg border transition-all',
               isFilterExpanded
-                ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-                : 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10'
+                ? 'border-ok-edge bg-ok-wash text-ok'
+                : 'border-edge bg-surface-2 text-ink-2 hover:bg-surface-2'
             )}
           >
             <Filter size={16} />
@@ -149,7 +149,7 @@ export function CommunityRulesClient() {
           </button>
 
           {isFilterExpanded && (
-            <div className="mt-3 rounded-lg border border-white/10 bg-zinc-900/60 p-4 space-y-4">
+            <div className="mt-3 rounded-lg border border-edge bg-surface-1 p-4 space-y-4">
               {/* Language Filter */}
               <div>
                 <p className="text-sm font-semibold text-white mb-2">Language</p>
@@ -161,8 +161,8 @@ export function CommunityRulesClient() {
                       className={cn(
                         'rounded-lg border px-3 py-1.5 text-xs font-mono font-medium transition-all',
                         selectedLanguages.includes(lang)
-                          ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-                          : 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10'
+                          ? 'border-ok-edge bg-ok-wash text-ok'
+                          : 'border-edge bg-surface-2 text-ink-2 hover:bg-surface-2'
                       )}
                     >
                       {lang}
@@ -203,7 +203,7 @@ export function CommunityRulesClient() {
                     }
                     className="w-full"
                   />
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-ink-3">
                     {f1ScoreRange.min.toFixed(1)} - {f1ScoreRange.max.toFixed(1)}
                   </p>
                 </div>
@@ -220,8 +220,8 @@ export function CommunityRulesClient() {
                       className={cn(
                         'rounded-lg border px-3 py-1.5 text-xs font-medium transition-all capitalize',
                         sortBy === option
-                          ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-                          : 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10'
+                          ? 'border-ok-edge bg-ok-wash text-ok'
+                          : 'border-edge bg-surface-2 text-ink-2 hover:bg-surface-2'
                       )}
                     >
                       {option}
@@ -244,11 +244,11 @@ export function CommunityRulesClient() {
 
         {/* Error Display */}
         {error && (
-          <div className="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 p-4 flex gap-3">
-            <AlertCircle size={18} className="text-red-400 flex-none mt-0.5" />
+          <div className="mb-6 rounded-lg border border-danger-edge bg-danger-wash p-4 flex gap-3">
+            <AlertCircle size={18} className="text-danger flex-none mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-red-400">Error</p>
-              <p className="text-xs text-red-300 mt-1">{error}</p>
+              <p className="text-sm font-semibold text-danger">Error</p>
+              <p className="text-xs text-danger mt-1">{error}</p>
             </div>
           </div>
         )}
@@ -259,7 +259,7 @@ export function CommunityRulesClient() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="h-64 bg-zinc-800 rounded-lg animate-pulse"
+                className="h-64 bg-surface-2 rounded-lg animate-pulse"
               />
             ))}
           </div>
@@ -300,7 +300,7 @@ export function CommunityRulesClient() {
                     return (
                       <div key={i}>
                         {!show && i > 0 && i < totalPages - 1 && (
-                          <span className="text-zinc-600">...</span>
+                          <span className="text-ink-3">...</span>
                         )}
                         {show && (
                           <button
@@ -308,8 +308,8 @@ export function CommunityRulesClient() {
                             className={cn(
                               'px-3 py-1 rounded-lg text-sm font-medium transition-all',
                               pageNum === page
-                                ? 'bg-emerald-600 text-white'
-                                : 'border border-white/10 text-zinc-400 hover:bg-white/5'
+                                ? 'bg-ok text-white'
+                                : 'border border-edge text-ink-2 hover:bg-surface-2'
                             )}
                           >
                             {pageNum}
@@ -331,9 +331,9 @@ export function CommunityRulesClient() {
             )}
           </>
         ) : (
-          <div className="rounded-lg border border-white/10 bg-white/5 p-12 text-center">
-            <p className="text-zinc-400 mb-2">No rules found</p>
-            <p className="text-xs text-zinc-600">
+          <div className="rounded-lg border border-edge bg-surface-2 p-12 text-center">
+            <p className="text-ink-2 mb-2">No rules found</p>
+            <p className="text-xs text-ink-3">
               Try adjusting your filters or create a new rule
             </p>
           </div>

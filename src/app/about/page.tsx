@@ -8,7 +8,7 @@ const PRODUCTS = [
   {
     name: "Sage Vault",
     tag: "Cyber Range & Training",
-    tagColor: "text-sage-400 bg-sage-500/10 border-sage-500/20",
+    tagColor: "text-ok bg-ok-wash border-ok-edge",
     description:
       "Our flagship cyber range and security simulation platform. Designed for universities, training providers, government organisations, and enterprise security teams, Sage Vault delivers immersive, AI-powered cybersecurity exercises that replicate real-world incidents and attack scenarios.",
     capabilities: [
@@ -27,7 +27,7 @@ const PRODUCTS = [
   {
     name: "Brain Sentinel",
     tag: "AI Security Intelligence",
-    tagColor: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+    tagColor: "text-accent bg-accent-wash border-accent-edge",
     description:
       "CyberSage's AI-powered security intelligence platform. Built to assist analysts and security teams, Brain Sentinel helps identify threats, analyse security events, and provide actionable insights through advanced artificial intelligence — reducing analyst workload while improving visibility across modern environments.",
     capabilities: [
@@ -43,7 +43,7 @@ const PRODUCTS = [
   {
     name: "Nexus",
     tag: "Secure Workspace",
-    tagColor: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+    tagColor: "text-info bg-info-wash border-info-edge",
     description:
       "CyberSage's secure digital workspace and collaboration platform. Created specifically for security-focused organisations, Nexus combines communication, collaboration, and productivity tools into a unified environment — providing a secure alternative for managing communication, knowledge sharing, and operational workflows.",
     capabilities: [
@@ -94,24 +94,24 @@ const COMMITMENTS: { icon: IconName; title: string; body: string }[] = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-surface-0 text-white">
       <MarketingNav />
 
       {/* Hero */}
       <section className="max-w-4xl mx-auto px-6 pt-20 pb-16">
         <div className="max-w-3xl">
-          <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-3">About CyberSage</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 font-semibold mb-3">About CyberSage</p>
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight mb-6">
             Building the Future of Cybersecurity Through Intelligence, Simulation, and Innovation
           </h1>
-          <p className="text-zinc-400 text-lg leading-relaxed mb-6">
+          <p className="text-ink-2 text-lg leading-relaxed mb-6">
             CyberSage is a cybersecurity technology company dedicated to helping organisations,
             universities, and security professionals strengthen their defences against modern cyber
             threats. Our mission is simple: make advanced cybersecurity capabilities accessible,
             practical, and effective for everyone — from students beginning their careers to enterprise
             security teams defending critical infrastructure.
           </p>
-          <p className="text-zinc-400 text-lg leading-relaxed">
+          <p className="text-ink-2 text-lg leading-relaxed">
             Founded by cybersecurity professionals with a passion for innovation, CyberSage develops
             intelligent platforms that combine artificial intelligence, threat intelligence,
             cybersecurity training, and real-world simulation to prepare organisations for the
@@ -121,21 +121,21 @@ export default function AboutPage() {
       </section>
 
       {/* Mission statement */}
-      <section className="border-y border-white/8 bg-zinc-900/20 py-16">
+      <section className="border-y border-edge bg-surface-1 py-16">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <blockquote className="text-2xl sm:text-3xl font-bold leading-snug mb-6">
             &ldquo;The best way to stop cyber attacks is to understand them, simulate them, and learn from them before they happen.&rdquo;
           </blockquote>
-          <p className="text-zinc-500 text-sm italic">— The CyberSage founding principle</p>
+          <p className="text-ink-3 text-sm italic">— The CyberSage founding principle</p>
         </div>
       </section>
 
       {/* The ecosystem */}
       <section className="max-w-5xl mx-auto px-6 py-20">
         <div className="mb-12">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">Our Ecosystem</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">Our Ecosystem</p>
           <h2 className="text-3xl font-bold mb-4">More than a single product</h2>
-          <p className="text-zinc-400 leading-relaxed max-w-2xl">
+          <p className="text-ink-2 leading-relaxed max-w-2xl">
             CyberSage is building a complete cybersecurity ecosystem designed to support learning,
             detection, response, and resilience. Three platforms. One mission.
           </p>
@@ -145,7 +145,7 @@ export default function AboutPage() {
           {PRODUCTS.map((p) => (
             <div
               key={p.name}
-              className={`rounded-2xl border p-8 ${p.current ? "border-sage-500/30 bg-sage-500/4" : "border-white/8 bg-zinc-900/30"}`}
+              className={`rounded-2xl border p-8 ${p.current ? "border-ok-edge bg-ok-wash" : "border-edge bg-surface-1"}`}
             >
               <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                 <div>
@@ -155,12 +155,12 @@ export default function AboutPage() {
                   <div className="flex items-center gap-3">
                     <h3 className="text-2xl font-bold">{p.name}</h3>
                     {p.current && (
-                      <span className="text-[10px] font-bold uppercase tracking-widest bg-sage-500/15 text-sage-400 border border-sage-500/30 rounded-full px-2 py-0.5">
+                      <span className="text-[10px] font-bold uppercase tracking-widest bg-ok-wash text-ink-3 border border-ok-edge rounded-full px-2 py-0.5">
                         Live
                       </span>
                     )}
                     {!p.current && (
-                      <span className="text-[10px] font-bold uppercase tracking-widest bg-zinc-800 text-zinc-500 border border-zinc-700 rounded-full px-2 py-0.5">
+                      <span className="text-[10px] font-bold uppercase tracking-widest bg-surface-2 text-ink-3 border border-edge-strong rounded-full px-2 py-0.5">
                         Coming Soon
                       </span>
                     )}
@@ -169,19 +169,19 @@ export default function AboutPage() {
                 {p.href && (
                   <a
                     href={p.href}
-                    className="text-xs font-semibold text-sage-400 border border-sage-500/30 rounded-lg px-3 py-1.5 hover:bg-sage-500/10 transition"
+                    className="text-xs font-semibold text-ok border border-ok-edge rounded-lg px-3 py-1.5 hover:bg-ok-wash transition"
                   >
                     Visit Sage Vault →
                   </a>
                 )}
               </div>
 
-              <p className="text-zinc-400 leading-relaxed text-sm mb-6">{p.description}</p>
+              <p className="text-ink-2 leading-relaxed text-sm mb-6">{p.description}</p>
 
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {p.capabilities.map((c) => (
-                  <li key={c} className="flex items-start gap-2 text-sm text-zinc-300">
-                    <span className={`shrink-0 mt-0.5 ${p.current ? "text-sage-500" : "text-zinc-600"}`}><Icon name="check" size={14} className="inline-block shrink-0" /></span>
+                  <li key={c} className="flex items-start gap-2 text-sm text-ink-2">
+                    <span className={`shrink-0 mt-0.5 ${p.current ? "text-ok" : "text-ink-3"}`}><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                     {c}
                   </li>
                 ))}
@@ -192,11 +192,11 @@ export default function AboutPage() {
       </section>
 
       {/* Vision */}
-      <section className="border-y border-white/8 bg-zinc-900/20 py-20">
+      <section className="border-y border-edge bg-surface-1 py-20">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Our Vision</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">Our Vision</p>
           <h2 className="text-3xl font-bold mb-6">Proactive defence through intelligent technology</h2>
-          <p className="text-zinc-400 leading-relaxed text-lg">
+          <p className="text-ink-2 leading-relaxed text-lg">
             We envision a future where organisations can proactively defend themselves against cyber
             threats through intelligent technology, realistic training, and continuous learning.
             CyberSage is committed to advancing cybersecurity by developing solutions that bridge
@@ -210,17 +210,17 @@ export default function AboutPage() {
       <section className="max-w-5xl mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
           <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Who We Serve</p>
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">Who We Serve</p>
             <h2 className="text-3xl font-bold mb-6">Built for the full security community</h2>
-            <p className="text-zinc-400 leading-relaxed text-sm">
+            <p className="text-ink-2 leading-relaxed text-sm">
               From students taking their first SOC module to enterprise red teams running live exercises —
               CyberSage solutions are designed to meet you where you are and scale with your needs.
             </p>
           </div>
           <ul className="space-y-3">
             {WHO_WE_SERVE.map((w) => (
-              <li key={w} className="flex items-center gap-3 text-sm text-zinc-300">
-                <span className="h-1.5 w-1.5 rounded-full bg-sage-500 shrink-0" />
+              <li key={w} className="flex items-center gap-3 text-sm text-ink-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-ok shrink-0" />
                 {w}
               </li>
             ))}
@@ -229,16 +229,16 @@ export default function AboutPage() {
       </section>
 
       {/* Commitment values */}
-      <section className="border-y border-white/8 bg-zinc-900/20 py-20">
+      <section className="border-y border-edge bg-surface-1 py-20">
         <div className="max-w-5xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3 text-center">Our Commitment</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-3 text-center">Our Commitment</p>
           <h2 className="text-3xl font-bold text-center mb-10">Intelligence. Simulation. Resilience.</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {COMMITMENTS.map((c) => (
-              <div key={c.title} className="rounded-2xl border border-white/8 bg-zinc-900/40 p-6">
+              <div key={c.title} className="rounded-2xl border border-edge bg-surface-1 p-6">
                 <IconTile name={c.icon} size={44} className="mb-3" />
                 <h3 className="font-bold text-base mb-2">{c.title}</h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">{c.body}</p>
+                <p className="text-sm text-ink-2 leading-relaxed">{c.body}</p>
               </div>
             ))}
           </div>
@@ -248,15 +248,15 @@ export default function AboutPage() {
       {/* CTA */}
       <section className="max-w-3xl mx-auto px-6 py-20 text-center">
         <h2 className="text-3xl font-bold mb-4">Join the CyberSage ecosystem</h2>
-        <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-xl mx-auto">
+        <p className="text-ink-2 text-sm leading-relaxed mb-8 max-w-xl mx-auto">
           Whether you&apos;re building skills, running a classroom, or hiring for your security team —
           Sage Vault is available today. Brain Sentinel and Nexus are coming soon.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link href="/sign-up" className="rounded-xl bg-sage-500 px-6 py-3 font-semibold text-black hover:bg-sage-400 transition">
+          <Link href="/sign-up" className="rounded-xl bg-accent-fill px-6 py-3 font-semibold text-white hover:bg-accent-hover transition">
             Get started with Sage Vault →
           </Link>
-          <Link href="/contact" className="rounded-xl border border-white/15 px-6 py-3 text-zinc-300 hover:text-white hover:border-white/30 transition">
+          <Link href="/contact" className="rounded-xl border border-edge-strong px-6 py-3 text-ink-2 hover:text-white hover:border-edge-strong transition">
             Talk to our team
           </Link>
         </div>

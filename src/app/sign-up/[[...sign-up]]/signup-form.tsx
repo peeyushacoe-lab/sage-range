@@ -37,16 +37,16 @@ function RoleCard({ plan, selected, onClick }: { plan: PlanRow; selected: boolea
       type="button"
       onClick={onClick}
       className={`w-full text-left rounded-lg border px-4 py-3 transition-colors ${
-        selected ? "border-emerald-500 bg-emerald-500/10" : "border-white/10 bg-zinc-900 hover:border-white/20"
+        selected ? "border-ok-edge bg-ok-wash" : "border-edge bg-surface-1 hover:border-edge-strong"
       }`}
     >
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold text-white">{plan.label}</span>
-        <span className={`text-sm font-bold ${plan.priceAmt === 0 ? "text-emerald-400" : "text-white"}`}>
+        <span className={`text-sm font-bold ${plan.priceAmt === 0 ? "text-ok" : "text-white"}`}>
           {formatPrice(plan.priceAmt)}
         </span>
       </div>
-      <p className="text-xs text-zinc-500 mt-0.5">{DESCRIPTIONS[plan.role as RoleKey]}</p>
+      <p className="text-xs text-ink-3 mt-0.5">{DESCRIPTIONS[plan.role as RoleKey]}</p>
     </button>
   );
 }
@@ -62,7 +62,7 @@ function StepBar({ step, maxStep }: { step: number; maxStep: number }) {
         <div key={s} className="flex items-center gap-2">
           <div
             className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-              step >= s ? "bg-emerald-500 text-black" : "bg-zinc-800 text-zinc-500"
+              step >= s ? "bg-accent-fill text-white" : "bg-surface-2 text-ink-3"
             }`}
           >
             {step > s ? (
@@ -72,11 +72,11 @@ function StepBar({ step, maxStep }: { step: number; maxStep: number }) {
             ) : s}
           </div>
           {s < maxStep && (
-            <div className={`h-px w-6 transition-colors ${step > s ? "bg-emerald-500" : "bg-zinc-800"}`} />
+            <div className={`h-px w-6 transition-colors ${step > s ? "bg-ok" : "bg-surface-2"}`} />
           )}
         </div>
       ))}
-      <span className="text-xs text-zinc-500 ml-1">{STEP_LABELS[step - 1]}</span>
+      <span className="text-xs text-ink-3 ml-1">{STEP_LABELS[step - 1]}</span>
     </div>
   );
 }
@@ -231,7 +231,7 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
             <button
               type="button"
               onClick={() => signIn("google", { redirectTo: "/dashboard" })}
-              className="w-full flex items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+              className="w-full flex items-center justify-center gap-3 rounded-lg border border-edge bg-surface-2 px-4 py-3 text-sm font-medium text-white hover:bg-surface-2 transition-colors"
             >
               <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -245,7 +245,7 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
             <button
               type="button"
               onClick={() => signIn("github", { redirectTo: "/dashboard" })}
-              className="w-full flex items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+              className="w-full flex items-center justify-center gap-3 rounded-lg border border-edge bg-surface-2 px-4 py-3 text-sm font-medium text-white hover:bg-surface-2 transition-colors"
             >
               <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                 <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
@@ -256,7 +256,7 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
             {nexusUrl && (
               <a
                 href={nexusUrl}
-                className="w-full flex items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+                className="w-full flex items-center justify-center gap-3 rounded-lg border border-edge bg-surface-2 px-4 py-3 text-sm font-medium text-white hover:bg-surface-2 transition-colors"
               >
                 Sign up with Nexus
               </a>
@@ -264,9 +264,9 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
           </div>
 
           <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px bg-white/8" />
-            <span className="text-xs text-zinc-600">or</span>
-            <div className="flex-1 h-px bg-white/8" />
+            <div className="flex-1 h-px bg-surface-2" />
+            <span className="text-xs text-ink-3">or</span>
+            <div className="flex-1 h-px bg-surface-2" />
           </div>
 
           <form onSubmit={handleStep1} className="space-y-3">
@@ -277,7 +277,7 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
             placeholder="Your name"
             required
             minLength={2}
-            className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60"
+            className="w-full rounded-lg border border-edge bg-surface-1 px-4 py-3 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
           />
           <input
             type="email"
@@ -285,7 +285,7 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email address"
             required
-            className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60"
+            className="w-full rounded-lg border border-edge bg-surface-1 px-4 py-3 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
           />
           <input
             type="password"
@@ -294,10 +294,10 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
             placeholder="Password (min 8 chars)"
             required
             minLength={8}
-            className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60"
+            className="w-full rounded-lg border border-edge bg-surface-1 px-4 py-3 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
           />
 
-          <p className="text-xs text-zinc-500 pt-1">I am a…</p>
+          <p className="text-xs text-ink-3 pt-1">I am a…</p>
           <div className="space-y-2">
             {plans.map((p) => (
               <RoleCard
@@ -311,7 +311,7 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-bold text-black hover:bg-emerald-400 transition-colors mt-2"
+            className="w-full rounded-lg bg-accent-fill px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover transition-colors mt-2"
           >
             Continue →
           </button>
@@ -323,17 +323,17 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
       {step === 2 && (
         <form onSubmit={handleStep2} className="space-y-4">
           {/* Plan summary */}
-          <div className="rounded-lg border border-white/10 bg-zinc-900 px-4 py-3">
+          <div className="rounded-lg border border-edge bg-surface-1 px-4 py-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-white">{planMap[role]?.label ?? role} Plan</p>
-                <p className="text-xs text-zinc-500 mt-0.5">{DESCRIPTIONS[role]}</p>
+                <p className="text-xs text-ink-3 mt-0.5">{DESCRIPTIONS[role]}</p>
               </div>
               <div className="text-right">
                 {base > 0 && (discountPct > 0 || discountAmt > 0) && (
-                  <p className="text-xs text-zinc-500 line-through">{formatPrice(base)}</p>
+                  <p className="text-xs text-ink-3 line-through">{formatPrice(base)}</p>
                 )}
-                <p className={`text-base font-bold ${final === 0 ? "text-emerald-400" : "text-white"}`}>
+                <p className={`text-base font-bold ${final === 0 ? "text-ok" : "text-white"}`}>
                   {formatPrice(final)}
                 </p>
               </div>
@@ -343,7 +343,7 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
           {/* Voucher — only for paid plans */}
           {base > 0 && (
             <div>
-              <p className="text-xs text-zinc-500 mb-1.5">Have a voucher code?</p>
+              <p className="text-xs text-ink-3 mb-1.5">Have a voucher code?</p>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -351,38 +351,38 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
                   onChange={(e) => { setVoucherInput(e.target.value.toUpperCase()); if (voucherStatus !== "idle") clearVoucher(); }}
                   placeholder="VOUCHER CODE"
                   disabled={voucherStatus === "valid"}
-                  className="flex-1 rounded-lg border border-white/10 bg-zinc-900 px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60 disabled:opacity-50 uppercase tracking-widest"
+                  className="flex-1 rounded-lg border border-edge bg-surface-1 px-4 py-2.5 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge disabled:opacity-50 uppercase tracking-widest"
                 />
                 {voucherStatus === "valid" ? (
                   <button type="button" onClick={clearVoucher}
-                    className="px-3 py-2.5 rounded-lg border border-white/10 text-xs text-zinc-400 hover:text-white transition-colors">
+                    className="px-3 py-2.5 rounded-lg border border-edge text-xs text-ink-2 hover:text-white transition-colors">
                     Remove
                   </button>
                 ) : (
                   <button type="button" onClick={checkVoucher}
                     disabled={!voucherInput.trim() || voucherStatus === "checking"}
-                    className="px-4 py-2.5 rounded-lg bg-zinc-800 text-xs font-semibold text-white hover:bg-zinc-700 disabled:opacity-40 transition-colors">
+                    className="px-4 py-2.5 rounded-lg bg-surface-2 text-xs font-semibold text-white hover:bg-surface-3 disabled:opacity-40 transition-colors">
                     {voucherStatus === "checking" ? "…" : "Apply"}
                   </button>
                 )}
               </div>
               {voucherMsg && (
-                <p className={`text-xs mt-1.5 ${voucherStatus === "valid" ? "text-emerald-400" : "text-red-400"}`}>
+                <p className={`text-xs mt-1.5 ${voucherStatus === "valid" ? "text-ok" : "text-danger"}`}>
                   {voucherMsg}
                 </p>
               )}
             </div>
           )}
 
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {error && <p className="text-xs text-danger">{error}</p>}
 
           <div className="flex gap-2 pt-1">
             <button type="button" onClick={() => { setStep(1); setError(null); }}
-              className="px-4 py-3 rounded-lg border border-white/10 text-sm text-zinc-400 hover:text-white transition-colors">
+              className="px-4 py-3 rounded-lg border border-edge text-sm text-ink-2 hover:text-white transition-colors">
               ← Back
             </button>
             <button type="submit" disabled={loading}
-              className="flex-1 rounded-lg bg-emerald-500 px-4 py-3 text-sm font-bold text-black hover:bg-emerald-400 disabled:opacity-50 transition-colors">
+              className="flex-1 rounded-lg bg-accent-fill px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-50 transition-colors">
               {loading
                 ? "Please wait…"
                 : final === 0

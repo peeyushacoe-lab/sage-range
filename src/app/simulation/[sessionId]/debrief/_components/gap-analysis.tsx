@@ -19,18 +19,18 @@ const ITEMS: { key: keyof GapData; icon: IconName; label: string }[] = [
 
 export function GapAnalysis({ gap }: { gap: GapData }) {
   return (
-    <section className="mt-12 border-t border-white/10 pt-10">
-      <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-4">Personalized Training Plan</h2>
-      <div className="rounded-xl border border-white/10 bg-zinc-900/40 p-6">
-        <p className="text-xs text-zinc-600 mb-5">AI-generated based on your performance</p>
+    <section className="mt-12 border-t border-edge pt-10">
+      <h2 className="text-sm uppercase tracking-widest text-ink-3 mb-4">Personalized Training Plan</h2>
+      <div className="rounded-xl border border-edge bg-surface-1 p-6">
+        <p className="text-xs text-ink-3 mb-5">AI-generated based on your performance</p>
         <div className="space-y-3">
           {ITEMS.map(({ key, icon, label }) =>
             gap[key] ? (
               <div key={key} className="flex gap-3 text-sm">
                 <Icon name={icon} size={16} className="shrink-0" />
                 <div>
-                  <span className="text-zinc-500 text-xs uppercase tracking-wide">{label}</span>
-                  <p className={`mt-0.5 ${key === "weakestArea" ? "text-zinc-200 font-medium" : "text-zinc-300"}`}>
+                  <span className="text-ink-3 text-xs uppercase tracking-wide">{label}</span>
+                  <p className={`mt-0.5 ${key === "weakestArea" ? "text-ink font-medium" : "text-ink-2"}`}>
                     {gap[key]}
                   </p>
                 </div>
@@ -38,16 +38,16 @@ export function GapAnalysis({ gap }: { gap: GapData }) {
             ) : null
           )}
         </div>
-        <div className="flex gap-3 mt-6 pt-4 border-t border-white/8">
+        <div className="flex gap-3 mt-6 pt-4 border-t border-edge">
           <Link
             href="/labs"
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+            className="rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
           >
             Browse Labs →
           </Link>
           <Link
             href="/paths"
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+            className="rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
           >
             View Paths →
           </Link>

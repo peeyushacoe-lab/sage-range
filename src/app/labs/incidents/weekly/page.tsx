@@ -38,7 +38,7 @@ export default async function WeeklyIncidentsHub() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/labs" backLabel="Labs" />
 
       <div className="max-w-5xl mx-auto px-6 py-8">

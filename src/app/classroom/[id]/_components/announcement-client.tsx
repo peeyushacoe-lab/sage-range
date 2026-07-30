@@ -49,28 +49,28 @@ export function AnnouncementClient({
           onChange={(e) => setText(e.target.value)}
           placeholder="Post an announcement to your class…"
           rows={2}
-          className="flex-1 rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 resize-none"
+          className="flex-1 rounded-lg border border-edge bg-surface-1 px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-edge-strong resize-none"
         />
         <button
           onClick={post}
           disabled={posting || !text.trim()}
-          className="rounded-lg bg-blue-500 px-4 text-sm font-bold text-white hover:bg-blue-400 disabled:opacity-40 transition shrink-0"
+          className="rounded-lg bg-info px-4 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-40 transition shrink-0"
         >
           {posting ? "…" : "Post"}
         </button>
       </div>
 
       {announcements.length === 0 ? (
-        <p className="text-xs text-zinc-600 italic">No announcements yet.</p>
+        <p className="text-xs text-ink-3 italic">No announcements yet.</p>
       ) : (
         <div className="space-y-2">
           {announcements.map((a) => (
-            <div key={a.id} className="rounded-lg border border-white/8 bg-zinc-900/40 px-4 py-3 flex items-start justify-between gap-3">
+            <div key={a.id} className="rounded-lg border border-edge bg-surface-1 px-4 py-3 flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm text-zinc-200 leading-relaxed">{a.content}</p>
-                <p className="text-xs text-zinc-600 mt-1">{new Date(a.createdAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
+                <p className="text-sm text-ink leading-relaxed">{a.content}</p>
+                <p className="text-xs text-ink-3 mt-1">{new Date(a.createdAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
               </div>
-              <button onClick={() => remove(a.id)} className="text-zinc-700 hover:text-red-400 transition text-xs shrink-0"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
+              <button onClick={() => remove(a.id)} className="text-ink-3 hover:text-danger transition text-xs shrink-0"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
             </div>
           ))}
         </div>

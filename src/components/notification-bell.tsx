@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { Bell, X } from "lucide-react";
 
 import { Icon, type IconName } from "@/components/ui/icon";
 type Notif = {
@@ -92,55 +93,52 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
       <button
         onClick={handleOpen}
         aria-label="Notifications"
-        className="relative p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-colors"
+        className="relative cursor-pointer rounded-md p-1.5 text-ink-3 transition-colors duration-fast hover:bg-surface-2 hover:text-ink-2"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
+        <Bell aria-hidden="true" className="h-4 w-4" />
         {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] rounded-full bg-red-500 text-[9px] font-bold text-white flex items-center justify-center px-0.5">
+          <span className="absolute -right-0.5 -top-0.5 flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-danger px-0.5 font-mono text-[9px] font-medium text-white">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-white/10 bg-zinc-900 shadow-2xl z-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
-            <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">Notifications</span>
+        <div className="absolute right-0 top-full z-overlay mt-2 w-80 overflow-hidden rounded-lg border border-edge bg-surface-2 shadow-lg">
+          <div className="flex items-center justify-between border-b border-edge-subtle px-4 py-3">
+            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-ink-3">Notifications</span>
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
-              className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="text-[10px] text-ink-3 transition-colors duration-fast hover:text-ink-2"
             >
               View all →
             </Link>
           </div>
 
           {!loaded ? (
-            <div className="px-4 py-6 text-center text-xs text-zinc-600">Loading…</div>
+            <div className="px-4 py-6 text-center text-xs text-ink-3">Loading…</div>
           ) : notifs.length === 0 ? (
             <div className="px-4 py-8 text-center">
-              <p className="mb-2 flex justify-center"><Icon name="bell" size={24} /></p>
-              <p className="text-xs text-zinc-600">No notifications yet</p>
+              <p className="mb-2 flex justify-center text-ink-3"><Bell aria-hidden="true" className="h-6 w-6" /></p>
+              <p className="text-xs text-ink-3">No notifications yet</p>
             </div>
           ) : (
-            <div className="max-h-80 overflow-y-auto divide-y divide-white/5">
+            <div className="max-h-80 divide-y divide-edge-subtle overflow-y-auto">
               {notifs.map((n) => {
                 const inner = (
-                  <div className={`px-4 py-3 flex gap-3 hover:bg-white/3 transition-colors group ${!n.read ? "bg-zinc-800/40" : ""}`}>
-                    <Icon name={TYPE_ICON[n.type] ?? "bell"} size={16} className="shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-medium leading-snug ${!n.read ? "text-zinc-100" : "text-zinc-400"}`}>{n.title}</p>
-                      {n.body && <p className="text-[11px] text-zinc-600 mt-0.5 truncate">{n.body}</p>}
-                      <p className="text-[10px] text-zinc-700 mt-1">{timeAgo(n.createdAt)}</p>
+                  <div className={`group flex gap-3 px-4 py-3 transition-colors duration-fast hover:bg-surface-3/60 ${!n.read ? "bg-accent-wash/40" : ""}`}>
+                    <Icon name={TYPE_ICON[n.type] ?? "bell"} size={16} className="mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-xs leading-snug ${!n.read ? "font-medium text-ink" : "text-ink-2"}`}>{n.title}</p>
+                      {n.body && <p className="mt-0.5 truncate text-[11px] text-ink-3">{n.body}</p>}
+                      <p className="mt-1 text-[10px] text-ink-3">{timeAgo(n.createdAt)}</p>
                     </div>
                     <button
                       onClick={(e) => dismiss(n.id, e)}
-                      className="shrink-0 text-zinc-700 hover:text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                      className="shrink-0 cursor-pointer text-ink-3 opacity-0 transition-opacity duration-fast hover:text-ink-2 group-hover:opacity-100"
                       aria-label="Dismiss"
-                    ><Icon name="close" size={14} className="inline-block shrink-0" /></button>
+                    ><X aria-hidden="true" className="inline-block h-3.5 w-3.5 shrink-0" /></button>
                   </div>
                 );
                 return n.href ? (

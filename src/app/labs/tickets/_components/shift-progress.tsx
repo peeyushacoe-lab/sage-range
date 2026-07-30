@@ -61,8 +61,8 @@ export function ShiftProgress({
           <span className={cn(
             'text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded',
             status === 'COMPLETED'
-              ? 'bg-emerald-500/20 text-emerald-400'
-              : 'bg-blue-500/20 text-blue-400'
+              ? 'bg-ok-wash text-ok'
+              : 'bg-info-wash text-info'
           )}>
             {status === 'COMPLETED' ? 'Shift Complete' : 'In Progress'}
           </span>
@@ -70,32 +70,32 @@ export function ShiftProgress({
 
         {/* Timer */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1.5">Elapsed Time</p>
-          <p className="text-2xl font-mono font-bold text-zinc-100">{elapsed}</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1.5">Elapsed Time</p>
+          <p className="text-2xl font-mono font-bold text-ink">{elapsed}</p>
         </div>
 
         {/* Deadline */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1.5">Shift Deadline</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1.5">Shift Deadline</p>
           <p className={cn(
             'text-2xl font-mono font-bold',
-            isDeadlineExpired ? 'text-red-500' : isLowDeadline ? 'text-amber-400' : 'text-zinc-100'
+            isDeadlineExpired ? 'text-danger' : isLowDeadline ? 'text-warn' : 'text-ink'
           )}>
             {deadline}
           </p>
-          {isLowDeadline && <p className="text-xs text-amber-400 mt-1">Less than 1 hour remaining</p>}
-          {isDeadlineExpired && <p className="text-xs text-red-400 mt-1">Shift deadline passed</p>}
+          {isLowDeadline && <p className="text-xs text-warn mt-1">Less than 1 hour remaining</p>}
+          {isDeadlineExpired && <p className="text-xs text-danger mt-1">Shift deadline passed</p>}
         </div>
 
         {/* Queue Progress */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs uppercase tracking-widest text-zinc-500">Queue Progress</p>
-            <p className="text-sm font-mono text-zinc-400">{completedTickets} / {totalTickets}</p>
+            <p className="text-xs uppercase tracking-widest text-ink-3">Queue Progress</p>
+            <p className="text-sm font-mono text-ink-2">{completedTickets} / {totalTickets}</p>
           </div>
-          <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-surface-2 overflow-hidden">
             <div
-              className="h-full bg-sage-500 transition-all duration-300"
+              className="h-full bg-ok transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -103,27 +103,27 @@ export function ShiftProgress({
 
         {/* Current Accuracy */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1.5">Accuracy</p>
-          <p className="text-2xl font-mono font-bold text-zinc-100">{Math.round(currentAccuracy)}%</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1.5">Accuracy</p>
+          <p className="text-2xl font-mono font-bold text-ink">{Math.round(currentAccuracy)}%</p>
         </div>
 
         {/* Current Score */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1.5">Current Score</p>
-          <p className="text-2xl font-mono font-bold text-sage-400">{currentScore}</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1.5">Current Score</p>
+          <p className="text-2xl font-mono font-bold text-ok">{currentScore}</p>
         </div>
 
         {/* SLA Violations */}
         <div className={cn(
           'p-3 rounded-lg',
           slaViolations > 0
-            ? 'bg-red-500/10 border border-red-500/30'
-            : 'bg-zinc-800/50 border border-zinc-700/50'
+            ? 'bg-danger-wash border border-danger-edge'
+            : 'bg-surface-2/50 border border-edge-strong/50'
         )}>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">SLA Violations</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">SLA Violations</p>
           <p className={cn(
             'text-xl font-mono font-bold',
-            slaViolations > 0 ? 'text-red-400' : 'text-emerald-400'
+            slaViolations > 0 ? 'text-danger' : 'text-ok'
           )}>
             {slaViolations}
           </p>

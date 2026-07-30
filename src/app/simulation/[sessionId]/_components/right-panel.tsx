@@ -10,18 +10,18 @@ type OrgHealth = { panicIndex: number; trustInSOC: number; operationalStability:
 type Tab = "evidence" | "stakeholders" | "threats" | "alerts" | "decisions";
 
 const EXEC_ROLE_COLORS: Record<string, string> = {
-  CISO: "text-sage-400 bg-sage-500/10 border-sage-500/30",
-  CFO:  "text-amber-400 bg-amber-500/10 border-amber-500/30",
-  CEO:  "text-blue-400 bg-blue-500/10 border-blue-500/30",
-  LEGAL:"text-purple-400 bg-purple-500/10 border-purple-500/30",
+  CISO: "text-ok bg-ok-wash border-ok-edge",
+  CFO:  "text-warn bg-warn-wash border-warn-edge",
+  CEO:  "text-info bg-info-wash border-info-edge",
+  LEGAL:"text-accent bg-accent-wash border-accent-edge",
   PR:   "text-pink-400 bg-pink-500/10 border-pink-500/30",
 };
 
 const SEV_COLORS: Record<string, string> = {
-  CRITICAL: "text-red-400 border-red-500/40 bg-red-500/5",
-  HIGH:     "text-orange-400 border-orange-500/40 bg-orange-500/5",
-  MEDIUM:   "text-amber-400 border-amber-500/30 bg-amber-500/5",
-  INFO:     "text-zinc-400 border-zinc-700 bg-zinc-900",
+  CRITICAL: "text-danger border-danger-edge bg-danger-wash",
+  HIGH:     "text-sev-high border-sev-high-edge bg-sev-high-wash",
+  MEDIUM:   "text-warn border-warn-edge bg-warn-wash",
+  INFO:     "text-ink-2 border-edge-strong bg-surface-1",
 };
 
 const PERSONA_LABELS: Record<string, string> = {
@@ -35,15 +35,15 @@ const PERSONA_LABELS: Record<string, string> = {
 function Gauge({ label, value, inverse = false }: { label: string; value: number; inverse?: boolean }) {
   const bad = inverse ? value > 65 : value < 30;
   const warn = inverse ? value > 40 : value < 55;
-  const color = bad ? "bg-red-500" : warn ? "bg-amber-500" : "bg-sage-500";
-  const textColor = bad ? "text-red-400" : warn ? "text-amber-400" : "text-zinc-300";
+  const color = bad ? "bg-danger" : warn ? "bg-warn" : "bg-ok";
+  const textColor = bad ? "text-danger" : warn ? "text-warn" : "text-ink-2";
   return (
     <div>
-      <div className="flex justify-between text-[9px] text-zinc-600 mb-0.5">
+      <div className="flex justify-between text-[9px] text-ink-3 mb-0.5">
         <span>{label}</span>
         <span className={textColor}>{value}</span>
       </div>
-      <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+      <div className="h-1 rounded-full bg-surface-2 overflow-hidden">
         <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${Math.min(100, value)}%` }} />
       </div>
     </div>
@@ -95,25 +95,25 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
   return (
     <div className="flex flex-col h-full">
       {/* Tab bar */}
-      <div className="flex border-b border-white/10 flex-shrink-0">
+      <div className="flex border-b border-edge flex-shrink-0">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => onTabChange(t.id)}
             className={`flex-1 px-2 py-2 text-[10px] uppercase tracking-widest transition relative ${
-              tab === t.id ? "text-zinc-300" : "text-zinc-600 hover:text-zinc-400"
+              tab === t.id ? "text-ink-2" : "text-ink-3 hover:text-ink-2"
             }`}
           >
             {t.label}
-            {tab === t.id && <span className="absolute bottom-0 left-0 right-0 h-px bg-zinc-400" />}
+            {tab === t.id && <span className="absolute bottom-0 left-0 right-0 h-px bg-ink-3" />}
             {t.id === "threats" && redaiEvents.length > 0 && (
-              <span className="ml-1 text-[8px] bg-red-500/80 text-white rounded-full px-1">{redaiEvents.length}</span>
+              <span className="ml-1 text-[8px] bg-danger-wash text-white rounded-full px-1">{redaiEvents.length}</span>
             )}
             {t.id === "alerts" && telemetryEvents.length > 0 && (
-              <span className="ml-1 text-[8px] bg-amber-500/80 text-white rounded-full px-1">{telemetryEvents.length}</span>
+              <span className="ml-1 text-[8px] bg-warn-wash text-white rounded-full px-1">{telemetryEvents.length}</span>
             )}
             {t.id === "decisions" && decisionEvents.length > 0 && (
-              <span className="ml-1 text-[8px] bg-sage-500/80 text-white rounded-full px-1">{decisionEvents.length}</span>
+              <span className="ml-1 text-[8px] bg-ok-wash text-white rounded-full px-1">{decisionEvents.length}</span>
             )}
           </button>
         ))}
@@ -126,8 +126,8 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
           <>
             {/* Executive Pressure */}
             {(worldState.ceoConfidence !== undefined) && (
-              <div className="mb-3 pb-3 border-b border-white/5">
-                <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Executive Pressure</p>
+              <div className="mb-3 pb-3 border-b border-edge-subtle">
+                <p className="text-xs text-ink-3 uppercase tracking-wider mb-2">Executive Pressure</p>
                 <div className="space-y-1.5">
                   <Gauge label="CEO Confidence" value={worldState.ceoConfidence} />
                   <Gauge label="Board Confidence" value={worldState.boardConfidence} />
@@ -140,21 +140,21 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
 
             {/* Asset Compromise */}
             {(worldState.compromisedEmployees?.length > 0 || worldState.compromisedSystems?.length > 0) && (
-              <div className="mb-3 pb-3 border-b border-white/5">
-                <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Compromised Assets</p>
+              <div className="mb-3 pb-3 border-b border-edge-subtle">
+                <p className="text-xs text-ink-3 uppercase tracking-wider mb-2">Compromised Assets</p>
                 {worldState.compromisedEmployees?.length > 0 && (
                   <div className="mb-2">
-                    <p className="text-[10px] text-zinc-600 mb-1">Employees</p>
+                    <p className="text-[10px] text-ink-3 mb-1">Employees</p>
                     {worldState.compromisedEmployees.map((e) => (
-                      <span key={e} className="inline-block text-[10px] text-red-400 border border-red-500/30 rounded px-1.5 py-0.5 mr-1 mb-1">{e}</span>
+                      <span key={e} className="inline-block text-[10px] text-danger border border-danger-edge rounded px-1.5 py-0.5 mr-1 mb-1">{e}</span>
                     ))}
                   </div>
                 )}
                 {worldState.compromisedSystems?.length > 0 && (
                   <div>
-                    <p className="text-[10px] text-zinc-600 mb-1">Systems</p>
+                    <p className="text-[10px] text-ink-3 mb-1">Systems</p>
                     {worldState.compromisedSystems.map((s) => (
-                      <span key={s} className="inline-block text-[10px] text-orange-400 border border-orange-500/30 rounded px-1.5 py-0.5 mr-1 mb-1">{s}</span>
+                      <span key={s} className="inline-block text-[10px] text-sev-high border border-sev-high-edge rounded px-1.5 py-0.5 mr-1 mb-1">{s}</span>
                     ))}
                   </div>
                 )}
@@ -163,8 +163,8 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
 
             {/* Org Health */}
             {organizationHealth && (
-              <div className="mb-3 pb-3 border-b border-white/5">
-                <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Org Health</p>
+              <div className="mb-3 pb-3 border-b border-edge-subtle">
+                <p className="text-xs text-ink-3 uppercase tracking-wider mb-2">Org Health</p>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                   <Gauge label="Panic" value={organizationHealth.panicIndex} inverse />
                   <Gauge label="Trust in SOC" value={organizationHealth.trustInSOC} />
@@ -178,21 +178,21 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
             )}
 
             {/* Company + employees */}
-            <p className="text-xs text-zinc-600 uppercase tracking-wider mb-1">Company</p>
+            <p className="text-xs text-ink-3 uppercase tracking-wider mb-1">Company</p>
             <p className="text-sm font-semibold">{company.name}</p>
-            <p className="text-xs text-zinc-500">{company.size} · {company.city}</p>
-            <p className="text-xs text-zinc-600 mt-2 mb-3 leading-relaxed">{company.securityPosture}</p>
+            <p className="text-xs text-ink-3">{company.size} · {company.city}</p>
+            <p className="text-xs text-ink-3 mt-2 mb-3 leading-relaxed">{company.securityPosture}</p>
 
-            <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">Key Personnel</p>
+            <p className="text-xs text-ink-3 uppercase tracking-wider mb-2">Key Personnel</p>
             {company.employees.slice(0, 5).map((e) => {
               const es = employeeStates?.[e.name];
               return (
                 <div key={e.name} className="mb-2.5">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className={`text-[10px] font-bold ${e.riskLevel === "HIGH" ? "text-red-400" : e.riskLevel === "MEDIUM" ? "text-amber-400" : "text-sage-500"}`}>
+                    <span className={`text-[10px] font-bold ${e.riskLevel === "HIGH" ? "text-danger" : e.riskLevel === "MEDIUM" ? "text-warn" : "text-ok"}`}>
                       {e.riskLevel}
                     </span>
-                    <span className="text-xs text-zinc-300 truncate">{e.name}</span>
+                    <span className="text-xs text-ink-2 truncate">{e.name}</span>
                   </div>
                   {es && (
                     <div className="grid grid-cols-2 gap-x-2 gap-y-1">
@@ -206,10 +206,10 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
 
             {stageDefinition && (
               <div className="mt-3">
-                <p className="text-xs text-zinc-600 uppercase tracking-wider mb-2">SIEM Alerts</p>
+                <p className="text-xs text-ink-3 uppercase tracking-wider mb-2">SIEM Alerts</p>
                 <div className="space-y-1.5">
                   {stageDefinition.evidence.map((line) => (
-                    <p key={line} className="text-xs text-zinc-400 font-mono leading-relaxed border-l-2 border-zinc-700 pl-2">{line}</p>
+                    <p key={line} className="text-xs text-ink-2 font-mono leading-relaxed border-l-2 border-edge-strong pl-2">{line}</p>
                   ))}
                 </div>
               </div>
@@ -221,26 +221,26 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
         {tab === "threats" && (
           <>
             {personaId && (
-              <div className="rounded border border-red-500/20 bg-red-500/5 p-2 mb-3">
-                <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Active Adversary</p>
-                <p className="text-sm font-bold text-red-400">{PERSONA_LABELS[personaId] ?? personaId}</p>
+              <div className="rounded border border-danger-edge bg-danger-wash p-2 mb-3">
+                <p className="text-[10px] text-ink-3 uppercase tracking-wider">Active Adversary</p>
+                <p className="text-sm font-bold text-danger">{PERSONA_LABELS[personaId] ?? personaId}</p>
                 {adversaryObjective && (
-                  <p className="text-[10px] text-zinc-500 mt-1">Current objective: <span className="text-zinc-300">{adversaryObjective.replace(/_/g, " ")}</span></p>
+                  <p className="text-[10px] text-ink-3 mt-1">Current objective: <span className="text-ink-2">{adversaryObjective.replace(/_/g, " ")}</span></p>
                 )}
               </div>
             )}
 
             {/* Control events */}
             {controlEvents.length > 0 && (
-              <div className="mb-3 pb-3 border-b border-white/5">
-                <p className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1.5">Defense Responses</p>
+              <div className="mb-3 pb-3 border-b border-edge-subtle">
+                <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1.5">Defense Responses</p>
                 {controlEvents.map((e) => {
                   const p = e.payload as Record<string, unknown>;
                   const isPrevent = e.type === "CONTROL_PREVENTION";
                   return (
-                    <div key={e.id} className={`text-[10px] rounded border px-2 py-1.5 mb-1 ${isPrevent ? "border-sage-500/30 bg-sage-500/5 text-sage-400" : "border-blue-500/20 bg-blue-500/5 text-blue-400"}`}>
+                    <div key={e.id} className={`text-[10px] rounded border px-2 py-1.5 mb-1 ${isPrevent ? "border-ok-edge bg-ok-wash text-ok" : "border-info-edge bg-info-wash text-info"}`}>
                       <span className="font-bold">{isPrevent ? "BLOCKED" : "CONTAINED"}</span>
-                      <span className="text-zinc-400 ml-1">{p.controlName as string ?? p.control as string}</span>
+                      <span className="text-ink-2 ml-1">{p.controlName as string ?? p.control as string}</span>
                     </div>
                   );
                 })}
@@ -248,7 +248,7 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
             )}
 
             {redaiEvents.length === 0 ? (
-              <p className="text-xs text-zinc-600 italic">No adversary activity yet. Threat intel will appear as the simulation progresses.</p>
+              <p className="text-xs text-ink-3 italic">No adversary activity yet. Threat intel will appear as the simulation progresses.</p>
             ) : (
               <div className="space-y-2">
                 {redaiEvents.map((e) => {
@@ -256,15 +256,15 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
                   const blocked = p.prevented === true;
                   const succeeded = p.succeeded === true;
                   return (
-                    <div key={e.id} className={`rounded border p-2 text-xs ${blocked ? "border-sage-500/20 bg-sage-500/5" : succeeded ? "border-red-500/20 bg-red-500/5" : "border-white/5 bg-white/2"}`}>
+                    <div key={e.id} className={`rounded border p-2 text-xs ${blocked ? "border-ok-edge bg-ok-wash" : succeeded ? "border-danger-edge bg-danger-wash" : "border-edge-subtle bg-white/2"}`}>
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className={`text-[10px] font-bold ${blocked ? "text-sage-400" : succeeded ? "text-red-400" : "text-zinc-500"}`}>
+                        <span className={`text-[10px] font-bold ${blocked ? "text-ok" : succeeded ? "text-danger" : "text-ink-3"}`}>
                           {blocked ? "BLOCKED" : succeeded ? "LANDED" : "ATTEMPTED"}
                         </span>
-                        <span className="text-zinc-500 font-mono">{String(p.action).replace(/_/g, " ")}</span>
-                        {Boolean(p.target) && <span className="text-zinc-600">→ {String(p.target)}</span>}
+                        <span className="text-ink-3 font-mono">{String(p.action).replace(/_/g, " ")}</span>
+                        {Boolean(p.target) && <span className="text-ink-3">→ {String(p.target)}</span>}
                       </div>
-                      {e.narrative && <p className="text-zinc-400 leading-snug">{e.narrative.replace("[THREAT INTEL] ", "")}</p>}
+                      {e.narrative && <p className="text-ink-2 leading-snug">{e.narrative.replace("[THREAT INTEL] ", "")}</p>}
                     </div>
                   );
                 })}
@@ -277,7 +277,7 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
         {tab === "alerts" && (
           <>
             {telemetryEvents.length === 0 ? (
-              <p className="text-xs text-zinc-600 italic">No alerts yet. Security tools will surface detections here as the adversary acts.</p>
+              <p className="text-xs text-ink-3 italic">No alerts yet. Security tools will surface detections here as the adversary acts.</p>
             ) : (
               <div className="space-y-2">
                 {[...telemetryEvents].reverse().map((e) => {
@@ -288,14 +288,14 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
                     <div key={e.id} className={`rounded border p-2 text-xs ${sevStyle}`}>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-bold text-[10px]">{sev}</span>
-                        <span className="text-zinc-500">{String(p.source)}</span>
+                        <span className="text-ink-3">{String(p.source)}</span>
                         {Boolean(p.mitreTechniqueId) && (
-                          <span className="ml-auto font-mono text-[10px] text-zinc-500 border border-zinc-700 rounded px-1">
+                          <span className="ml-auto font-mono text-[10px] text-ink-3 border border-edge-strong rounded px-1">
                             {String(p.mitreTechniqueId)}
                           </span>
                         )}
                       </div>
-                      <p className="text-zinc-300 leading-snug">{e.narrative?.replace(/^\[.*?\]\s*\w+:\s*/, "") ?? String(p.system)}</p>
+                      <p className="text-ink-2 leading-snug">{e.narrative?.replace(/^\[.*?\]\s*\w+:\s*/, "") ?? String(p.system)}</p>
                     </div>
                   );
                 })}
@@ -308,12 +308,12 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
         {tab === "decisions" && (
           <>
             {decisionEvents.length === 0 ? (
-              <p className="text-xs text-zinc-600 italic mt-4">No decisions taken yet. Each action you take will appear here with its score impact.</p>
+              <p className="text-xs text-ink-3 italic mt-4">No decisions taken yet. Each action you take will appear here with its score impact.</p>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/5">
-                  <p className="text-[10px] text-zinc-600 uppercase tracking-wider">Running Score</p>
-                  <p className="text-base font-bold text-sage-500 tabular-nums">{worldState.score} pts</p>
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-edge-subtle">
+                  <p className="text-[10px] text-ink-3 uppercase tracking-wider">Running Score</p>
+                  <p className="text-base font-bold text-ok tabular-nums">{worldState.score} pts</p>
                 </div>
                 <div className="space-y-1.5">
                   {decisionEvents.map((e, i) => {
@@ -326,17 +326,17 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
                         key={e.id}
                         className={`rounded border px-2 py-1.5 text-xs ${
                           isBlocker
-                            ? "border-sage-500/30 bg-sage-500/5"
-                            : "border-white/5 bg-white/2"
+                            ? "border-ok-edge bg-ok-wash"
+                            : "border-edge-subtle bg-white/2"
                         }`}
                       >
                         <div className="flex items-start gap-1.5">
-                          <span className="text-[10px] text-zinc-600 shrink-0 tabular-nums mt-px w-4 text-right">{i + 1}.</span>
+                          <span className="text-[10px] text-ink-3 shrink-0 tabular-nums mt-px w-4 text-right">{i + 1}.</span>
                           <div className="flex-1 min-w-0">
-                            <p className={`leading-snug truncate ${isBlocker ? "text-sage-400" : "text-zinc-300"}`}>{label}</p>
-                            {isBlocker && <p className="text-[9px] text-sage-500 font-bold uppercase tracking-wider mt-0.5">Contained</p>}
+                            <p className={`leading-snug truncate ${isBlocker ? "text-ok" : "text-ink-2"}`}>{label}</p>
+                            {isBlocker && <p className="text-[9px] text-ink-3 font-bold uppercase tracking-wider mt-0.5">Contained</p>}
                           </div>
-                          <span className={`shrink-0 text-xs font-bold tabular-nums ${sc > 0 ? "text-sage-500" : sc < 0 ? "text-red-400" : "text-zinc-500"}`}>
+                          <span className={`shrink-0 text-xs font-bold tabular-nums ${sc > 0 ? "text-ok" : sc < 0 ? "text-danger" : "text-ink-3"}`}>
                             {sc > 0 ? `+${sc}` : sc}
                           </span>
                         </div>
@@ -353,35 +353,35 @@ export function RightPanel({ tab, onTabChange, events, worldState, organizationH
         {tab === "stakeholders" && (
           <>
             {executives.length === 0 ? (
-              <p className="text-xs text-zinc-600 italic mt-4">Stakeholders appear once the incident escalates.</p>
+              <p className="text-xs text-ink-3 italic mt-4">Stakeholders appear once the incident escalates.</p>
             ) : (
               <div className="space-y-3">
                 {executives.map((exec) => {
-                  const roleColor = EXEC_ROLE_COLORS[exec.role] ?? "text-zinc-400 bg-zinc-800 border-zinc-700";
-                  const satColor = exec.satisfaction > 70 ? "text-sage-400" : exec.satisfaction >= 40 ? "text-amber-400" : "text-red-400";
+                  const roleColor = EXEC_ROLE_COLORS[exec.role] ?? "text-ink-2 bg-surface-2 border-edge-strong";
+                  const satColor = exec.satisfaction > 70 ? "text-ok" : exec.satisfaction >= 40 ? "text-warn" : "text-danger";
                   const lastDelta = getLastExecDelta(events, exec.role);
                   const trend = lastDelta === null ? null : lastDelta > 0 ? "+" : lastDelta < 0 ? "-" : null;
                   return (
-                    <div key={exec.role} className="rounded-lg border border-white/10 bg-white/5 p-2.5">
+                    <div key={exec.role} className="rounded-lg border border-edge bg-surface-2 p-2.5">
                       <div className="flex items-center gap-2 mb-1.5">
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${roleColor}`}>{exec.role}</span>
-                        <span className="text-xs font-medium text-zinc-200 truncate">{exec.name}</span>
+                        <span className="text-xs font-medium text-ink truncate">{exec.name}</span>
                       </div>
-                      <p className="text-[10px] text-zinc-500 mb-1.5">{exec.title}</p>
+                      <p className="text-[10px] text-ink-3 mb-1.5">{exec.title}</p>
                       <div className="flex items-center gap-2 mb-1">
-                        <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
-                          <div className={`h-full rounded-full transition-all ${exec.satisfaction > 70 ? "bg-sage-500" : exec.satisfaction >= 40 ? "bg-amber-500" : "bg-red-500"}`}
+                        <div className="flex-1 h-1.5 rounded-full bg-surface-2 overflow-hidden">
+                          <div className={`h-full rounded-full transition-all ${exec.satisfaction > 70 ? "bg-ok" : exec.satisfaction >= 40 ? "bg-warn" : "bg-danger"}`}
                             style={{ width: `${exec.satisfaction}%` }} />
                         </div>
                         <span className={`text-xs font-bold tabular-nums shrink-0 ${satColor}`}>
                           {exec.satisfaction}
-                          {trend === "+" && <span className="ml-0.5 text-sage-400">↑</span>}
-                          {trend === "-" && <span className="ml-0.5 text-red-400">↓</span>}
+                          {trend === "+" && <span className="ml-0.5 text-ok">↑</span>}
+                          {trend === "-" && <span className="ml-0.5 text-danger">↓</span>}
                         </span>
                       </div>
-                      <p className="text-[10px] text-zinc-500 italic leading-snug">{exec.priority}</p>
+                      <p className="text-[10px] text-ink-3 italic leading-snug">{exec.priority}</p>
                       {exec.demand && (
-                        <p className="text-[10px] text-zinc-300 mt-1.5 leading-snug border-l border-zinc-700 pl-2">&quot;{exec.demand}&quot;</p>
+                        <p className="text-[10px] text-ink-2 mt-1.5 leading-snug border-l border-edge-strong pl-2">&quot;{exec.demand}&quot;</p>
                       )}
                     </div>
                   );

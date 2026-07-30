@@ -101,13 +101,13 @@ export function CloudIamMisconfigurationClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Review the Bucket Policy" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">A routine cloud security review pulls the policy on an S3 bucket storing customer backups.</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{BUCKET_POLICY}</pre>
+        <p className="text-ink-2 text-sm mb-3">A routine cloud security review pulls the policy on an S3 bucket storing customer backups.</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{BUCKET_POLICY}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's wrong with this policy?</p>
+            <p className="text-sm text-ink-2 font-medium">What's wrong with this policy?</p>
             <div className="flex flex-col gap-2">
               {[
                 '"Effect": "Allow" is a syntax error',
@@ -117,53 +117,53 @@ export function CloudIamMisconfigurationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — Principal: "*" combined with s3:GetObject means anyone on the internet, with no AWS account required, can read every object in this bucket. Flag: SAGE&#123;publ1c_pr1nc1p4l_w1ldc4rd&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — Principal: "*" combined with s3:GetObject means anyone on the internet, with no AWS account required, can read every object in this bucket. Flag: SAGE&#123;publ1c_pr1nc1p4l_w1ldc4rd&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Confirm the Exposure" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">You test the theory with an unauthenticated request:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{BUCKET_SCAN}</pre>
+        <p className="text-ink-2 text-sm mb-3">You test the theory with an unauthenticated request:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{BUCKET_SCAN}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Flag the total number of customer records exposed.</p>
+            <p className="text-sm text-ink-2 font-medium">Flag the total number of customer records exposed.</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t2Answer} onChange={setT2Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 48,000+ customer records including PII and partial card numbers, readable by anyone with the URL, with zero authentication. Flag: SAGE&#123;48000_r3c0rds_p11_3xp0s3d&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — 48,000+ customer records including PII and partial card numbers, readable by anyone with the URL, with zero authentication. Flag: SAGE&#123;48000_r3c0rds_p11_3xp0s3d&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Review a Related IAM Policy" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           While investigating, you find the IAM policy attached to the account that manages this infrastructure.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{IAM_POLICY}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{IAM_POLICY}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the impact of this IAM policy?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the impact of this IAM policy?</p>
             <div className="flex flex-col gap-2">
               {[
                 "It only allows read access to S3",
@@ -173,17 +173,17 @@ export function CloudIamMisconfigurationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — Action: "*" and Resource: "*" together mean this identity can do anything to anything in the
             account. Attached to a long-lived CI/CD access key, a single leaked credential (e.g. in a public repo)
             means total account compromise. Flag: SAGE&#123;4dm1n_st4r_st4r_1am_p0l1cy&#125;
@@ -192,12 +192,12 @@ export function CloudIamMisconfigurationClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;publ1c_pr1nc1p4l_w1ldc4rd&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;48000_r3c0rds_p11_3xp0s3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;4dm1n_st4r_st4r_1am_p0l1cy&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;publ1c_pr1nc1p4l_w1ldc4rd&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;48000_r3c0rds_p11_3xp0s3d&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;4dm1n_st4r_st4r_1am_p0l1cy&#125;</span></li>
           </ul>
         </div>
       )}

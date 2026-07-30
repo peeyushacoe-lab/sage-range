@@ -62,7 +62,7 @@ function NodeShape({ node, active, onHover }: { node: ResolvedNode; active: bool
           transform="rotate(45)"
         />
       )}
-      <text textAnchor="middle" y={size / 2 + 16} className="fill-zinc-300 text-[9px] font-mono select-none">
+      <text textAnchor="middle" y={size / 2 + 16} className="fill-ink-3 text-[9px] font-mono select-none">
         {node.label}
       </text>
     </g>
@@ -77,12 +77,12 @@ export function NetworkMap({ nodes }: { nodes: ResolvedNode[] }) {
   const maxY = Math.max(60, ...nodes.map((n) => n.y));
 
   return (
-    <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
+    <div className="rounded-xl border border-edge bg-surface-1 p-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-xs uppercase tracking-widest text-zinc-500">Network Map</p>
+        <p className="text-xs uppercase tracking-widest text-ink-3">Network Map</p>
         <div className="flex items-center gap-3">
           {(Object.keys(STATUS_COLOR) as NetworkNodeStatus[]).map((s) => (
-            <span key={s} className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+            <span key={s} className="flex items-center gap-1.5 text-[10px] text-ink-3">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLOR[s] }} />
               {STATUS_LABEL[s]}
             </span>
@@ -98,10 +98,10 @@ export function NetworkMap({ nodes }: { nodes: ResolvedNode[] }) {
 
       <div className="mt-2 h-10">
         {hoveredNode && (
-          <p className="text-xs text-zinc-400">
-            <span className="font-semibold text-zinc-200">{hoveredNode.label}</span> —{" "}
+          <p className="text-xs text-ink-2">
+            <span className="font-semibold text-ink">{hoveredNode.label}</span> —{" "}
             <span style={{ color: STATUS_COLOR[hoveredNode.status] }}>{STATUS_LABEL[hoveredNode.status]}</span>
-            {hoveredNode.note ? <span className="text-zinc-500"> · {hoveredNode.note}</span> : null}
+            {hoveredNode.note ? <span className="text-ink-3"> · {hoveredNode.note}</span> : null}
           </p>
         )}
       </div>

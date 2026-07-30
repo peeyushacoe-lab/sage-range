@@ -101,17 +101,17 @@ export function QueueClient({ shiftId }: { shiftId: string }) {
   if (isLoadingQueue) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-zinc-800 rounded w-1/4" />
+        <div className="h-8 bg-surface-2 rounded w-1/4" />
         <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2 h-96 bg-zinc-800 rounded" />
-          <div className="h-96 bg-zinc-800 rounded" />
+          <div className="col-span-2 h-96 bg-surface-2 rounded" />
+          <div className="h-96 bg-surface-2 rounded" />
         </div>
       </div>
     );
   }
 
   if (!data) {
-    return <p className="text-zinc-400">Failed to load shift data</p>;
+    return <p className="text-ink-2">Failed to load shift data</p>;
   }
 
   const positionedQueue = data.queue.map((t, idx) => ({
@@ -172,25 +172,25 @@ export function QueueClient({ shiftId }: { shiftId: string }) {
 
       {/* Shift Completed Banner */}
       {data.status === 'COMPLETED' && (
-        <div className="mt-8 p-6 rounded-lg border border-emerald-500/30 bg-emerald-500/5">
+        <div className="mt-8 p-6 rounded-lg border border-ok-edge bg-ok-wash">
           <div className="flex items-center gap-3 mb-2">
-            <Icon name="checkCircle" size={20} className="text-emerald-400" />
+            <Icon name="checkCircle" size={20} className="text-ok" />
             <h3 className="text-lg font-semibold">Shift Complete!</h3>
           </div>
-          <p className="text-sm text-zinc-400 mb-4">
-            Final Score: <span className="font-bold text-emerald-400">{data.currentScore}</span> •
-            Accuracy: <span className="font-bold text-emerald-400">{Math.round(data.currentAccuracy)}%</span>
+          <p className="text-sm text-ink-2 mb-4">
+            Final Score: <span className="font-bold text-ok">{data.currentScore}</span> •
+            Accuracy: <span className="font-bold text-ok">{Math.round(data.currentAccuracy)}%</span>
           </p>
           <div className="flex gap-2">
             <Link
               href={`/labs/tickets/leaderboard/${shiftId}`}
-              className="px-4 py-2 rounded-lg bg-sage-500 text-black font-semibold hover:bg-sage-600 transition text-sm"
+              className="px-4 py-2 rounded-lg bg-accent-fill text-white font-semibold hover:bg-ok-wash transition text-sm"
             >
               View Leaderboard
             </Link>
             <Link
               href="/labs/tickets"
-              className="px-4 py-2 rounded-lg border border-white/10 text-white font-semibold hover:border-white/30 transition text-sm"
+              className="px-4 py-2 rounded-lg border border-edge text-white font-semibold hover:border-edge-strong transition text-sm"
             >
               Back to Shifts
             </Link>
@@ -202,8 +202,8 @@ export function QueueClient({ shiftId }: { shiftId: string }) {
       {toast && (
         <div className={`fixed bottom-4 right-4 p-4 rounded-lg text-sm font-medium max-w-sm ${
           toast.type === 'success'
-            ? 'bg-emerald-500/20 text-emerald-400'
-            : 'bg-red-500/20 text-red-400'
+            ? 'bg-ok-wash text-ok'
+            : 'bg-danger-wash text-danger'
         }`}>
           {toast.message}
         </div>

@@ -21,7 +21,7 @@ export function EnrollBtn({ slug }: { slug: string }) {
     <button
       onClick={handleEnroll}
       disabled={loading}
-      className="rounded-lg bg-sage-500 px-6 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition disabled:opacity-50"
+      className="rounded-lg bg-accent-fill px-6 py-2.5 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition disabled:opacity-50"
     >
       {loading ? "Enrolling…" : "Enroll in Path"}
     </button>

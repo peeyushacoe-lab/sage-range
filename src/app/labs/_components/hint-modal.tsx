@@ -71,13 +71,13 @@ export function HintModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-      <div className="bg-zinc-900 border border-zinc-700 rounded-lg max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface-1 border border-edge-strong rounded-lg max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-zinc-700">
-          <h3 className="text-lg font-semibold text-zinc-100">Hint</h3>
+        <div className="flex items-center justify-between p-6 border-b border-edge-strong">
+          <h3 className="text-lg font-semibold text-ink">Hint</h3>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="text-ink-3 hover:text-ink-2 transition-colors"
           >
             <X size={20} />
           </button>
@@ -87,12 +87,12 @@ export function HintModal({
         <div className="p-6 space-y-6">
           {/* Hint Text */}
           <div>
-            <p className="text-sm text-zinc-300 leading-relaxed">
+            <p className="text-sm text-ink-2 leading-relaxed">
               {hintText}
             </p>
             <button
               onClick={copyHint}
-              className="mt-4 text-xs px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700"
+              className="mt-4 text-xs px-3 py-1.5 rounded bg-surface-2 hover:bg-surface-3 text-ink-2 hover:text-ink transition-colors border border-edge-strong"
             >
               {copiedText ? "Copied!" : "Copy hint"}
             </button>
@@ -110,13 +110,13 @@ export function HintModal({
                       size={16}
                       className={
                         i < stars
-                          ? "fill-amber-400 text-amber-400"
-                          : "text-zinc-700"
+                          ? "fill-warn text-warn"
+                          : "text-ink-3"
                       }
                     />
                   ))}
                 </div>
-                <span className="text-sm text-zinc-400">
+                <span className="text-sm text-ink-2">
                   {avgScore.toFixed(1)}/10 ({totalRatings}{" "}
                   {totalRatings === 1 ? "rating" : "ratings"})
                 </span>
@@ -124,7 +124,7 @@ export function HintModal({
 
               {/* Helpful Count */}
               {quality?.helpfulCount ? (
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-ink-2">
                   Rated helpful by {quality.helpfulCount} user
                   {quality.helpfulCount !== 1 ? "s" : ""}
                 </p>
@@ -136,12 +136,12 @@ export function HintModal({
           {!showFeedback && usedHintId ? (
             <button
               onClick={() => setShowFeedback(true)}
-              className="w-full px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm font-medium rounded transition-colors border border-zinc-700"
+              className="w-full px-4 py-2 bg-surface-2 hover:bg-surface-3 text-ink text-sm font-medium rounded transition-colors border border-edge-strong"
             >
               Rate this hint
             </button>
           ) : showFeedback && usedHintId ? (
-            <div className="border-t border-zinc-700 pt-6">
+            <div className="border-t border-edge-strong pt-6">
               <HintFeedbackForm
                 usedHintId={usedHintId}
                 onSuccess={handleFeedbackSuccess}

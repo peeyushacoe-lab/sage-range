@@ -21,7 +21,7 @@ export default async function ThreatBulletinPage() {
   });
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
       <div className="max-w-3xl mx-auto px-6 py-8">
         <PageHeader
@@ -35,36 +35,36 @@ export default async function ThreatBulletinPage() {
         ) : (
           <div className="space-y-6">
             {bulletins.map((b) => (
-              <article key={b.id} className="rounded-xl border border-white/8 bg-zinc-900/40 p-6">
+              <article key={b.id} className="rounded-xl border border-edge bg-surface-1 p-6">
                 <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <span className="text-xs uppercase tracking-widest text-sage-500 font-mono">Week of {formatWeekOf(b.weekOf)}</span>
-                  <span className="text-xs font-bold text-amber-400 font-mono">{b.actorOrFamily}</span>
+                  <span className="text-xs uppercase tracking-widest text-ink-3 font-mono">Week of {formatWeekOf(b.weekOf)}</span>
+                  <span className="text-xs font-bold text-warn font-mono">{b.actorOrFamily}</span>
                 </div>
                 <h2 className="text-xl font-bold mb-3">{b.headline}</h2>
-                <p className="text-sm text-zinc-300 leading-relaxed mb-4">{b.summary}</p>
+                <p className="text-sm text-ink-2 leading-relaxed mb-4">{b.summary}</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">New CVEs</p>
+                    <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-2">New CVEs</p>
                     <ul className="space-y-1">
                       {b.newCves.map((c) => (
-                        <li key={c} className="text-xs text-zinc-400 font-mono leading-relaxed">{c}</li>
+                        <li key={c} className="text-xs text-ink-2 font-mono leading-relaxed">{c}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">New IOCs</p>
+                    <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-2">New IOCs</p>
                     <ul className="space-y-1">
                       {b.newIocs.map((c) => (
-                        <li key={c} className="text-xs text-zinc-400 font-mono leading-relaxed break-all">{c}</li>
+                        <li key={c} className="text-xs text-ink-2 font-mono leading-relaxed break-all">{c}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">TTPs</p>
+                    <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-2">TTPs</p>
                     <ul className="space-y-1">
                       {b.ttps.map((c) => (
-                        <li key={c} className="text-xs text-zinc-400 font-mono leading-relaxed">{c}</li>
+                        <li key={c} className="text-xs text-ink-2 font-mono leading-relaxed">{c}</li>
                       ))}
                     </ul>
                   </div>

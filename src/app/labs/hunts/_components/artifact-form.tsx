@@ -77,14 +77,14 @@ export function ArtifactForm({ sessionId }: { sessionId: string }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Type Selector */}
           <div>
-            <label className="text-xs uppercase tracking-widest text-zinc-500 block mb-2">
+            <label className="text-xs uppercase tracking-widest text-ink-3 block mb-2">
               Type
             </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as ArtifactType)}
               disabled={isSubmitting}
-              className="w-full text-sm bg-zinc-900/50 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+              className="w-full text-sm bg-surface-1 border border-edge rounded px-3 py-2 text-white focus:outline-none focus:border-ok-edge"
             >
               {ARTIFACT_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -96,7 +96,7 @@ export function ArtifactForm({ sessionId }: { sessionId: string }) {
 
           {/* Value Input */}
           <div>
-            <label className="text-xs uppercase tracking-widest text-zinc-500 block mb-2">
+            <label className="text-xs uppercase tracking-widest text-ink-3 block mb-2">
               Value
             </label>
             <input
@@ -105,14 +105,14 @@ export function ArtifactForm({ sessionId }: { sessionId: string }) {
               onChange={(e) => setValue(e.target.value)}
               placeholder={`Enter ${type.toLowerCase()}...`}
               disabled={isSubmitting}
-              className="w-full text-sm bg-zinc-900/50 border border-white/10 rounded px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+              className="w-full text-sm bg-surface-1 border border-edge rounded px-3 py-2 text-white placeholder-ink-3 focus:outline-none focus:border-ok-edge"
             />
           </div>
 
           {/* Confidence Slider */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="text-xs uppercase tracking-widest text-zinc-500">
+              <label className="text-xs uppercase tracking-widest text-ink-3">
                 Confidence
               </label>
               <span className="text-sm font-semibold text-white">{confidence}%</span>
@@ -124,9 +124,9 @@ export function ArtifactForm({ sessionId }: { sessionId: string }) {
               value={confidence}
               onChange={(e) => setConfidence(Number(e.target.value))}
               disabled={isSubmitting}
-              className="w-full h-2 bg-zinc-900/50 rounded cursor-pointer accent-emerald-500"
+              className="w-full h-2 bg-surface-1 rounded cursor-pointer accent-emerald-500"
             />
-            <div className="flex justify-between text-xs text-zinc-500 mt-1">
+            <div className="flex justify-between text-xs text-ink-3 mt-1">
               <span>Low</span>
               <span>High</span>
             </div>
@@ -150,8 +150,8 @@ export function ArtifactForm({ sessionId }: { sessionId: string }) {
           <div
             className={`px-3 py-2 rounded text-xs font-semibold flex items-center gap-2 ${
               toast.type === "success"
-                ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-400"
-                : "bg-red-500/20 border border-red-500/40 text-red-400"
+                ? "bg-ok-wash border border-ok-edge text-ok"
+                : "bg-danger-wash border border-danger-edge text-danger"
             }`}
           >
             <Icon name={toast.type === "success" ? "checkCircle" : "alert"} size={14} />

@@ -70,28 +70,28 @@ export function SocTask3ThreatHunt({ labId, alreadyDone }: { labId: string; alre
 
   if (submitted) {
     return (
-      <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
-        <p className="text-sage-500 font-medium mb-2">Threat hunt complete <Icon name="check" size={14} className="inline-block shrink-0" /></p>
-        <p className="text-zinc-400">
-          The attacker used WMI remote process creation (<code className="font-mono text-zinc-300">wmic /node: process call create</code>) to pivot from finance-ws01 to FINANCE-SERVER01. A second C2 beacon was established and 42 MB of patient records were read. The SCCM activity on HR-SERVER02 was a red herring.
+      <div className="rounded-lg border border-ok-edge bg-ok-wash p-4 text-sm">
+        <p className="text-ok font-medium mb-2">Threat hunt complete <Icon name="check" size={14} className="inline-block shrink-0" /></p>
+        <p className="text-ink-2">
+          The attacker used WMI remote process creation (<code className="font-mono text-ink-2">wmic /node: process call create</code>) to pivot from finance-ws01 to FINANCE-SERVER01. A second C2 beacon was established and 42 MB of patient records were read. The SCCM activity on HR-SERVER02 was a red herring.
         </p>
-        <p className="text-zinc-500 mt-2 text-xs">Lab complete — your solve has been recorded.</p>
+        <p className="text-ink-3 mt-2 text-xs">Lab complete — your solve has been recorded.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4 text-sm">
-        <p className="text-red-400 font-medium mb-1">New SIEM escalation</p>
-        <p className="text-zinc-300">Containment partially succeeded — the beacon from the initial workstation has been cut. However, fresh C2 callbacks are arriving from a second internal host. The attacker pivoted before isolation completed. Use the extended logs to identify the pivot target and technique used.</p>
+      <div className="rounded-lg border border-danger-edge bg-danger-wash p-4 text-sm">
+        <p className="text-danger font-medium mb-1">New SIEM escalation</p>
+        <p className="text-ink-2">Containment partially succeeded — the beacon from the initial workstation has been cut. However, fresh C2 callbacks are arriving from a second internal host. The attacker pivoted before isolation completed. Use the extended logs to identify the pivot target and technique used.</p>
       </div>
 
       <div>
-        <p className="text-xs uppercase tracking-wider text-zinc-600 mb-2 font-mono">Extended SIEM / Sysmon — lateral movement window</p>
-        <div className="rounded border border-white/8 bg-zinc-950 p-4 overflow-x-auto max-h-60 overflow-y-auto">
+        <p className="text-xs uppercase tracking-wider text-ink-3 mb-2 font-mono">Extended SIEM / Sysmon — lateral movement window</p>
+        <div className="rounded border border-edge bg-surface-0 p-4 overflow-x-auto max-h-60 overflow-y-auto">
           {HUNT_LOGS.split("\n").map((line, i) => (
-            <p key={i} className="text-xs font-mono leading-5 whitespace-pre text-zinc-300">
+            <p key={i} className="text-xs font-mono leading-5 whitespace-pre text-ink-2">
               {line}
             </p>
           ))}
@@ -100,7 +100,7 @@ export function SocTask3ThreatHunt({ labId, alreadyDone }: { labId: string; alre
 
       <form onSubmit={submit} className="space-y-4">
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-zinc-300">
+          <label className="block text-sm font-medium text-ink-2">
             Which host did the attacker pivot to?
           </label>
           <input
@@ -112,7 +112,7 @@ export function SocTask3ThreatHunt({ labId, alreadyDone }: { labId: string; alre
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-zinc-300">
+          <label className="block text-sm font-medium text-ink-2">
             What lateral movement technique did the attacker use?
           </label>
           <select
@@ -129,8 +129,8 @@ export function SocTask3ThreatHunt({ labId, alreadyDone }: { labId: string; alre
         </div>
 
         {errors.length > 0 && (
-          <div className="rounded border border-red-500/30 bg-red-500/5 p-3 space-y-1">
-            {errors.map((e) => <p key={e} className="text-sm text-red-400 flex items-center gap-1"><Icon name="cross" size={12} /> {e}</p>)}
+          <div className="rounded border border-danger-edge bg-danger-wash p-3 space-y-1">
+            {errors.map((e) => <p key={e} className="text-sm text-danger flex items-center gap-1"><Icon name="cross" size={12} /> {e}</p>)}
           </div>
         )}
 
@@ -139,7 +139,7 @@ export function SocTask3ThreatHunt({ labId, alreadyDone }: { labId: string; alre
         <button
           type="submit"
           disabled={pending || !pivotHost.trim() || !lateralTool}
-          className="rounded bg-sage-500 px-5 py-2.5 text-sm font-medium text-black hover:bg-sage-700 hover:text-white disabled:opacity-50"
+          className="rounded bg-accent-fill px-5 py-2.5 text-sm font-medium text-white hover:bg-ok-wash hover:text-white disabled:opacity-50"
         >
           {pending ? "Submitting…" : "Submit findings"}
         </button>

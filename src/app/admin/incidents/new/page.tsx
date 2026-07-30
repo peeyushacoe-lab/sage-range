@@ -10,8 +10,8 @@ function slugify(s: string) {
 
 type Company = { id: string; name: string; slug: string };
 
-const INPUT = "w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-sage-500/50 placeholder-zinc-700";
-const LABEL = "block text-xs text-zinc-400 mb-1.5 font-medium uppercase tracking-wider";
+const INPUT = "w-full bg-surface-1 border border-edge rounded-lg px-4 py-2.5 text-sm text-ink focus:outline-none focus:border-ok-edge placeholder-ink-3";
+const LABEL = "block text-xs text-ink-2 mb-1.5 font-medium uppercase tracking-wider";
 
 export default function NewIncidentPage() {
   const router = useRouter();
@@ -99,11 +99,11 @@ export default function NewIncidentPage() {
 
   return (
     <div className="p-8 max-w-2xl">
-      <Link href="/admin/incidents" className="text-xs text-zinc-600 hover:text-zinc-400 transition mb-4 block">
+      <Link href="/admin/incidents" className="text-xs text-ink-3 hover:text-ink-2 transition mb-4 block">
         ← All Simulations
       </Link>
       <h1 className="text-2xl font-bold text-white mb-1">New Boss Fight Simulation</h1>
-      <p className="text-zinc-500 text-sm mb-8">You'll add artifacts, tasks, and hints after creating the shell.</p>
+      <p className="text-ink-3 text-sm mb-8">You'll add artifacts, tasks, and hints after creating the shell.</p>
 
       <form onSubmit={(e) => void submit(e)} className="space-y-5">
         <div>
@@ -119,10 +119,10 @@ export default function NewIncidentPage() {
           <input required value={form.slug} onChange={(e) => { setSlugEdited(true); handleChange("slug", e.target.value); }} className={`${INPUT} font-mono`} placeholder="fin-2026-005-ransomware" />
         </div>
 
-        <div className="border-t border-white/10 pt-5">
+        <div className="border-t border-edge pt-5">
           <div className="flex items-center justify-between mb-3">
             <label className={LABEL + " mb-0"}>Company</label>
-            <button type="button" onClick={() => setNewCompany((v) => !v)} className="text-xs text-sage-400 hover:text-sage-300">
+            <button type="button" onClick={() => setNewCompany((v) => !v)} className="text-xs text-ok hover:text-ok">
               {newCompany ? "Use existing company" : "+ Create new company"}
             </button>
           </div>
@@ -135,7 +135,7 @@ export default function NewIncidentPage() {
               ))}
             </select>
           ) : (
-            <div className="space-y-3 rounded-lg border border-white/10 p-4 bg-zinc-900/50">
+            <div className="space-y-3 rounded-lg border border-edge p-4 bg-surface-1">
               <input required value={companyForm.name} onChange={(e) => setCompanyForm((f) => ({ ...f, name: e.target.value, slug: slugify(e.target.value) }))} className={INPUT} placeholder="Company name" />
               <input required value={companyForm.slug} onChange={(e) => setCompanyForm((f) => ({ ...f, slug: e.target.value }))} className={`${INPUT} font-mono`} placeholder="company-slug" />
               <select value={companyForm.industry} onChange={(e) => setCompanyForm((f) => ({ ...f, industry: e.target.value }))} className={INPUT}>
@@ -171,14 +171,14 @@ export default function NewIncidentPage() {
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-zinc-400">
+        <label className="flex items-center gap-2 text-sm text-ink-2">
           <input type="checkbox" checked={form.randomized} onChange={(e) => handleChange("randomized", e.target.checked)} />
           Randomized — artifacts/tasks may use {"{{TOKEN}}"} placeholders (usernames, IPs, dates, attacker aliases)
         </label>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
 
-        <button type="submit" disabled={saving} className="bg-sage-500 hover:bg-sage-400 disabled:opacity-50 text-black font-semibold px-5 py-2.5 rounded-lg text-sm transition">
+        <button type="submit" disabled={saving} className="bg-accent-fill hover:bg-accent-hover disabled:opacity-50 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition">
           {saving ? "Creating…" : "Create simulation"}
         </button>
       </form>

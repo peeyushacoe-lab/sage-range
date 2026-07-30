@@ -17,9 +17,9 @@ type SimMeta = {
 const ARTIFACT_TYPES = ["EVENT_LOG", "SYSMON_LOG", "DEFENDER_LOG", "PCAP_SUMMARY", "EMAIL", "MEMORY_DUMP", "REGISTRY", "TIMELINE", "FILE_LISTING"];
 const TACTICS = ["INITIAL_ACCESS", "PERSISTENCE", "PRIVILEGE_ESCALATION", "LATERAL_MOVEMENT", "COMMAND_AND_CONTROL", "EXFILTRATION", "IMPACT"];
 
-const INPUT = "w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-sage-500/50 placeholder-zinc-700";
-const LABEL = "block text-[11px] text-zinc-500 mb-1 font-medium uppercase tracking-wider";
-const CARD = "rounded-xl border border-white/8 bg-zinc-900/40 p-5";
+const INPUT = "w-full bg-surface-1 border border-edge rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge placeholder-ink-3";
+const LABEL = "block text-[11px] text-ink-3 mb-1 font-medium uppercase tracking-wider";
+const CARD = "rounded-xl border border-edge bg-surface-1 p-5";
 
 export function EditIncidentClient({
   sim, companies, artifacts, tasks,
@@ -46,11 +46,11 @@ export function EditIncidentClient({
   return (
     <div className="p-8 max-w-4xl space-y-8">
       <div>
-        <Link href="/admin/incidents" className="text-xs text-zinc-600 hover:text-zinc-400 transition mb-4 block">
+        <Link href="/admin/incidents" className="text-xs text-ink-3 hover:text-ink-2 transition mb-4 block">
           ← All Simulations
         </Link>
         <h1 className="text-2xl font-bold text-white mb-1">{sim.title}</h1>
-        <p className="text-zinc-500 text-sm font-mono">{sim.slug}</p>
+        <p className="text-ink-3 text-sm font-mono">{sim.slug}</p>
       </div>
 
       {/* Metadata */}
@@ -94,16 +94,16 @@ export function EditIncidentClient({
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2 text-sm text-zinc-400">
+            <label className="flex items-center gap-2 text-sm text-ink-2">
               <input type="checkbox" checked={meta.randomized} onChange={(e) => setMeta({ ...meta, randomized: e.target.checked })} />
               Randomized ({"{{TOKEN}}"} placeholders)
             </label>
-            <label className="flex items-center gap-2 text-sm text-zinc-400">
+            <label className="flex items-center gap-2 text-sm text-ink-2">
               <input type="checkbox" checked={meta.published} onChange={(e) => setMeta({ ...meta, published: e.target.checked })} />
               Published
             </label>
           </div>
-          <button onClick={() => void saveMeta()} disabled={savingMeta} className="bg-sage-500 hover:bg-sage-400 disabled:opacity-50 text-black font-semibold px-4 py-2 rounded-lg text-sm transition">
+          <button onClick={() => void saveMeta()} disabled={savingMeta} className="bg-accent-fill hover:bg-accent-hover disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm transition">
             {savingMeta ? "Saving…" : "Save metadata"}
           </button>
         </div>
@@ -145,13 +145,13 @@ function ArtifactsSection({ slug, initial }: { slug: string; initial: Artifact[]
     <div className={CARD}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-bold text-white uppercase tracking-wider">Artifacts ({initial.length})</h2>
-        <button onClick={() => setShowForm((v) => !v)} className="text-xs text-sage-400 hover:text-sage-300">
+        <button onClick={() => setShowForm((v) => !v)} className="text-xs text-ok hover:text-ok">
           {showForm ? "Cancel" : "+ Add artifact"}
         </button>
       </div>
 
       {showForm && (
-        <div className="space-y-3 mb-5 rounded-lg border border-white/10 p-4 bg-zinc-950/50">
+        <div className="space-y-3 mb-5 rounded-lg border border-edge p-4 bg-surface-0/50">
           <div className="grid grid-cols-3 gap-3">
             <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={INPUT}>
               {ARTIFACT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -164,7 +164,7 @@ function ArtifactsSection({ slug, initial }: { slug: string; initial: Artifact[]
           </div>
           <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={INPUT} placeholder="Artifact title" />
           <textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className={`${INPUT} font-mono`} rows={6} placeholder="Artifact content (supports {{TOKEN}} placeholders if randomized)" />
-          <button onClick={() => void add()} disabled={saving || !form.title || !form.content} className="bg-sage-500 hover:bg-sage-400 disabled:opacity-50 text-black font-semibold px-4 py-2 rounded-lg text-sm transition">
+          <button onClick={() => void add()} disabled={saving || !form.title || !form.content} className="bg-accent-fill hover:bg-accent-hover disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm transition">
             {saving ? "Adding…" : "Add artifact"}
           </button>
         </div>
@@ -172,17 +172,17 @@ function ArtifactsSection({ slug, initial }: { slug: string; initial: Artifact[]
 
       <div className="space-y-2">
         {initial.map((a) => (
-          <div key={a.id} className="flex items-start justify-between gap-3 rounded-lg border border-white/6 px-3 py-2.5">
+          <div key={a.id} className="flex items-start justify-between gap-3 rounded-lg border border-edge-subtle px-3 py-2.5">
             <div className="min-w-0">
-              <p className="text-sm text-zinc-200">
-                <span className="text-zinc-600 font-mono mr-2">#{a.order}</span>{a.title}
+              <p className="text-sm text-ink">
+                <span className="text-ink-3 font-mono mr-2">#{a.order}</span>{a.title}
               </p>
-              <p className="text-xs text-zinc-600">{a.type}{a.tactic ? ` · ${a.tactic.replace(/_/g, " ")}` : ""}</p>
+              <p className="text-xs text-ink-3">{a.type}{a.tactic ? ` · ${a.tactic.replace(/_/g, " ")}` : ""}</p>
             </div>
-            <button onClick={() => void remove(a.id)} className="text-xs text-zinc-600 hover:text-red-400 shrink-0">Delete</button>
+            <button onClick={() => void remove(a.id)} className="text-xs text-ink-3 hover:text-danger shrink-0">Delete</button>
           </div>
         ))}
-        {initial.length === 0 && <p className="text-sm text-zinc-600">No artifacts yet.</p>}
+        {initial.length === 0 && <p className="text-sm text-ink-3">No artifacts yet.</p>}
       </div>
     </div>
   );
@@ -226,13 +226,13 @@ function TasksSection({ slug, initial }: { slug: string; initial: Task[] }) {
     <div className={CARD}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-bold text-white uppercase tracking-wider">Tasks ({initial.length})</h2>
-        <button onClick={() => setShowForm((v) => !v)} className="text-xs text-sage-400 hover:text-sage-300">
+        <button onClick={() => setShowForm((v) => !v)} className="text-xs text-ok hover:text-ok">
           {showForm ? "Cancel" : "+ Add task"}
         </button>
       </div>
 
       {showForm && (
-        <div className="space-y-3 mb-5 rounded-lg border border-white/10 p-4 bg-zinc-950/50">
+        <div className="space-y-3 mb-5 rounded-lg border border-edge p-4 bg-surface-0/50">
           <div className="grid grid-cols-3 gap-3">
             <input type="number" value={form.order} onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} className={INPUT} placeholder="Order" />
             <select value={form.answerType} onChange={(e) => setForm({ ...form, answerType: e.target.value })} className={INPUT}>
@@ -247,7 +247,7 @@ function TasksSection({ slug, initial }: { slug: string; initial: Task[] }) {
             <textarea value={form.optionsText} onChange={(e) => setForm({ ...form, optionsText: e.target.value })} className={INPUT} rows={3} placeholder={"One option per line — the correct answer below must match one of these exactly"} />
           )}
           <input value={form.correctAnswer} onChange={(e) => setForm({ ...form, correctAnswer: e.target.value })} className={`${INPUT} font-mono`} placeholder="Correct answer (case-insensitive match for free text)" />
-          <button onClick={() => void add()} disabled={saving || !form.title || !form.prompt || !form.correctAnswer} className="bg-sage-500 hover:bg-sage-400 disabled:opacity-50 text-black font-semibold px-4 py-2 rounded-lg text-sm transition">
+          <button onClick={() => void add()} disabled={saving || !form.title || !form.prompt || !form.correctAnswer} className="bg-accent-fill hover:bg-accent-hover disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm transition">
             {saving ? "Adding…" : "Add task"}
           </button>
         </div>
@@ -257,7 +257,7 @@ function TasksSection({ slug, initial }: { slug: string; initial: Task[] }) {
         {initial.map((t) => (
           <TaskRow key={t.id} slug={slug} task={t} onDelete={() => void remove(t.id)} />
         ))}
-        {initial.length === 0 && <p className="text-sm text-zinc-600">No tasks yet — this simulation is unplayable until at least one task exists.</p>}
+        {initial.length === 0 && <p className="text-sm text-ink-3">No tasks yet — this simulation is unplayable until at least one task exists.</p>}
       </div>
     </div>
   );
@@ -290,34 +290,34 @@ function TaskRow({ slug, task, onDelete }: { slug: string; task: Task; onDelete:
   }
 
   return (
-    <div className="rounded-lg border border-white/6 px-3 py-3">
+    <div className="rounded-lg border border-edge-subtle px-3 py-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm text-zinc-200">
-            <span className="text-zinc-600 font-mono mr-2">#{task.order}</span>{task.title}
-            <span className="text-xs text-zinc-600 ml-2">· {task.points} pts · {task.answerType}</span>
+          <p className="text-sm text-ink">
+            <span className="text-ink-3 font-mono mr-2">#{task.order}</span>{task.title}
+            <span className="text-xs text-ink-3 ml-2">· {task.points} pts · {task.answerType}</span>
           </p>
-          <p className="text-xs text-zinc-500 mt-1">{task.prompt}</p>
-          <p className="text-xs text-sage-500/70 font-mono mt-1">answer: {task.correctAnswer}</p>
+          <p className="text-xs text-ink-3 mt-1">{task.prompt}</p>
+          <p className="text-xs text-ok/70 font-mono mt-1">answer: {task.correctAnswer}</p>
         </div>
-        <button onClick={onDelete} className="text-xs text-zinc-600 hover:text-red-400 shrink-0">Delete</button>
+        <button onClick={onDelete} className="text-xs text-ink-3 hover:text-danger shrink-0">Delete</button>
       </div>
 
-      <div className="mt-2 pl-4 border-l border-white/6 space-y-1.5">
+      <div className="mt-2 pl-4 border-l border-edge-subtle space-y-1.5">
         {task.hints.map((h) => (
           <div key={h.id} className="flex items-center justify-between gap-2">
-            <p className="text-xs text-amber-400/80">Hint {h.level} (-{h.pointCost} pts): {h.text}</p>
-            <button onClick={() => void removeHint(h.id)} className="text-[10px] text-zinc-600 hover:text-red-400 shrink-0">Remove</button>
+            <p className="text-xs text-warn/80">Hint {h.level} (-{h.pointCost} pts): {h.text}</p>
+            <button onClick={() => void removeHint(h.id)} className="text-[10px] text-ink-3 hover:text-danger shrink-0">Remove</button>
           </div>
         ))}
         {!showHintForm ? (
-          <button onClick={() => setShowHintForm(true)} className="text-[11px] text-sage-400 hover:text-sage-300">+ Add hint</button>
+          <button onClick={() => setShowHintForm(true)} className="text-[11px] text-ok hover:text-ok">+ Add hint</button>
         ) : (
           <div className="flex items-center gap-2 pt-1">
             <input type="number" value={hintForm.level} onChange={(e) => setHintForm({ ...hintForm, level: Number(e.target.value) })} className={`${INPUT} w-16`} placeholder="Lvl" />
             <input type="number" value={hintForm.pointCost} onChange={(e) => setHintForm({ ...hintForm, pointCost: Number(e.target.value) })} className={`${INPUT} w-20`} placeholder="Cost" />
             <input value={hintForm.text} onChange={(e) => setHintForm({ ...hintForm, text: e.target.value })} className={INPUT} placeholder="Hint text" />
-            <button onClick={() => void addHint()} disabled={saving || !hintForm.text} className="text-xs bg-sage-500 hover:bg-sage-400 disabled:opacity-50 text-black font-semibold px-3 py-2 rounded-lg shrink-0">
+            <button onClick={() => void addHint()} disabled={saving || !hintForm.text} className="text-xs bg-accent-fill hover:bg-accent-hover disabled:opacity-50 text-white font-semibold px-3 py-2 rounded-lg shrink-0">
               Add
             </button>
           </div>

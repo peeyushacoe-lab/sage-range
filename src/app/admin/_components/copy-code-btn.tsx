@@ -14,7 +14,7 @@ export function CopyCodeBtn({ code }: { code: string }) {
   return (
     <button
       onClick={copy}
-      className="text-xs px-2 py-1 rounded border border-white/10 text-zinc-400 hover:text-white hover:border-white/20 font-mono transition"
+      className="text-xs px-2 py-1 rounded border border-edge text-ink-2 hover:text-white hover:border-edge-strong font-mono transition"
     >
       {copied ? "Copied!" : code}
     </button>

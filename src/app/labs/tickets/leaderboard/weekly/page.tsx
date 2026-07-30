@@ -54,7 +54,7 @@ export default async function WeeklyLeaderboard() {
   const userRank = leaderboard.findIndex((e) => e.userId === user.id) + 1;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
@@ -65,7 +65,7 @@ export default async function WeeklyLeaderboard() {
           actions={
             <Link
               href="/labs/tickets"
-              className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+              className="shrink-0 rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
             >
               Back to Shifts →
             </Link>
@@ -74,22 +74,22 @@ export default async function WeeklyLeaderboard() {
 
         {/* User's Position */}
         {userEntry && (
-          <Card className="mb-6 p-4 bg-sage-500/5 border-sage-500/30">
+          <Card className="mb-6 p-4 bg-ok-wash border-ok-edge">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Your Position</p>
+                <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Your Position</p>
                 <p className="text-lg font-bold text-white">
-                  Rank <span className="text-sage-400">#{userRank}</span>
+                  Rank <span className="text-ok">#{userRank}</span>
                 </p>
               </div>
               <div className="text-right space-y-2">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Score</p>
-                  <p className="text-2xl font-bold text-sage-400">{userEntry.totalScore}</p>
+                  <p className="text-xs uppercase tracking-widest text-ink-3">Score</p>
+                  <p className="text-2xl font-bold text-ok">{userEntry.totalScore}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-zinc-500">Shifts</p>
-                  <p className="text-lg font-bold text-zinc-300">{userEntry.shiftsCompleted}</p>
+                  <p className="text-xs uppercase tracking-widest text-ink-3">Shifts</p>
+                  <p className="text-lg font-bold text-ink-2">{userEntry.shiftsCompleted}</p>
                 </div>
               </div>
             </div>
@@ -101,20 +101,20 @@ export default async function WeeklyLeaderboard() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                <tr className="border-b border-edge">
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Rank
                   </th>
-                  <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Player
                   </th>
-                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Score
                   </th>
-                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Shifts Completed
                   </th>
-                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Accuracy
                   </th>
                 </tr>
@@ -128,14 +128,14 @@ export default async function WeeklyLeaderboard() {
                     <tr
                       key={entry.userId}
                       className={cn(
-                        'border-t border-white/5 hover:bg-zinc-900/50 transition',
-                        isUser && 'bg-sage-500/10'
+                        'border-t border-edge-subtle hover:bg-surface-1 transition',
+                        isUser && 'bg-ok-wash'
                       )}
                     >
                       <td className="px-5 py-4">
                         <span className={cn(
                           'font-bold font-mono',
-                          rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-gray-300' : rank === 3 ? 'text-amber-600' : 'text-zinc-400'
+                          rank === 1 ? 'text-warn' : rank === 2 ? 'text-gray-300' : rank === 3 ? 'text-warn' : 'text-ink-2'
                         )}>
                           #{rank}
                         </span>
@@ -143,23 +143,23 @@ export default async function WeeklyLeaderboard() {
                       <td className="px-5 py-4">
                         <span className="font-medium">
                           {entry.username}
-                          {isUser && <span className="text-xs text-zinc-500 ml-2">(you)</span>}
+                          {isUser && <span className="text-xs text-ink-3 ml-2">(you)</span>}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-right font-bold text-sage-400 font-mono">
+                      <td className="px-5 py-4 text-right font-bold text-ok font-mono">
                         {entry.totalScore}
                       </td>
-                      <td className="px-5 py-4 text-right font-mono text-zinc-300">
+                      <td className="px-5 py-4 text-right font-mono text-ink-2">
                         {entry.shiftsCompleted}
                       </td>
                       <td className="px-5 py-4 text-right font-mono">
                         <span className={cn(
                           'font-semibold',
                           entry.overallAccuracy >= 80
-                            ? 'text-emerald-400'
+                            ? 'text-ok'
                             : entry.overallAccuracy >= 60
-                              ? 'text-amber-400'
-                              : 'text-red-400'
+                              ? 'text-warn'
+                              : 'text-danger'
                         )}>
                           {entry.overallAccuracy}%
                         </span>
@@ -176,7 +176,7 @@ export default async function WeeklyLeaderboard() {
         <div className="mt-8">
           <Link
             href="/labs/tickets"
-            className="px-4 py-2 rounded-lg border border-white/10 text-white font-semibold hover:border-white/30 transition"
+            className="px-4 py-2 rounded-lg border border-edge text-white font-semibold hover:border-edge-strong transition"
           >
             Back to Shifts
           </Link>

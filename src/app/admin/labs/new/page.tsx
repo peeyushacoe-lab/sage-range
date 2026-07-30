@@ -18,8 +18,8 @@ type FormState = {
   points: number;
 };
 
-const INPUT = "w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 placeholder-zinc-700";
-const LABEL = "block text-xs text-zinc-400 mb-1.5 font-medium uppercase tracking-wider";
+const INPUT = "w-full bg-surface-1 border border-edge rounded-lg px-4 py-2.5 text-sm text-ink focus:outline-none focus:border-ok-edge placeholder-ink-3";
+const LABEL = "block text-xs text-ink-2 mb-1.5 font-medium uppercase tracking-wider";
 
 export default function NewLabPage() {
   const router = useRouter();
@@ -64,11 +64,11 @@ export default function NewLabPage() {
 
   return (
     <div className="p-8 max-w-2xl">
-      <Link href="/admin/labs" className="text-xs text-zinc-600 hover:text-zinc-400 transition mb-4 block">
+      <Link href="/admin/labs" className="text-xs text-ink-3 hover:text-ink-2 transition mb-4 block">
         ← All Labs
       </Link>
       <h1 className="text-2xl font-bold text-white mb-1">New Lab</h1>
-      <p className="text-zinc-500 text-sm mb-8">You can add flags and hints after creating the lab.</p>
+      <p className="text-ink-3 text-sm mb-8">You can add flags and hints after creating the lab.</p>
 
       <form onSubmit={e => void submit(e)} className="space-y-5">
         <div>
@@ -94,7 +94,7 @@ export default function NewLabPage() {
             className={`${INPUT} font-mono`}
             placeholder="sql-injection-101"
           />
-          <p className="text-[11px] text-zinc-600 mt-1">URL-safe, lowercase, hyphens only. Auto-generated from title.</p>
+          <p className="text-[11px] text-ink-3 mt-1">URL-safe, lowercase, hyphens only. Auto-generated from title.</p>
         </div>
 
         <div>
@@ -162,13 +162,13 @@ export default function NewLabPage() {
           </div>
         </div>
 
-        {error && <p className="text-sm text-red-400 bg-red-500/5 border border-red-500/20 rounded-lg px-4 py-3">{error}</p>}
+        {error && <p className="text-sm text-danger bg-danger-wash border border-danger-edge rounded-lg px-4 py-3">{error}</p>}
 
         <div className="pt-2">
           <button
             type="submit"
             disabled={saving}
-            className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition"
+            className="bg-ok hover:bg-ok-wash disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition"
           >
             {saving ? "Creating…" : "Create Lab →"}
           </button>

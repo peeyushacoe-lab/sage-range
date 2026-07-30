@@ -8,10 +8,10 @@ import { EmptyState, PageHeader } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 const STATUS_STYLE: Record<string, string> = {
-  ACTIVE: "bg-sage-500/20 text-sage-500",
-  CONTAINED: "bg-sage-500/20 text-sage-500",
-  BREACHED: "bg-red-500/20 text-red-400",
-  ABANDONED: "bg-zinc-500/20 text-zinc-400",
+  ACTIVE: "bg-ok-wash text-ok",
+  CONTAINED: "bg-ok-wash text-ok",
+  BREACHED: "bg-danger-wash text-danger",
+  ABANDONED: "bg-surface-3 text-ink-2",
 };
 
 export default async function SimulationsPage() {
@@ -38,7 +38,7 @@ export default async function SimulationsPage() {
         actions={
           <Link
             href="/simulation/new"
-            className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition"
+            className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition"
           >
             New Simulation →
           </Link>
@@ -56,7 +56,7 @@ export default async function SimulationsPage() {
 
       {activeSessions.length > 0 && (
         <section className="mb-10">
-          <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Active</h2>
+          <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-3">Active</h2>
           <div className="space-y-3">
             {activeSessions.map((s) => (
               <SessionCard key={s.id} session={s} />
@@ -67,8 +67,8 @@ export default async function SimulationsPage() {
 
       {pastSessions.length > 0 && (
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">History</h2>
-          <div className="divide-y divide-white/5 rounded-lg border border-white/10">
+          <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-3">History</h2>
+          <div className="divide-y divide-edge-subtle rounded-lg border border-edge">
             {pastSessions.map((s) => (
               <SessionRow key={s.id} session={s} />
             ))}
@@ -94,17 +94,17 @@ function SessionCard({ session: s }: { session: Session }) {
   return (
     <Link
       href={`/simulation/${s.id}`}
-      className="flex items-center justify-between rounded-xl border border-sage-500/30 bg-sage-500/5 p-5 hover:bg-sage-500/10 transition"
+      className="flex items-center justify-between rounded-xl border border-ok-edge bg-ok-wash p-5 hover:bg-ok-wash transition"
     >
       <div>
         <p className="font-semibold">{s.template.name}</p>
-        <p className="text-xs text-zinc-500 mt-0.5">{s.template.industry} · Started {s.startedAt.toISOString().slice(0, 10)}</p>
-        <p className="text-xs text-zinc-400 mt-1">Stage: <span className="text-sage-400">{s.currentStage.replace(/_/g, " ")}</span></p>
+        <p className="text-xs text-ink-3 mt-0.5">{s.template.industry} · Started {s.startedAt.toISOString().slice(0, 10)}</p>
+        <p className="text-xs text-ink-2 mt-1">Stage: <span className="text-ok">{s.currentStage.replace(/_/g, " ")}</span></p>
       </div>
       <div className="text-right">
-        <span className="text-xs px-2 py-0.5 rounded-full bg-sage-500/20 text-sage-500 font-semibold">ACTIVE</span>
-        <p className="text-lg font-bold mt-1">{s.score} <span className="text-xs text-zinc-500 font-normal">pts</span></p>
-        <p className="text-xs text-sage-500 mt-1">Resume →</p>
+        <span className="text-xs px-2 py-0.5 rounded-full bg-ok-wash text-ok font-semibold">ACTIVE</span>
+        <p className="text-lg font-bold mt-1">{s.score} <span className="text-xs text-ink-3 font-normal">pts</span></p>
+        <p className="text-xs text-ok mt-1">Resume →</p>
       </div>
     </Link>
   );
@@ -120,11 +120,11 @@ function SessionRow({ session: s }: { session: Session }) {
   return (
     <Link
       href={href}
-      className="flex items-center justify-between p-4 hover:bg-white/3 transition"
+      className="flex items-center justify-between p-4 hover:bg-surface-2 transition"
     >
       <div>
         <p className="text-sm font-medium">{s.template.name}</p>
-        <p className="text-xs text-zinc-500">{s.startedAt.toISOString().slice(0, 10)} {duration !== null ? `· ${duration}m` : ""}</p>
+        <p className="text-xs text-ink-3">{s.startedAt.toISOString().slice(0, 10)} {duration !== null ? `· ${duration}m` : ""}</p>
       </div>
       <div className="flex items-center gap-4">
         <span className="text-sm font-semibold">{s.score} pts</span>

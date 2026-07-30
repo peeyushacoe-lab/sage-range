@@ -57,21 +57,21 @@ function PacketTable({
   }, [filterIp, filterProto]);
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-white/8 mb-2">
+    <div className="overflow-x-auto rounded-lg border border-edge mb-2">
       <table className="w-full text-xs font-mono">
         <thead>
-          <tr className="border-b border-white/8 bg-zinc-900">
-            <th className="px-3 py-2 text-left text-zinc-500">No.</th>
-            <th className="px-3 py-2 text-left text-zinc-500">Time</th>
-            <th className="px-3 py-2 text-left text-zinc-500">Source</th>
-            <th className="px-3 py-2 text-left text-zinc-500">Destination</th>
-            <th className="px-3 py-2 text-left text-zinc-500">Proto</th>
-            <th className="px-3 py-2 text-left text-zinc-500">Info</th>
+          <tr className="border-b border-edge bg-surface-1">
+            <th className="px-3 py-2 text-left text-ink-3">No.</th>
+            <th className="px-3 py-2 text-left text-ink-3">Time</th>
+            <th className="px-3 py-2 text-left text-ink-3">Source</th>
+            <th className="px-3 py-2 text-left text-ink-3">Destination</th>
+            <th className="px-3 py-2 text-left text-ink-3">Proto</th>
+            <th className="px-3 py-2 text-left text-ink-3">Info</th>
           </tr>
         </thead>
         <tbody>
           {visible.length === 0 && (
-            <tr><td colSpan={6} className="px-3 py-4 text-center text-zinc-600">No packets match filter</td></tr>
+            <tr><td colSpan={6} className="px-3 py-4 text-center text-ink-3">No packets match filter</td></tr>
           )}
           {visible.map((p) => {
             const isC2 = p.dst === "185.220.101.47" || p.src === "185.220.101.47";
@@ -81,28 +81,28 @@ function PacketTable({
                 <tr
                   key={p.no}
                   onClick={() => onRowClick(p.no)}
-                  className={`border-b border-white/5 cursor-pointer transition-colors ${
-                    isC2 ? "bg-red-950/30 hover:bg-red-950/50" : "hover:bg-white/3"
+                  className={`border-b border-edge-subtle cursor-pointer transition-colors ${
+                    isC2 ? "bg-danger-wash hover:bg-danger-wash" : "hover:bg-surface-2"
                   } ${expanded ? "border-b-0" : ""}`}
                 >
-                  <td className="px-3 py-1.5 text-zinc-500">{p.no}</td>
-                  <td className="px-3 py-1.5 text-zinc-500">{p.time}</td>
-                  <td className="px-3 py-1.5 text-zinc-300">{p.src}</td>
-                  <td className={`px-3 py-1.5 font-medium ${isC2 ? "text-red-300" : "text-zinc-300"}`}>{p.dst}</td>
+                  <td className="px-3 py-1.5 text-ink-3">{p.no}</td>
+                  <td className="px-3 py-1.5 text-ink-3">{p.time}</td>
+                  <td className="px-3 py-1.5 text-ink-2">{p.src}</td>
+                  <td className={`px-3 py-1.5 font-medium ${isC2 ? "text-danger" : "text-ink-2"}`}>{p.dst}</td>
                   <td className="px-3 py-1.5">
                     <span className={`text-[10px] font-bold px-1 py-px rounded ${
-                      p.proto === "HTTP" ? "text-amber-400 bg-amber-500/10" :
-                      p.proto === "TCP"  ? "text-blue-400 bg-blue-500/10" :
-                      p.proto === "DNS"  ? "text-zinc-400 bg-zinc-800" :
-                      "text-sage-400 bg-sage-500/10"
+                      p.proto === "HTTP" ? "text-warn bg-warn-wash" :
+                      p.proto === "TCP"  ? "text-info bg-info-wash" :
+                      p.proto === "DNS"  ? "text-ink-2 bg-surface-2" :
+                      "text-ok bg-ok-wash"
                     }`}>{p.proto}</span>
                   </td>
-                  <td className={`px-3 py-1.5 ${isC2 ? "text-red-300" : "text-zinc-400"}`}>{p.info}</td>
+                  <td className={`px-3 py-1.5 ${isC2 ? "text-danger" : "text-ink-2"}`}>{p.info}</td>
                 </tr>
                 {expanded && (
-                  <tr key={`${p.no}-detail`} className={`border-b border-white/5 ${isC2 ? "bg-red-950/20" : "bg-zinc-900/40"}`}>
+                  <tr key={`${p.no}-detail`} className={`border-b border-edge-subtle ${isC2 ? "bg-danger-wash" : "bg-surface-1"}`}>
                     <td colSpan={6} className="px-4 py-2.5">
-                      <p className={`text-xs leading-relaxed ${isC2 ? "text-red-200" : "text-zinc-400"}`}>{p.detail}</p>
+                      <p className={`text-xs leading-relaxed ${isC2 ? "text-danger" : "text-ink-2"}`}>{p.detail}</p>
                     </td>
                   </tr>
                 )}
@@ -111,7 +111,7 @@ function PacketTable({
           })}
         </tbody>
       </table>
-      <p className="text-[10px] text-zinc-700 px-3 py-1.5 border-t border-white/5">
+      <p className="text-[10px] text-ink-3 px-3 py-1.5 border-t border-edge-subtle">
         {visible.length} of {PACKETS.length} packets · click any row to expand · {PACKETS.filter(p => p.dst === "185.220.101.47" || p.src === "185.220.101.47").length} flagged packets
       </p>
     </div>
@@ -189,7 +189,7 @@ export function NetworkForensics101Client({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Identify C2 Traffic" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           Examine this packet capture. Filter by IP or protocol to isolate suspicious traffic. Click any row to expand packet details.
         </p>
 
@@ -200,12 +200,12 @@ export function NetworkForensics101Client({
             value={filterIp}
             onChange={(e) => setFilterIp(e.target.value)}
             placeholder="Filter by IP…"
-            className="flex-1 min-w-0 rounded border border-white/10 bg-zinc-900 px-3 py-1.5 text-xs font-mono text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/50"
+            className="flex-1 min-w-0 rounded border border-edge bg-surface-1 px-3 py-1.5 text-xs font-mono text-ink-2 placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
           />
           <select
             value={filterProto}
             onChange={(e) => setFilterProto(e.target.value)}
-            className="rounded border border-white/10 bg-zinc-900 px-2 py-1.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-sage-500/50"
+            className="rounded border border-edge bg-surface-1 px-2 py-1.5 text-xs font-mono text-ink-2 focus:outline-none focus:border-ok-edge"
           >
             <option value="ALL">All protocols</option>
             {["DNS", "TCP", "HTTP", "HTTPS"].map((p) => <option key={p} value={p}>{p}</option>)}
@@ -213,7 +213,7 @@ export function NetworkForensics101Client({
           {(filterIp || filterProto !== "ALL") && (
             <button
               onClick={() => { setFilterIp(""); setFilterProto("ALL"); }}
-              className="text-xs text-zinc-500 hover:text-zinc-300 px-2"
+              className="text-xs text-ink-3 hover:text-ink-2 px-2"
             >
               clear
             </button>
@@ -229,28 +229,28 @@ export function NetworkForensics101Client({
 
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2 mt-4">
-            <p className="text-sm text-zinc-300 font-medium">What is the attacker&apos;s C2 IP address?</p>
+            <p className="text-sm text-ink-2 font-medium">What is the attacker&apos;s C2 IP address?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
           </form>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Extract the User-Agent" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           The following HTTP headers were captured from the malicious beacon request. Identify
           the attack tool based on the User-Agent string.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{HTTP_HEADERS}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{HTTP_HEADERS}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What tool is revealed by the User-Agent string?</p>
+            <p className="text-sm text-ink-2 font-medium">What tool is revealed by the User-Agent string?</p>
             <div className="flex flex-wrap gap-3">
               {["Cobalt Strike", "Metasploit", "Empire", "Sliver"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -262,16 +262,16 @@ export function NetworkForensics101Client({
                     onChange={() => setT2Choice(opt)}
                     className="accent-emerald-500"
                   />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — Meterpreter beacon confirmed. Flag: SAGE&#123;m3t3rpr3t3r_b34c0n&#125;
           </p>
         )}
@@ -279,20 +279,20 @@ export function NetworkForensics101Client({
 
       {/* Task 3 */}
       <TaskShell number={3} title="Decode the Payload" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           A payload was extracted from the C2 session. The hex dump is shown below.
           The first two bytes identify the file type.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-2">
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-2">
           <pre className="font-mono text-xs text-cyan-300 whitespace-pre-wrap">{HEX_DUMP}</pre>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
-          The magic bytes <span className="font-mono text-amber-300">4D 5A</span> (ASCII: MZ) are
+        <p className="text-xs text-ink-3 mb-4">
+          The magic bytes <span className="font-mono text-warn">4D 5A</span> (ASCII: MZ) are
           the signature of a well-known Windows executable format.
         </p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What file type is this payload?</p>
+            <p className="text-sm text-ink-2 font-medium">What file type is this payload?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
                 value={t3Answer}
@@ -302,23 +302,23 @@ export function NetworkForensics101Client({
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — MZ header identifies a PE executable. Flag: SAGE&#123;PE_executable&#125;
           </p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;185.220.101.47&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;m3t3rpr3t3r_b34c0n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;PE_executable&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;185.220.101.47&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;m3t3rpr3t3r_b34c0n&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;PE_executable&#125;</span></li>
           </ul>
         </div>
       )}

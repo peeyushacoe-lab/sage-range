@@ -5,11 +5,11 @@ import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 function Bubble({ from, children }: { from: "user" | "bot"; children: React.ReactNode }) {
-  const style = from === "user" ? "bg-blue-500/10 border-blue-500/20 text-blue-100" : "bg-zinc-800/60 border-white/8 text-zinc-200";
+  const style = from === "user" ? "bg-info-wash border-info-edge text-info" : "bg-surface-2/60 border-edge text-ink";
   const label = from === "user" ? "Employee (Marketing)" : "InternalGPT";
   return (
     <div className="max-w-xl rounded-xl border px-4 py-3">
-      <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-ink-3 mb-1">{label}</p>
       <div className={`rounded-lg border px-3 py-2 text-xs font-mono whitespace-pre-wrap leading-relaxed ${style}`}>{children}</div>
     </div>
   );
@@ -88,8 +88,8 @@ export function AiDataLeakageClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Spot the Leak" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
-          <code className="text-amber-300">InternalGPT</code>, trained on internal company documents including
+        <p className="text-ink-2 text-sm mb-3">
+          <code className="text-warn">InternalGPT</code>, trained on internal company documents including
           contracts, is being used across departments.
         </p>
         <div className="space-y-3 mb-4">
@@ -98,29 +98,29 @@ export function AiDataLeakageClient({
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Flag the confidential details leaked in this unrelated marketing request.</p>
+            <p className="text-sm text-ink-2 font-medium">Flag the confidential details leaked in this unrelated marketing request.</p>
             <div className="flex gap-2 max-w-lg">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a confidential discount rate and a named contact from a specific client's contract leaked into a public-facing marketing draft. Flag: SAGE&#123;d14n3_wh1tf13ld_4cm3mfg_l34k&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — a confidential discount rate and a named contact from a specific client's contract leaked into a public-facing marketing draft. Flag: SAGE&#123;d14n3_wh1tf13ld_4cm3mfg_l34k&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Trace the Source" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">A completely different employee, in a different session, asks something unrelated:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SECOND_CHAT}</pre>
+        <p className="text-ink-2 text-sm mb-3">A completely different employee, in a different session, asks something unrelated:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SECOND_CHAT}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What is actually happening here?</p>
+            <p className="text-sm text-ink-2 font-medium">What is actually happening here?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The model is hallucinating random names with no basis in reality",
@@ -130,28 +130,28 @@ export function AiDataLeakageClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the exact same specific, verifiable details (name, company, rate) recurring across unrelated sessions confirms this is memorized training data leaking out, not coincidence or hallucination. Flag: SAGE&#123;tr41n1ng_d4t4_m3m0r1z4t10n&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — the exact same specific, verifiable details (name, company, rate) recurring across unrelated sessions confirms this is memorized training data leaking out, not coincidence or hallucination. Flag: SAGE&#123;tr41n1ng_d4t4_m3m0r1z4t10n&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Fix the Access Model" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">
+        <p className="text-ink-2 text-sm mb-4">
           Both employees who saw this data had no legitimate business reason to know about the Acme Manufacturing deal.
         </p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the actual fix?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the actual fix?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Tell employees not to ask about confidential topics",
@@ -161,17 +161,17 @@ export function AiDataLeakageClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — training or connecting an AI to sensitive documents without preserving the original
             per-user access controls means every user effectively has access to everything the model has seen.
             The fix is enforcing the same permission boundaries at retrieval/generation time. Flag: SAGE&#123;pr3s3rv3_4cc3ss_c0ntr0ls&#125;
@@ -180,12 +180,12 @@ export function AiDataLeakageClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d14n3_wh1tf13ld_4cm3mfg_l34k&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;tr41n1ng_d4t4_m3m0r1z4t10n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;pr3s3rv3_4cc3ss_c0ntr0ls&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;d14n3_wh1tf13ld_4cm3mfg_l34k&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;tr41n1ng_d4t4_m3m0r1z4t10n&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;pr3s3rv3_4cc3ss_c0ntr0ls&#125;</span></li>
           </ul>
         </div>
       )}

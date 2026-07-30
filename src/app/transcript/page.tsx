@@ -87,7 +87,7 @@ export default async function TranscriptPage() {
     : null;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/dashboard" backLabel="Dashboard" />
 
       <div className="max-w-5xl mx-auto px-6 py-8 print:py-0 print:px-0 print:max-w-none">
@@ -128,12 +128,12 @@ export default async function TranscriptPage() {
                     <span className="h-px flex-1 max-w-10" style={{ background: GOLD }} />
                   </div>
 
-                  <p className="text-xs tracking-[0.2em] text-zinc-500 mb-3">THIS IS TO CERTIFY THAT</p>
+                  <p className="text-xs tracking-[0.2em] text-ink-3 mb-3">THIS IS TO CERTIFY THAT</p>
                   <p className={`${serif.className} text-5xl mb-4`} style={{ color: NAVY }}>{t.displayName}</p>
 
-                  <p className="text-sm text-zinc-600 mb-1">has successfully completed the</p>
+                  <p className="text-sm text-ink-3 mb-1">has successfully completed the</p>
                   <p className="text-lg font-bold tracking-wide mb-3" style={{ color: NAVY }}>{pathLabel}</p>
-                  <p className="text-sm text-zinc-600 leading-relaxed mb-6 max-w-md">
+                  <p className="text-sm text-ink-3 leading-relaxed mb-6 max-w-md">
                     including {t.bossFightsPassed.length} Boss Fight simulation{t.bossFightsPassed.length === 1 ? "" : "s"},
                     {" "}{t.labsSolved} hands-on lab{t.labsSolved === 1 ? "" : "s"}, and {t.hoursTrained} hours of practical training.
                   </p>
@@ -153,7 +153,7 @@ export default async function TranscriptPage() {
                       <Image src="/certificates/ceo-signature.png" alt="CEO signature" width={150} height={26} />
                       <p className="w-40 border-b mt-0.5 mb-1.5" style={{ borderColor: "#c9c2b0" }}>&nbsp;</p>
                       <p className="text-[10px] font-bold tracking-wider" style={{ color: NAVY }}>CHIEF EXECUTIVE OFFICER</p>
-                      <p className="text-[10px] tracking-wider text-zinc-500">CYBERSAGE</p>
+                      <p className="text-[10px] tracking-wider text-ink-3">CYBERSAGE</p>
                     </div>
 
                     <div className="flex flex-col items-center shrink-0">
@@ -181,7 +181,7 @@ export default async function TranscriptPage() {
                         {Icon.clock}
                         <p className="text-[10px] font-bold tracking-[0.12em]" style={{ color: NAVY }}>TRAINING HOURS</p>
                       </div>
-                      <p className="text-sm text-zinc-600 ml-7">{t.hoursTrained} Hours</p>
+                      <p className="text-sm text-ink-3 ml-7">{t.hoursTrained} Hours</p>
                       <div className="h-px mt-3" style={{ background: "#e4dcc8" }} />
                     </div>
 
@@ -190,7 +190,7 @@ export default async function TranscriptPage() {
                         {Icon.target}
                         <p className="text-[10px] font-bold tracking-[0.12em]" style={{ color: NAVY }}>MITRE ATT&amp;CK COVERAGE</p>
                       </div>
-                      <p className="text-sm text-zinc-600 ml-7">{t.mitreCoveragePct}%</p>
+                      <p className="text-sm text-ink-3 ml-7">{t.mitreCoveragePct}%</p>
                       <div className="h-px mt-3" style={{ background: "#e4dcc8" }} />
                     </div>
 
@@ -203,9 +203,9 @@ export default async function TranscriptPage() {
                         {t.coveredDomains.length > 0 ? t.coveredDomains.map((d) => (
                           <div key={d} className="flex items-center gap-1.5">
                             {Icon.check}
-                            <span className="text-xs text-zinc-600">{d}</span>
+                            <span className="text-xs text-ink-3">{d}</span>
                           </div>
-                        )) : <p className="text-xs text-zinc-500">Training in progress</p>}
+                        )) : <p className="text-xs text-ink-3">Training in progress</p>}
                       </div>
                       <div className="h-px mt-3" style={{ background: "#e4dcc8" }} />
                     </div>
@@ -215,7 +215,7 @@ export default async function TranscriptPage() {
                         {Icon.shield}
                         <p className="text-[10px] font-bold tracking-[0.12em]" style={{ color: NAVY }}>CERTIFICATE ID</p>
                       </div>
-                      <p className="text-xs text-zinc-600 ml-7 font-mono">{t.verificationId}</p>
+                      <p className="text-xs text-ink-3 ml-7 font-mono">{t.verificationId}</p>
                       <div className="h-px mt-3" style={{ background: "#e4dcc8" }} />
                     </div>
 
@@ -224,7 +224,7 @@ export default async function TranscriptPage() {
                         {Icon.doc}
                         <p className="text-[10px] font-bold tracking-[0.12em]" style={{ color: NAVY }}>CERTIFICATE NO.</p>
                       </div>
-                      <p className="text-xs text-zinc-600 ml-7 font-mono">{t.certificateNo}</p>
+                      <p className="text-xs text-ink-3 ml-7 font-mono">{t.certificateNo}</p>
                       <div className="h-px mt-3" style={{ background: "#e4dcc8" }} />
                     </div>
 
@@ -233,7 +233,7 @@ export default async function TranscriptPage() {
                       <img src={qrDataUrl} alt="Verification QR code" width={72} height={72} className="border" style={{ borderColor: "#e4dcc8" }} />
                       <div>
                         <p className="text-[10px] font-bold tracking-[0.12em] mb-1" style={{ color: NAVY }}>VERIFY CERTIFICATE</p>
-                        <p className="text-[11px] text-zinc-500 leading-snug">Scan the QR code to confirm this certificate is authentic.</p>
+                        <p className="text-[11px] text-ink-3 leading-snug">Scan the QR code to confirm this certificate is authentic.</p>
                       </div>
                     </div>
                   </div>

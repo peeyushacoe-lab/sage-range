@@ -91,14 +91,14 @@ export function QueryConsole({ sessionId }: { sessionId: string }) {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Query Input */}
-      <div className="flex-shrink-0 border-b border-white/8 p-4 space-y-3">
+      <div className="flex-shrink-0 border-b border-edge p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <label className="text-xs uppercase tracking-widest text-zinc-500">Query Language</label>
+          <label className="text-xs uppercase tracking-widest text-ink-3">Query Language</label>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value as QueryLanguage)}
             disabled={isExecuting}
-            className="text-xs bg-white/5 border border-white/10 rounded px-2 py-1 text-zinc-300 focus:outline-none focus:border-emerald-500"
+            className="text-xs bg-surface-2 border border-edge rounded px-2 py-1 text-ink-2 focus:outline-none focus:border-ok-edge"
           >
             {(["GREP", "REGEX", "KQL", "SQL_LITE", "NATURAL_LANGUAGE"] as QueryLanguage[]).map((lang) => (
               <option key={lang} value={lang}>
@@ -120,9 +120,9 @@ export function QueryConsole({ sessionId }: { sessionId: string }) {
             }}
             placeholder={LANGUAGE_EXAMPLES[language]}
             disabled={isExecuting}
-            className="w-full h-20 bg-zinc-900/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 resize-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20"
+            className="w-full h-20 bg-surface-1 border border-edge rounded-lg px-3 py-2 text-sm text-white placeholder-ink-3 resize-none focus:outline-none focus:border-ok-edge focus:ring-1 focus:ring-ok"
           />
-          <div className="absolute bottom-2 right-2 text-xs text-zinc-500">
+          <div className="absolute bottom-2 right-2 text-xs text-ink-3">
             {query.length} chars
           </div>
         </div>
@@ -148,7 +148,7 @@ export function QueryConsole({ sessionId }: { sessionId: string }) {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/40 rounded px-3 py-2 text-xs text-red-400">
+          <div className="bg-danger-wash border border-danger-edge rounded px-3 py-2 text-xs text-danger">
             {error}
           </div>
         )}
@@ -161,7 +161,7 @@ export function QueryConsole({ sessionId }: { sessionId: string }) {
           {results ? (
             <QueryResults results={results} />
           ) : (
-            <div className="flex-1 flex items-center justify-center text-zinc-500">
+            <div className="flex-1 flex items-center justify-center text-ink-3">
               <div className="text-center">
                 <Icon name="search" size={32} className="mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Execute a query to see results</p>
@@ -172,7 +172,7 @@ export function QueryConsole({ sessionId }: { sessionId: string }) {
 
         {/* Query History */}
         {history.length > 0 && (
-          <div className="hidden md:flex md:flex-col w-48 border-l border-white/8">
+          <div className="hidden md:flex md:flex-col w-48 border-l border-edge">
             <QueryHistory
               history={history}
               onSelectQuery={handleSelectFromHistory}

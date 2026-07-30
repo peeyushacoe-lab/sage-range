@@ -46,7 +46,7 @@ export default async function JobsPage() {
   );
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="mx-auto max-w-6xl px-6 py-8">
@@ -68,16 +68,16 @@ export default async function JobsPage() {
 
         {applications.length > 0 && (
           <section className="mb-10">
-            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
+            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ink-3">
               Your applications
             </h2>
             <Card>
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-edge-subtle">
                 {applications.slice(0, 8).map((a) => (
                   <div key={a.id} className="flex items-center justify-between gap-4 px-5 py-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{a.job.title}</p>
-                      <p className="truncate text-xs text-zinc-500">{a.job.company}</p>
+                      <p className="truncate text-xs text-ink-3">{a.job.company}</p>
                     </div>
                     <Badge tone={STATUS_TONE[a.status]}>{a.status}</Badge>
                   </div>
@@ -105,11 +105,11 @@ export default async function JobsPage() {
                     <div className="min-w-0">
                       <Link
                         href={`/jobs/${job.id}`}
-                        className="text-base font-semibold hover:text-emerald-400"
+                        className="text-base font-semibold hover:text-ok"
                       >
                         {job.title}
                       </Link>
-                      <p className="text-sm text-zinc-400">{job.company}</p>
+                      <p className="text-sm text-ink-2">{job.company}</p>
                     </div>
                     {applied ? (
                       <Badge tone="emerald">Applied</Badge>
@@ -118,7 +118,7 @@ export default async function JobsPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-3 text-xs text-zinc-500">
+                  <div className="flex flex-wrap gap-3 text-xs text-ink-3">
                     {job.location && (
                       <span className="flex items-center gap-1.5">
                         <Icon name="map" size={14} />
@@ -138,7 +138,7 @@ export default async function JobsPage() {
                     )}
                   </div>
 
-                  <div className="mt-auto text-xs text-zinc-600">
+                  <div className="mt-auto text-xs text-ink-3">
                     {job._count.applications} applicant
                     {job._count.applications === 1 ? "" : "s"}
                   </div>

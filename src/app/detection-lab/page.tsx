@@ -9,10 +9,10 @@ import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
-  EASY: "text-sage-500",
-  MEDIUM: "text-amber-400",
-  HARD: "text-orange-400",
-  INSANE: "text-red-400",
+  EASY: "text-ok",
+  MEDIUM: "text-warn",
+  HARD: "text-sev-high",
+  INSANE: "text-danger",
 };
 
 export default async function DetectionLabIndex() {
@@ -36,7 +36,7 @@ export default async function DetectionLabIndex() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-8">
         <PageHeader
@@ -56,24 +56,24 @@ export default async function DetectionLabIndex() {
                   key={c.id}
                   href={`/detection-lab/${c.slug}`}
                   className={`rounded-xl border p-5 flex flex-col gap-3 transition ${
-                    best?.passed ? "border-sage-500/40 bg-sage-500/5" : "border-white/8 bg-zinc-900/60 hover:border-sage-500/30"
+                    best?.passed ? "border-ok-edge bg-ok-wash" : "border-edge bg-surface-1 hover:border-ok-edge"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className={`text-xs font-bold font-mono ${DIFF_COLORS[c.difficulty] ?? "text-zinc-400"}`}>
+                    <span className={`text-xs font-bold font-mono ${DIFF_COLORS[c.difficulty] ?? "text-ink-2"}`}>
                       {c.difficulty}
                     </span>
-                    <span className="text-xs font-bold text-zinc-400 font-mono">{c.points} pts</span>
+                    <span className="text-xs font-bold text-ink-2 font-mono">{c.points} pts</span>
                   </div>
                   <div>
                     <h3 className="font-semibold flex items-center gap-2">
                       {c.title}
-                      {best?.passed && <span className="text-sage-500"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+                      {best?.passed && <span className="text-ok"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
                     </h3>
-                    <p className="text-sm text-zinc-400 mt-2 line-clamp-2 leading-relaxed">{c.description}</p>
+                    <p className="text-sm text-ink-2 mt-2 line-clamp-2 leading-relaxed">{c.description}</p>
                   </div>
                   {best && (
-                    <div className="text-xs font-mono text-zinc-500 mt-auto pt-1">
+                    <div className="text-xs font-mono text-ink-3 mt-auto pt-1">
                       Best: {Math.round(best.precision * 100)}% precision · {Math.round(best.recall * 100)}% recall · F1 {best.f1.toFixed(2)}
                     </div>
                   )}

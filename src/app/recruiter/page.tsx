@@ -122,9 +122,9 @@ export default async function RecruiterDashboard() {
       <div className="p-8">
       <header className="mb-8 flex items-center justify-between flex-wrap gap-4">
         <div>
-          <p className="text-xs text-zinc-500 uppercase tracking-widest">Sage Vault</p>
+          <p className="text-xs text-ink-3 uppercase tracking-widest">Sage Vault</p>
           <h1 className="text-3xl font-bold tracking-tight mt-1">Recruiter Marketplace</h1>
-          <p className="text-zinc-400 mt-1 text-sm">
+          <p className="text-ink-2 mt-1 text-sm">
             {studentRows.length} candidates available &middot; {bookmarkedIdsList.length} saved
           </p>
         </div>

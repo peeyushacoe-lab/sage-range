@@ -56,7 +56,7 @@ export default async function HuntDiscoveryPage({
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 py-8">
@@ -69,22 +69,22 @@ export default async function HuntDiscoveryPage({
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-8">
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-widest text-zinc-500">Difficulty:</span>
+            <span className="text-xs uppercase tracking-widest text-ink-3">Difficulty:</span>
             {["EASY", "MEDIUM", "HARD"].map((d) => (
               <Link
                 key={d}
                 href={`/labs/hunts${difficulty === d ? "" : `?difficulty=${d}`}`}
                 className={`text-xs px-3 py-1 rounded-full border transition ${
                   difficulty === d
-                    ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
-                    : "border-white/10 text-zinc-400 hover:text-white"
+                    ? "bg-ok-wash border-ok-edge text-ok"
+                    : "border-edge text-ink-2 hover:text-white"
                 }`}
               >
                 {d}
               </Link>
             ))}
             {difficulty && (
-              <Link href="/labs/hunts" className="text-xs text-zinc-500 hover:text-zinc-300">
+              <Link href="/labs/hunts" className="text-xs text-ink-3 hover:text-ink-2">
                 Clear
               </Link>
             )}

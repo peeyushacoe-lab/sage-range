@@ -48,10 +48,10 @@ async function getLeaderboard(
 }
 
 const DIFF_COLORS: Record<string, string> = {
-  EASY: "text-sage-500 border-sage-500/40",
-  MEDIUM: "text-amber-400 border-amber-500/40",
-  HARD: "text-orange-400 border-orange-500/40",
-  INSANE: "text-red-400 border-red-500/40",
+  EASY: "text-ok border-ok-edge",
+  MEDIUM: "text-warn border-warn-edge",
+  HARD: "text-sev-high border-sev-high-edge",
+  INSANE: "text-danger border-danger-edge",
 };
 
 export default async function LeaderboardPage({
@@ -73,7 +73,7 @@ export default async function LeaderboardPage({
   }
 
   const { case: weeklyCase, leaderboard } = leaderboardData;
-  const diffColor = DIFF_COLORS[weeklyCase.difficulty] ?? "text-zinc-400";
+  const diffColor = DIFF_COLORS[weeklyCase.difficulty] ?? "text-ink-2";
 
   // Sort entries based on query parameter
   const sortedLeaderboard = [...leaderboard].sort((a, b) => {
@@ -94,7 +94,7 @@ export default async function LeaderboardPage({
   const userRank = sortedLeaderboard.find((e) => e.userId === user.id);
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar
         backHref={`/labs/incidents/weekly/${caseId}`}
         backLabel="Back to Case"
@@ -135,7 +135,7 @@ export default async function LeaderboardPage({
 
         {/* Sort controls */}
         <div className="flex items-center gap-2 mb-6">
-          <span className="text-xs text-zinc-500 uppercase tracking-widest">
+          <span className="text-xs text-ink-3 uppercase tracking-widest">
             Sort by:
           </span>
           <div className="flex gap-2">
@@ -143,8 +143,8 @@ export default async function LeaderboardPage({
               href={`?sort=score&page=1`}
               className={`px-3 py-1.5 text-xs rounded-full font-medium transition ${
                 sort === "score"
-                  ? "bg-sage-500 text-black"
-                  : "border border-white/10 text-zinc-400 hover:text-white hover:border-white/30"
+                  ? "bg-accent-fill text-white"
+                  : "border border-edge text-ink-2 hover:text-white hover:border-edge-strong"
               }`}
             >
               Score
@@ -153,8 +153,8 @@ export default async function LeaderboardPage({
               href={`?sort=time&page=1`}
               className={`px-3 py-1.5 text-xs rounded-full font-medium transition ${
                 sort === "time"
-                  ? "bg-sage-500 text-black"
-                  : "border border-white/10 text-zinc-400 hover:text-white hover:border-white/30"
+                  ? "bg-accent-fill text-white"
+                  : "border border-edge text-ink-2 hover:text-white hover:border-edge-strong"
               }`}
             >
               Speed
@@ -176,7 +176,7 @@ export default async function LeaderboardPage({
             {pageNum > 1 && (
               <Link
                 href={`?sort=${sort}&page=${pageNum - 1}`}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition"
+                className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg border border-edge text-ink-2 hover:text-white hover:border-edge-strong transition"
               >
                 <Icon name="chevronLeft" size={14} />
                 Previous
@@ -196,8 +196,8 @@ export default async function LeaderboardPage({
                   href={`?sort=${sort}&page=${page}`}
                   className={`px-3 py-1.5 text-xs rounded-lg font-medium transition ${
                     pageNum === page
-                      ? "bg-sage-500 text-black"
-                      : "border border-white/10 text-zinc-400 hover:text-white hover:border-white/30"
+                      ? "bg-accent-fill text-white"
+                      : "border border-edge text-ink-2 hover:text-white hover:border-edge-strong"
                   }`}
                 >
                   {page}
@@ -208,7 +208,7 @@ export default async function LeaderboardPage({
             {pageNum < totalPages && (
               <Link
                 href={`?sort=${sort}&page=${pageNum + 1}`}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition"
+                className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg border border-edge text-ink-2 hover:text-white hover:border-edge-strong transition"
               >
                 Next
                 <Icon name="chevronRight" size={14} />
@@ -218,14 +218,14 @@ export default async function LeaderboardPage({
         )}
 
         {/* Info box */}
-        <div className="mt-8 rounded-lg border border-white/8 bg-zinc-900/40 p-6">
+        <div className="mt-8 rounded-lg border border-edge bg-surface-1 p-6">
           <div className="flex gap-3">
-            <Icon name="info" size={20} className="text-zinc-600 shrink-0 mt-0.5" />
+            <Icon name="info" size={20} className="text-ink-3 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-zinc-100 mb-2">
+              <p className="text-sm font-semibold text-ink mb-2">
                 How Rankings Work
               </p>
-              <ul className="text-xs text-zinc-400 space-y-1">
+              <ul className="text-xs text-ink-2 space-y-1">
                 <li>
                   • <strong>Primary:</strong> Total score (evidence board +
                   report)

@@ -23,23 +23,23 @@ export default async function QueuePage({
 
   if (!shift) {
     return (
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <main className="min-h-screen bg-surface-0 text-white">
         <Navbar />
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <p className="text-zinc-400">Shift not found</p>
+          <p className="text-ink-2">Shift not found</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Shift Queue</h1>
-          <p className="text-zinc-400">
+          <p className="text-ink-2">
             Triage incoming alerts: CLOSED, ESCALATED, RESOLVED, IGNORED, or MONITOR
           </p>
         </div>

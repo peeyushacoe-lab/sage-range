@@ -75,31 +75,31 @@ export function AzureRbacMisconfigurationClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Audit the Assignments" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">A quarterly access review pulls all role assignments on the production subscription:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{ROLE_ASSIGNMENTS}</pre>
+        <p className="text-ink-2 text-sm mb-3">A quarterly access review pulls all role assignments on the production subscription:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{ROLE_ASSIGNMENTS}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Which assignment is the most dangerous, and to whom?</p>
+            <p className="text-sm text-ink-2 font-medium">Which assignment is the most dangerous, and to whom?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — an external guest account holds Owner at the subscription root, the widest possible scope. Flag: SAGE&#123;gu3st_b0b_0wn3r_r00t_sc0p3&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — an external guest account holds Owner at the subscription root, the widest possible scope. Flag: SAGE&#123;gu3st_b0b_0wn3r_r00t_sc0p3&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Understand the Blast Radius" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-4">Owner and Contributor both allow managing resources — but they aren't equivalent.</p>
+        <p className="text-ink-2 text-sm mb-4">Owner and Contributor both allow managing resources — but they aren't equivalent.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's uniquely dangerous about Owner vs Contributor for an external guest account?</p>
+            <p className="text-sm text-ink-2 font-medium">What's uniquely dangerous about Owner vs Contributor for an external guest account?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Owner can modify access control itself — the guest could grant further access to anyone",
@@ -109,25 +109,25 @@ export function AzureRbacMisconfigurationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — Owner includes RBAC management itself, so the guest could escalate or grant access to anyone else, not just manage resources. Flag: SAGE&#123;0wn3r_c4n_r3gr4nt_4cc3ss&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — Owner includes RBAC management itself, so the guest could escalate or grant access to anyone else, not just manage resources. Flag: SAGE&#123;0wn3r_c4n_r3gr4nt_4cc3ss&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Fix It" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">The partner does need some access to collaborate on the project — just not this much.</p>
+        <p className="text-ink-2 text-sm mb-4">The partner does need some access to collaborate on the project — just not this much.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the correct fix?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the correct fix?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Remove the Owner assignment and replace it with a scoped custom role granting only what the partner needs",
@@ -137,17 +137,17 @@ export function AzureRbacMisconfigurationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — a scoped custom role matching the exact permissions needed replaces both the excess role and the excess scope in one fix.
             Flag: SAGE&#123;sc0p3d_cust0m_r0l3_f1x&#125;
           </p>
@@ -155,12 +155,12 @@ export function AzureRbacMisconfigurationClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;gu3st_b0b_0wn3r_r00t_sc0p3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;0wn3r_c4n_r3gr4nt_4cc3ss&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;sc0p3d_cust0m_r0l3_f1x&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;gu3st_b0b_0wn3r_r00t_sc0p3&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;0wn3r_c4n_r3gr4nt_4cc3ss&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;sc0p3d_cust0m_r0l3_f1x&#125;</span></li>
           </ul>
         </div>
       )}

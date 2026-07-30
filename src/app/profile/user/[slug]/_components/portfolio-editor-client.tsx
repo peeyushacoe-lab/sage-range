@@ -20,7 +20,7 @@ export function PortfolioEditorClient({
     <>
       <button
         onClick={() => setShowEditor(true)}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 hover:border-white/20 hover:bg-zinc-800/50 transition text-sm text-zinc-300 font-medium shrink-0"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-edge hover:border-edge-strong hover:bg-surface-2/50 transition text-sm text-ink-2 font-medium shrink-0"
       >
         <Icon name="settings" size={16} variant="current" />
         Edit Profile

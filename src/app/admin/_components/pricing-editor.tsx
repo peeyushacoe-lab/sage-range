@@ -63,27 +63,27 @@ export function PricingEditor({ initialPlans }: { initialPlans: PlanRow[] }) {
         {plans.map((p) => (
           <div
             key={p.role}
-            className="rounded-xl border border-white/8 bg-zinc-900/50 p-5 flex flex-col gap-3"
+            className="rounded-xl border border-edge bg-surface-1 p-5 flex flex-col gap-3"
           >
             <div>
-              <p className="font-semibold text-zinc-200">{p.label}</p>
-              <p className="text-xs text-zinc-600 mt-0.5">{DESCRIPTIONS[p.role]}</p>
+              <p className="font-semibold text-ink">{p.label}</p>
+              <p className="text-xs text-ink-3 mt-0.5">{DESCRIPTIONS[p.role]}</p>
             </div>
 
             <div className="flex items-center gap-1.5">
-              <span className="text-zinc-500 text-sm">$</span>
+              <span className="text-ink-3 text-sm">$</span>
               <input
                 type="number"
                 min={0}
                 step={0.01}
                 value={p.displayPrice}
                 onChange={(e) => setPrice(p.role, e.target.value)}
-                className="w-full rounded-lg bg-zinc-800 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60 tabular-nums"
+                className="w-full rounded-lg bg-surface-2 border border-edge px-3 py-2 text-sm text-white focus:outline-none focus:border-ok-edge tabular-nums"
               />
-              <span className="text-zinc-600 text-xs whitespace-nowrap">/mo</span>
+              <span className="text-ink-3 text-xs whitespace-nowrap">/mo</span>
             </div>
 
-            <p className="text-xs text-zinc-600">
+            <p className="text-xs text-ink-3">
               {parseFloat(p.displayPrice || "0") === 0
                 ? "Free — no payment required"
                 : `$${parseFloat(p.displayPrice || "0").toFixed(2)} charged at sign-up`}
@@ -92,17 +92,17 @@ export function PricingEditor({ initialPlans }: { initialPlans: PlanRow[] }) {
         ))}
       </div>
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
 
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-semibold hover:bg-emerald-400 disabled:opacity-50 transition"
+          className="px-4 py-2 rounded-lg bg-accent-fill text-white text-sm font-semibold hover:bg-accent-hover disabled:opacity-50 transition"
         >
           {saving ? "Saving…" : "Save prices"}
         </button>
-        {saved && <p className="text-xs text-emerald-400">Saved — new sign-ups will see updated prices.</p>}
+        {saved && <p className="text-xs text-ok">Saved — new sign-ups will see updated prices.</p>}
       </div>
     </div>
   );

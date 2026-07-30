@@ -19,25 +19,25 @@ export default async function FeedPage() {
   const serialized = serializeFeed(feed);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Community Feed</h1>
-            <p className="text-zinc-500 text-sm mt-1">Verified cybersecurity activity across the platform</p>
+            <p className="text-ink-3 text-sm mt-1">Verified cybersecurity activity across the platform</p>
           </div>
           <Link
             href={`/profile/${me.id}`}
-            className="text-xs text-zinc-500 hover:text-zinc-300 border border-white/8 rounded-lg px-3 py-2 transition-colors"
+            className="text-xs text-ink-3 hover:text-ink-2 border border-edge rounded-lg px-3 py-2 transition-colors"
           >
             My Profile →
           </Link>
         </div>
 
         {serialized.length === 0 ? (
-          <div className="rounded-xl border border-white/8 bg-zinc-900/40">
+          <div className="rounded-xl border border-edge bg-surface-1">
             <EmptyState
               icon="recon"
               title="No activity yet"

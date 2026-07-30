@@ -10,11 +10,11 @@ const TIERS = [
     price: "£15",
     period: "/month",
     description: "For individual learners building real-world cyber skills",
-    color: "border-emerald-500/30",
-    badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+    color: "border-ok-edge",
+    badge: "bg-ok-wash text-ok border-ok-edge",
     cta: "Get Started",
     ctaHref: "/sign-up",
-    ctaStyle: "bg-emerald-500 text-black hover:bg-emerald-400",
+    ctaStyle: "bg-accent-fill text-white hover:bg-accent-hover",
     features: [
       "Full lab library (150+ hands-on labs)",
       "Learning pathways (SOC Analyst, Pen Tester, Cloud Security)",
@@ -31,11 +31,11 @@ const TIERS = [
     price: "$149",
     period: "/month per cohort",
     description: "For instructors running cyber security modules at universities or bootcamps",
-    color: "border-blue-500/40",
-    badge: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+    color: "border-info-edge",
+    badge: "bg-info-wash text-info border-info-edge",
     cta: "Start 14-day Trial",
     ctaHref: "/sign-up?plan=classroom",
-    ctaStyle: "bg-blue-500 text-white hover:bg-blue-400",
+    ctaStyle: "bg-info text-white hover:bg-accent-hover",
     features: [
       "Everything in Student",
       "Unlimited classroom creation",
@@ -55,11 +55,11 @@ const TIERS = [
     price: "Custom",
     period: "",
     description: "For companies recruiting, training teams, and running red-team exercises",
-    color: "border-amber-500/30",
-    badge: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    color: "border-warn-edge",
+    badge: "bg-warn-wash text-warn border-warn-edge",
     cta: "Book a Demo",
     ctaHref: "mailto:support@cybersage.uk?subject=Enterprise%20Demo%20Request",
-    ctaStyle: "bg-amber-500 text-black hover:bg-amber-400",
+    ctaStyle: "bg-accent-fill text-white hover:bg-accent-hover",
     features: [
       "Everything in Classroom",
       "Candidate assessment marketplace",
@@ -102,14 +102,14 @@ const FAQ = [
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-surface-0 text-white">
       <MarketingNav />
       <main>
         {/* Hero */}
         <section className="max-w-4xl mx-auto px-6 pt-20 pb-12 text-center">
-          <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-3">Pricing</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 font-semibold mb-3">Pricing</p>
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">Simple, transparent pricing</h1>
-          <p className="text-zinc-400 text-lg max-w-xl mx-auto">
+          <p className="text-ink-2 text-lg max-w-xl mx-auto">
             From £15/month for students. Institutions pay once per cohort. Enterprises get simulation-verified talent pipelines.
           </p>
         </section>
@@ -120,11 +120,11 @@ export default function PricingPage() {
             {TIERS.map((tier) => (
               <div
                 key={tier.name}
-                className={`relative rounded-2xl border p-6 flex flex-col ${tier.color} ${tier.highlight ? "bg-blue-950/20 shadow-lg shadow-blue-500/10" : "bg-zinc-900/40"}`}
+                className={`relative rounded-2xl border p-6 flex flex-col ${tier.color} ${tier.highlight ? "bg-info-wash shadow-lg shadow-blue-500/10" : "bg-surface-1"}`}
               >
                 {tier.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest bg-blue-500 text-white px-3 py-1 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-widest bg-info text-white px-3 py-1 rounded-full">
                       Most Popular
                     </span>
                   </div>
@@ -136,15 +136,15 @@ export default function PricingPage() {
                   </span>
                   <div className="mt-4 flex items-end gap-1">
                     <span className="text-4xl font-bold">{tier.price}</span>
-                    {tier.period && <span className="text-zinc-500 text-sm mb-1">{tier.period}</span>}
+                    {tier.period && <span className="text-ink-3 text-sm mb-1">{tier.period}</span>}
                   </div>
-                  <p className="text-zinc-400 text-sm mt-2 leading-relaxed">{tier.description}</p>
+                  <p className="text-ink-2 text-sm mt-2 leading-relaxed">{tier.description}</p>
                 </div>
 
                 <ul className="space-y-2.5 flex-1 mb-8">
                   {tier.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-zinc-300">
-                      <span className="text-sage-500 shrink-0 mt-0.5"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
+                    <li key={f} className="flex items-start gap-2 text-sm text-ink-2">
+                      <span className="text-ok shrink-0 mt-0.5"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                       <span>{f}</span>
                     </li>
                   ))}
@@ -167,10 +167,10 @@ export default function PricingPage() {
 
         {/* Feature comparison callout */}
         <section className="max-w-3xl mx-auto px-6 pb-20">
-          <div className="rounded-2xl border border-white/8 bg-zinc-900/40 p-8 text-center">
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">For Enterprises</p>
+          <div className="rounded-2xl border border-edge bg-surface-1 p-8 text-center">
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">For Enterprises</p>
             <h2 className="text-2xl font-bold mb-3">Built for talent-first organisations</h2>
-            <p className="text-zinc-400 text-sm leading-relaxed max-w-xl mx-auto mb-6">
+            <p className="text-ink-2 text-sm leading-relaxed max-w-xl mx-auto mb-6">
               Stop paying for certifications that don&apos;t predict performance. Sage Vault gives you simulation-verified
               candidates — ranked by live incident response scores, not self-reported skills.
             </p>
@@ -180,15 +180,15 @@ export default function PricingPage() {
                 { stat: "5", label: "Scenario archetypes" },
                 { stat: "7", label: "Simulation roles" },
               ].map(({ stat, label }) => (
-                <div key={label} className="rounded-xl border border-white/8 p-4">
-                  <p className="text-3xl font-bold text-sage-400">{stat}</p>
-                  <p className="text-xs text-zinc-500 mt-1">{label}</p>
+                <div key={label} className="rounded-xl border border-edge p-4">
+                  <p className="text-3xl font-bold text-ok">{stat}</p>
+                  <p className="text-xs text-ink-3 mt-1">{label}</p>
                 </div>
               ))}
             </div>
             <a
               href="mailto:support@cybersage.uk?subject=Enterprise%20Demo%20Request"
-              className="inline-block rounded-xl bg-amber-500 text-black font-semibold px-6 py-2.5 text-sm hover:bg-amber-400 transition"
+              className="inline-block rounded-xl bg-accent-fill text-white font-semibold px-6 py-2.5 text-sm hover:bg-accent-hover transition"
             >
               Book Enterprise Demo →
             </a>
@@ -197,31 +197,31 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <section className="max-w-3xl mx-auto px-6 pb-24">
-          <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-8 text-center">Common Questions</h2>
+          <h2 className="text-sm uppercase tracking-widest text-ink-3 mb-8 text-center">Common Questions</h2>
           <div className="space-y-4">
             {FAQ.map(({ q, a }) => (
-              <div key={q} className="rounded-xl border border-white/8 bg-zinc-900/30 p-5">
+              <div key={q} className="rounded-xl border border-edge bg-surface-1 p-5">
                 <p className="font-semibold text-sm text-white mb-2">{q}</p>
-                <p className="text-sm text-zinc-400 leading-relaxed">{a}</p>
+                <p className="text-sm text-ink-2 leading-relaxed">{a}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Footer CTA */}
-        <section className="border-t border-white/8 py-16 text-center">
+        <section className="border-t border-edge py-16 text-center">
           <h2 className="text-2xl font-bold mb-3">Ready to get started?</h2>
-          <p className="text-zinc-400 text-sm mb-8">From £15/month for students.</p>
+          <p className="text-ink-2 text-sm mb-8">From £15/month for students.</p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link
               href="/sign-up"
-              className="rounded-xl bg-sage-500 text-black font-semibold px-6 py-3 text-sm hover:bg-sage-700 hover:text-white transition"
+              className="rounded-xl bg-accent-fill text-white font-semibold px-6 py-3 text-sm hover:bg-ok-wash hover:text-white transition"
             >
               Get Started →
             </Link>
             <a
               href="mailto:support@cybersage.uk?subject=Enterprise%20Demo%20Request"
-              className="rounded-xl border border-white/20 text-zinc-300 font-semibold px-6 py-3 text-sm hover:border-white/40 hover:text-white transition"
+              className="rounded-xl border border-edge-strong text-ink-2 font-semibold px-6 py-3 text-sm hover:border-edge-strong hover:text-white transition"
             >
               Talk to Sales
             </a>

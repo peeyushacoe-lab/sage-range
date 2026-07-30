@@ -19,27 +19,27 @@ export default async function BillingPage({
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <main className="min-h-screen bg-surface-0 text-white">
         <div className="max-w-2xl mx-auto px-6 py-10">
           <div className="mb-8">
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Account</p>
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Account</p>
             <h1 className="text-2xl font-bold">Billing</h1>
-            <p className="text-zinc-400 text-sm mt-1">{user.email}</p>
+            <p className="text-ink-2 text-sm mt-1">{user.email}</p>
           </div>
 
           {success === "1" && (
-            <div className="rounded-xl border border-sage-500/30 bg-sage-500/8 p-4 mb-6 flex items-center gap-3">
-              <span className="text-sage-400 text-lg"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
+            <div className="rounded-xl border border-ok-edge bg-ok-wash p-4 mb-6 flex items-center gap-3">
+              <span className="text-ok text-lg"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
               <div>
-                <p className="font-semibold text-sage-400 text-sm">Subscription activated</p>
-                <p className="text-xs text-zinc-400 mt-0.5">Your 14-day trial has started. Full Classroom access is now unlocked.</p>
+                <p className="font-semibold text-ok text-sm">Subscription activated</p>
+                <p className="text-xs text-ink-2 mt-0.5">Your 14-day trial has started. Full Classroom access is now unlocked.</p>
               </div>
             </div>
           )}
 
           {canceled === "1" && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/8 p-4 mb-6">
-              <p className="text-sm text-amber-400">Checkout cancelled — no charge was made.</p>
+            <div className="rounded-xl border border-warn-edge bg-warn-wash p-4 mb-6">
+              <p className="text-sm text-warn">Checkout cancelled — no charge was made.</p>
             </div>
           )}
 
@@ -50,8 +50,8 @@ export default async function BillingPage({
             hasSubscription={!!user.stripeSubscriptionId}
           />
 
-          <div className="mt-10 rounded-xl border border-white/8 bg-zinc-900/30 p-5">
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Classroom Plan Includes</p>
+          <div className="mt-10 rounded-xl border border-edge bg-surface-1 p-5">
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">Classroom Plan Includes</p>
             <ul className="space-y-2">
               {[
                 "Unlimited classrooms",
@@ -62,17 +62,17 @@ export default async function BillingPage({
                 "Up to 50 students per classroom",
                 "Email support",
               ].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-zinc-300">
-                  <span className="text-sage-500 shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
+                <li key={f} className="flex items-center gap-2 text-sm text-ink-2">
+                  <span className="text-ok shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                   {f}
                 </li>
               ))}
             </ul>
           </div>
 
-          <p className="text-xs text-zinc-600 text-center mt-8">
+          <p className="text-xs text-ink-3 text-center mt-8">
             Need an Enterprise plan with SSO, unlimited seats, or a custom contract?{" "}
-            <a href="mailto:support@cybersage.uk?subject=Enterprise%20Inquiry" className="text-zinc-400 hover:text-zinc-200 underline">
+            <a href="mailto:support@cybersage.uk?subject=Enterprise%20Inquiry" className="text-ink-2 hover:text-ink underline">
               Contact sales
             </a>
           </p>

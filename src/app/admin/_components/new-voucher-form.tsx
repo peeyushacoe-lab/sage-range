@@ -51,7 +51,7 @@ export function NewVoucherForm() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition"
+        className="text-xs px-3 py-1.5 rounded-lg bg-accent-fill text-white font-semibold hover:bg-accent-hover transition"
       >
         + New Voucher
       </button>
@@ -59,20 +59,20 @@ export function NewVoucherForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-zinc-950 w-full max-w-md">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-edge bg-surface-0 w-full max-w-md">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-white">New Voucher</p>
-        <button type="button" onClick={() => { setOpen(false); reset(); }} className="text-zinc-500 hover:text-white text-xs"><Icon name="close" size={14} className="inline-block shrink-0" /> Cancel</button>
+        <button type="button" onClick={() => { setOpen(false); reset(); }} className="text-ink-3 hover:text-white text-xs"><Icon name="close" size={14} className="inline-block shrink-0" /> Cancel</button>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-zinc-500">Code</label>
+        <label className="text-xs text-ink-3">Code</label>
         <input
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           required
           placeholder="e.g. LAUNCH50"
-          className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60 uppercase tracking-widest font-mono"
+          className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge uppercase tracking-widest font-mono"
         />
       </div>
 
@@ -81,14 +81,14 @@ export function NewVoucherForm() {
         <button
           type="button"
           onClick={() => setDiscountType("pct")}
-          className={`flex-1 text-xs py-2 rounded-lg border transition ${discountType === "pct" ? "border-emerald-500 bg-emerald-500/10 text-emerald-400" : "border-white/10 text-zinc-500 hover:text-white"}`}
+          className={`flex-1 text-xs py-2 rounded-lg border transition ${discountType === "pct" ? "border-ok-edge bg-ok-wash text-ok" : "border-edge text-ink-3 hover:text-white"}`}
         >
           % Off
         </button>
         <button
           type="button"
           onClick={() => setDiscountType("amt")}
-          className={`flex-1 text-xs py-2 rounded-lg border transition ${discountType === "amt" ? "border-emerald-500 bg-emerald-500/10 text-emerald-400" : "border-white/10 text-zinc-500 hover:text-white"}`}
+          className={`flex-1 text-xs py-2 rounded-lg border transition ${discountType === "amt" ? "border-ok-edge bg-ok-wash text-ok" : "border-edge text-ink-3 hover:text-white"}`}
         >
           $ Off
         </button>
@@ -96,54 +96,54 @@ export function NewVoucherForm() {
 
       {discountType === "pct" ? (
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-500">Discount %</label>
+          <label className="text-xs text-ink-3">Discount %</label>
           <input
             type="number" min={1} max={100}
             value={discountPct}
             onChange={(e) => setDiscountPct(Number(e.target.value))}
-            className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+            className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white focus:outline-none focus:border-ok-edge"
           />
         </div>
       ) : (
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-500">Discount amount ($)</label>
+          <label className="text-xs text-ink-3">Discount amount ($)</label>
           <input
             type="number" min={0.01} step={0.01}
             value={discountAmt}
             onChange={(e) => setDiscountAmt(Number(e.target.value))}
-            className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+            className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white focus:outline-none focus:border-ok-edge"
           />
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-500">Max uses (optional)</label>
+          <label className="text-xs text-ink-3">Max uses (optional)</label>
           <input
             type="number" min={1}
             value={maxUses}
             onChange={(e) => setMaxUses(e.target.value)}
             placeholder="Unlimited"
-            className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60"
+            className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-500">Expires (optional)</label>
+          <label className="text-xs text-ink-3">Expires (optional)</label>
           <input
             type="date"
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
-            className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+            className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white focus:outline-none focus:border-ok-edge"
           />
         </div>
       </div>
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
 
       <button
         type="submit"
         disabled={loading || !code.trim()}
-        className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-40 transition"
+        className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-40 transition"
       >
         {loading ? "Creating…" : "Create Voucher"}
       </button>

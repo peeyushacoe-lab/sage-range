@@ -43,7 +43,7 @@ export default async function TournamentDetailPage({
   const champion = tournament.entrants.find((e) => e.finalRank === 1);
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/tournaments" backLabel="Tournaments" />
 
       <div className="mx-auto max-w-6xl px-6 py-8">
@@ -79,7 +79,7 @@ export default async function TournamentDetailPage({
           <div className="flex gap-5 overflow-x-auto pb-4">
             {rounds.map((round) => (
               <section key={round} className="min-w-[260px] flex-1">
-                <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
+                <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-ink-3">
                   {roundLabel(round, totalRounds)}
                 </h2>
                 <div className="flex flex-col gap-3">
@@ -92,11 +92,11 @@ export default async function TournamentDetailPage({
                       return (
                         <Card key={match.id} className="p-3">
                           <div className="mb-2 flex items-center justify-between">
-                            <span className="text-[10px] uppercase tracking-widest text-zinc-600">
+                            <span className="text-[10px] uppercase tracking-widest text-ink-3">
                               Match {match.position}
                             </span>
                             {match.status === "WALKOVER" && (
-                              <span className="text-[10px] uppercase tracking-widest text-zinc-500">
+                              <span className="text-[10px] uppercase tracking-widest text-ink-3">
                                 bye
                               </span>
                             )}
@@ -113,9 +113,9 @@ export default async function TournamentDetailPage({
                                 key={i}
                                 className={cn(
                                   "flex items-center justify-between gap-2 rounded px-2 py-1.5 text-sm",
-                                  won && "bg-emerald-500/10 font-semibold text-emerald-400",
-                                  lost && "text-zinc-600",
-                                  !side.name && "text-zinc-700 italic",
+                                  won && "bg-ok-wash font-semibold text-ok",
+                                  lost && "text-ink-3",
+                                  !side.name && "text-ink-3 italic",
                                 )}
                               >
                                 <span className="truncate">{side.name ?? "TBD"}</span>

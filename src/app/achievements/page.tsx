@@ -14,26 +14,26 @@ export default async function AchievementsPage() {
   const { achievements, earned, earnPct } = await computeAchievements(me.id);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-surface-0 text-white">
       <Navbar />
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
 
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Your Achievements</p>
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Your Achievements</p>
             <h1 className="text-2xl font-bold">Achievements</h1>
-            <p className="text-sm text-zinc-500 mt-1">{earned.length} / {achievements.length} unlocked</p>
+            <p className="text-sm text-ink-3 mt-1">{earned.length} / {achievements.length} unlocked</p>
           </div>
           <div className="text-right">
             <p className="text-3xl font-black tabular-nums">{earnPct}%</p>
-            <p className="text-xs text-zinc-500 mt-0.5">completion</p>
+            <p className="text-xs text-ink-3 mt-0.5">completion</p>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="h-2 rounded-full bg-zinc-800">
-          <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${earnPct}%` }} />
+        <div className="h-2 rounded-full bg-surface-2">
+          <div className="h-full rounded-full bg-ok transition-all" style={{ width: `${earnPct}%` }} />
         </div>
 
         {/* Achievements by category */}

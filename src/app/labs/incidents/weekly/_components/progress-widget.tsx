@@ -33,24 +33,24 @@ export function ProgressWidget({
   const isDeadlinePassed = timeRemaining < 0;
   const isOnTrack = totalScore >= 75;
 
-  let statusColor = "text-zinc-400";
-  let statusBg = "bg-zinc-900/50 border-zinc-700/50";
-  let progressColor = "bg-emerald-500";
+  let statusColor = "text-ink-2";
+  let statusBg = "bg-surface-1 border-edge-strong/50";
+  let progressColor = "bg-ok";
 
   if (status === "Completed") {
-    statusColor = "text-sage-500";
-    statusBg = "bg-sage-500/10 border-sage-500/30";
+    statusColor = "text-ok";
+    statusBg = "bg-ok-wash border-ok-edge";
   } else if (status === "Submitted") {
-    statusColor = "text-amber-400";
-    statusBg = "bg-amber-500/10 border-amber-500/30";
+    statusColor = "text-warn";
+    statusBg = "bg-warn-wash border-warn-edge";
   } else if (status === "Missed Deadline") {
-    statusColor = "text-red-400";
-    statusBg = "bg-red-500/10 border-red-500/30";
-    progressColor = "bg-red-500";
+    statusColor = "text-danger";
+    statusBg = "bg-danger-wash border-danger-edge";
+    progressColor = "bg-danger";
   } else if (isDeadlineClose && !isOnTrack) {
-    progressColor = "bg-amber-500";
+    progressColor = "bg-warn";
   } else if (!isOnTrack && !isDeadlineClose) {
-    progressColor = "bg-amber-500";
+    progressColor = "bg-warn";
   }
 
   return (
@@ -58,10 +58,10 @@ export function ProgressWidget({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">
             Season {season} · Week {weekNumber}
           </p>
-          <p className="font-semibold text-zinc-100">{caseTitle}</p>
+          <p className="font-semibold text-ink">{caseTitle}</p>
         </div>
         <div className={`rounded-full px-3 py-1 text-xs font-medium ${statusColor}`}>
           {status}
@@ -71,26 +71,26 @@ export function ProgressWidget({
       {/* Scores */}
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div>
-          <p className="text-xs text-zinc-500 mb-1">Evidence Board</p>
-          <p className="text-lg font-bold text-zinc-100">{evidenceScore}%</p>
+          <p className="text-xs text-ink-3 mb-1">Evidence Board</p>
+          <p className="text-lg font-bold text-ink">{evidenceScore}%</p>
         </div>
         <div>
-          <p className="text-xs text-zinc-500 mb-1">Report</p>
-          <p className="text-lg font-bold text-zinc-100">{report}%</p>
+          <p className="text-xs text-ink-3 mb-1">Report</p>
+          <p className="text-lg font-bold text-ink">{report}%</p>
         </div>
         <div>
-          <p className="text-xs text-zinc-500 mb-1">Total Score</p>
-          <p className="text-lg font-bold text-zinc-100">{totalScore}%</p>
+          <p className="text-xs text-ink-3 mb-1">Total Score</p>
+          <p className="text-lg font-bold text-ink">{totalScore}%</p>
         </div>
       </div>
 
       {/* Progress bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-zinc-500">Overall Progress</p>
-          <p className="text-xs text-zinc-400">{totalScore}% complete</p>
+          <p className="text-xs text-ink-3">Overall Progress</p>
+          <p className="text-xs text-ink-2">{totalScore}% complete</p>
         </div>
-        <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+        <div className="h-2 bg-surface-2 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all ${progressColor}`}
             style={{ width: `${Math.min(totalScore, 100)}%` }}
@@ -102,20 +102,20 @@ export function ProgressWidget({
       <div className="flex items-center gap-2 text-xs">
         {isDeadlineClose ? (
           <>
-            <Icon name="clock" size={14} className="text-red-400" />
-            <span className="text-red-400 font-medium">
+            <Icon name="clock" size={14} className="text-danger" />
+            <span className="text-danger font-medium">
               {hoursRemaining}h remaining
             </span>
           </>
         ) : isDeadlinePassed ? (
           <>
-            <Icon name="cross" size={14} className="text-red-400" />
-            <span className="text-red-400">Deadline passed</span>
+            <Icon name="cross" size={14} className="text-danger" />
+            <span className="text-danger">Deadline passed</span>
           </>
         ) : (
           <>
-            <Icon name="calendar" size={14} className="text-zinc-500" />
-            <span className="text-zinc-400">
+            <Icon name="calendar" size={14} className="text-ink-3" />
+            <span className="text-ink-2">
               {daysRemaining} day{daysRemaining !== 1 ? "s" : ""} remaining
             </span>
           </>

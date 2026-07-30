@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sage Vault — "Signal" Design System Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SIGNAL — design tokens
+   Derived from ui-ux-pro-max: product type "Cybersecurity Platform",
+   dashboard style "Real-Time Monitoring" + "Data-Dense Dashboard",
+   typography pairing "Fira Code / Fira Sans".
+   ══════════════════════════════════════════════════════════════════════════ */
+:root{
+  /* ── Surface ramp — elevation by lightness, not by translucency ───────── */
+  --bg:            #0A0C10;
+  --surface-1:     #10131A;
+  --surface-2:     #161A23;
+  --surface-3:     #1D222D;
+  --surface-inset: #070910;
+
+  /* ── Borders ─────────────────────────────────────────────────────────── */
+  --border:        #232936;
+  --border-strong: #313949;
+  --border-subtle: #1A1F29;
+
+  /* ── Text ────────────────────────────────────────────────────────────── */
+  --text:      #E6EAF2;
+  --text-2:    #9DA9BD;
+  --text-3:    #6C7789;
+  --text-on-accent: #04121F;
+
+  /* ── Brand / interactive — azure. NOT a status colour. ───────────────── */
+  --accent:        #38BDF8;
+  --accent-fill:   #0A73B4;
+  --accent-hover:  #0E93E0;
+  --accent-wash:   #0E2A3D;
+
+  /* ── Status — each has one job only ──────────────────────────────────── */
+  --ok:       #22C55E;   --ok-wash:       #10241A;
+  --warn:     #FBBF24;   --warn-wash:     #2A2110;
+  --danger:   #FF4D5E;   --danger-wash:   #2E1218;
+  --info:     #38BDF8;   --info-wash:     #0E2A3D;
+  --neutral:  #8B95A7;   --neutral-wash:  #191D26;
+
+  /* ── Severity ramp — security-specific, ordered ──────────────────────── */
+  --sev-critical: #FF4D5E;
+  --sev-high:     #FF8A3D;
+  --sev-medium:   #FBBF24;
+  --sev-low:      #38BDF8;
+  --sev-info:     #8B95A7;
+
+  /* ── Type scale ──────────────────────────────────────────────────────── */
+  --font-body: "Fira Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Fira Code", ui-monospace, "SF Mono", Menlo, monospace;
+  --t-xs:   12px;  --t-sm:   13px;  --t-base: 14px;  --t-md:   16px;
+  --t-lg:   20px;  --t-xl:   24px;  --t-2xl:  32px;  --t-3xl:  40px;
+  --lh-tight: 1.25;  --lh-body: 1.55;
+
+  /* ── Spacing — 4pt rhythm ────────────────────────────────────────────── */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-12: 48px;
+
+  /* ── Data-dense layout tokens (from styles.csv) ──────────────────────── */
+  --grid-gap: 8px;
+  --card-padding: 12px;
+  --table-row-height: 36px;
+  --sidebar-width: 240px;
+  --header-height: 56px;
+
+  /* ── Radius / elevation ──────────────────────────────────────────────── */
+  --r-sm: 4px; --r-md: 6px; --r-lg: 10px; --r-full: 999px;
+  --e-1: 0 1px 2px rgba(0,0,0,.4);
+  --e-2: 0 2px 8px rgba(0,0,0,.45);
+  --e-3: 0 8px 24px rgba(0,0,0,.5);
+
+  /* ── Motion ──────────────────────────────────────────────────────────── */
+  --dur-fast: 120ms; --dur: 180ms; --dur-slow: 260ms;
+  --ease-out: cubic-bezier(.22,.9,.36,1);
+
+  /* ── z-index scale ───────────────────────────────────────────────────── */
+  --z-base: 0; --z-sticky: 20; --z-overlay: 40; --z-modal: 100; --z-toast: 1000;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:var(--font-body); font-size:var(--t-base); line-height:var(--lh-body);
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums; font-feature-settings:"tnum"}
+
+/* ── Page chrome ───────────────────────────────────────────────────────── */
+.wrap{max-width:1240px; margin:0 auto; padding:var(--s-8) var(--s-6) 96px}
+.doc-h{
+  font-family:var(--font-mono); font-size:var(--t-xs); font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent);
+  margin:var(--s-12) 0 var(--s-2);
+}
+.doc-h:first-child{margin-top:0}
+.doc-sub{color:var(--text-3); font-size:var(--t-sm); margin:0 0 var(--s-5); max-width:68ch}
+.rule{height:1px; background:var(--border-subtle); border:0; margin:var(--s-6) 0}
+.panel{
+  background:var(--surface-1); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:var(--s-6);
+}
+.row{display:flex; flex-wrap:wrap; gap:var(--s-3); align-items:center}
+.stack{display:flex; flex-direction:column; gap:var(--s-4)}
+.grid{display:grid; gap:var(--grid-gap)}
+
+/* ── Swatches ──────────────────────────────────────────────────────────── */
+.sw-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:var(--s-3)}
+.sw{border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; background:var(--surface-1)}
+.sw i{display:block; height:56px}
+.sw b{display:block; font-size:var(--t-xs); font-weight:600; padding:var(--s-2) var(--s-3) 0}
+.sw code{
+  display:block; font-family:var(--font-mono); font-size:11px;
+  color:var(--text-3); padding:0 var(--s-3) var(--s-2);
+}
+.sw em{display:block; font-style:normal; font-size:11px; color:var(--text-3); padding:0 var(--s-3) var(--s-2)}
+
+/* ══ PRIMITIVES ════════════════════════════════════════════════════════ */
+
+/* ── Button ────────────────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:var(--s-2); font-family:inherit; font-weight:600; white-space:nowrap;
+  border:1px solid transparent; border-radius:var(--r-md); cursor:pointer;
+  transition:background var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+  min-height:36px; padding:0 var(--s-4); font-size:var(--t-base);
+}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn--primary{background:var(--accent-fill); color:#fff}
+.btn--primary:hover:not(:disabled){background:var(--accent-hover)}
+.btn--secondary{background:var(--surface-2); border-color:var(--border-strong); color:var(--text)}
+.btn--secondary:hover:not(:disabled){background:var(--surface-3); border-color:#3D4657}
+.btn--ghost{background:transparent; color:var(--text-2)}
+.btn--ghost:hover:not(:disabled){background:var(--surface-2); color:var(--text)}
+.btn--danger{background:transparent; border-color:#5A2430; color:var(--danger)}
+.btn--danger:hover:not(:disabled){background:var(--danger-wash); border-color:#7A303F}
+.btn--sm{min-height:28px; padding:0 var(--s-3); font-size:var(--t-xs)}
+.btn--lg{min-height:44px; padding:0 var(--s-5); font-size:var(--t-md)}
+.spinner{
+  width:13px; height:13px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.28); border-top-color:#fff;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+.card{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--r-lg)}
+.card--i{transition:border-color var(--dur) var(--ease-out), background var(--dur) var(--ease-out)}
+.card--i:hover{border-color:var(--border-strong); background:var(--surface-2)}
+.card-hd{
+  padding:var(--s-3) var(--s-4); border-bottom:1px solid var(--border-subtle);
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s-3);
+}
+.card-ti{
+  font-family:var(--font-mono); font-size:11px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--text-3); margin:0;
+}
+.card-bd{padding:var(--s-4)}
+
+/* ── Badge ─────────────────────────────────────────────────────────────── */
+.badge{
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid; border-radius:var(--r-full);
+  padding:2px 9px; font-size:11px; font-weight:600; line-height:18px;
+}
+.badge .dot{width:6px; height:6px; border-radius:50%; background:currentColor; flex:none}
+.badge--ok     {color:var(--ok);      border-color:#1E5237; background:var(--ok-wash)}
+.badge--warn   {color:var(--warn);    border-color:#5A4415; background:var(--warn-wash)}
+.badge--danger {color:var(--danger);  border-color:#5A2430; background:var(--danger-wash)}
+.badge--info   {color:var(--info);    border-color:#1B4E69; background:var(--info-wash)}
+.badge--neutral{color:var(--text-2);  border-color:var(--border-strong); background:var(--neutral-wash)}
+
+/* ── Severity chip — colour + glyph + label (never colour alone) ──────── */
+.sev{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--font-mono); font-size:11px; font-weight:600;
+  letter-spacing:.06em; text-transform:uppercase;
+  padding:2px 8px 2px 6px; border-radius:var(--r-sm);
+  border:1px solid; line-height:18px;
+}
+.sev svg{width:12px; height:12px; flex:none}
+.sev--critical{color:var(--sev-critical); border-color:#5A2430; background:#2E1218}
+.sev--high    {color:var(--sev-high);     border-color:#5C3618; background:#2B1B0E}
+.sev--medium  {color:var(--sev-medium);   border-color:#5A4415; background:#2A2110}
+.sev--low     {color:var(--sev-low);      border-color:#1B4E69; background:#0E2A3D}
+.sev--info    {color:var(--sev-info);     border-color:var(--border-strong); background:var(--neutral-wash)}
+
+/* ── Stat card ─────────────────────────────────────────────────────────── */
+.stat{
+  background:var(--surface-1); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:var(--card-padding) var(--s-4);
+}
+.stat-l{
+  font-family:var(--font-mono); font-size:10px; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--text-3);
+  margin:0 0 var(--s-2);
+}
+.stat-v{
+  font-size:var(--t-2xl); font-weight:600; line-height:1;
+  font-variant-numeric:tabular-nums; margin:0; letter-spacing:-.02em;
+}
+.stat-d{display:flex; align-items:center; gap:5px; font-size:var(--t-xs); margin:6px 0 0}
+.up{color:var(--ok)} .down{color:var(--danger)} .flat{color:var(--text-3)}
+
+/* ── Progress ──────────────────────────────────────────────────────────── */
+.prog{height:6px; background:var(--surface-inset); border-radius:var(--r-full); overflow:hidden}
+.prog>i{display:block; height:100%; border-radius:var(--r-full); transition:width var(--dur-slow) var(--ease-out)}
+
+/* ── Input ─────────────────────────────────────────────────────────────── */
+.field{display:flex; flex-direction:column; gap:6px}
+.label{font-size:var(--t-sm); font-weight:600; color:var(--text-2)}
+.label .req{color:var(--danger); margin-left:2px}
+.input{
+  width:100%; min-height:36px; background:var(--surface-inset);
+  border:1px solid var(--border-strong); border-radius:var(--r-md);
+  padding:0 var(--s-3); color:var(--text); font:inherit;
+  transition:border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+}
+.input::placeholder{color:var(--text-3)}
+.input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(56,189,248,.16)}
+.input[aria-invalid="true"]{border-color:var(--danger)}
+.input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px rgba(255,77,94,.16)}
+.hint{font-size:var(--t-xs); color:var(--text-3)}
+.err{font-size:var(--t-xs); color:var(--danger); display:flex; align-items:center; gap:5px}
+
+/* ── Table ─────────────────────────────────────────────────────────────── */
+.tbl{width:100%; border-collapse:collapse; font-size:var(--t-sm)}
+.tbl th{
+  position:sticky; top:0; z-index:var(--z-sticky); text-align:left;
+  background:var(--surface-2); color:var(--text-3);
+  font-family:var(--font-mono); font-size:10px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:0 var(--s-3); height:32px; border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.tbl td{
+  height:var(--table-row-height); padding:0 var(--s-3);
+  border-bottom:1px solid var(--border-subtle); color:var(--text-2);
+}
+.tbl tbody tr{transition:background var(--dur-fast) var(--ease-out)}
+.tbl tbody tr:hover{background:var(--surface-2)}
+.tbl td:first-child{color:var(--text); font-weight:500}
+
+/* ── Nav ───────────────────────────────────────────────────────────────── */
+.nav{
+  height:var(--header-height); background:var(--surface-1);
+  border-bottom:1px solid var(--border); border-radius:var(--r-lg) var(--r-lg) 0 0;
+  display:flex; align-items:center; gap:var(--s-5); padding:0 var(--s-4);
+}
+.brand{display:flex; align-items:center; gap:var(--s-2)}
+.brand .mark{
+  width:26px; height:26px; border-radius:var(--r-md);
+  background:linear-gradient(150deg,var(--accent),var(--accent-fill));
+  display:grid; place-items:center; color:var(--text-on-accent); font-weight:700; font-size:13px;
+  font-family:var(--font-mono);
+}
+.brand span{font-family:var(--font-mono); font-size:var(--t-xs); font-weight:700; letter-spacing:.12em}
+.nav a{
+  color:var(--text-3); text-decoration:none; font-size:var(--t-sm); font-weight:500;
+  padding:6px 0; border-bottom:2px solid transparent; transition:color var(--dur) var(--ease-out);
+}
+.nav a:hover{color:var(--text-2)}
+.nav a[aria-current]{color:var(--text); border-bottom-color:var(--accent)}
+
+/* ── Empty state ───────────────────────────────────────────────────────── */
+.empty{display:flex; flex-direction:column; align-items:center; text-align:center; padding:var(--s-12) var(--s-6)}
+.empty .ico{
+  width:44px; height:44px; border-radius:var(--r-lg); display:grid; place-items:center;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text-3);
+  margin-bottom:var(--s-4);
+}
+.empty h4{margin:0 0 4px; font-size:var(--t-md); font-weight:600}
+.empty p{margin:0 0 var(--s-5); color:var(--text-3); font-size:var(--t-sm); max-width:42ch}
+
+/* ── Live indicator ────────────────────────────────────────────────────── */
+.live{display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--text-3); font-family:var(--font-mono)}
+.live .beacon{width:7px; height:7px; border-radius:50%; background:var(--ok); animation:beat 2s infinite}
+@keyframes beat{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ── Before/after ──────────────────────────────────────────────────────── */
+.cmp{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-4)}
+.cmp>div{border:1px solid var(--border); border-radius:var(--r-lg); overflow:hidden}
+.cmp .tag{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  padding:var(--s-2) var(--s-3); border-bottom:1px solid var(--border);
+}
+.cmp .old .tag{background:#1A1210; color:#C08A6A}
+.cmp .new .tag{background:var(--accent-wash); color:var(--accent)}
+.cmp .body{padding:var(--s-4)}
+
+/* OLD system, reproduced for comparison */
+.old-shell{background:#09090b; font-family:ui-sans-serif,system-ui,sans-serif}
+.old-card{
+  border-radius:12px; border:1px solid rgba(255,255,255,.08);
+  background:rgba(24,24,27,.4); padding:20px;
+}
+.old-label{font-size:10px; text-transform:uppercase; letter-spacing:.2em; color:#71717a; margin:0 0 8px}
+.old-value{font-size:30px; font-weight:900; color:#f4f4f5; line-height:1; margin:0}
+.old-sub{font-size:12px; color:#52525b; margin:6px 0 0}
+.old-glow{text-shadow:0 0 20px rgba(16,185,129,.6), 0 0 60px rgba(16,185,129,.2); color:#10b981}
+.old-badge{
+  display:inline-flex; align-items:center; border:1px solid rgba(16,185,129,.4);
+  background:rgba(16,185,129,.1); color:#34d399; border-radius:999px;
+  padding:2px 10px; font-size:12px; font-weight:600;
+}
+
+/* ── Notes ─────────────────────────────────────────────────────────────── */
+.note{
+  border-left:2px solid var(--accent); background:var(--accent-wash);
+  padding:var(--s-3) var(--s-4); border-radius:0 var(--r-md) var(--r-md) 0;
+  font-size:var(--t-sm); color:#BFE3F7;
+}
+.note b{color:#fff}
+.kill{border-left-color:var(--danger); background:var(--danger-wash); color:#F5C2C8}
+.kill b{color:#fff}
+
+/* ── a11y audit table ──────────────────────────────────────────────────── */
+.audit td:last-child, .audit th:last-child{text-align:right}
+.pass{color:var(--ok); font-weight:600}
+.fail{color:var(--danger); font-weight:600}
+
+@media (max-width:860px){
+  .cmp{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header style="margin-bottom:var(--s-12)">
+    <div class="row" style="gap:var(--s-3); margin-bottom:var(--s-3)">
+      <span class="badge badge--info"><span class="dot"></span>PROPOSAL</span>
+      <span class="live"><span class="beacon"></span>generated from ui-ux-pro-max + 21st.dev</span>
+    </div>
+    <h1 style="font-size:var(--t-3xl); margin:0 0 var(--s-3); letter-spacing:-.02em; font-weight:600">
+      Signal <span style="color:var(--text-3); font-weight:400">— design system for Sage Vault</span>
+    </h1>
+    <p style="color:var(--text-2); max-width:72ch; margin:0; font-size:var(--t-md)">
+      A foundation rebuild: tokens, type scale, spacing, and the seven primitives in
+      <code class="mono" style="color:var(--accent)">src/components/ui</code>. Every one of the 147 pages
+      inherits from these. Nothing here is page-specific yet — that comes after you approve the base.
+    </p>
+  </header>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <h2 class="doc-h">01 — What changes and why</h2>
+  <div class="stack" style="margin-bottom:var(--s-8)">
+    <div class="note">
+      <b>The core problem: emerald means three different things at once.</b> Today
+      <code class="mono">emerald-500</code> is the brand colour, the success colour, <em>and</em> the
+      "progress ≥ 70%" colour. On a security platform that is a real defect — a user can't tell whether
+      green means "this is a button", "this passed", or "this is our brand". Signal splits them:
+      <b>azure is interactive, emerald is exclusively success/secure.</b>
+    </div>
+    <div class="note kill">
+      <b>Retired effects.</b> <code class="mono">.scanline</code>, <code class="mono">.noise</code>,
+      <code class="mono">.text-glow</code>, <code class="mono">.glow-pulse</code>,
+      <code class="mono">.orb-drift</code>, <code class="mono">.card-hover</code> lift, and the
+      <code class="mono">bg-grid</code> overlay come off all data surfaces. They reduce legibility on
+      dense screens and read as decoration rather than meaning. A restrained subset stays for marketing pages only.
+    </div>
+    <div class="note">
+      <b>Kept from the generator.</b> Product type <em>Cybersecurity Platform</em> → dashboard style
+      <em>Real-Time Monitoring + Data-Dense</em>: 8px grid gap, 12px card padding, 36px table rows,
+      240px sidebar, 56px header, and the <em>Fira Code / Fira Sans</em> pairing. The generator also
+      proposed Matrix green <code class="mono">#00FF41</code> on pure black — declined, that is the
+      cliché the app already has, and pure black plus neon fails contrast comfort on long sessions.
+    </div>
+    <div class="note">
+      <b>Measured against the actual codebase.</b>
+      <code class="mono">emerald-*</code> appears <b>725 times across 230 files</b> — the overload is systemic,
+      which is exactly why it can't be fixed page by page. The decorative effects being retired are far
+      cheaper: <b>39 occurrences across 15 files</b>, concentrated in
+      <code class="mono">app/page.tsx</code> (16) and <code class="mono">complete-profile</code> (4).
+      One real defect found while auditing: <code class="mono">text-zinc-600</code> on
+      <code class="mono">#09090b</code> — used for <code class="mono">StatCard</code> sub-labels — measures
+      <b class="fail">2.57:1</b> and fails even the 3:1 large-text floor. Signal's
+      <code class="mono">--text-3</code> replacement measures <b class="pass">4.10:1</b>.
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <h2 class="doc-h">02 — Surfaces</h2>
+  <p class="doc-sub">Elevation comes from lightness steps, not from stacking translucent white over noise.
+     Predictable, and it survives being nested inside modals.</p>
+  <div class="sw-grid">
+    <div class="sw"><i style="background:#0A0C10"></i><b>bg</b><code>#0A0C10</code><em>page</em></div>
+    <div class="sw"><i style="background:#10131A"></i><b>surface-1</b><code>#10131A</code><em>cards</em></div>
+    <div class="sw"><i style="background:#161A23"></i><b>surface-2</b><code>#161A23</code><em>hover, headers</em></div>
+    <div class="sw"><i style="background:#1D222D"></i><b>surface-3</b><code>#1D222D</code><em>popovers</em></div>
+    <div class="sw"><i style="background:#070910"></i><b>inset</b><code>#070910</code><em>inputs, wells</em></div>
+    <div class="sw"><i style="background:#232936"></i><b>border</b><code>#232936</code><em>default</em></div>
+  </div>
+
+  <h2 class="doc-h">03 — Text &amp; accent</h2>
+  <div class="sw-grid">
+    <div class="sw"><i style="background:#E6EAF2"></i><b>text</b><code>#E6EAF2</code><em>15.6:1 — primary</em></div>
+    <div class="sw"><i style="background:#9DA9BD"></i><b>text-2</b><code>#9DA9BD</code><em>7.6:1 — secondary</em></div>
+    <div class="sw"><i style="background:#6C7789"></i><b>text-3</b><code>#6C7789</code><em>3.9:1 — labels only</em></div>
+    <div class="sw"><i style="background:#38BDF8"></i><b>accent</b><code>#38BDF8</code><em>interactive</em></div>
+    <div class="sw"><i style="background:#0A73B4"></i><b>accent-fill</b><code>#0A73B4</code><em>primary button</em></div>
+    <div class="sw"><i style="background:#0E2A3D"></i><b>accent-wash</b><code>#0E2A3D</code><em>tint</em></div>
+  </div>
+
+  <h2 class="doc-h">04 — Status &amp; severity</h2>
+  <p class="doc-sub">Status answers "what happened". Severity answers "how bad". They are separate ramps so a
+     <em>resolved critical</em> incident can render both truthfully. Every severity carries a glyph as well as
+     a hue — colour is never the only signal.</p>
+  <div class="row" style="gap:var(--s-2); margin-bottom:var(--s-4)">
+    <span class="badge badge--ok"><span class="dot"></span>Passed</span>
+    <span class="badge badge--warn"><span class="dot"></span>Pending</span>
+    <span class="badge badge--danger"><span class="dot"></span>Failed</span>
+    <span class="badge badge--info"><span class="dot"></span>Running</span>
+    <span class="badge badge--neutral"><span class="dot"></span>Draft</span>
+  </div>
+  <div class="row" style="gap:var(--s-2)">
+    <span class="sev sev--critical"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1 1 14h14L8 1Zm0 4.5a.9.9 0 0 1 .9.9v3.2a.9.9 0 1 1-1.8 0V6.4a.9.9 0 0 1 .9-.9Zm0 6.1a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>Critical</span>
+    <span class="sev sev--high"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.5 14.5 8 8 14.5 1.5 8 8 1.5Zm.9 3.6a.9.9 0 0 0-1.8 0v2.8a.9.9 0 1 0 1.8 0V5.1ZM8 10.4a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>High</span>
+    <span class="sev sev--medium"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 3h12v2H2V3Zm0 4h12v2H2V7Zm0 4h8v2H2v-2Z"/></svg>Medium</span>
+    <span class="sev sev--low"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.6A6.4 6.4 0 1 0 8 14.4 6.4 6.4 0 0 0 8 1.6Zm.9 9.6H7.1V7.1h1.8v4.1Zm0-5.4H7.1V4h1.8v1.8Z"/></svg>Low</span>
+    <span class="sev sev--info"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.6A6.4 6.4 0 1 0 8 14.4 6.4 6.4 0 0 0 8 1.6Zm.9 9.6H7.1V7.1h1.8v4.1Zm0-5.4H7.1V4h1.8v1.8Z"/></svg>Info</span>
+  </div>
+
+  <h2 class="doc-h">05 — Typography</h2>
+  <p class="doc-sub">Fira Sans for prose, Fira Code for anything a machine produced — hashes, IOCs, CVEs,
+     rule IDs, log lines, and every label. Tabular numerals everywhere numbers change.</p>
+  <div class="panel stack">
+    <div style="font-size:var(--t-3xl); font-weight:600; letter-spacing:-.02em; line-height:var(--lh-tight)">Display 40 / 600</div>
+    <div style="font-size:var(--t-2xl); font-weight:600; letter-spacing:-.01em; line-height:var(--lh-tight)">Heading 32 / 600</div>
+    <div style="font-size:var(--t-xl); font-weight:600">Title 24 / 600</div>
+    <div style="font-size:var(--t-lg); font-weight:500">Subtitle 20 / 500</div>
+    <div style="font-size:var(--t-md)">Body large 16 / 400 — used for page intros and marketing prose.</div>
+    <div>Body 14 / 400 — the app default. Line height 1.55, measure capped at 72 characters.</div>
+    <div style="font-size:var(--t-sm); color:var(--text-2)">Small 13 / 400 — table cells, helper text.</div>
+    <div class="mono" style="font-size:var(--t-xs); letter-spacing:.1em; text-transform:uppercase; color:var(--text-3)">Label 12 / mono / 0.1em — card titles, column heads</div>
+    <hr class="rule">
+    <div class="mono" style="background:var(--surface-inset); border:1px solid var(--border); border-radius:var(--r-md); padding:var(--s-3); font-size:var(--t-sm); color:var(--text-2)">
+      sha256 <span style="color:var(--text)">e3b0c44298fc1c149afbf4c8996fb924</span><br>
+      cve&nbsp;&nbsp;&nbsp; <span style="color:var(--sev-high)">CVE-2026-31337</span> &nbsp; cvss <span class="num" style="color:var(--sev-critical)">9.8</span>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <h2 class="doc-h">06 — Button</h2>
+  <p class="doc-sub">Four variants, three sizes. Minimum target 36px (44px for <code class="mono">lg</code> and
+     all mobile actions). One primary action per screen.</p>
+  <div class="panel stack">
+    <div class="row">
+      <button class="btn btn--primary">Start lab</button>
+      <button class="btn btn--secondary">View report</button>
+      <button class="btn btn--ghost">Cancel</button>
+      <button class="btn btn--danger">Delete rule</button>
+    </div>
+    <div class="row">
+      <button class="btn btn--primary btn--sm">Small</button>
+      <button class="btn btn--primary">Medium</button>
+      <button class="btn btn--primary btn--lg">Large</button>
+    </div>
+    <div class="row">
+      <button class="btn btn--primary" disabled>Disabled</button>
+      <button class="btn btn--primary" disabled><span class="spinner"></span>Submitting</button>
+      <button class="btn btn--secondary" style="outline:2px solid var(--accent); outline-offset:2px">Focus ring</button>
+    </div>
+  </div>
+
+  <h2 class="doc-h">07 — Card, stat, progress</h2>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); margin-bottom:var(--s-4)">
+    <div class="stat">
+      <p class="stat-l">Labs completed</p>
+      <p class="stat-v">142</p>
+      <p class="stat-d up">▲ 12 this week</p>
+    </div>
+    <div class="stat">
+      <p class="stat-l">Mean time to detect</p>
+      <p class="stat-v">4<span style="font-size:var(--t-lg); color:var(--text-3)">m</span> 12<span style="font-size:var(--t-lg); color:var(--text-3)">s</span></p>
+      <p class="stat-d down">▼ 38s slower</p>
+    </div>
+    <div class="stat">
+      <p class="stat-l">Detection rules</p>
+      <p class="stat-v">87</p>
+      <p class="stat-d flat">— unchanged</p>
+    </div>
+    <div class="stat">
+      <p class="stat-l">Open incidents</p>
+      <p class="stat-v" style="color:var(--sev-critical)">3</p>
+      <p class="stat-d"><span class="sev sev--critical" style="padding:0 6px"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1 1 14h14L8 1Z"/></svg>1 critical</span></p>
+    </div>
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+    <div class="card card--i">
+      <div class="card-hd"><h3 class="card-ti">Path progress</h3><span class="badge badge--info"><span class="dot"></span>Active</span></div>
+      <div class="card-bd stack" style="gap:var(--s-3)">
+        <div>
+          <div class="row" style="justify-content:space-between; margin-bottom:6px">
+            <span style="font-size:var(--t-sm)">Blue Team Fundamentals</span>
+            <span class="num" style="font-size:var(--t-sm); color:var(--text-2)">82%</span>
+          </div>
+          <div class="prog"><i style="width:82%; background:var(--ok)"></i></div>
+        </div>
+        <div>
+          <div class="row" style="justify-content:space-between; margin-bottom:6px">
+            <span style="font-size:var(--t-sm)">Threat Hunting</span>
+            <span class="num" style="font-size:var(--t-sm); color:var(--text-2)">45%</span>
+          </div>
+          <div class="prog"><i style="width:45%; background:var(--accent)"></i></div>
+        </div>
+        <div>
+          <div class="row" style="justify-content:space-between; margin-bottom:6px">
+            <span style="font-size:var(--t-sm)">Malware Analysis</span>
+            <span class="num" style="font-size:var(--t-sm); color:var(--text-2)">12%</span>
+          </div>
+          <div class="prog"><i style="width:12%; background:var(--accent)"></i></div>
+        </div>
+        <p class="hint" style="margin:0">Progress bars are azure — they measure completion, not success.
+           Emerald appears only once a path is genuinely passed.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><h3 class="card-ti">Empty state</h3></div>
+      <div class="empty">
+        <span class="ico"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h14M3 10h14M3 14h9"/></svg></span>
+        <h4>No detection rules yet</h4>
+        <p>Rules you write in the Detection Lab will appear here, with their last validation result.</p>
+        <button class="btn btn--primary btn--sm">Create first rule</button>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="doc-h">08 — Form</h2>
+  <div class="panel grid" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:var(--s-5)">
+    <div class="field">
+      <label class="label" for="f1">Rule name<span class="req" aria-hidden="true">*</span></label>
+      <input class="input" id="f1" value="Suspicious PowerShell encoded command">
+      <span class="hint">Shown in the rule list and in alert payloads.</span>
+    </div>
+    <div class="field">
+      <label class="label" for="f2">MITRE technique<span class="req" aria-hidden="true">*</span></label>
+      <input class="input" id="f2" value="T1059.OO1" aria-invalid="true" aria-describedby="f2e">
+      <span class="err" id="f2e" role="alert">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1 1 14h14L8 1Zm.9 4.5v3.9H7.1V5.5h1.8Zm0 5.4v1.8H7.1v-1.8h1.8Z"/></svg>
+        Not a valid technique ID. Expected format T1059.001 — check for letter O vs zero.
+      </span>
+    </div>
+    <div class="field">
+      <label class="label" for="f3">Severity</label>
+      <input class="input" id="f3" value="High" disabled>
+      <span class="hint">Inherited from the parent playbook.</span>
+    </div>
+  </div>
+  <p class="doc-sub" style="margin-top:var(--s-3)">Labels are visible, never placeholders. Errors sit under
+     their own field, name the cause <em>and</em> the fix, and announce via <code class="mono">role="alert"</code>.</p>
+
+  <h2 class="doc-h">09 — Table</h2>
+  <div class="card" style="overflow:hidden">
+    <div class="card-hd">
+      <h3 class="card-ti">Recent incidents</h3>
+      <span class="live"><span class="beacon"></span>live</span>
+    </div>
+    <div style="overflow:auto; max-height:270px">
+      <table class="tbl">
+        <thead><tr><th>Incident</th><th>Severity</th><th>Status</th><th>Assignee</th><th style="text-align:right">Detected</th></tr></thead>
+        <tbody>
+          <tr><td>FIN-2026-004 · Wire fraud</td><td><span class="sev sev--critical"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1 1 14h14L8 1Z"/></svg>Critical</span></td><td><span class="badge badge--danger"><span class="dot"></span>Open</span></td><td>s.jaiswal</td><td class="num" style="text-align:right">04:12</td></tr>
+          <tr><td>IDENTITY-2026-001 · Token replay</td><td><span class="sev sev--high"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.5 14.5 8 8 14.5 1.5 8Z"/></svg>High</span></td><td><span class="badge badge--warn"><span class="dot"></span>Triage</span></td><td>a.mehta</td><td class="num" style="text-align:right">03:47</td></tr>
+          <tr><td>CLOUD-2026-001 · S3 exposure</td><td><span class="sev sev--medium"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 3h12v2H2Zm0 4h12v2H2Zm0 4h8v2H2Z"/></svg>Medium</span></td><td><span class="badge badge--info"><span class="dot"></span>Contained</span></td><td>r.okafor</td><td class="num" style="text-align:right">02:31</td></tr>
+          <tr><td>BEC-2026-002 · Vendor impersonation</td><td><span class="sev sev--high"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.5 14.5 8 8 14.5 1.5 8Z"/></svg>High</span></td><td><span class="badge badge--ok"><span class="dot"></span>Resolved</span></td><td>s.jaiswal</td><td class="num" style="text-align:right">01:08</td></tr>
+          <tr><td>SUPPLY-2026-001 · Dependency</td><td><span class="sev sev--low"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.6A6.4 6.4 0 1 0 8 14.4 6.4 6.4 0 0 0 8 1.6Z"/></svg>Low</span></td><td><span class="badge badge--ok"><span class="dot"></span>Resolved</span></td><td>—</td><td class="num" style="text-align:right">00:22</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="doc-sub" style="margin-top:var(--s-3)">Row 4 is the case that the current system can't render:
+     a <em>high</em> severity incident that is <em>resolved</em>. Two ramps, two truths, no contradiction.</p>
+
+  <h2 class="doc-h">10 — Navigation</h2>
+  <div class="card" style="overflow:hidden">
+    <nav class="nav">
+      <div class="brand"><span class="mark">SV</span><span>SAGE VAULT</span></div>
+      <div class="row" style="gap:var(--s-5); flex:1">
+        <a href="#" aria-current="page">Dashboard</a>
+        <a href="#">Labs</a>
+        <a href="#">Incidents</a>
+        <a href="#">Academy</a>
+        <a href="#">Career</a>
+      </div>
+      <span class="badge badge--neutral">STUDENT</span>
+      <button class="btn btn--ghost btn--sm">Sign out</button>
+    </nav>
+    <div class="card-bd" style="background:var(--bg)">
+      <p class="hint" style="margin:0">Active route is marked by an underline <em>and</em> a text-colour shift —
+        not colour alone. The role pill moves to neutral so it stops competing with status colours.</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <h2 class="doc-h">11 — Side by side</h2>
+  <p class="doc-sub">Same content, current system versus Signal.</p>
+  <div class="cmp">
+    <div class="old">
+      <div class="tag">Current</div>
+      <div class="body old-shell">
+        <div class="old-card" style="margin-bottom:12px">
+          <p class="old-label">Open incidents</p>
+          <p class="old-value old-glow">3</p>
+          <p class="old-sub">1 critical</p>
+        </div>
+        <div class="old-card">
+          <p class="old-label">Threat Hunting</p>
+          <div style="height:8px; background:rgba(255,255,255,.08); border-radius:999px; overflow:hidden; margin:10px 0">
+            <div style="height:100%; width:45%; background:#f59e0b; border-radius:999px"></div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:12px">
+            <span class="old-badge">Active</span>
+            <span class="old-badge">Resolved</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="new">
+      <div class="tag">Signal</div>
+      <div class="body" style="background:var(--bg)">
+        <div class="stat" style="margin-bottom:var(--grid-gap)">
+          <p class="stat-l">Open incidents</p>
+          <p class="stat-v" style="color:var(--sev-critical)">3</p>
+          <p class="stat-d"><span class="sev sev--critical" style="padding:0 6px"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1 1 14h14L8 1Z"/></svg>1 critical</span></p>
+        </div>
+        <div class="card"><div class="card-bd">
+          <p class="stat-l">Threat Hunting</p>
+          <div class="prog" style="margin:10px 0"><i style="width:45%; background:var(--accent)"></i></div>
+          <div class="row" style="gap:var(--s-2); margin-top:var(--s-3)">
+            <span class="badge badge--info"><span class="dot"></span>Active</span>
+            <span class="badge badge--ok"><span class="dot"></span>Resolved</span>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+  <div class="note" style="margin-top:var(--s-4)">
+    In the current column both pills are emerald, so <b>Active</b> and <b>Resolved</b> are visually identical;
+    the 45% bar is amber, implying something is wrong when nothing is; and the glowing numeral competes with
+    the severity it is meant to report. All three are token problems, not page problems — which is why the
+    fix belongs here rather than in 147 individual files.
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <h2 class="doc-h">12 — Contrast audit</h2>
+  <p class="doc-sub">WCAG 2.1 contrast for every foreground/background pair in the system, computed against
+     its intended surface. AA requires 4.5:1 for body text and 3:1 for large text, UI components, and graphics.</p>
+  <div class="card" style="overflow:hidden">
+    <table class="tbl audit" id="audit">
+      <thead><tr><th>Pair</th><th>Foreground</th><th>Background</th><th>Use</th><th>Required</th><th>Ratio</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h2 class="doc-h">13 — What lands where</h2>
+  <div class="card"><div class="card-bd">
+    <table class="tbl">
+      <thead><tr><th>File</th><th>Change</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">tailwind.config.ts</td><td>Replace the 5-stop <code class="mono">sage</code> scale with semantic token families; delete 8 of the 13 keyframes</td></tr>
+        <tr><td class="mono">src/app/globals.css</td><td>235 → ~90 lines. CSS custom properties in; scanline, noise, glow, orb, grid, shimmer out</td></tr>
+        <tr><td class="mono">ui/button.tsx</td><td>Variants re-pointed at tokens; min-height 36/28/44; focus ring standardised</td></tr>
+        <tr><td class="mono">ui/card.tsx</td><td>Opaque surfaces; hover changes border + background, no transform</td></tr>
+        <tr><td class="mono">ui/badge.tsx</td><td>Tone list becomes status-only; adds the dot; severity moves to a new component</td></tr>
+        <tr><td class="mono">ui/severity.tsx</td><td><b>New.</b> Five-step ramp with glyphs — replaces ad-hoc severity colouring across incidents, labs, and rules</td></tr>
+        <tr><td class="mono">ui/stat-card.tsx</td><td><code class="mono">font-black</code> → 600 + tabular numerals; adds delta slot</td></tr>
+        <tr><td class="mono">ui/progress.tsx</td><td>Auto colour-by-value removed — completion is azure; tone stays opt-in</td></tr>
+        <tr><td class="mono">ui/table.tsx</td><td><b>New.</b> Sticky head, 36px rows, sortable with <code class="mono">aria-sort</code></td></tr>
+        <tr><td class="mono">ui/input.tsx</td><td><b>New.</b> Promotes the <code class="mono">.input-field</code> utility to a real component with label, hint, and error</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+
+</div>
+
+<script>
+/* Contrast audit — computed live so the numbers can't drift from the tokens. */
+const L = h => {
+  const c = [1,3,5].map(i => parseInt(h.slice(i,i+2),16)/255)
+                   .map(v => v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4));
+  return .2126*c[0] + .7152*c[1] + .0722*c[2];
+};
+const ratio = (a,b) => { const x = L(a), y = L(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); };
+
+const PAIRS = [
+  ['text on bg',           '#E6EAF2','#0A0C10','Body copy',            4.5],
+  ['text on surface-1',    '#E6EAF2','#10131A','Card body',            4.5],
+  ['text-2 on surface-1',  '#9DA9BD','#10131A','Secondary text',       4.5],
+  ['text-3 on surface-1',  '#6C7789','#10131A','Uppercase labels',     3.0],
+  ['accent on bg',         '#38BDF8','#0A0C10','Links, active nav',    4.5],
+  ['white on accent-fill', '#FFFFFF','#0A73B4','Primary button',       4.5],
+  ['ok on ok-wash',        '#22C55E','#10241A','Success badge',        4.5],
+  ['warn on warn-wash',    '#FBBF24','#2A2110','Warning badge',        4.5],
+  ['danger on danger-wash','#FF4D5E','#2E1218','Error badge / text',   4.5],
+  ['info on info-wash',    '#38BDF8','#0E2A3D','Info badge',           4.5],
+  ['sev-high on wash',     '#FF8A3D','#2B1B0E','High severity chip',   4.5],
+  ['sev-medium on wash',   '#FBBF24','#2A2110','Medium severity chip', 4.5],
+  ['border on bg',         '#232936','#0A0C10','Card edge (graphic)',  1.0],
+  ['border-strong on s-1', '#313949','#10131A','Input edge (graphic)', 1.0],
+];
+
+const tb = document.querySelector('#audit tbody');
+tb.innerHTML = PAIRS.map(([n,f,b,use,req]) => {
+  const r = ratio(f,b), ok = r >= req;
+  return `<tr>
+    <td>${n}</td>
+    <td><span style="display:inline-flex;align-items:center;gap:6px">
+      <span style="width:11px;height:11px;border-radius:3px;background:${f};border:1px solid var(--border-strong)"></span>
+      <span class="mono" style="font-size:11px">${f}</span></span></td>
+    <td><span style="display:inline-flex;align-items:center;gap:6px">
+      <span style="width:11px;height:11px;border-radius:3px;background:${b};border:1px solid var(--border-strong)"></span>
+      <span class="mono" style="font-size:11px">${b}</span></span></td>
+    <td>${use}</td>
+    <td class="mono" style="font-size:11px">${req === 1 ? '—' : req + ':1'}</td>
+    <td class="mono ${ok ? 'pass' : 'fail'}">${r.toFixed(2)}:1 ${ok ? '✓' : '✗'}</td>
+  </tr>`;
+}).join('');
+</script>
+</body>
+</html>

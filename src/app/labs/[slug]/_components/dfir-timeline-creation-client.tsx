@@ -72,13 +72,13 @@ export function DfirTimelineCreationClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Build the Super-Timeline" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">Three raw artifact sources from the same compromised host:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{SOURCES}</pre>
+        <p className="text-ink-2 text-sm mb-3">Three raw artifact sources from the same compromised host:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{SOURCES}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Merged chronologically, which event happened first?</p>
+            <p className="text-sm text-ink-2 font-medium">Merged chronologically, which event happened first?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The RDP logon at 14:02:11 — everything else happens after it",
@@ -88,25 +88,25 @@ export function DfirTimelineCreationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the 14:02:11 RDP logon precedes both the file drop and execution. Flag: SAGE&#123;rdp_l0g0n_14_02_f1rst_3v3nt&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — the 14:02:11 RDP logon precedes both the file drop and execution. Flag: SAGE&#123;rdp_l0g0n_14_02_f1rst_3v3nt&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Read the Sequence" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-4">With the timeline ordered, the three events form one continuous story.</p>
+        <p className="text-ink-2 text-sm mb-4">With the timeline ordered, the three events form one continuous story.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What does this merged timeline prove happened?</p>
+            <p className="text-sm text-ink-2 font-medium">What does this merged timeline prove happened?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The attacker logged in via RDP, then dropped and executed a credential-dumping tool",
@@ -116,28 +116,28 @@ export function DfirTimelineCreationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — RDP logon, tool dropped to disk, tool executed minutes later. Flag: SAGE&#123;rdp_dr0p_3x3c_s3qu3nc3&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — RDP logon, tool dropped to disk, tool executed minutes later. Flag: SAGE&#123;rdp_dr0p_3x3c_s3qu3nc3&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Check for Anti-Forensics" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">You pull the full MFT record for the dropped tool:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{MFT_TIMESTOMP}</pre>
+        <p className="text-ink-2 text-sm mb-3">You pull the full MFT record for the dropped tool:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{MFT_TIMESTOMP}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">The $STANDARD_INFORMATION creation date is nearly two years earlier than $FILE_NAME. What does this indicate?</p>
+            <p className="text-sm text-ink-2 font-medium">The $STANDARD_INFORMATION creation date is nearly two years earlier than $FILE_NAME. What does this indicate?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The attacker timestomped the file to backdate $STANDARD_INFORMATION and blend in with old files",
@@ -147,17 +147,17 @@ export function DfirTimelineCreationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — a nearly two-year gap between the two timestamp attributes is a classic timestomping signature meant to make the tool look pre-existing.
             Flag: SAGE&#123;t1m3st0mp1ng_d3t3ct3d&#125;
           </p>
@@ -165,12 +165,12 @@ export function DfirTimelineCreationClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;rdp_l0g0n_14_02_f1rst_3v3nt&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;rdp_dr0p_3x3c_s3qu3nc3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;t1m3st0mp1ng_d3t3ct3d&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;rdp_l0g0n_14_02_f1rst_3v3nt&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;rdp_dr0p_3x3c_s3qu3nc3&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;t1m3st0mp1ng_d3t3ct3d&#125;</span></li>
           </ul>
         </div>
       )}

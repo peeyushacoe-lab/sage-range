@@ -72,7 +72,7 @@ export default async function PortfolioPage({
   const mitreData = (portfolio.mitreCoverage?.heatmap as Record<string, number>) || {};
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 py-8">
@@ -82,12 +82,12 @@ export default async function PortfolioPage({
             <h1 className="text-3xl font-bold tracking-tight">
               {user.displayName || user.email.split("@")[0]}
             </h1>
-            <p className="text-zinc-400 text-sm mt-1">{user.email}</p>
+            <p className="text-ink-2 text-sm mt-1">{user.email}</p>
             {user.university && (
-              <p className="text-zinc-500 text-sm mt-0.5">{user.university}</p>
+              <p className="text-ink-3 text-sm mt-0.5">{user.university}</p>
             )}
             {user.jobTitle && (
-              <p className="text-zinc-300 text-sm mt-0.5">
+              <p className="text-ink-2 text-sm mt-0.5">
                 {user.jobTitle}
                 {user.company ? ` · ${user.company}` : ""}
               </p>
@@ -103,8 +103,8 @@ export default async function PortfolioPage({
           <div className="space-y-8">
             {/* Bio */}
             {portfolio.bio && (
-              <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-6">
-                <p className="text-sm text-zinc-300 leading-relaxed">
+              <div className="rounded-xl border border-edge bg-surface-1 p-6">
+                <p className="text-sm text-ink-2 leading-relaxed">
                   {portfolio.bio}
                 </p>
               </div>
@@ -112,7 +112,7 @@ export default async function PortfolioPage({
 
             {/* Stats */}
             <div>
-              <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">
+              <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-4">
                 Career Summary
               </h2>
               <StatsCards
@@ -145,8 +145,8 @@ export default async function PortfolioPage({
           <div className="space-y-6">
             {/* Visibility badge */}
             {isOwnProfile && (
-              <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
-                <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">
+              <div className="rounded-xl border border-edge bg-surface-1 p-4">
+                <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">
                   Visibility
                 </p>
                 <div className="flex items-center gap-2">
@@ -160,9 +160,9 @@ export default async function PortfolioPage({
                     }
                     size={16}
                     variant="current"
-                    className="text-zinc-500"
+                    className="text-ink-3"
                   />
-                  <span className="text-sm font-medium text-zinc-300">
+                  <span className="text-sm font-medium text-ink-2">
                     {portfolio.visibility === "PRIVATE"
                       ? "Private"
                       : portfolio.visibility === "RECRUITER_ONLY"
@@ -170,7 +170,7 @@ export default async function PortfolioPage({
                       : "Public"}
                   </span>
                 </div>
-                <p className="text-xs text-zinc-600 mt-2">
+                <p className="text-xs text-ink-3 mt-2">
                   {portfolio.visibility === "PRIVATE"
                     ? "Only you can see this portfolio"
                     : portfolio.visibility === "RECRUITER_ONLY"
@@ -182,8 +182,8 @@ export default async function PortfolioPage({
 
             {/* Links */}
             {(user.linkedIn || user.github || user.website) && (
-              <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
-                <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">
+              <div className="rounded-xl border border-edge bg-surface-1 p-4">
+                <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">
                   Connect
                 </p>
                 <div className="flex flex-col gap-2">
@@ -192,7 +192,7 @@ export default async function PortfolioPage({
                       href={user.linkedIn}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm text-blue-400 hover:text-blue-300 transition flex items-center gap-2"
+                      className="text-sm text-info hover:text-info transition flex items-center gap-2"
                     >
                       <Icon name="users" size={16} variant="current" />
                       LinkedIn
@@ -203,7 +203,7 @@ export default async function PortfolioPage({
                       href={user.github}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm text-zinc-400 hover:text-zinc-300 transition flex items-center gap-2"
+                      className="text-sm text-ink-2 hover:text-ink-2 transition flex items-center gap-2"
                     >
                       <Icon name="link" size={16} variant="current" />
                       GitHub
@@ -214,7 +214,7 @@ export default async function PortfolioPage({
                       href={user.website}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm text-emerald-400 hover:text-emerald-300 transition flex items-center gap-2"
+                      className="text-sm text-ok hover:text-ok transition flex items-center gap-2"
                     >
                       <Icon name="globe" size={16} variant="current" />
                       Website

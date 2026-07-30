@@ -10,21 +10,21 @@ export default async function SignUpPage() {
   if (session) redirect("/api/user/fix-session");
   const nexusUrl = process.env.NEXUS_SSO_AUTHORIZE_URL;
   return (
-    <main className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
+    <main className="min-h-screen bg-surface-0 flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <Image src="/logo.png" alt="Sage Vault" width={80} height={80} className="rounded-xl" unoptimized />
           </div>
           <h1 className="text-2xl font-bold text-white">Create your account</h1>
-          <p className="text-zinc-500 text-sm mt-1">Choose your plan — students from £15/month</p>
+          <p className="text-ink-3 text-sm mt-1">Choose your plan — students from £15/month</p>
         </div>
 
         <SignupForm plans={plans} nexusUrl={nexusUrl} />
 
-        <p className="text-center text-sm text-zinc-500 mt-5">
+        <p className="text-center text-sm text-ink-3 mt-5">
           Already have an account?{" "}
-          <Link href="/sign-in" className="text-emerald-400 hover:text-emerald-300 transition-colors">
+          <Link href="/sign-in" className="text-ok hover:text-ok transition-colors">
             Sign in
           </Link>
         </p>

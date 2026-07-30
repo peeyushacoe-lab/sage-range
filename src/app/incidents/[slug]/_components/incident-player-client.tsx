@@ -70,7 +70,7 @@ function HintList({ hints }: { hints: Hint[] }) {
         return (
           <div key={h.id}>
             {isRevealed ? (
-              <p className="text-xs font-mono text-amber-300 bg-amber-500/5 border border-amber-500/20 rounded px-2 py-1">
+              <p className="text-xs font-mono text-warn bg-warn-wash border border-warn-edge rounded px-2 py-1">
                 Hint {h.level} (-{h.pointCost} pts): {h.text}
               </p>
             ) : (
@@ -84,7 +84,7 @@ function HintList({ hints }: { hints: Hint[] }) {
                     body: JSON.stringify({ hintId: h.id }),
                   }).catch(() => null);
                 }}
-                className="text-xs text-zinc-500 hover:text-amber-400 underline underline-offset-2"
+                className="text-xs text-ink-3 hover:text-warn underline underline-offset-2"
               >
                 Reveal hint {h.level} (-{h.pointCost} pts)
               </button>
@@ -143,25 +143,25 @@ function TaskCard({
     <NoCopy
       className={`rounded-xl border p-5 transition ${
         completed
-          ? "border-sage-500/40 bg-sage-500/5"
+          ? "border-ok-edge bg-ok-wash"
           : unlocked
-          ? "border-white/10 bg-zinc-900/60"
-          : "border-white/5 bg-zinc-950/40 opacity-50"
+          ? "border-edge bg-surface-1"
+          : "border-edge-subtle bg-surface-0/40 opacity-50"
       }`}
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="font-semibold text-sm">
-          <span className="text-zinc-500 font-mono mr-2">Task {index + 1}</span>
+          <span className="text-ink-3 font-mono mr-2">Task {index + 1}</span>
           {task.title}
         </h3>
-        <span className="text-xs font-mono text-zinc-500">{task.points} pts</span>
+        <span className="text-xs font-mono text-ink-3">{task.points} pts</span>
       </div>
 
-      {!unlocked && <p className="text-xs text-zinc-600">Complete the previous task to unlock.</p>}
+      {!unlocked && <p className="text-xs text-ink-3">Complete the previous task to unlock.</p>}
 
       {unlocked && !completed && (
         <div className="space-y-3">
-          <p className="text-sm text-zinc-300">{task.prompt}</p>
+          <p className="text-sm text-ink-2">{task.prompt}</p>
           <form onSubmit={submit} className="space-y-2">
             {task.answerType === "FREE_TEXT" ? (
               <div className="flex gap-2">
@@ -169,12 +169,12 @@ function TaskCard({
                   value={freeText}
                   onChange={(e) => setFreeText(e.target.value)}
                   placeholder="Type your answer..."
-                  className="flex-1 rounded-lg bg-zinc-950 border border-white/10 px-3 py-2 text-sm font-mono text-zinc-100 focus:outline-none focus:border-sage-500/50"
+                  className="flex-1 rounded-lg bg-surface-0 border border-edge px-3 py-2 text-sm font-mono text-ink focus:outline-none focus:border-ok-edge"
                 />
                 <button
                   type="submit"
                   disabled={submitting || !freeText}
-                  className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition disabled:opacity-40"
+                  className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition disabled:opacity-40"
                 >
                   Submit
                 </button>
@@ -191,25 +191,25 @@ function TaskCard({
                       onChange={() => setRadioChoice(opt)}
                       className="accent-emerald-500 mt-0.5"
                     />
-                    <span className="text-sm text-zinc-200">{opt}</span>
+                    <span className="text-sm text-ink">{opt}</span>
                   </label>
                 ))}
                 <button
                   type="submit"
                   disabled={submitting || !radioChoice}
-                  className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition disabled:opacity-40"
+                  className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition disabled:opacity-40"
                 >
                   Submit
                 </button>
               </div>
             )}
-            {error && <p className="text-xs text-red-400 font-mono">{error}</p>}
+            {error && <p className="text-xs text-danger font-mono">{error}</p>}
           </form>
           <HintList hints={task.hints} />
         </div>
       )}
 
-      {completed && <p className="text-sm font-mono text-sage-400"><Icon name="check" size={14} className="inline-block shrink-0" /> Completed</p>}
+      {completed && <p className="text-sm font-mono text-ok"><Icon name="check" size={14} className="inline-block shrink-0" /> Completed</p>}
     </NoCopy>
   );
 }
@@ -255,31 +255,31 @@ export function IncidentPlayerClient({
     <div className="max-w-7xl mx-auto px-6 py-8">
       <header className="mb-6">
         <div className="flex flex-wrap items-center gap-3 mb-2">
-          <span className="text-xs uppercase tracking-widest text-sage-500 font-mono">{simulation.codename}</span>
-          <span className="text-xs font-bold text-amber-400 font-mono">{simulation.difficulty}</span>
-          <span className="text-xs text-zinc-500 font-mono">~{simulation.estimatedMinutes} min</span>
-          <span className="text-xs font-bold text-zinc-400 font-mono">{simulation.points} pts</span>
+          <span className="text-xs uppercase tracking-widest text-ink-3 font-mono">{simulation.codename}</span>
+          <span className="text-xs font-bold text-warn font-mono">{simulation.difficulty}</span>
+          <span className="text-xs text-ink-3 font-mono">~{simulation.estimatedMinutes} min</span>
+          <span className="text-xs font-bold text-ink-2 font-mono">{simulation.points} pts</span>
         </div>
         <h1 className="text-2xl font-bold">{simulation.title}</h1>
-        <p className="text-sm text-zinc-500 mt-1">{simulation.company.name}</p>
-        <p className="text-zinc-300 mt-3 max-w-3xl leading-relaxed">{simulation.briefing}</p>
+        <p className="text-sm text-ink-3 mt-1">{simulation.company.name}</p>
+        <p className="text-ink-2 mt-3 max-w-3xl leading-relaxed">{simulation.briefing}</p>
 
-        <div className="mt-4 rounded-lg border border-white/8 bg-zinc-900/40 p-4 max-w-3xl">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Company Environment</p>
-          <p className="text-sm text-zinc-300">{simulation.company.description}</p>
+        <div className="mt-4 rounded-lg border border-edge bg-surface-1 p-4 max-w-3xl">
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Company Environment</p>
+          <p className="text-sm text-ink-2">{simulation.company.description}</p>
           {simulation.company.networkNotes && (
-            <p className="text-xs text-zinc-500 mt-2 font-mono">{simulation.company.networkNotes}</p>
+            <p className="text-xs text-ink-3 mt-2 font-mono">{simulation.company.networkNotes}</p>
           )}
         </div>
 
         <div className="mt-4 flex items-center gap-2">
-          <div className="flex-1 max-w-xs h-1.5 rounded-full bg-zinc-800">
+          <div className="flex-1 max-w-xs h-1.5 rounded-full bg-surface-2">
             <div
-              className="h-full rounded-full bg-sage-500 transition-all"
+              className="h-full rounded-full bg-ok transition-all"
               style={{ width: `${tasks.length > 0 ? (doneCount / tasks.length) * 100 : 0}%` }}
             />
           </div>
-          <span className="text-xs text-zinc-500 font-mono">{doneCount}/{tasks.length} tasks</span>
+          <span className="text-xs text-ink-3 font-mono">{doneCount}/{tasks.length} tasks</span>
         </div>
       </header>
 
@@ -291,16 +291,16 @@ export function IncidentPlayerClient({
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6">
         {/* Artifacts panel */}
-        <div className="rounded-xl border border-white/8 bg-zinc-900/40 overflow-hidden">
-          <div className="flex gap-1 overflow-x-auto border-b border-white/8 p-2">
+        <div className="rounded-xl border border-edge bg-surface-1 overflow-hidden">
+          <div className="flex gap-1 overflow-x-auto border-b border-edge p-2">
             {artifacts.map((a) => (
               <button
                 key={a.id}
                 onClick={() => setActiveArtifact(a.id)}
                 className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                   activeArtifact === a.id || (!activeArtifact && a.id === artifacts[0]?.id)
-                    ? "bg-sage-500 text-black"
-                    : "text-zinc-400 hover:text-white hover:bg-white/5"
+                    ? "bg-accent-fill text-white"
+                    : "text-ink-2 hover:text-white hover:bg-surface-2"
                 }`}
               >
                 {ARTIFACT_LABEL[a.type] ?? a.type}
@@ -309,8 +309,8 @@ export function IncidentPlayerClient({
           </div>
           {active && (
             <div className="p-4">
-              <p className="text-sm font-semibold text-zinc-200 mb-3">{active.title}</p>
-              <pre className="font-mono text-xs text-emerald-300 whitespace-pre-wrap overflow-x-auto bg-zinc-950 border border-white/8 rounded-lg p-4 max-h-[560px] overflow-y-auto">
+              <p className="text-sm font-semibold text-ink mb-3">{active.title}</p>
+              <pre className="font-mono text-xs text-ok whitespace-pre-wrap overflow-x-auto bg-surface-0 border border-edge rounded-lg p-4 max-h-[560px] overflow-y-auto">
                 {active.content}
               </pre>
             </div>
@@ -331,22 +331,22 @@ export function IncidentPlayerClient({
           ))}
 
           {allDone && (
-            <div className="rounded-xl border border-sage-500/40 bg-sage-500/5 p-5">
-              <h3 className="font-bold text-sage-400 text-base mb-1">Simulation Complete</h3>
-              <p className="text-sm text-zinc-400 mb-4">
+            <div className="rounded-xl border border-ok-edge bg-ok-wash p-5">
+              <h3 className="font-bold text-ok text-base mb-1">Simulation Complete</h3>
+              <p className="text-sm text-ink-2 mb-4">
                 You reconstructed the full attack chain for {simulation.codename} and produced containment and
                 reporting recommendations — exactly the workflow of a real incident response engagement.
               </p>
               <div className="flex flex-col gap-2">
                 <Link
                   href={`/incidents/${simulation.slug}/evidence-board`}
-                  className="rounded-lg bg-sage-500 px-4 py-2.5 text-center text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition"
+                  className="rounded-lg bg-accent-fill px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition"
                 >
                   Continue to Evidence Board →
                 </Link>
                 <Link
                   href={`/incidents/${simulation.slug}/report`}
-                  className="rounded-lg border border-white/15 px-4 py-2.5 text-center text-sm font-medium text-zinc-200 hover:border-white/30 transition"
+                  className="rounded-lg border border-edge-strong px-4 py-2.5 text-center text-sm font-medium text-ink hover:border-edge-strong transition"
                 >
                   Skip to Report Builder
                 </Link>

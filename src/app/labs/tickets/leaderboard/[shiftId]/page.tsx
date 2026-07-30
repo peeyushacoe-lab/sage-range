@@ -50,10 +50,10 @@ export default async function ShiftLeaderboard({
 
   if (!shift) {
     return (
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <main className="min-h-screen bg-surface-0 text-white">
         <Navbar />
         <div className="max-w-5xl mx-auto px-6 py-8">
-          <p className="text-zinc-400">Shift not found</p>
+          <p className="text-ink-2">Shift not found</p>
         </div>
       </main>
     );
@@ -64,7 +64,7 @@ export default async function ShiftLeaderboard({
   const userRank = leaderboard.findIndex((e) => e.userId === user.id) + 1;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-6 py-8">
@@ -78,7 +78,7 @@ export default async function ShiftLeaderboard({
           actions={
             <Link
               href="/labs/tickets"
-              className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+              className="shrink-0 rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
             >
               Back to Shifts →
             </Link>
@@ -87,17 +87,17 @@ export default async function ShiftLeaderboard({
 
         {/* User's Position */}
         {userEntry && (
-          <Card className="mb-6 p-4 bg-sage-500/5 border-sage-500/30">
+          <Card className="mb-6 p-4 bg-ok-wash border-ok-edge">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Your Position</p>
+                <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Your Position</p>
                 <p className="text-lg font-bold text-white">
-                  Rank <span className="text-sage-400">#{userRank}</span>
+                  Rank <span className="text-ok">#{userRank}</span>
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-sage-400">{userEntry.score}</p>
-                <p className="text-xs text-zinc-500 mt-1">{userEntry.accuracy}% accuracy</p>
+                <p className="text-2xl font-bold text-ok">{userEntry.score}</p>
+                <p className="text-xs text-ink-3 mt-1">{userEntry.accuracy}% accuracy</p>
               </div>
             </div>
           </Card>
@@ -108,23 +108,23 @@ export default async function ShiftLeaderboard({
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                <tr className="border-b border-edge">
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Rank
                   </th>
-                  <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Player
                   </th>
-                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Score
                   </th>
-                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Accuracy
                   </th>
-                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     Speed (tickets/min)
                   </th>
-                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                  <th className="px-5 py-3 text-right text-xs uppercase tracking-widest text-ink-3 font-semibold">
                     SLA Violations
                   </th>
                 </tr>
@@ -138,14 +138,14 @@ export default async function ShiftLeaderboard({
                     <tr
                       key={entry.userId}
                       className={cn(
-                        'border-t border-white/5 hover:bg-zinc-900/50 transition',
-                        isUser && 'bg-sage-500/10'
+                        'border-t border-edge-subtle hover:bg-surface-1 transition',
+                        isUser && 'bg-ok-wash'
                       )}
                     >
                       <td className="px-5 py-4">
                         <span className={cn(
                           'font-bold font-mono',
-                          rank === 1 ? 'text-amber-400' : rank === 2 ? 'text-gray-300' : rank === 3 ? 'text-amber-600' : 'text-zinc-400'
+                          rank === 1 ? 'text-warn' : rank === 2 ? 'text-gray-300' : rank === 3 ? 'text-warn' : 'text-ink-2'
                         )}>
                           #{rank}
                         </span>
@@ -153,27 +153,27 @@ export default async function ShiftLeaderboard({
                       <td className="px-5 py-4">
                         <span className="font-medium">
                           {entry.username}
-                          {isUser && <span className="text-xs text-zinc-500 ml-2">(you)</span>}
+                          {isUser && <span className="text-xs text-ink-3 ml-2">(you)</span>}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-right font-bold text-sage-400 font-mono">
+                      <td className="px-5 py-4 text-right font-bold text-ok font-mono">
                         {entry.score}
                       </td>
                       <td className="px-5 py-4 text-right font-mono">
                         <span className={cn(
                           'font-semibold',
-                          entry.accuracy >= 80 ? 'text-emerald-400' : entry.accuracy >= 60 ? 'text-amber-400' : 'text-red-400'
+                          entry.accuracy >= 80 ? 'text-ok' : entry.accuracy >= 60 ? 'text-warn' : 'text-danger'
                         )}>
                           {entry.accuracy}%
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-right font-mono text-zinc-300">
+                      <td className="px-5 py-4 text-right font-mono text-ink-2">
                         {entry.speed.toFixed(1)}
                       </td>
                       <td className="px-5 py-4 text-right">
                         <span className={cn(
                           'font-mono font-semibold',
-                          entry.slaViolations === 0 ? 'text-emerald-400' : 'text-red-400'
+                          entry.slaViolations === 0 ? 'text-ok' : 'text-danger'
                         )}>
                           {entry.slaViolations}
                         </span>
@@ -190,13 +190,13 @@ export default async function ShiftLeaderboard({
         <div className="mt-8 flex gap-3">
           <Link
             href="/labs/tickets"
-            className="px-4 py-2 rounded-lg border border-white/10 text-white font-semibold hover:border-white/30 transition"
+            className="px-4 py-2 rounded-lg border border-edge text-white font-semibold hover:border-edge-strong transition"
           >
             Back to Shifts
           </Link>
           <Link
             href="/labs/tickets/leaderboard/weekly"
-            className="px-4 py-2 rounded-lg bg-sage-500 text-black font-semibold hover:bg-sage-600 transition"
+            className="px-4 py-2 rounded-lg bg-accent-fill text-white font-semibold hover:bg-ok-wash transition"
           >
             Weekly Leaderboard →
           </Link>

@@ -138,15 +138,15 @@ export default async function StatsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-surface-0 text-white">
       <Navbar />
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
 
         {/* Header */}
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Personal Statistics</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Personal Statistics</p>
           <h1 className="text-2xl font-bold">{me.displayName ?? me.email.split("@")[0]}</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">
+          <p className="text-sm text-ink-3 mt-0.5">
             {totalPoints.toLocaleString()} total points · Skill score {me.skillScore}
           </p>
         </div>
@@ -154,17 +154,17 @@ export default async function StatsPage() {
         {/* Big stat grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {bigStats.map((s) => (
-            <div key={s.label} className="rounded-xl border border-white/8 bg-zinc-900/50 p-4">
-              <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">{s.label}</p>
-              <p className="text-3xl font-black tabular-nums text-zinc-100">{s.value}</p>
-              <p className="text-xs text-zinc-600 mt-1">{s.sub}</p>
+            <div key={s.label} className="rounded-xl border border-edge bg-surface-1 p-4">
+              <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-2">{s.label}</p>
+              <p className="text-3xl font-black tabular-nums text-ink">{s.value}</p>
+              <p className="text-xs text-ink-3 mt-1">{s.sub}</p>
             </div>
           ))}
         </div>
 
         {/* Activity heatmap */}
-        <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Activity — Last 52 Weeks</p>
+        <div className="rounded-xl border border-edge bg-surface-1 p-5">
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-4">Activity — Last 52 Weeks</p>
           <div className="overflow-x-auto">
             <div className="flex gap-1 min-w-max">
               {weeks.map((week, wi) => (
@@ -182,11 +182,11 @@ export default async function StatsPage() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-3">
-            <span className="text-[10px] text-zinc-600">Less</span>
+            <span className="text-[10px] text-ink-3">Less</span>
             {[0, 1, 3, 6, 8].map((n) => (
               <div key={n} className="w-3 h-3 rounded-sm" style={{ backgroundColor: heatColor(n) }} />
             ))}
-            <span className="text-[10px] text-zinc-600">More</span>
+            <span className="text-[10px] text-ink-3">More</span>
           </div>
         </div>
 
@@ -194,20 +194,20 @@ export default async function StatsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
           {/* By type */}
-          <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Labs by Type</p>
+          <div className="rounded-xl border border-edge bg-surface-1 p-5">
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-4">Labs by Type</p>
             <div className="space-y-3">
               {[
-                { label: "CTF",       value: byType.CTF,       color: "bg-emerald-500" },
-                { label: "Blue Team", value: byType.BLUE_TEAM, color: "bg-blue-500" },
-                { label: "Red Team",  value: byType.RED_TEAM,  color: "bg-red-500" },
+                { label: "CTF",       value: byType.CTF,       color: "bg-ok" },
+                { label: "Blue Team", value: byType.BLUE_TEAM, color: "bg-info" },
+                { label: "Red Team",  value: byType.RED_TEAM,  color: "bg-danger" },
               ].map((r) => (
                 <div key={r.label}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-zinc-400">{r.label}</span>
-                    <span className="text-zinc-300 font-bold tabular-nums">{r.value}</span>
+                    <span className="text-ink-2">{r.label}</span>
+                    <span className="text-ink-2 font-bold tabular-nums">{r.value}</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-zinc-800">
+                  <div className="h-1.5 rounded-full bg-surface-2">
                     <div
                       className={`h-full rounded-full ${r.color} transition-all`}
                       style={{ width: `${Math.round((r.value / maxByType) * 100)}%` }}
@@ -219,21 +219,21 @@ export default async function StatsPage() {
           </div>
 
           {/* By difficulty */}
-          <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Labs by Difficulty</p>
+          <div className="rounded-xl border border-edge bg-surface-1 p-5">
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-4">Labs by Difficulty</p>
             <div className="space-y-3">
               {[
-                { label: "Easy",   value: byDiff.EASY,   color: "bg-emerald-500" },
-                { label: "Medium", value: byDiff.MEDIUM, color: "bg-amber-500" },
-                { label: "Hard",   value: byDiff.HARD,   color: "bg-red-500" },
-                { label: "Insane", value: byDiff.INSANE, color: "bg-purple-500" },
+                { label: "Easy",   value: byDiff.EASY,   color: "bg-ok" },
+                { label: "Medium", value: byDiff.MEDIUM, color: "bg-warn" },
+                { label: "Hard",   value: byDiff.HARD,   color: "bg-danger" },
+                { label: "Insane", value: byDiff.INSANE, color: "bg-accent" },
               ].map((r) => (
                 <div key={r.label}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="text-zinc-400">{r.label}</span>
-                    <span className="text-zinc-300 font-bold tabular-nums">{r.value}</span>
+                    <span className="text-ink-2">{r.label}</span>
+                    <span className="text-ink-2 font-bold tabular-nums">{r.value}</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-zinc-800">
+                  <div className="h-1.5 rounded-full bg-surface-2">
                     <div
                       className={`h-full rounded-full ${r.color} transition-all`}
                       style={{ width: `${Math.round((r.value / maxByDiff) * 100)}%` }}
@@ -247,13 +247,13 @@ export default async function StatsPage() {
 
         {/* Simulation history */}
         {completedSims.length > 0 && (
-          <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5">
+          <div className="rounded-xl border border-edge bg-surface-1 p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs uppercase tracking-widest text-zinc-500">Simulation History</p>
-              <div className="flex gap-4 text-xs text-zinc-500">
-                <span>Best: <span className="text-emerald-400 font-bold">{bestSimScore}</span></span>
-                <span>Avg: <span className="text-zinc-300 font-bold">{avgSimScore}</span></span>
-                <span>Total: <span className="text-zinc-300 font-bold">{completedSims.length}</span></span>
+              <p className="text-xs uppercase tracking-widest text-ink-3">Simulation History</p>
+              <div className="flex gap-4 text-xs text-ink-3">
+                <span>Best: <span className="text-ok font-bold">{bestSimScore}</span></span>
+                <span>Avg: <span className="text-ink-2 font-bold">{avgSimScore}</span></span>
+                <span>Total: <span className="text-ink-2 font-bold">{completedSims.length}</span></span>
               </div>
             </div>
             <div className="space-y-2">
@@ -264,17 +264,17 @@ export default async function StatsPage() {
                   <div key={s.id} className="flex items-center gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-zinc-400 truncate">{s.template.name}</span>
+                        <span className="text-xs text-ink-2 truncate">{s.template.name}</span>
                         <div className="flex items-center gap-2 shrink-0 ml-2">
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${outcome === "CONTAINED" ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/8" : "text-red-400 border-red-500/30 bg-red-500/8"}`}>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${outcome === "CONTAINED" ? "text-ok border-ok-edge bg-ok-wash" : "text-danger border-danger-edge bg-danger-wash"}`}>
                             {outcome}
                           </span>
-                          <span className="text-xs font-bold tabular-nums text-zinc-200 w-8 text-right">{score}</span>
+                          <span className="text-xs font-bold tabular-nums text-ink w-8 text-right">{score}</span>
                         </div>
                       </div>
-                      <div className="h-1 rounded-full bg-zinc-800">
+                      <div className="h-1 rounded-full bg-surface-2">
                         <div
-                          className={`h-full rounded-full ${score >= 75 ? "bg-emerald-500" : score >= 50 ? "bg-amber-500" : "bg-red-500"}`}
+                          className={`h-full rounded-full ${score >= 75 ? "bg-ok" : score >= 50 ? "bg-warn" : "bg-danger"}`}
                           style={{ width: `${score}%` }}
                         />
                       </div>
@@ -288,23 +288,23 @@ export default async function StatsPage() {
 
         {/* Recent solved labs */}
         {solved.length > 0 && (
-          <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5 pb-6">
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Recently Solved</p>
-            <div className="divide-y divide-white/5">
+          <div className="rounded-xl border border-edge bg-surface-1 p-5 pb-6">
+            <p className="text-xs uppercase tracking-widest text-ink-3 mb-4">Recently Solved</p>
+            <div className="divide-y divide-edge-subtle">
               {solved.slice(0, 8).map((a) => (
                 <div key={a.id} className="flex items-center justify-between py-2.5">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-emerald-500 text-xs shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
-                    <span className="text-sm text-zinc-300 truncate">{a.lab.title}</span>
-                    <span className="text-[10px] text-zinc-600 uppercase font-mono shrink-0">{a.lab.type.replace("_", " ")}</span>
+                    <span className="text-ok text-xs shrink-0"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
+                    <span className="text-sm text-ink-2 truncate">{a.lab.title}</span>
+                    <span className="text-[10px] text-ink-3 uppercase font-mono shrink-0">{a.lab.type.replace("_", " ")}</span>
                   </div>
                   <div className="flex items-center gap-3 shrink-0 ml-2">
-                    {a.timeTakenSec && <span className="text-xs text-zinc-500 tabular-nums">{fmtTime(a.timeTakenSec)}</span>}
+                    {a.timeTakenSec && <span className="text-xs text-ink-3 tabular-nums">{fmtTime(a.timeTakenSec)}</span>}
                     <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ${
-                      a.lab.difficulty === "EASY"   ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/8" :
-                      a.lab.difficulty === "MEDIUM" ? "text-amber-400 border-amber-500/20 bg-amber-500/8" :
-                      a.lab.difficulty === "HARD"   ? "text-red-400 border-red-500/20 bg-red-500/8" :
-                                                      "text-purple-400 border-purple-500/20 bg-purple-500/8"
+                      a.lab.difficulty === "EASY"   ? "text-ok border-ok-edge bg-ok-wash" :
+                      a.lab.difficulty === "MEDIUM" ? "text-warn border-warn-edge bg-warn-wash" :
+                      a.lab.difficulty === "HARD"   ? "text-danger border-danger-edge bg-danger-wash" :
+                                                      "text-accent border-accent-edge bg-accent-wash"
                     }`}>{a.lab.difficulty}</span>
                   </div>
                 </div>

@@ -29,8 +29,8 @@ export function NexusSsoClient() {
   if (error) {
     return (
       <div className="max-w-sm mx-auto p-8 text-center">
-        <p className="text-red-400 text-sm mb-4">{error}</p>
-        <Link href="/sign-in" className="text-sage-400 hover:text-sage-300 text-sm">
+        <p className="text-danger text-sm mb-4">{error}</p>
+        <Link href="/sign-in" className="text-ok hover:text-ok text-sm">
           Go to sign-in →
         </Link>
       </div>
@@ -39,8 +39,8 @@ export function NexusSsoClient() {
 
   return (
     <div className="max-w-sm mx-auto p-8 text-center">
-      <div className="w-5 h-5 border-2 border-sage-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-zinc-400 text-sm">Signing you in via Nexus…</p>
+      <div className="w-5 h-5 border-2 border-ok-edge border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-ink-2 text-sm">Signing you in via Nexus…</p>
     </div>
   );
 }

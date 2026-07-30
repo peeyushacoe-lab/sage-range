@@ -14,10 +14,10 @@ type EmpStateData = { stressLevel: number; morale: number; confidenceInSOC: numb
 type OrgHealth = { panicIndex: number; trustInSOC: number; operationalStability: number; communicationIntegrity: number; insiderThreatRisk: number };
 
 const ROLE_COLORS: Record<string, string> = {
-  IR_LEAD:   "bg-sage-500/10 text-sage-400 border border-sage-500/30",
-  FORENSICS: "bg-blue-500/10 text-blue-400 border border-blue-500/30",
-  LEGAL:     "bg-purple-500/10 text-purple-400 border border-purple-500/30",
-  COMMS:     "bg-amber-500/10 text-amber-400 border border-amber-500/30",
+  IR_LEAD:   "bg-ok-wash text-ok border border-ok-edge",
+  FORENSICS: "bg-info-wash text-info border border-info-edge",
+  LEGAL:     "bg-accent-wash text-accent border border-accent-edge",
+  COMMS:     "bg-warn-wash text-warn border border-warn-edge",
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -48,34 +48,34 @@ type Props = {
 };
 
 const THREAT_COLORS: Record<string, string> = {
-  LOW: "text-sage-500 border-sage-500/40",
-  MEDIUM: "text-amber-400 border-amber-500/40",
-  HIGH: "text-orange-400 border-orange-500/40",
-  CRITICAL: "text-red-400 border-red-500/40 animate-pulse",
+  LOW: "text-ok border-ok-edge",
+  MEDIUM: "text-warn border-warn-edge",
+  HIGH: "text-sev-high border-sev-high-edge",
+  CRITICAL: "text-danger border-danger-edge animate-pulse",
 };
 
 const ACTOR_STYLES: Record<string, { label: string; color: string }> = {
-  SYSTEM:        { label: "SYS",  color: "text-zinc-400 bg-zinc-800" },
-  ATTACKER:      { label: "ATK",  color: "text-red-400 bg-red-900/30" },
-  ADVERSARY:     { label: "ADV",  color: "text-red-400 bg-red-900/30" },
-  ANALYST:       { label: "YOU",  color: "text-sage-500 bg-sage-500/10" },
-  EXEC:          { label: "EXEC", color: "text-amber-400 bg-amber-900/30" },
-  LEGAL:         { label: "LAW",  color: "text-purple-400 bg-purple-900/30" },
-  HR:            { label: "HR",   color: "text-blue-400 bg-blue-900/30" },
-  DEFENSE:       { label: "DEF",  color: "text-sage-400 bg-sage-900/30" },
-  EMAIL_GATEWAY: { label: "EML",  color: "text-blue-400 bg-blue-900/20" },
+  SYSTEM:        { label: "SYS",  color: "text-ink-2 bg-surface-2" },
+  ATTACKER:      { label: "ATK",  color: "text-danger bg-danger-wash" },
+  ADVERSARY:     { label: "ADV",  color: "text-danger bg-danger-wash" },
+  ANALYST:       { label: "YOU",  color: "text-ok bg-ok-wash" },
+  EXEC:          { label: "EXEC", color: "text-warn bg-warn-wash" },
+  LEGAL:         { label: "LAW",  color: "text-accent bg-accent-wash" },
+  HR:            { label: "HR",   color: "text-info bg-info-wash" },
+  DEFENSE:       { label: "DEF",  color: "text-ok bg-ok-wash" },
+  EMAIL_GATEWAY: { label: "EML",  color: "text-info bg-info-wash" },
   EDR:           { label: "EDR",  color: "text-cyan-400 bg-cyan-900/20" },
-  SIEM:          { label: "SIEM", color: "text-purple-400 bg-purple-900/20" },
-  FIREWALL:      { label: "FW",   color: "text-orange-400 bg-orange-900/20" },
+  SIEM:          { label: "SIEM", color: "text-accent bg-accent-wash" },
+  FIREWALL:      { label: "FW",   color: "text-sev-high bg-sev-high-wash" },
   DLP:           { label: "DLP",  color: "text-pink-400 bg-pink-900/20" },
   IDENTITY_PROVIDER: { label: "IAM", color: "text-indigo-400 bg-indigo-900/20" },
 };
 
 const EXEC_ROLE_COLORS: Record<string, string> = {
-  CISO:  "text-sage-400 bg-sage-500/10 border-sage-500/30",
-  CFO:   "text-amber-400 bg-amber-500/10 border-amber-500/30",
-  CEO:   "text-blue-400 bg-blue-500/10 border-blue-500/30",
-  LEGAL: "text-purple-400 bg-purple-500/10 border-purple-500/30",
+  CISO:  "text-ok bg-ok-wash border-ok-edge",
+  CFO:   "text-warn bg-warn-wash border-warn-edge",
+  CEO:   "text-info bg-info-wash border-info-edge",
+  LEGAL: "text-accent bg-accent-wash border-accent-edge",
   PR:    "text-pink-400 bg-pink-500/10 border-pink-500/30",
 };
 
@@ -91,9 +91,9 @@ function elapsed(startIso: string) {
 }
 
 function SatisfactionBar({ value }: { value: number }) {
-  const color = value > 70 ? "bg-sage-500" : value >= 40 ? "bg-amber-500" : "bg-red-500";
+  const color = value > 70 ? "bg-ok" : value >= 40 ? "bg-warn" : "bg-danger";
   return (
-    <div className="h-1.5 rounded-full bg-white/5 overflow-hidden flex-1">
+    <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden flex-1">
       <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${value}%` }} />
     </div>
   );
@@ -178,7 +178,7 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
   const { session, events, worldState, availableActions, stageDefinition } = data;
   const company = session.companyData;
   const isOver = worldState.status !== "ACTIVE";
-  const threatColor = THREAT_COLORS[stageDefinition?.threat ?? "LOW"] ?? "text-zinc-400";
+  const threatColor = THREAT_COLORS[stageDefinition?.threat ?? "LOW"] ?? "text-ink-2";
   const executives = data.executives ?? [];
   const roleActions = teamRole ? availableActions.filter((a) => actionMatchesRole(a, teamRole)) : availableActions;
   const advisoryActions = teamRole === "LEGAL" ? availableActions.filter((a) => !actionMatchesRole(a, teamRole)) : [];
@@ -189,13 +189,13 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
   const actionsUnlocked = stageArtifacts.length === 0 || stageArtifacts.some((a) => readIds.has(a.id));
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-950 text-white">
+    <div className="min-h-screen flex flex-col bg-surface-0 text-white">
       {/* Header */}
-      <header className="border-b border-white/10 px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
+      <header className="border-b border-edge px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="text-xs text-zinc-600 hover:text-zinc-400">← Exit</Link>
+          <Link href="/dashboard" className="text-xs text-ink-3 hover:text-ink-2">← Exit</Link>
           <div>
-            <p className="text-xs text-zinc-500 uppercase tracking-wider">{company.name} · {company.city}</p>
+            <p className="text-xs text-ink-3 uppercase tracking-wider">{company.name} · {company.city}</p>
             <p className="font-semibold text-sm">{session.template.name}</p>
           </div>
         </div>
@@ -206,25 +206,25 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
             </span>
           )}
           <div className="text-right">
-            <p className="text-xs text-zinc-500">Stage</p>
+            <p className="text-xs text-ink-3">Stage</p>
             <p className="text-sm font-semibold">{stageDefinition?.label ?? session.currentStage}</p>
           </div>
           <div className="text-right relative">
-            <p className="text-xs text-zinc-500">Score</p>
-            <p className="text-lg font-bold text-sage-500">{worldState.score}</p>
+            <p className="text-xs text-ink-3">Score</p>
+            <p className="text-lg font-bold text-ok">{worldState.score}</p>
             {scoreFlash !== null && (
               <span
                 className={`absolute -top-4 right-0 text-xs font-bold animate-bounce ${
-                  scoreFlash > 0 ? "text-sage-400" : "text-red-400"
+                  scoreFlash > 0 ? "text-ok" : "text-danger"
                 }`}
               >
                 {scoreFlash > 0 ? `+${scoreFlash}` : scoreFlash} pts
               </span>
             )}
           </div>
-          <div className="text-right font-mono text-sm text-zinc-400">{timer}</div>
+          <div className="text-right font-mono text-sm text-ink-2">{timer}</div>
           {isOver && (
-            <span className={`text-xs px-2 py-1 rounded font-bold ${worldState.status === "CONTAINED" ? "bg-sage-500/20 text-sage-500" : "bg-red-500/20 text-red-400"}`}>
+            <span className={`text-xs px-2 py-1 rounded font-bold ${worldState.status === "CONTAINED" ? "bg-ok-wash text-ok" : "bg-danger-wash text-danger"}`}>
               {worldState.status === "CONTAINED" ? "CONTAINED" : "BREACHED"}
             </span>
           )}
@@ -233,18 +233,18 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
 
       {/* Team header strip */}
       {teamRole && teamMembers && (
-        <div className="border-b border-white/10 px-6 py-2 flex items-center gap-3 flex-wrap bg-zinc-900/30">
-          <span className="text-xs text-zinc-600 uppercase tracking-wider font-semibold">Your Role:</span>
-          <span className={`text-xs font-bold px-2 py-0.5 rounded ${ROLE_COLORS[teamRole] ?? "text-zinc-400 border border-zinc-700"}`}>
+        <div className="border-b border-edge px-6 py-2 flex items-center gap-3 flex-wrap bg-surface-1">
+          <span className="text-xs text-ink-3 uppercase tracking-wider font-semibold">Your Role:</span>
+          <span className={`text-xs font-bold px-2 py-0.5 rounded ${ROLE_COLORS[teamRole] ?? "text-ink-2 border border-edge-strong"}`}>
             {ROLE_LABELS[teamRole] ?? teamRole}
           </span>
-          <span className="text-zinc-700 text-xs">|</span>
-          <span className="text-xs text-zinc-600 uppercase tracking-wider font-semibold">Team:</span>
+          <span className="text-ink-3 text-xs">|</span>
+          <span className="text-xs text-ink-3 uppercase tracking-wider font-semibold">Team:</span>
           <div className="flex flex-wrap gap-1.5">
             {teamMembers.map((m) => (
               <span
                 key={`${m.name}-${m.role}`}
-                className={`text-xs px-2 py-0.5 rounded ${ROLE_COLORS[m.role] ?? "text-zinc-400 border border-zinc-700"}`}
+                className={`text-xs px-2 py-0.5 rounded ${ROLE_COLORS[m.role] ?? "text-ink-2 border border-edge-strong"}`}
               >
                 {m.name} · {ROLE_LABELS[m.role] ?? m.role}
               </span>
@@ -254,11 +254,11 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
       )}
 
       {/* Three-panel layout */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] divide-y lg:divide-y-0 lg:divide-x divide-white/10 overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] divide-y lg:divide-y-0 lg:divide-x divide-edge-subtle overflow-hidden">
 
         {/* LEFT — Live Feed */}
         <div className="flex flex-col">
-          <p className="px-4 py-2 text-xs uppercase tracking-widest text-zinc-600 border-b border-white/10">Live Feed</p>
+          <p className="px-4 py-2 text-xs uppercase tracking-widest text-ink-3 border-b border-edge">Live Feed</p>
           <div ref={feedRef} className="flex-1 overflow-y-auto p-3 space-y-2 max-h-[calc(100vh-120px)]">
             {events.map((ev) => {
               const style = ACTOR_STYLES[ev.actor] ?? ACTOR_STYLES.SYSTEM;
@@ -271,12 +271,12 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
                     {style.label}
                   </span>
                   <div>
-                    <span className="text-zinc-600 mr-1 font-mono">{formatTime(ev.createdAt)}</span>
-                    <span className={ev.actor === "ATTACKER" ? "text-red-300" : ev.actor === "ANALYST" ? "text-sage-400" : "text-zinc-400"}>
+                    <span className="text-ink-3 mr-1 font-mono">{formatTime(ev.createdAt)}</span>
+                    <span className={ev.actor === "ATTACKER" ? "text-danger" : ev.actor === "ANALYST" ? "text-ok" : "text-ink-2"}>
                       {ev.narrative ?? ev.type}
                     </span>
                     {typeof scoreChange === "number" && scoreChange !== 0 && (
-                      <span className={`ml-1.5 font-bold tabular-nums ${scoreChange > 0 ? "text-sage-500" : "text-red-400"}`}>
+                      <span className={`ml-1.5 font-bold tabular-nums ${scoreChange > 0 ? "text-ok" : "text-danger"}`}>
                         {scoreChange > 0 ? `+${scoreChange}` : scoreChange}
                       </span>
                     )}
@@ -289,32 +289,32 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
 
         {/* CENTER — Situation + Actions */}
         <div className="flex flex-col overflow-y-auto">
-          <p className="px-6 py-2 text-xs uppercase tracking-widest text-zinc-600 border-b border-white/10">Situation Brief</p>
+          <p className="px-6 py-2 text-xs uppercase tracking-widest text-ink-3 border-b border-edge">Situation Brief</p>
           <div className="p-6 flex-1">
             {stageDefinition && (
               <div className="mb-6">
                 <h2 className={`text-lg font-bold mb-2 ${threatColor.split(" ")[0]}`}>{stageDefinition.label}</h2>
-                <p className="text-zinc-300 text-sm leading-relaxed">{stageDefinition.brief}</p>
+                <p className="text-ink-2 text-sm leading-relaxed">{stageDefinition.brief}</p>
               </div>
             )}
 
             {isOver ? (
-              <div className={`rounded-xl border p-6 text-center ${worldState.status === "CONTAINED" ? "border-sage-500/40 bg-sage-500/5" : "border-red-500/30 bg-red-500/5"}`}>
-                <p className={`text-2xl font-bold mb-1 ${worldState.status === "CONTAINED" ? "text-sage-500" : "text-red-400"}`}>
+              <div className={`rounded-xl border p-6 text-center ${worldState.status === "CONTAINED" ? "border-ok-edge bg-ok-wash" : "border-danger-edge bg-danger-wash"}`}>
+                <p className={`text-2xl font-bold mb-1 ${worldState.status === "CONTAINED" ? "text-ok" : "text-danger"}`}>
                   {worldState.status === "CONTAINED" ? "Incident Contained" : "Network Breached"}
                 </p>
-                <p className="text-zinc-400 text-sm mb-4">
+                <p className="text-ink-2 text-sm mb-4">
                   {worldState.status === "CONTAINED"
                     ? "You stopped the attack. Your decisions made the difference."
                     : "The attacker reached their objective. Review what you missed."}
                 </p>
-                <p className="text-3xl font-bold">{worldState.score} <span className="text-sm text-zinc-500 font-normal">points</span></p>
-                <p className="text-xs text-zinc-600 mt-1">{worldState.decisionCount} decisions made</p>
+                <p className="text-3xl font-bold">{worldState.score} <span className="text-sm text-ink-3 font-normal">points</span></p>
+                <p className="text-xs text-ink-3 mt-1">{worldState.decisionCount} decisions made</p>
                 <div className="mt-5 flex items-center justify-center gap-3">
-                  <Link href={`/simulation/${sessionId}/debrief`} className="rounded bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition">
+                  <Link href={`/simulation/${sessionId}/debrief`} className="rounded bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition">
                     Full Debrief →
                   </Link>
-                  <Link href="/dashboard" className="rounded bg-white/10 px-4 py-2 text-sm hover:bg-white/20">
+                  <Link href="/dashboard" className="rounded bg-surface-2 px-4 py-2 text-sm hover:bg-surface-2">
                     Dashboard
                   </Link>
                 </div>
@@ -333,23 +333,23 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
                 {/* Action panel — locked until at least one artifact read */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <p className="text-xs uppercase tracking-wider text-zinc-600">
+                    <p className="text-xs uppercase tracking-wider text-ink-3">
                       {actionsUnlocked ? "Response Actions" : "Response Actions"}
                     </p>
                     {!actionsUnlocked && (
-                      <span className="text-[9px] font-bold text-zinc-700 border border-zinc-800 px-1.5 py-0.5 rounded tracking-widest">
+                      <span className="text-[9px] font-bold text-ink-3 border border-edge-strong px-1.5 py-0.5 rounded tracking-widest">
                         LOCKED
                       </span>
                     )}
                     {actionsUnlocked && stageArtifacts.length > 0 && (
-                      <span className="text-[9px] font-bold text-sage-600 border border-sage-500/20 px-1.5 py-0.5 rounded tracking-widest">
+                      <span className="text-[9px] font-bold text-ok border border-ok-edge px-1.5 py-0.5 rounded tracking-widest">
                         UNLOCKED
                       </span>
                     )}
                   </div>
                   <div className={`grid gap-2 transition-all ${!actionsUnlocked ? "opacity-30 pointer-events-none select-none" : ""}`}>
                     {roleActions.length === 0 && advisoryActions.length === 0 && (
-                      <p className="text-zinc-600 text-sm italic">
+                      <p className="text-ink-3 text-sm italic">
                         {teamRole ? "No actions available for your role. Coordinate with your IR Lead." : "Monitoring situation… Refresh incoming."}
                       </p>
                     )}
@@ -358,18 +358,18 @@ export function WarRoomClient({ sessionId, initialData, teamRole, teamMembers, p
                         key={a.id}
                         onClick={() => takeAction(a.id)}
                         disabled={!!pending || !actionsUnlocked}
-                        className="text-left rounded-lg border border-white/10 p-3 hover:border-sage-500/50 hover:bg-sage-500/5 transition disabled:opacity-50 group"
+                        className="text-left rounded-lg border border-edge p-3 hover:border-ok-edge hover:bg-ok-wash transition disabled:opacity-50 group"
                       >
-                        <p className="text-sm font-medium group-hover:text-sage-400 transition">
+                        <p className="text-sm font-medium group-hover:text-ok transition">
                           {pending === a.id ? "Executing…" : a.label}
                         </p>
-                        <p className="text-xs text-zinc-500 mt-0.5">{a.description}</p>
+                        <p className="text-xs text-ink-3 mt-0.5">{a.description}</p>
                       </button>
                     ))}
                     {advisoryActions.map((a) => (
-                      <div key={a.id} className="rounded-lg border border-white/5 p-3 opacity-40">
-                        <p className="text-sm font-medium text-zinc-400">{a.label}</p>
-                        <p className="text-xs text-zinc-600 mt-0.5">Advisory only — action belongs to another role</p>
+                      <div key={a.id} className="rounded-lg border border-edge-subtle p-3 opacity-40">
+                        <p className="text-sm font-medium text-ink-2">{a.label}</p>
+                        <p className="text-xs text-ink-3 mt-0.5">Advisory only — action belongs to another role</p>
                       </div>
                     ))}
                   </div>

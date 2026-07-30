@@ -91,11 +91,11 @@ export function VersionHistoryClient({ params }: Props) {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <main className="min-h-screen bg-surface-0 text-white">
         <div className="max-w-4xl mx-auto px-6 py-8">
           <div className="space-y-4">
-            <div className="h-12 bg-zinc-800 rounded-lg animate-pulse" />
-            <div className="h-96 bg-zinc-800 rounded-lg animate-pulse" />
+            <div className="h-12 bg-surface-2 rounded-lg animate-pulse" />
+            <div className="h-96 bg-surface-2 rounded-lg animate-pulse" />
           </div>
         </div>
       </main>
@@ -104,13 +104,13 @@ export function VersionHistoryClient({ params }: Props) {
 
   if (error || !data) {
     return (
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <main className="min-h-screen bg-surface-0 text-white">
         <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-6 flex gap-3">
-            <AlertCircle size={20} className="text-red-400 flex-none mt-0.5" />
+          <div className="rounded-lg border border-danger-edge bg-danger-wash p-6 flex gap-3">
+            <AlertCircle size={20} className="text-danger flex-none mt-0.5" />
             <div>
-              <p className="font-semibold text-red-400">Error</p>
-              <p className="text-sm text-red-300 mt-1">{error || 'Failed to load versions'}</p>
+              <p className="font-semibold text-danger">Error</p>
+              <p className="text-sm text-danger mt-1">{error || 'Failed to load versions'}</p>
             </div>
           </div>
         </div>
@@ -119,7 +119,7 @@ export function VersionHistoryClient({ params }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         <PageHeader
@@ -129,7 +129,7 @@ export function VersionHistoryClient({ params }: Props) {
           actions={
             <Link
               href={`/labs/rules/${data.submissionId}`}
-              className="rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+              className="rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
             >
               Back to Rule →
             </Link>
@@ -142,9 +142,9 @@ export function VersionHistoryClient({ params }: Props) {
             const isExpanded = expandedVersion === version.version;
             const isComparison = comparisonVersion === version.version;
             const scoreColor =
-              version.f1Score >= 0.8 ? 'text-emerald-400' :
-              version.f1Score >= 0.6 ? 'text-amber-400' :
-              'text-orange-400';
+              version.f1Score >= 0.8 ? 'text-ok' :
+              version.f1Score >= 0.6 ? 'text-warn' :
+              'text-sev-high';
 
             return (
               <div key={version.version}>
@@ -152,14 +152,14 @@ export function VersionHistoryClient({ params }: Props) {
                 <button
                   onClick={() => setExpandedVersion(isExpanded ? null : version.version)}
                   className={cn(
-                    'w-full border-t border-white/10 px-6 py-4 flex items-center gap-4 hover:bg-white/5 transition',
-                    isExpanded && 'bg-white/5'
+                    'w-full border-t border-edge px-6 py-4 flex items-center gap-4 hover:bg-surface-2 transition',
+                    isExpanded && 'bg-surface-2'
                   )}
                 >
                   <ChevronDown
                     size={20}
                     className={cn(
-                      'text-zinc-600 flex-none transition-transform',
+                      'text-ink-3 flex-none transition-transform',
                       isExpanded && 'rotate-180'
                     )}
                   />
@@ -173,11 +173,11 @@ export function VersionHistoryClient({ params }: Props) {
                         F1: {version.f1Score.toFixed(2)}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-500 mt-1">
+                    <p className="text-xs text-ink-3 mt-1">
                       {new Date(version.createdAt).toLocaleString()}
                     </p>
                     {version.changeNotes && (
-                      <p className="text-xs text-zinc-400 mt-2">{version.changeNotes}</p>
+                      <p className="text-xs text-ink-2 mt-2">{version.changeNotes}</p>
                     )}
                   </div>
 
@@ -198,7 +198,7 @@ export function VersionHistoryClient({ params }: Props) {
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className="border-t border-white/10 bg-white/5 px-6 py-4 space-y-4">
+                  <div className="border-t border-edge bg-surface-2 px-6 py-4 space-y-4">
                     <div>
                       <p className="text-sm font-semibold text-white mb-2">Rule Content</p>
                       <SyntaxHighlighter
@@ -218,7 +218,7 @@ export function VersionHistoryClient({ params }: Props) {
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-xs text-zinc-500 mb-2">v{version.version}</p>
+                            <p className="text-xs text-ink-3 mb-2">v{version.version}</p>
                             <SyntaxHighlighter
                               code={version.content}
                               language={data.language}
@@ -228,7 +228,7 @@ export function VersionHistoryClient({ params }: Props) {
                             />
                           </div>
                           <div>
-                            <p className="text-xs text-zinc-500 mb-2">v{comparisonVersion}</p>
+                            <p className="text-xs text-ink-3 mb-2">v{comparisonVersion}</p>
                             {(() => {
                               const compareVer = data.versions.find(v => v.version === comparisonVersion);
                               return compareVer ? (
@@ -262,8 +262,8 @@ export function VersionHistoryClient({ params }: Props) {
         </div>
 
         {data.versions.length === 0 && (
-          <div className="rounded-lg border border-white/10 bg-white/5 p-8 text-center">
-            <p className="text-zinc-400">No version history available</p>
+          <div className="rounded-lg border border-edge bg-surface-2 p-8 text-center">
+            <p className="text-ink-2">No version history available</p>
           </div>
         )}
       </div>

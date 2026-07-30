@@ -65,7 +65,7 @@ export function NewCompetitionForm({ labs }: { labs: Lab[] }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-xs px-3 py-1.5 rounded-lg bg-sage-500/20 text-sage-500 hover:bg-sage-500/30 font-semibold transition"
+        className="text-xs px-3 py-1.5 rounded-lg bg-ok-wash text-ok hover:bg-ok-wash font-semibold transition"
       >
         + New Competition
       </button>
@@ -73,63 +73,63 @@ export function NewCompetitionForm({ labs }: { labs: Lab[] }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-white/10 p-5 space-y-4 mt-4">
-      <h3 className="text-sm font-semibold text-zinc-300">New Competition</h3>
-      {error && <p className="text-xs text-red-400">{error}</p>}
+    <form onSubmit={handleSubmit} className="rounded-lg border border-edge p-5 space-y-4 mt-4">
+      <h3 className="text-sm font-semibold text-ink-2">New Competition</h3>
+      {error && <p className="text-xs text-danger">{error}</p>}
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-zinc-500 mb-1">Name</label>
+          <label className="block text-xs text-ink-3 mb-1">Name</label>
           <input
             value={name} onChange={(e) => setName(e.target.value)}
-            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+            className="w-full rounded bg-surface-1 border border-edge px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
             placeholder="Spring CTF 2025"
           />
         </div>
         <div>
-          <label className="block text-xs text-zinc-500 mb-1">Description</label>
+          <label className="block text-xs text-ink-3 mb-1">Description</label>
           <input
             value={description} onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+            className="w-full rounded bg-surface-1 border border-edge px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
             placeholder="Open to all students…"
           />
         </div>
         <div>
-          <label className="block text-xs text-zinc-500 mb-1">Start Date</label>
+          <label className="block text-xs text-ink-3 mb-1">Start Date</label>
           <input
             type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+            className="w-full rounded bg-surface-1 border border-edge px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
           />
         </div>
         <div>
-          <label className="block text-xs text-zinc-500 mb-1">End Date</label>
+          <label className="block text-xs text-ink-3 mb-1">End Date</label>
           <input
             type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+            className="w-full rounded bg-surface-1 border border-edge px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
           />
         </div>
         <div>
-          <label className="block text-xs text-zinc-500 mb-1">Freeze Scoreboard At <span className="text-zinc-700">(optional)</span></label>
+          <label className="block text-xs text-ink-3 mb-1">Freeze Scoreboard At <span className="text-ink-3">(optional)</span></label>
           <input
             type="datetime-local" value={freezeAt} onChange={(e) => setFreezeAt(e.target.value)}
-            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+            className="w-full rounded bg-surface-1 border border-edge px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
           />
         </div>
         <div>
-          <label className="block text-xs text-zinc-500 mb-1">Prize Description <span className="text-zinc-700">(optional)</span></label>
+          <label className="block text-xs text-ink-3 mb-1">Prize Description <span className="text-ink-3">(optional)</span></label>
           <input
             value={prizeDesc} onChange={(e) => setPrizeDesc(e.target.value)}
-            className="w-full rounded bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
+            className="w-full rounded bg-surface-1 border border-edge px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
             placeholder="Top 3 receive Sage Vault merchandise"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs text-zinc-500 mb-2">Labs included</label>
+        <label className="block text-xs text-ink-3 mb-2">Labs included</label>
         <div className="grid sm:grid-cols-2 gap-2">
           {labs.map((lab) => (
-            <label key={lab.slug} className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+            <label key={lab.slug} className="flex items-center gap-2 text-sm text-ink-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedSlugs.includes(lab.slug)}
@@ -137,23 +137,23 @@ export function NewCompetitionForm({ labs }: { labs: Lab[] }) {
                 className="accent-sage-500"
               />
               <span>{lab.title}</span>
-              <span className="text-xs text-zinc-600 font-mono">{lab.slug}</span>
+              <span className="text-xs text-ink-3 font-mono">{lab.slug}</span>
             </label>
           ))}
         </div>
-        {labs.length === 0 && <p className="text-xs text-zinc-600">No published labs available.</p>}
+        {labs.length === 0 && <p className="text-xs text-ink-3">No published labs available.</p>}
       </div>
 
       <div className="flex gap-2">
         <button
           type="submit" disabled={loading}
-          className="text-xs px-4 py-2 rounded-lg bg-sage-500 text-black font-semibold hover:bg-sage-700 hover:text-white transition disabled:opacity-50"
+          className="text-xs px-4 py-2 rounded-lg bg-accent-fill text-white font-semibold hover:bg-ok-wash hover:text-white transition disabled:opacity-50"
         >
           {loading ? "Creating…" : "Create Competition"}
         </button>
         <button
           type="button" onClick={() => setOpen(false)}
-          className="text-xs px-4 py-2 rounded-lg border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition"
+          className="text-xs px-4 py-2 rounded-lg border border-edge text-ink-2 hover:text-white hover:border-edge-strong transition"
         >
           Cancel
         </button>

@@ -15,8 +15,8 @@ import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
-  EASY: "text-sage-500", MEDIUM: "text-amber-400",
-  HARD: "text-orange-400", INSANE: "text-red-400",
+  EASY: "text-ok", MEDIUM: "text-warn",
+  HARD: "text-sev-high", INSANE: "text-danger",
 };
 
 function toRating(score: number) {
@@ -27,10 +27,10 @@ function toRating(score: number) {
 }
 
 const RATING_STYLE: Record<string, string> = {
-  EXCEPTIONAL: "text-sage-400 border-sage-500/30 bg-sage-500/8",
-  STRONG:      "text-blue-400 border-blue-500/30 bg-blue-500/8",
-  ADEQUATE:    "text-amber-400 border-amber-500/30 bg-amber-500/8",
-  DEVELOPING:  "text-zinc-500 border-zinc-700",
+  EXCEPTIONAL: "text-ok border-ok-edge bg-ok-wash",
+  STRONG:      "text-info border-info-edge bg-info-wash",
+  ADEQUATE:    "text-warn border-warn-edge bg-warn-wash",
+  DEVELOPING:  "text-ink-3 border-edge-strong",
 };
 
 function formatDue(date: Date): { label: string; pastDue: boolean } {
@@ -118,7 +118,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
     }));
 
     return (
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <main className="min-h-screen bg-surface-0 text-white">
         <Navbar backHref="/classroom" backLabel="Classrooms" />
 
         <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
@@ -128,14 +128,14 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
             <div>
               <h1 className="text-2xl font-bold">{classroom.name}</h1>
               <div className="flex items-center gap-3 mt-2 flex-wrap">
-                <span className="text-xs text-zinc-500">Join code</span>
+                <span className="text-xs text-ink-3">Join code</span>
                 <CopyCodeBtn code={classroom.joinCode} />
-                <span className="text-xs text-zinc-600">{enrollments.length} student{enrollments.length !== 1 ? "s" : ""} enrolled</span>
+                <span className="text-xs text-ink-3">{enrollments.length} student{enrollments.length !== 1 ? "s" : ""} enrolled</span>
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
               <Link href={`/classroom/${id}/report`}
-                className="text-xs font-semibold px-3 py-2 rounded-lg border border-white/10 text-zinc-400 hover:text-white hover:border-white/20 transition">
+                className="text-xs font-semibold px-3 py-2 rounded-lg border border-edge text-ink-2 hover:text-white hover:border-edge-strong transition">
                 Full Report →
               </Link>
             </div>
@@ -144,13 +144,13 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              { label: "Enrolled", value: enrollments.length, color: "text-zinc-100" },
-              { label: "Labs Assigned", value: assignedLabs.length, color: "text-sage-400" },
-              { label: "Sims Completed", value: simCount, color: "text-blue-400" },
-              { label: avgScore !== null ? `Avg Sim Score` : "Avg Skill Score", value: avgScore ?? avgSkill ?? "—", color: "text-amber-400" },
+              { label: "Enrolled", value: enrollments.length, color: "text-ink" },
+              { label: "Labs Assigned", value: assignedLabs.length, color: "text-ok" },
+              { label: "Sims Completed", value: simCount, color: "text-info" },
+              { label: avgScore !== null ? `Avg Sim Score` : "Avg Skill Score", value: avgScore ?? avgSkill ?? "—", color: "text-warn" },
             ].map((s) => (
-              <div key={s.label} className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">{s.label}</p>
+              <div key={s.label} className="rounded-xl border border-edge bg-surface-1 p-4">
+                <p className="text-xs text-ink-3 uppercase tracking-wider mb-1">{s.label}</p>
                 <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
               </div>
             ))}
@@ -160,7 +160,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
           <section>
             <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
               Announcements
-              <span className="text-xs font-normal text-zinc-500">Visible to all enrolled students</span>
+              <span className="text-xs font-normal text-ink-3">Visible to all enrolled students</span>
             </h2>
             <AnnouncementClient classroomId={id} initial={annInitial} />
           </section>
@@ -174,7 +174,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
           {/* Assign Simulation Scenarios */}
           <section>
             <h2 className="text-base font-semibold mb-1">Assign Simulation Scenarios</h2>
-            <p className="text-xs text-zinc-500 mb-4">Students will see these on their classroom page with a direct launch link.</p>
+            <p className="text-xs text-ink-3 mb-4">Students will see these on their classroom page with a direct launch link.</p>
             <AssignScenarioClient
               classroomId={id}
               scenarios={scenarios.map((s) => ({
@@ -192,23 +192,23 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
               <CsvImportClient classroomId={id} />
             </div>
             {enrollments.length === 0 ? (
-              <div className="rounded-xl border border-white/8 p-10 text-center">
-                <p className="text-zinc-500 text-sm">No students enrolled yet.</p>
-                <p className="text-xs text-zinc-600 mt-2">Share code <span className="font-mono text-sage-400">{classroom.joinCode}</span> with your class.</p>
+              <div className="rounded-xl border border-edge p-10 text-center">
+                <p className="text-ink-3 text-sm">No students enrolled yet.</p>
+                <p className="text-xs text-ink-3 mt-2">Share code <span className="font-mono text-ok">{classroom.joinCode}</span> with your class.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-white/8">
+              <div className="overflow-x-auto rounded-xl border border-edge">
                 <table className="w-full text-sm min-w-[680px]">
                   <thead>
-                    <tr className="border-b border-white/8 text-zinc-500 text-xs uppercase tracking-wider bg-zinc-900/50">
+                    <tr className="border-b border-edge text-ink-3 text-xs uppercase tracking-wider bg-surface-1">
                       <th className="text-left p-3 pl-4">Student</th>
                       {assignedLabs.map((lab) => {
                         const due = dueDates[lab.id] ? formatDue(new Date(dueDates[lab.id]!)) : null;
                         return (
                           <th key={lab.id} className="text-center p-3 min-w-[80px]">
-                            <span className="block truncate max-w-[75px] mx-auto text-zinc-400" title={lab.title}>{lab.title}</span>
+                            <span className="block truncate max-w-[75px] mx-auto text-ink-2" title={lab.title}>{lab.title}</span>
                             <span className={`block text-[10px] font-normal ${DIFF_COLORS[lab.difficulty]}`}>{lab.difficulty}</span>
-                            {due && <span className={`block text-[10px] font-normal mt-0.5 ${due.pastDue ? "text-red-400" : "text-zinc-600"}`}>{due.label}</span>}
+                            {due && <span className={`block text-[10px] font-normal mt-0.5 ${due.pastDue ? "text-danger" : "text-ink-3"}`}>{due.label}</span>}
                           </th>
                         );
                       })}
@@ -216,7 +216,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
                       <th className="text-right p-3 pr-4">Score</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-edge-subtle">
                     {enrollments
                       .sort((a, b) => (b.user.skillScore ?? 0) - (a.user.skillScore ?? 0))
                       .map(({ user: student }) => {
@@ -226,15 +226,15 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
                         const activeId = activeSimByUser.get(student.id);
 
                         return (
-                          <tr key={student.id} className="hover:bg-white/3 transition">
+                          <tr key={student.id} className="hover:bg-surface-2 transition">
                             <td className="p-3 pl-4">
-                              <Link href={`/profile/${student.id}`} className="hover:text-sage-400 transition">
+                              <Link href={`/profile/${student.id}`} className="hover:text-ok transition">
                                 <p className="font-medium">{student.displayName ?? student.email.split("@")[0]}</p>
-                                <p className="text-xs text-zinc-600">{student.email}</p>
+                                <p className="text-xs text-ink-3">{student.email}</p>
                               </Link>
                               {activeId && (
-                                <Link href={`/simulation/${activeId}/observe`} className="text-[10px] text-sage-400 flex items-center gap-1 mt-0.5 hover:underline">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-sage-400 animate-pulse inline-block" />
+                                <Link href={`/simulation/${activeId}/observe`} className="text-[10px] text-ok flex items-center gap-1 mt-0.5 hover:underline">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-ok animate-pulse inline-block" />
                                   Live · Observe →
                                 </Link>
                               )}
@@ -246,10 +246,10 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
                               const solved = done === total && total > 0;
                               return (
                                 <td key={lab.id} className="p-3 text-center">
-                                  {total === 0 ? <span className="text-zinc-700">—</span>
-                                    : solved ? <span className="text-sage-400 font-semibold"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
-                                    : done > 0 ? <span className="text-amber-400 font-mono text-xs">{done}/{total}</span>
-                                    : <span className="text-zinc-700 text-xs">0/{total}</span>}
+                                  {total === 0 ? <span className="text-ink-3">—</span>
+                                    : solved ? <span className="text-ok font-semibold"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
+                                    : done > 0 ? <span className="text-warn font-mono text-xs">{done}/{total}</span>
+                                    : <span className="text-ink-3 text-xs">0/{total}</span>}
                                 </td>
                               );
                             })}
@@ -257,11 +257,11 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
                               {rating ? (
                                 <span className={`text-[10px] font-bold uppercase border rounded px-1.5 py-0.5 ${RATING_STYLE[rating]}`}>{rating}</span>
                               ) : (
-                                <span className="text-zinc-700 text-xs">—</span>
+                                <span className="text-ink-3 text-xs">—</span>
                               )}
                             </td>
                             <td className="p-3 pr-4 text-right font-semibold">
-                              {student.skillScore > 0 ? student.skillScore : <span className="text-zinc-700">0</span>}
+                              {student.skillScore > 0 ? student.skillScore : <span className="text-ink-3">0</span>}
                             </td>
                           </tr>
                         );
@@ -298,24 +298,24 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
   }));
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/classroom" backLabel="Classrooms" />
 
       <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
         <header>
           <h1 className="text-2xl font-bold">{classroom.name}</h1>
-          <p className="text-sm text-zinc-400 mt-1">Your instructor&apos;s assignments and announcements.</p>
+          <p className="text-sm text-ink-2 mt-1">Your instructor&apos;s assignments and announcements.</p>
         </header>
 
         {/* Announcements */}
         {annList.length > 0 && (
           <section>
-            <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Announcements</h2>
+            <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-3">Announcements</h2>
             <div className="space-y-2">
               {annList.map((a) => (
-                <div key={a.id} className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3">
-                  <p className="text-sm text-zinc-200 leading-relaxed">{a.content}</p>
-                  <p className="text-xs text-zinc-600 mt-1">{new Date(a.createdAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
+                <div key={a.id} className="rounded-lg border border-info-edge bg-info-wash px-4 py-3">
+                  <p className="text-sm text-ink leading-relaxed">{a.content}</p>
+                  <p className="text-xs text-ink-3 mt-1">{new Date(a.createdAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
                 </div>
               ))}
             </div>
@@ -325,17 +325,17 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
         {/* Assigned Simulations */}
         {assignedScenarios.length > 0 && (
           <section>
-            <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Simulation Exercises</h2>
+            <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-3">Simulation Exercises</h2>
             <div className="space-y-3">
               {assignedScenarios.map((s) => (
-                <div key={s.id} className="rounded-xl border border-white/8 bg-zinc-900/40 p-4 flex items-center justify-between gap-4">
+                <div key={s.id} className="rounded-xl border border-edge bg-surface-1 p-4 flex items-center justify-between gap-4">
                   <div>
                     <p className="font-semibold text-sm">{s.title}</p>
-                    <p className="text-xs text-zinc-500 mt-0.5">{s.subtitle} · {s.difficulty} · {s.estimatedMinutes} min</p>
+                    <p className="text-xs text-ink-3 mt-0.5">{s.subtitle} · {s.difficulty} · {s.estimatedMinutes} min</p>
                   </div>
                   <Link
                     href={`/simulation/new?scenario=${s.id}`}
-                    className="shrink-0 text-xs font-bold rounded-lg bg-sage-500 px-3 py-1.5 text-black hover:bg-sage-400 transition"
+                    className="shrink-0 text-xs font-bold rounded-lg bg-accent-fill px-3 py-1.5 text-white hover:bg-accent-hover transition"
                   >
                     Launch →
                   </Link>
@@ -347,9 +347,9 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
 
         {/* Assigned Labs */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Assigned Labs</h2>
+          <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-3">Assigned Labs</h2>
           {assignedLabs.length === 0 ? (
-            <p className="text-zinc-500 text-sm">No labs assigned yet.</p>
+            <p className="text-ink-3 text-sm">No labs assigned yet.</p>
           ) : (
             <div className="space-y-2">
               {assignedLabs.map((lab) => {
@@ -363,25 +363,25 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
                 return (
                   <Link key={lab.id} href={`/labs/${lab.slug}`}
                     className={`rounded-xl border p-4 flex items-center justify-between gap-4 transition ${
-                      solved ? "border-sage-500/40 bg-sage-500/5 hover:bg-sage-500/8" : "border-white/8 hover:border-sage-500/30 hover:bg-white/3"
+                      solved ? "border-ok-edge bg-ok-wash hover:bg-ok-wash" : "border-edge hover:border-ok-edge hover:bg-surface-2"
                     }`}>
                     <div className="min-w-0">
                       <p className="font-semibold flex items-center gap-2">
-                        {lab.title}{solved && <span className="text-sage-500 text-sm"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+                        {lab.title}{solved && <span className="text-ok text-sm"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
                       </p>
-                      <p className="text-xs text-zinc-500 mt-0.5">{lab.category} · <span className={DIFF_COLORS[lab.difficulty]}>{lab.difficulty}</span></p>
-                      {due && <p className={`text-xs mt-0.5 ${due.pastDue ? "text-red-400" : "text-zinc-600"}`}>{due.label}</p>}
+                      <p className="text-xs text-ink-3 mt-0.5">{lab.category} · <span className={DIFF_COLORS[lab.difficulty]}>{lab.difficulty}</span></p>
+                      {due && <p className={`text-xs mt-0.5 ${due.pastDue ? "text-danger" : "text-ink-3"}`}>{due.label}</p>}
                       {total > 0 && done > 0 && !solved && (
                         <div className="flex gap-0.5 mt-1.5 max-w-[100px]">
                           {stages.map((s) => (
-                            <div key={s} className={`flex-1 h-1 rounded-full ${completedByLab.get(lab.id)?.has(s) ? "bg-sage-500" : "bg-zinc-800"}`} />
+                            <div key={s} className={`flex-1 h-1 rounded-full ${completedByLab.get(lab.id)?.has(s) ? "bg-ok" : "bg-surface-2"}`} />
                           ))}
                         </div>
                       )}
                     </div>
                     <div className="text-right shrink-0">
-                      <span className={`text-sm font-mono ${solved ? "text-sage-400" : done > 0 ? "text-amber-400" : "text-zinc-600"}`}>{done}/{total}</span>
-                      <p className="text-xs text-zinc-600">{lab.points} pts</p>
+                      <span className={`text-sm font-mono ${solved ? "text-ok" : done > 0 ? "text-warn" : "text-ink-3"}`}>{done}/{total}</span>
+                      <p className="text-xs text-ink-3">{lab.points} pts</p>
                     </div>
                   </Link>
                 );

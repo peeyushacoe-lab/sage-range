@@ -30,7 +30,7 @@ export default async function SocShiftPage({ params }: { params: Promise<{ slug:
   });
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/soc-shift" backLabel="SOC Shift Mode" />
       <SocShiftClient
         shift={{

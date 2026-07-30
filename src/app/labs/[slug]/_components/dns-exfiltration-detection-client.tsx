@@ -101,18 +101,18 @@ export function DnsExfiltrationDetectionClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Spot the Abnormal Queries" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
-          The DNS resolver log for <code className="text-amber-300">FIN-WKSTN-19</code> mixes normal browsing traffic
+        <p className="text-ink-2 text-sm mb-3">
+          The DNS resolver log for <code className="text-warn">FIN-WKSTN-19</code> mixes normal browsing traffic
           with something else. Click any row to inspect it.
         </p>
-        <div className="rounded-lg border border-white/8 mb-2 overflow-hidden">
+        <div className="rounded-lg border border-edge mb-2 overflow-hidden">
           <table className="w-full text-xs font-mono">
             <thead>
-              <tr className="border-b border-white/8 bg-zinc-900">
-                <th className="px-3 py-2 text-left text-zinc-500">Time</th>
-                <th className="px-3 py-2 text-left text-zinc-500">Query</th>
-                <th className="px-3 py-2 text-left text-zinc-500">Type</th>
-                <th className="px-3 py-2 text-right text-zinc-500">Length</th>
+              <tr className="border-b border-edge bg-surface-1">
+                <th className="px-3 py-2 text-left text-ink-3">Time</th>
+                <th className="px-3 py-2 text-left text-ink-3">Query</th>
+                <th className="px-3 py-2 text-left text-ink-3">Type</th>
+                <th className="px-3 py-2 text-right text-ink-3">Length</th>
               </tr>
             </thead>
             <tbody>
@@ -123,9 +123,9 @@ export function DnsExfiltrationDetectionClient({
                     <tr
                       key={row.id}
                       onClick={() => setExpanded(expanded === row.id ? null : row.id)}
-                      className={`border-b border-white/5 cursor-pointer transition-colors ${
-                        suspicious ? "text-red-300 hover:bg-red-950/20" : "text-zinc-400 hover:bg-white/3"
-                      } ${expanded === row.id ? "bg-white/5" : ""}`}
+                      className={`border-b border-edge-subtle cursor-pointer transition-colors ${
+                        suspicious ? "text-danger hover:bg-danger-wash" : "text-ink-2 hover:bg-surface-2"
+                      } ${expanded === row.id ? "bg-surface-2" : ""}`}
                     >
                       <td className="px-3 py-2">{row.time}</td>
                       <td className="px-3 py-2 truncate max-w-xs">{row.query}</td>
@@ -133,10 +133,10 @@ export function DnsExfiltrationDetectionClient({
                       <td className="px-3 py-2 text-right">{row.len}B</td>
                     </tr>
                     {expanded === row.id && suspicious && (
-                      <tr key={`${row.id}-d`} className="border-b border-white/5">
-                        <td colSpan={4} className="px-4 py-3 bg-zinc-950">
-                          <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Full label decoded from hex</p>
-                          <pre className="text-xs text-amber-300 whitespace-pre-wrap">{hexToAscii(row.query.split(".")[0]) || "(partial fragment)"}</pre>
+                      <tr key={`${row.id}-d`} className="border-b border-edge-subtle">
+                        <td colSpan={4} className="px-4 py-3 bg-surface-0">
+                          <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1.5">Full label decoded from hex</p>
+                          <pre className="text-xs text-warn whitespace-pre-wrap">{hexToAscii(row.query.split(".")[0]) || "(partial fragment)"}</pre>
                         </td>
                       </tr>
                     )}
@@ -148,80 +148,80 @@ export function DnsExfiltrationDetectionClient({
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What does this pattern represent?</p>
+            <p className="text-sm text-ink-2 font-medium">What does this pattern represent?</p>
             <div className="flex flex-wrap gap-3">
               {["Normal DNS caching", "DNS tunneling / exfiltration", "A DNS server outage", "DHCP misconfiguration"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — hex-encoded data stuffed into TXT query subdomains is a classic DNS tunneling signature. Flag: SAGE&#123;dns_tunn3l_sp0tt3d&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — hex-encoded data stuffed into TXT query subdomains is a classic DNS tunneling signature. Flag: SAGE&#123;dns_tunn3l_sp0tt3d&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Decode the Exfiltrated Fragment" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           The first TXT query's subdomain label is hex-encoded ASCII. Decode it two characters at a time
-          (each pair is one byte, e.g. <code className="text-amber-300">4a</code> = <code className="text-amber-300">J</code>).
+          (each pair is one byte, e.g. <code className="text-warn">4a</code> = <code className="text-warn">J</code>).
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Subdomain label</p>
-          <pre className="text-xs text-amber-300 whitespace-pre-wrap break-all">4a6f696e2074686973207365637572652053514c2064617461</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1.5">Subdomain label</p>
+          <pre className="text-xs text-warn whitespace-pre-wrap break-all">4a6f696e2074686973207365637572652053514c2064617461</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What text is hidden in this hex string?</p>
+            <p className="text-sm text-ink-2 font-medium">What text is hidden in this hex string?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t2Answer} onChange={setT2Answer} placeholder="Decoded text..." className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — it decodes to &quot;Join this secure SQL data&quot;, a fragment of a larger stolen dataset being smuggled out one query at a time.</p>
+          <p className="text-sm font-mono text-ok">Correct — it decodes to &quot;Join this secure SQL data&quot;, a fragment of a larger stolen dataset being smuggled out one query at a time.</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Confirm the Technique" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">Volume analysis over the last 10 minutes confirms the scale of the exfiltration.</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{VOLUME_STATS}</pre>
+        <p className="text-ink-2 text-sm mb-3">Volume analysis over the last 10 minutes confirms the scale of the exfiltration.</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{VOLUME_STATS}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Submit the flag naming this exfiltration technique and record type used.</p>
+            <p className="text-sm text-ink-2 font-medium">Submit the flag naming this exfiltration technique and record type used.</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t3Answer} onChange={setT3Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">Correct — DNS is nearly always allowed outbound, making TXT-record tunneling an effective covert exfil channel. Flag: SAGE&#123;dns_3xfil_txt_tunn3l&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — DNS is nearly always allowed outbound, making TXT-record tunneling an effective covert exfil channel. Flag: SAGE&#123;dns_3xfil_txt_tunn3l&#125;</p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;dns_tunn3l_sp0tt3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">Decoded: &quot;Join this secure SQL data&quot;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;dns_3xfil_txt_tunn3l&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;dns_tunn3l_sp0tt3d&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">Decoded: &quot;Join this secure SQL data&quot;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;dns_3xfil_txt_tunn3l&#125;</span></li>
           </ul>
         </div>
       )}

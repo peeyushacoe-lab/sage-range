@@ -3,16 +3,19 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
-import { EmptyState, PageHeader } from "@/components/ui";
+import { cn } from "@/lib/utils";
+import { EmptyState, PageHeader, Severity, toSeverity } from "@/components/ui";
 
 import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
-const DIFF_COLORS: Record<string, string> = {
-  EASY: "text-sage-500",
-  MEDIUM: "text-amber-400",
-  HARD: "text-orange-400",
-  INSANE: "text-red-400",
+// Difficulty is genuinely ordered, same shape as severity — EASY reads as
+// "low risk to attempt", INSANE as "critical".
+const DIFF_SEVERITY: Record<string, ReturnType<typeof toSeverity>> = {
+  EASY: "low",
+  MEDIUM: "medium",
+  HARD: "high",
+  INSANE: "critical",
 };
 
 const INDUSTRY_LABEL: Record<string, string> = {
@@ -49,9 +52,9 @@ export default async function IncidentsIndex() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-ink">
       <Navbar />
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="mx-auto max-w-5xl px-6 py-8">
         <PageHeader
           className="mb-8"
           title="Incident Simulations"
@@ -61,7 +64,7 @@ export default async function IncidentsIndex() {
         {simulations.length === 0 ? (
           <EmptyState icon="investigate" title="No incident simulations published yet" description="The first scenario is being prepared. Check back soon." />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {simulations.map((sim, idx) => {
               const taskCount = sim.tasks.length;
               const doneCount = completedByS.get(sim.id)?.size ?? 0;
@@ -71,40 +74,37 @@ export default async function IncidentsIndex() {
                 <Link
                   key={sim.id}
                   href={`/incidents/${sim.slug}`}
-                  className={`card-hover rounded-xl border p-5 flex flex-col gap-3 relative overflow-hidden animate-fade-up ${
-                    solved ? "border-sage-500/40 bg-sage-500/5" : "border-white/8 bg-zinc-900/60"
-                  }`}
+                  className={cn(
+                    "animate-fade-up flex flex-col gap-3 rounded-lg border p-5 transition-colors duration-fast",
+                    solved ? "border-ok-edge bg-ok-wash hover:border-ok" : "border-edge bg-surface-1 hover:border-edge-strong hover:bg-surface-2"
+                  )}
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
-                  {solved && <div className="absolute -top-4 -right-4 w-16 h-16 bg-emerald-500/15 rounded-full blur-xl" />}
-
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-widest text-sage-500 font-mono">{sim.codename}</span>
-                    <span className={`text-xs font-bold font-mono ${DIFF_COLORS[sim.difficulty] ?? "text-zinc-400"}`}>
-                      {sim.difficulty}
-                    </span>
+                    <span className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">{sim.codename}</span>
+                    <Severity level={DIFF_SEVERITY[sim.difficulty] ?? "low"}>{sim.difficulty}</Severity>
                   </div>
 
                   <div>
-                    <h3 className="font-semibold flex items-center gap-2 leading-snug">
+                    <h3 className="flex items-center gap-2 font-medium leading-snug text-ink">
                       {sim.title}
-                      {solved && <span className="text-sage-500"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+                      {solved && <span className="text-ok"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
                     </h3>
-                    <p className="text-xs text-zinc-500 mt-1">
+                    <p className="mt-1 text-xs text-ink-3">
                       {sim.company.name} · {INDUSTRY_LABEL[sim.company.industry] ?? sim.company.industry}
                     </p>
-                    <p className="text-sm text-zinc-400 mt-2 line-clamp-2 leading-relaxed">{sim.briefing}</p>
+                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-2">{sim.briefing}</p>
                   </div>
 
-                  <div className="flex items-center justify-between mt-auto pt-1 text-xs text-zinc-600 font-mono">
+                  <div className="mt-auto flex items-center justify-between pt-1 font-mono text-xs text-ink-3">
                     <span>~{sim.estimatedMinutes} min · {taskCount} tasks{doneCount > 0 ? ` (${doneCount}/${taskCount})` : ""}</span>
-                    <span className="font-bold text-zinc-400">{sim.points} pts</span>
+                    <span className="font-medium text-ink-2">{sim.points} pts</span>
                   </div>
 
                   {taskCount > 0 && doneCount > 0 && (
                     <div className="flex gap-1">
                       {Array.from({ length: taskCount }).map((_, i) => (
-                        <div key={i} className={`flex-1 h-0.5 rounded-full ${i < doneCount ? "bg-sage-500" : "bg-zinc-800"}`} />
+                        <div key={i} className={cn("h-0.5 flex-1 rounded-full", i < doneCount ? "bg-ok" : "bg-surface-inset")} />
                       ))}
                     </div>
                   )}

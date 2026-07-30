@@ -32,7 +32,7 @@ export default async function SquadDetailPage({
   const isMember = membership?.squadId === squad.id;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar backHref="/squads" backLabel="Squads" />
 
       <div className="mx-auto max-w-4xl px-6 py-8">
@@ -69,12 +69,12 @@ export default async function SquadDetailPage({
         </div>
 
         <Card>
-          <div className="border-b border-white/8 px-5 py-4">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-zinc-400">
+          <div className="border-b border-edge px-5 py-4">
+            <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-2">
               Roster
             </h2>
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-edge-subtle">
             {squad.members.map((member) => {
               const isSelf = member.userId === user.id;
               return (
@@ -82,20 +82,20 @@ export default async function SquadDetailPage({
                   key={member.userId}
                   className={cn(
                     "flex items-center justify-between gap-4 px-5 py-3",
-                    isSelf && "bg-emerald-500/5",
+                    isSelf && "bg-ok-wash",
                   )}
                 >
                   <div className="min-w-0">
                     <Link
                       href={`/profile/${member.userId}`}
-                      className="truncate font-medium hover:text-emerald-400"
+                      className="truncate font-medium hover:text-ok"
                     >
                       {member.user.displayName || member.user.email}
                     </Link>
-                    {isSelf && <span className="ml-2 text-xs text-zinc-500">(you)</span>}
+                    {isSelf && <span className="ml-2 text-xs text-ink-3">(you)</span>}
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className="text-xs text-zinc-600">
+                    <span className="text-xs text-ink-3">
                       joined{" "}
                       {member.joinedAt.toLocaleDateString("en-GB", {
                         day: "numeric",

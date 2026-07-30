@@ -55,12 +55,12 @@ export default async function AdminModuleDetail({
     <div className="p-8 space-y-10 max-w-3xl">
       {/* Breadcrumb */}
       <div>
-        <div className="flex items-center gap-2 text-xs text-zinc-500 mb-4">
-          <Link href="/admin/modules" className="hover:text-zinc-300 transition">Modules</Link>
+        <div className="flex items-center gap-2 text-xs text-ink-3 mb-4">
+          <Link href="/admin/modules" className="hover:text-ink-2 transition">Modules</Link>
           <span>→</span>
           <span>{mod.path.title}</span>
           <span>→</span>
-          <span className="text-zinc-300">{mod.title}</span>
+          <span className="text-ink-2">{mod.title}</span>
         </div>
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-white">{mod.title}</h1>
@@ -73,17 +73,17 @@ export default async function AdminModuleDetail({
 
       {/* Resources */}
       <section>
-        <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Resources</h2>
+        <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-4">Resources</h2>
         {mod.resources.length > 0 && (
-          <div className="rounded-xl border border-white/8 overflow-hidden mb-4">
+          <div className="rounded-xl border border-edge overflow-hidden mb-4">
             <table className="w-full text-sm">
-              <tbody className="divide-y divide-white/4">
+              <tbody className="divide-y divide-edge-subtle">
                 {mod.resources.map((r) => (
-                  <tr key={r.id} className="hover:bg-white/2 transition">
-                    <td className="px-4 py-3 text-xs text-zinc-500 w-28"><span className="flex items-center gap-1.5">{RESOURCE_ICONS[r.type] && <Icon name={RESOURCE_ICONS[r.type]} size={14} />}{RESOURCE_LABELS[r.type] ?? r.type}</span></td>
-                    <td className="px-4 py-3 text-zinc-200">{r.title}</td>
+                  <tr key={r.id} className="hover:bg-surface-2 transition">
+                    <td className="px-4 py-3 text-xs text-ink-3 w-28"><span className="flex items-center gap-1.5">{RESOURCE_ICONS[r.type] && <Icon name={RESOURCE_ICONS[r.type]} size={14} />}{RESOURCE_LABELS[r.type] ?? r.type}</span></td>
+                    <td className="px-4 py-3 text-ink">{r.title}</td>
                     <td className="px-4 py-3 text-right">
-                      <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-xs text-zinc-500 hover:text-emerald-400 transition">
+                      <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-xs text-ink-3 hover:text-ok transition">
                         Open ↗
                       </a>
                     </td>
@@ -98,7 +98,7 @@ export default async function AdminModuleDetail({
 
       {/* Quiz */}
       <section>
-        <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Quiz</h2>
+        <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-4">Quiz</h2>
         <QuizBuilder
           moduleId={moduleId}
           existingQuiz={mod.quiz ? {
@@ -121,7 +121,7 @@ export default async function AdminModuleDetail({
 
       {/* Assessment */}
       <section>
-        <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Assessment</h2>
+        <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-4">Assessment</h2>
         <AssessmentForm
           moduleId={moduleId}
           existing={mod.assessment ? {
@@ -135,8 +135,8 @@ export default async function AdminModuleDetail({
       {/* Rubric — only shown once an assessment exists */}
       {mod.assessment && (
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Assessment Rubric</h2>
-          <p className="text-xs text-zinc-600 mb-4">Define scoring criteria for mentors to use when reviewing submissions.</p>
+          <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-1">Assessment Rubric</h2>
+          <p className="text-xs text-ink-3 mb-4">Define scoring criteria for mentors to use when reviewing submissions.</p>
           <RubricBuilder
             assessmentId={mod.assessment.id}
             rubricId={mod.assessment.rubric?.id ?? null}

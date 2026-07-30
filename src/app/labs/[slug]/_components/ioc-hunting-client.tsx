@@ -86,56 +86,56 @@ export function IocHuntingClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Sweep the Fleet" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           A threat intel bulletin lands with fresh indicators for an active campaign. You run a fleet-wide sweep.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-3">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{IOC_FEED}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-3">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{IOC_FEED}</pre>
         </div>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{FLEET_SCAN}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{FLEET_SCAN}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">How many hosts show signs of active C2 communication (IP or domain match)?</p>
+            <p className="text-sm text-ink-2 font-medium">How many hosts show signs of active C2 communication (IP or domain match)?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — only WKSTN-HR-07 shows both network IOCs (IP and domain), confirming active C2 contact. Flag: SAGE&#123;2_hosts_c2_infected&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — only WKSTN-HR-07 shows both network IOCs (IP and domain), confirming active C2 contact. Flag: SAGE&#123;2_hosts_c2_infected&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Spot the Outlier" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           One host matched an IOC, but not the network-based ones — worth investigating separately, since it may
           represent a different stage of infection or a false positive from an unrelated legitimate process.
         </p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Which host only matched the registry IOC?</p>
+            <p className="text-sm text-ink-2 font-medium">Which host only matched the registry IOC?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t2Answer} onChange={setT2Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — WKSTN-IT-14 matched only the registry indicator, which alone is weaker evidence and needs corroboration before declaring a confirmed compromise. Flag: SAGE&#123;wkstn_it_14_registry_only&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — WKSTN-IT-14 matched only the registry indicator, which alone is weaker evidence and needs corroboration before declaring a confirmed compromise. Flag: SAGE&#123;wkstn_it_14_registry_only&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Prioritize the Response" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">
+        <p className="text-ink-2 text-sm mb-4">
           You have limited time to respond to multiple candidate hosts before end of shift. Which one goes first?
         </p>
         {!done("task_3") && (
@@ -149,17 +149,17 @@ export function IocHuntingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — prioritize by strength of evidence: multiple independent, corroborating IOC matches on one host
             is a far stronger signal than a role-based guess. Flag: SAGE&#123;pr10r1t1z3_by_3v1d3nc3&#125;
           </p>
@@ -167,12 +167,12 @@ export function IocHuntingClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;2_hosts_c2_infected&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;wkstn_it_14_registry_only&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;pr10r1t1z3_by_3v1d3nc3&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;2_hosts_c2_infected&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;wkstn_it_14_registry_only&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;pr10r1t1z3_by_3v1d3nc3&#125;</span></li>
           </ul>
         </div>
       )}

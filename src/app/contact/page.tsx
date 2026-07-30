@@ -17,7 +17,7 @@ const CONTACTS = [
     email: "support@cybersage.uk",
     subject: "Student Support — Sage Vault",
     badge: "Free",
-    badgeColor: "text-sage-400 border-sage-500/30 bg-sage-500/8",
+    badgeColor: "text-ok border-ok-edge bg-ok-wash",
   },
   {
     title: "Classroom & University Plans",
@@ -25,7 +25,7 @@ const CONTACTS = [
     email: "support@cybersage.uk",
     subject: "Classroom Plan Enquiry — Sage Vault",
     badge: "$149/mo",
-    badgeColor: "text-blue-400 border-blue-500/30 bg-blue-500/8",
+    badgeColor: "text-info border-info-edge bg-info-wash",
   },
   {
     title: "Enterprise & Recruiting",
@@ -33,7 +33,7 @@ const CONTACTS = [
     email: "support@cybersage.uk",
     subject: "Enterprise Demo Request — Sage Vault",
     badge: "Custom",
-    badgeColor: "text-amber-400 border-amber-500/30 bg-amber-500/8",
+    badgeColor: "text-warn border-warn-edge bg-warn-wash",
   },
 ];
 
@@ -58,14 +58,14 @@ const FAQ = [
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-surface-0 text-white">
       <MarketingNav />
 
       {/* Hero */}
       <section className="max-w-3xl mx-auto px-6 pt-20 pb-12 text-center">
-        <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-3">Contact</p>
+        <p className="text-xs uppercase tracking-widest text-ink-3 font-semibold mb-3">Contact</p>
         <h1 className="text-4xl font-bold mb-4">Get in touch</h1>
-        <p className="text-zinc-400 leading-relaxed">
+        <p className="text-ink-2 leading-relaxed">
           Whether you&apos;re a student with a question, an instructor setting up a classroom,
           or an enterprise looking for a demo — we&apos;ll get back to you quickly.
         </p>
@@ -78,18 +78,18 @@ export default function ContactPage() {
             <a
               key={c.title}
               href={`mailto:${c.email}?subject=${encodeURIComponent(c.subject)}`}
-              className="group rounded-2xl border border-white/8 bg-zinc-900/40 p-6 hover:border-white/15 hover:bg-zinc-900/60 transition flex flex-col gap-3"
+              className="group rounded-2xl border border-edge bg-surface-1 p-6 hover:border-edge-strong hover:bg-surface-1 transition flex flex-col gap-3"
             >
               <div className="flex items-start justify-between gap-3">
-                <h3 className="font-bold text-zinc-100 group-hover:text-white transition">{c.title}</h3>
+                <h3 className="font-bold text-ink group-hover:text-white transition">{c.title}</h3>
                 {c.badge && (
                   <span className={`text-[10px] font-bold uppercase tracking-widest border rounded-full px-2 py-0.5 shrink-0 ${c.badgeColor}`}>
                     {c.badge}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-zinc-400 leading-relaxed flex-1">{c.description}</p>
-              <div className="flex items-center gap-2 text-sm text-sage-400 font-medium">
+              <p className="text-sm text-ink-2 leading-relaxed flex-1">{c.description}</p>
+              <div className="flex items-center gap-2 text-sm text-ok font-medium">
                 <span>{c.email}</span>
                 <span className="opacity-0 group-hover:opacity-100 transition">→</span>
               </div>
@@ -99,16 +99,16 @@ export default function ContactPage() {
       </section>
 
       {/* Direct email block */}
-      <section className="border-y border-white/8 bg-zinc-900/20 py-16">
+      <section className="border-y border-edge bg-surface-1 py-16">
         <div className="max-w-xl mx-auto px-6 text-center">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Prefer email directly?</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-4">Prefer email directly?</p>
           <a
             href="mailto:support@cybersage.uk"
-            className="text-2xl font-bold text-sage-400 hover:text-sage-300 transition break-all"
+            className="text-2xl font-bold text-ok hover:text-ok transition break-all"
           >
             support@cybersage.uk
           </a>
-          <p className="text-zinc-500 text-sm mt-3">
+          <p className="text-ink-3 text-sm mt-3">
             We read and respond to every message personally.
           </p>
         </div>
@@ -116,25 +116,25 @@ export default function ContactPage() {
 
       {/* FAQ */}
       <section className="max-w-3xl mx-auto px-6 py-20">
-        <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-8 text-center">Before you write</h2>
+        <h2 className="text-sm uppercase tracking-widest text-ink-3 mb-8 text-center">Before you write</h2>
         <div className="space-y-4">
           {FAQ.map(({ q, a }) => (
-            <div key={q} className="rounded-xl border border-white/8 bg-zinc-900/30 p-5">
+            <div key={q} className="rounded-xl border border-edge bg-surface-1 p-5">
               <p className="font-semibold text-sm text-white mb-2">{q}</p>
-              <p className="text-sm text-zinc-400 leading-relaxed">{a}</p>
+              <p className="text-sm text-ink-2 leading-relaxed">{a}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Links */}
-      <section className="border-t border-white/8 bg-zinc-900/30 py-12 text-center">
-        <p className="text-zinc-500 text-sm mb-4">You might also be looking for:</p>
+      <section className="border-t border-edge bg-surface-1 py-12 text-center">
+        <p className="text-ink-3 text-sm mb-4">You might also be looking for:</p>
         <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-          <Link href="/pricing" className="text-zinc-400 hover:text-white transition">Pricing →</Link>
-          <Link href="/about"   className="text-zinc-400 hover:text-white transition">About us →</Link>
-          <Link href="/legal/privacy" className="text-zinc-400 hover:text-white transition">Privacy Policy →</Link>
-          <Link href="/legal/terms"   className="text-zinc-400 hover:text-white transition">Terms of Service →</Link>
+          <Link href="/pricing" className="text-ink-2 hover:text-white transition">Pricing →</Link>
+          <Link href="/about"   className="text-ink-2 hover:text-white transition">About us →</Link>
+          <Link href="/legal/privacy" className="text-ink-2 hover:text-white transition">Privacy Policy →</Link>
+          <Link href="/legal/terms"   className="text-ink-2 hover:text-white transition">Terms of Service →</Link>
         </div>
       </section>
 

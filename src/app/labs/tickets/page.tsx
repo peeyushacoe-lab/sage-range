@@ -65,13 +65,13 @@ export default async function TicketsIndex({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ACTIVE':
-        return 'bg-blue-500/20 text-blue-400';
+        return 'bg-info-wash text-info';
       case 'COMPLETED':
-        return 'bg-emerald-500/20 text-emerald-400';
+        return 'bg-ok-wash text-ok';
       case 'UPCOMING':
-        return 'bg-zinc-500/20 text-zinc-400';
+        return 'bg-surface-3 text-ink-2';
       default:
-        return 'bg-zinc-500/20 text-zinc-400';
+        return 'bg-surface-3 text-ink-2';
     }
   };
 
@@ -84,7 +84,7 @@ export default async function TicketsIndex({
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 py-8">
@@ -95,7 +95,7 @@ export default async function TicketsIndex({
           actions={
             <Link
               href="/labs/tickets/history"
-              className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+              className="shrink-0 rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
             >
               My History →
             </Link>
@@ -110,7 +110,7 @@ export default async function TicketsIndex({
           <StatCard
             label="Leaderboards"
             value={
-              <Link href="/labs/tickets/leaderboard/weekly" className="text-sage-400 hover:text-sage-500">
+              <Link href="/labs/tickets/leaderboard/weekly" className="text-ok hover:text-ok">
                 View →
               </Link>
             }
@@ -125,8 +125,8 @@ export default async function TicketsIndex({
             className={cn(
               'rounded-full px-4 py-1.5 text-sm font-medium transition',
               !statusParam
-                ? 'bg-sage-500 text-black'
-                : 'border border-white/10 text-zinc-400 hover:text-white hover:border-white/30'
+                ? 'bg-accent-fill text-white'
+                : 'border border-edge text-ink-2 hover:text-white hover:border-edge-strong'
             )}
           >
             All
@@ -138,8 +138,8 @@ export default async function TicketsIndex({
               className={cn(
                 'rounded-full px-4 py-1.5 text-sm font-medium transition',
                 statusParam === s.key
-                  ? 'bg-sage-500 text-black'
-                  : 'border border-white/10 text-zinc-400 hover:text-white hover:border-white/30'
+                  ? 'bg-accent-fill text-white'
+                  : 'border border-edge text-ink-2 hover:text-white hover:border-edge-strong'
               )}
             >
               {s.label}
@@ -166,7 +166,7 @@ export default async function TicketsIndex({
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">
+                    <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">
                       {formatDate(shift.createdAt)}
                     </p>
                     <span className={cn(
@@ -180,15 +180,15 @@ export default async function TicketsIndex({
 
                 {/* Stats Row */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-2 rounded-lg bg-zinc-800/50">
-                    <p className="text-xs uppercase tracking-widest text-zinc-600 mb-1">Tickets</p>
-                    <p className="text-lg font-bold text-zinc-100">
+                  <div className="p-2 rounded-lg bg-surface-2/50">
+                    <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Tickets</p>
+                    <p className="text-lg font-bold text-ink">
                       {shift._count.tickets}
                     </p>
                   </div>
-                  <div className="p-2 rounded-lg bg-zinc-800/50">
-                    <p className="text-xs uppercase tracking-widest text-zinc-600 mb-1">Accuracy</p>
-                    <p className="text-lg font-bold text-sage-400">
+                  <div className="p-2 rounded-lg bg-surface-2/50">
+                    <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Accuracy</p>
+                    <p className="text-lg font-bold text-ok">
                       {shift.avgAccuracy}%
                     </p>
                   </div>
@@ -196,7 +196,7 @@ export default async function TicketsIndex({
 
                 {/* Description */}
                 <div>
-                  <p className="text-sm text-zinc-400">
+                  <p className="text-sm text-ink-2">
                     Shift {shift.shiftNumber} • {shift._count.tickets} tickets to triage
                   </p>
                 </div>
@@ -205,7 +205,7 @@ export default async function TicketsIndex({
                 {shift.status === 'ACTIVE' ? (
                   <Link
                     href={`/labs/tickets/queue/${shift.id}`}
-                    className="mt-auto flex items-center justify-center gap-2 rounded-lg bg-sage-500 text-black py-2.5 font-semibold hover:bg-sage-600 transition text-sm"
+                    className="mt-auto flex items-center justify-center gap-2 rounded-lg bg-accent-fill text-white py-2.5 font-semibold hover:bg-ok-wash transition text-sm"
                   >
                     Start Shift
                     <Icon name="arrowRight" size={14} />
@@ -213,7 +213,7 @@ export default async function TicketsIndex({
                 ) : (
                   <Link
                     href={`/labs/tickets/leaderboard/${shift.id}`}
-                    className="mt-auto flex items-center justify-center gap-2 rounded-lg border border-white/10 text-white py-2.5 font-semibold hover:border-white/30 transition text-sm"
+                    className="mt-auto flex items-center justify-center gap-2 rounded-lg border border-edge text-white py-2.5 font-semibold hover:border-edge-strong transition text-sm"
                   >
                     View Results
                     <Icon name="arrowRight" size={14} />

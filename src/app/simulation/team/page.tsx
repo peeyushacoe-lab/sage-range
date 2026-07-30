@@ -13,14 +13,14 @@ export default async function TeamHubPage() {
   if (!user) redirect("/sign-in");
 
   return (
-    <main className="min-h-screen bg-zinc-950">
+    <main className="min-h-screen bg-surface-0">
       <Navbar />
       <div className="px-6 py-10 max-w-3xl mx-auto">
 
       <div className="mt-8 mb-8">
-        <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-2">Multiplayer</p>
+        <p className="text-xs uppercase tracking-widest text-ink-3 font-semibold mb-2">Multiplayer</p>
         <h1 className="text-3xl font-bold tracking-tight text-white">Team IR Exercise</h1>
-        <p className="text-zinc-400 mt-2 text-sm max-w-xl leading-relaxed">
+        <p className="text-ink-2 mt-2 text-sm max-w-xl leading-relaxed">
           Run a live incident response exercise with your team. Each analyst takes a distinct role — IR Lead, Forensics, Legal, or Comms — and must coordinate to contain the breach.
         </p>
       </div>

@@ -47,33 +47,33 @@ export function OrganizationMembersPanel({ orgId }: { orgId: string }) {
     <div className="mt-3">
       <button
         onClick={toggleOpen}
-        className="text-xs text-zinc-500 hover:text-white transition-colors"
+        className="text-xs text-ink-3 hover:text-white transition-colors"
       >
         {open ? "Hide members ▲" : "Manage members / lead ▼"}
       </button>
 
       {open && (
-        <div className="mt-2 rounded-lg border border-white/10 overflow-hidden">
-          {loading && <p className="text-xs text-zinc-500 p-3">Loading…</p>}
-          {error && <p className="text-xs text-red-400 p-3">{error}</p>}
-          {members && members.length === 0 && <p className="text-xs text-zinc-600 p-3">No members yet.</p>}
+        <div className="mt-2 rounded-lg border border-edge overflow-hidden">
+          {loading && <p className="text-xs text-ink-3 p-3">Loading…</p>}
+          {error && <p className="text-xs text-danger p-3">{error}</p>}
+          {members && members.length === 0 && <p className="text-xs text-ink-3 p-3">No members yet.</p>}
           {members && members.length > 0 && (
             <table className="w-full text-xs">
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-edge-subtle">
                 {members.map((m) => (
                   <tr key={m.id}>
                     <td className="p-2.5">
-                      <p className="text-zinc-200">{m.user.displayName ?? "—"}</p>
-                      <p className="text-zinc-600 font-mono">{m.user.email}</p>
+                      <p className="text-ink">{m.user.displayName ?? "—"}</p>
+                      <p className="text-ink-3 font-mono">{m.user.email}</p>
                     </td>
-                    <td className="p-2.5 text-zinc-500">{m.user.role}</td>
+                    <td className="p-2.5 text-ink-3">{m.user.role}</td>
                     <td className="p-2.5 text-right">
                       <button
                         onClick={() => setLead(m.userId, !m.isLead)}
                         className={`px-2.5 py-1 rounded-full font-semibold transition ${
                           m.isLead
-                            ? "bg-amber-500/20 text-amber-400 hover:bg-red-500/10 hover:text-red-400"
-                            : "bg-zinc-500/20 text-zinc-400 hover:bg-amber-500/20 hover:text-amber-400"
+                            ? "bg-warn-wash text-warn hover:bg-danger-wash hover:text-danger"
+                            : "bg-surface-3 text-ink-2 hover:bg-warn-wash hover:text-warn"
                         }`}
                       >
                         {m.isLead ? "Lead — remove" : "Make lead"}

@@ -69,7 +69,7 @@ export default async function ReplayPage({ params }: { params: Promise<{ session
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-surface-0 text-white">
       <Navbar />
       <main className="max-w-3xl mx-auto px-6 py-8 space-y-6">
 
@@ -78,18 +78,18 @@ export default async function ReplayPage({ params }: { params: Promise<{ session
           <div>
             <Link
               href={`/simulation/${sessionId}/debrief`}
-              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors mb-2 inline-block"
+              className="text-xs text-ink-3 hover:text-ink-2 transition-colors mb-2 inline-block"
             >
               ← Back to debrief
             </Link>
             <h1 className="text-2xl font-bold">Timeline Replay</h1>
-            <p className="text-sm text-zinc-500 mt-0.5">{session.template.name}</p>
+            <p className="text-sm text-ink-3 mt-0.5">{session.template.name}</p>
           </div>
           <div className="text-right text-sm">
-            <p className={`font-bold ${outcome === "CONTAINED" ? "text-emerald-400" : "text-red-400"}`}>
+            <p className={`font-bold ${outcome === "CONTAINED" ? "text-ok" : "text-danger"}`}>
               {outcome}
             </p>
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <p className="text-xs text-ink-3 mt-0.5">
               {fmtDuration(totalMs)} · {replayEvents.length} events · score {finalScore}
             </p>
           </div>
@@ -100,10 +100,10 @@ export default async function ReplayPage({ params }: { params: Promise<{ session
           {stages.map((s) => (
             <span
               key={s.stage + s.relativeMs}
-              className="text-[10px] border border-white/8 bg-zinc-900/50 rounded px-2 py-1 text-zinc-500"
+              className="text-[10px] border border-edge bg-surface-1 rounded px-2 py-1 text-ink-3"
             >
               {s.label}
-              {s.wasBlocked && <span className="text-emerald-500 ml-1"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+              {s.wasBlocked && <span className="text-ok ml-1"><Icon name="check" size={14} className="inline-block shrink-0" /></span>}
             </span>
           ))}
         </div>

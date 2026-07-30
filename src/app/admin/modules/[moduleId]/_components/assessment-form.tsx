@@ -36,17 +36,17 @@ export function AssessmentForm({ moduleId, existing }: Props) {
   };
 
   return (
-    <div className="rounded-xl border border-white/8 p-5 space-y-4">
+    <div className="rounded-xl border border-edge p-5 space-y-4">
       <div>
-        <label className="text-xs text-zinc-500 uppercase tracking-wider block mb-1">Title</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Assessment title" className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
+        <label className="text-xs text-ink-3 uppercase tracking-wider block mb-1">Title</label>
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Assessment title" className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge" />
       </div>
       <div>
-        <label className="text-xs text-zinc-500 uppercase tracking-wider block mb-1">Instructions</label>
-        <textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={6} placeholder="Detailed instructions for the student..." className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50 resize-none" />
+        <label className="text-xs text-ink-3 uppercase tracking-wider block mb-1">Instructions</label>
+        <textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} rows={6} placeholder="Detailed instructions for the student..." className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge resize-none" />
       </div>
-      {error && <p className="text-xs text-red-400">{error}</p>}
-      <button onClick={submit} disabled={loading} className={`rounded-lg px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${saved ? "bg-emerald-500/25 border border-emerald-500/40 text-emerald-400" : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25"}`}>
+      {error && <p className="text-xs text-danger">{error}</p>}
+      <button onClick={submit} disabled={loading} className={`rounded-lg px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${saved ? "bg-ok-wash border border-ok-edge text-ok" : "bg-ok-wash border border-ok-edge text-ok hover:bg-ok-wash"}`}>
         {loading ? "Saving…" : saved ? <><Icon name="check" size={12} /> Saved</> : existing ? "Update Assessment" : "Create Assessment"}
       </button>
     </div>

@@ -100,18 +100,18 @@ export function LinuxAuthInvestigationClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Detect the Brute Force" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
-          <code className="text-amber-300">/var/log/auth.log</code> on <code className="text-amber-300">db-prod01</code> shows
+        <p className="text-ink-2 text-sm mb-3">
+          <code className="text-warn">/var/log/auth.log</code> on <code className="text-warn">db-prod01</code> shows
           a burst of SSH authentication activity from a single source. Click any row to expand the raw log line.
         </p>
-        <div className="rounded-lg border border-white/8 mb-2 overflow-hidden">
+        <div className="rounded-lg border border-edge mb-2 overflow-hidden">
           <table className="w-full text-xs font-mono">
             <thead>
-              <tr className="border-b border-white/8 bg-zinc-900">
-                <th className="px-3 py-2 text-left text-zinc-500">Time</th>
-                <th className="px-3 py-2 text-left text-zinc-500">User</th>
-                <th className="px-3 py-2 text-left text-zinc-500">Source IP</th>
-                <th className="px-3 py-2 text-left text-zinc-500">Result</th>
+              <tr className="border-b border-edge bg-surface-1">
+                <th className="px-3 py-2 text-left text-ink-3">Time</th>
+                <th className="px-3 py-2 text-left text-ink-3">User</th>
+                <th className="px-3 py-2 text-left text-ink-3">Source IP</th>
+                <th className="px-3 py-2 text-left text-ink-3">Result</th>
               </tr>
             </thead>
             <tbody>
@@ -120,19 +120,19 @@ export function LinuxAuthInvestigationClient({
                   <tr
                     key={row.id}
                     onClick={() => setExpanded(expanded === row.id ? null : row.id)}
-                    className={`border-b border-white/5 cursor-pointer transition-colors ${
-                      row.result === "Accepted" ? "bg-green-950/30 text-green-300 hover:bg-green-950/50" : "text-red-300 hover:bg-red-950/20"
-                    } ${expanded === row.id ? "bg-white/5" : ""}`}
+                    className={`border-b border-edge-subtle cursor-pointer transition-colors ${
+                      row.result === "Accepted" ? "bg-green-950/30 text-green-300 hover:bg-green-950/50" : "text-danger hover:bg-danger-wash"
+                    } ${expanded === row.id ? "bg-surface-2" : ""}`}
                   >
                     <td className="px-3 py-2">{row.time}</td>
                     <td className="px-3 py-2">{row.user}</td>
                     <td className="px-3 py-2">{row.ip}</td>
-                    <td className="px-3 py-2">{row.result} <span className="ml-2 text-zinc-600">{expanded === row.id ? "▲" : "▼"}</span></td>
+                    <td className="px-3 py-2">{row.result} <span className="ml-2 text-ink-3">{expanded === row.id ? "▲" : "▼"}</span></td>
                   </tr>
                   {expanded === row.id && (
-                    <tr key={`${row.id}-d`} className="border-b border-white/5">
-                      <td colSpan={4} className="px-4 py-3 bg-zinc-950">
-                        <pre className="text-xs text-amber-300 whitespace-pre-wrap leading-relaxed">{row.detail}</pre>
+                    <tr key={`${row.id}-d`} className="border-b border-edge-subtle">
+                      <td colSpan={4} className="px-4 py-3 bg-surface-0">
+                        <pre className="text-xs text-warn whitespace-pre-wrap leading-relaxed">{row.detail}</pre>
                       </td>
                     </tr>
                   )}
@@ -141,90 +141,90 @@ export function LinuxAuthInvestigationClient({
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">217 total failed attempts across 3 accounts from 185.220.101.9, ending in a successful login as svc_backup.</p>
+        <p className="text-xs text-ink-3 mb-4">217 total failed attempts across 3 accounts from 185.220.101.9, ending in a successful login as svc_backup.</p>
 
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What is happening in this log?</p>
+            <p className="text-sm text-ink-2 font-medium">What is happening in this log?</p>
             <div className="flex flex-wrap gap-3">
               {["Kerberoasting", "SSH Brute Force", "DNS Tunneling", "SQL Injection"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 217 failures then a success = successful SSH brute force. Flag: SAGE&#123;ssh_brut3_f0rc3_succ3ss&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — 217 failures then a success = successful SSH brute force. Flag: SAGE&#123;ssh_brut3_f0rc3_succ3ss&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Identify the Sudo Abuse" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">
-          Once in as <code className="text-amber-300">svc_backup</code>, the attacker checked <code className="text-amber-300">sudo -l</code> and
+        <p className="text-ink-2 text-sm mb-3">
+          Once in as <code className="text-warn">svc_backup</code>, the attacker checked <code className="text-warn">sudo -l</code> and
           found a NOPASSWD entry. This is what followed.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SUDO_LOG}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SUDO_LOG}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What technique did the attacker use to become root?</p>
+            <p className="text-sm text-ink-2 font-medium">What technique did the attacker use to become root?</p>
             <div className="flex flex-wrap gap-3">
               {["Pass-the-Hash", "Kernel exploit", "GTFOBins sudo shell escape", "SUID binary hijack"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — sudo find with -exec spawns a root shell. Flag: SAGE&#123;gtf0b1ns_sud0_3scap3&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — sudo find with -exec spawns a root shell. Flag: SAGE&#123;gtf0b1ns_sud0_3scap3&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Find the Persistence" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           With root, the attacker planted two separate ways to keep access even if the password is reset.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{PERSISTENCE_LOG}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{PERSISTENCE_LOG}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Name both persistence mechanisms as a flag: SAGE&#123;cr0n_and_ssh_&#8230;&#125;</p>
+            <p className="text-sm text-ink-2 font-medium">Name both persistence mechanisms as a flag: SAGE&#123;cr0n_and_ssh_&#8230;&#125;</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t3Answer} onChange={setT3Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a root cron beacon plus a planted SSH key. Flag: SAGE&#123;cr0n_4nd_ssh_k3y_p3rsist3nce&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — a root cron beacon plus a planted SSH key. Flag: SAGE&#123;cr0n_4nd_ssh_k3y_p3rsist3nce&#125;</p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;ssh_brut3_f0rc3_succ3ss&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;gtf0b1ns_sud0_3scap3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;cr0n_4nd_ssh_k3y_p3rsist3nce&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;ssh_brut3_f0rc3_succ3ss&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;gtf0b1ns_sud0_3scap3&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;cr0n_4nd_ssh_k3y_p3rsist3nce&#125;</span></li>
           </ul>
         </div>
       )}

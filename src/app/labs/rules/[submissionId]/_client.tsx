@@ -31,9 +31,9 @@ interface RuleData {
 
 const LANGUAGE_COLORS: Record<RuleLanguage, string> = {
   SIGMA: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
-  KQL: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  SPLUNK: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  ELASTIC: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  KQL: 'bg-info-wash text-info border-info-edge',
+  SPLUNK: 'bg-accent-wash text-accent border-accent-edge',
+  ELASTIC: 'bg-warn-wash text-warn border-warn-edge',
   YARA: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
 };
 
@@ -107,11 +107,11 @@ export function RuleDetailsClient({ params }: Props) {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <main className="min-h-screen bg-surface-0 text-white">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="space-y-4">
-            <div className="h-12 bg-zinc-800 rounded-lg animate-pulse" />
-            <div className="h-64 bg-zinc-800 rounded-lg animate-pulse" />
+            <div className="h-12 bg-surface-2 rounded-lg animate-pulse" />
+            <div className="h-64 bg-surface-2 rounded-lg animate-pulse" />
           </div>
         </div>
       </main>
@@ -120,13 +120,13 @@ export function RuleDetailsClient({ params }: Props) {
 
   if (error || !rule) {
     return (
-      <main className="min-h-screen bg-zinc-950 text-white">
+      <main className="min-h-screen bg-surface-0 text-white">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-6 flex gap-3">
-            <AlertCircle size={20} className="text-red-400 flex-none mt-0.5" />
+          <div className="rounded-lg border border-danger-edge bg-danger-wash p-6 flex gap-3">
+            <AlertCircle size={20} className="text-danger flex-none mt-0.5" />
             <div>
-              <p className="font-semibold text-red-400">Error</p>
-              <p className="text-sm text-red-300 mt-1">{error || 'Rule not found'}</p>
+              <p className="font-semibold text-danger">Error</p>
+              <p className="text-sm text-danger mt-1">{error || 'Rule not found'}</p>
             </div>
           </div>
         </div>
@@ -135,14 +135,14 @@ export function RuleDetailsClient({ params }: Props) {
   }
 
   const scoreColor =
-    rule.f1Score >= 0.8 ? 'text-emerald-400' :
-    rule.f1Score >= 0.6 ? 'text-amber-400' :
-    'text-orange-400';
+    rule.f1Score >= 0.8 ? 'text-ok' :
+    rule.f1Score >= 0.6 ? 'text-warn' :
+    'text-sev-high';
 
   const isOwner = true; // In real implementation, check userId === currentUser.id
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-surface-0 text-white">
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <PageHeader
@@ -152,7 +152,7 @@ export function RuleDetailsClient({ params }: Props) {
           actions={
             <Link
               href="/labs/rules/community"
-              className="rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
+              className="rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
             >
               Back to Community →
             </Link>
@@ -164,7 +164,7 @@ export function RuleDetailsClient({ params }: Props) {
           <div className="lg:col-span-1 space-y-4">
             {/* Language Badge */}
             <div>
-              <p className="text-xs text-zinc-500 mb-2 uppercase tracking-widest">Language</p>
+              <p className="text-xs text-ink-3 mb-2 uppercase tracking-widest">Language</p>
               <span className={cn(
                 'inline-flex rounded-lg border px-3 py-1.5 text-xs font-mono font-semibold',
                 LANGUAGE_COLORS[rule.language]
@@ -175,18 +175,18 @@ export function RuleDetailsClient({ params }: Props) {
 
             {/* F1 Score */}
             <div>
-              <p className="text-xs text-zinc-500 mb-2 uppercase tracking-widest">F1 Score</p>
-              <div className="rounded-lg border border-white/10 bg-zinc-900/60 p-3">
+              <p className="text-xs text-ink-3 mb-2 uppercase tracking-widest">F1 Score</p>
+              <div className="rounded-lg border border-edge bg-surface-1 p-3">
                 <div className="text-2xl font-bold text-white mb-2">
                   <span className={scoreColor}>{rule.f1Score.toFixed(2)}</span>
                 </div>
-                <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-surface-2 rounded-full overflow-hidden">
                   <div
                     className={cn(
                       'h-full transition-all',
-                      rule.f1Score >= 0.8 ? 'bg-emerald-500' :
-                      rule.f1Score >= 0.6 ? 'bg-amber-500' :
-                      'bg-orange-500'
+                      rule.f1Score >= 0.8 ? 'bg-ok' :
+                      rule.f1Score >= 0.6 ? 'bg-warn' :
+                      'bg-sev-high'
                     )}
                     style={{ width: `${rule.f1Score * 100}%` }}
                   />
@@ -196,35 +196,35 @@ export function RuleDetailsClient({ params }: Props) {
 
             {/* Author */}
             <div>
-              <p className="text-xs text-zinc-500 mb-2 uppercase tracking-widest">Author</p>
+              <p className="text-xs text-ink-3 mb-2 uppercase tracking-widest">Author</p>
               <p className="text-sm font-medium text-white">{rule.authorName}</p>
-              <p className="text-xs text-zinc-600 mt-1">
+              <p className="text-xs text-ink-3 mt-1">
                 {new Date(rule.createdAt).toLocaleDateString()}
               </p>
             </div>
 
             {/* Visibility */}
             <div>
-              <p className="text-xs text-zinc-500 mb-2 uppercase tracking-widest">Visibility</p>
-              <p className="text-sm font-medium text-zinc-300">
+              <p className="text-xs text-ink-3 mb-2 uppercase tracking-widest">Visibility</p>
+              <p className="text-sm font-medium text-ink-2">
                 {VISIBILITY_LABELS[rule.visibility]}
               </p>
             </div>
 
             {/* Version */}
             <div>
-              <p className="text-xs text-zinc-500 mb-2 uppercase tracking-widest">Version</p>
+              <p className="text-xs text-ink-3 mb-2 uppercase tracking-widest">Version</p>
               <p className="text-sm font-mono font-bold text-white">v{rule.currentVersion}</p>
             </div>
 
             {/* Community Stats */}
             {rule.visibility === 'COMMUNITY' && (
               <>
-                <div className="pt-2 border-t border-white/10">
-                  <p className="text-xs text-zinc-500 mb-3 uppercase tracking-widest">Stats</p>
+                <div className="pt-2 border-t border-edge">
+                  <p className="text-xs text-ink-3 mb-3 uppercase tracking-widest">Stats</p>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm text-zinc-400">
+                      <div className="flex items-center gap-2 text-sm text-ink-2">
                         <Eye size={14} />
                         Views
                       </div>
@@ -233,7 +233,7 @@ export function RuleDetailsClient({ params }: Props) {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm text-zinc-400">
+                      <div className="flex items-center gap-2 text-sm text-ink-2">
                         <Heart size={14} />
                         Favorites
                       </div>
@@ -297,7 +297,7 @@ export function RuleDetailsClient({ params }: Props) {
             {/* Version History Link */}
             <Link
               href={`/labs/rules/${rule.id}/versions`}
-              className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition"
+              className="inline-flex items-center gap-2 text-sm text-ink-2 hover:text-white transition"
             >
               <FileText size={14} />
               View {rule.currentVersion > 1 ? `All ${rule.currentVersion}` : ''} Versions →
@@ -308,7 +308,7 @@ export function RuleDetailsClient({ params }: Props) {
           <div className="lg:col-span-1">
             {/* Quick Actions */}
             <div className="space-y-2">
-              <p className="text-xs text-zinc-500 mb-3 uppercase tracking-widest">Quick Actions</p>
+              <p className="text-xs text-ink-3 mb-3 uppercase tracking-widest">Quick Actions</p>
               <Button
                 variant="secondary"
                 className="w-full"

@@ -26,7 +26,7 @@ export function LinkedInShareBtn({ certId, issueYear, issueMonth }: LinkedInShar
   return (
     <button
       onClick={handleClick}
-      className="rounded-lg border border-blue-500/40 bg-blue-500/10 px-5 py-2.5 text-sm font-semibold text-blue-400 hover:bg-blue-500/20 transition"
+      className="rounded-lg border border-info-edge bg-info-wash px-5 py-2.5 text-sm font-semibold text-info hover:bg-info-wash transition"
     >
       Add to LinkedIn Profile
     </button>

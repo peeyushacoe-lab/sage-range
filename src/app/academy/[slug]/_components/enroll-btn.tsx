@@ -22,7 +22,7 @@ export function EnrollBtn({ courseId }: { courseId: string }) {
     <button
       onClick={() => void enroll()}
       disabled={loading}
-      className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
+      className="bg-ok hover:bg-ok-wash disabled:opacity-50 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
     >
       {loading ? "Enrolling…" : "Enroll in Course"}
     </button>

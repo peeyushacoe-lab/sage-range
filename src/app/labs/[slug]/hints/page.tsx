@@ -74,13 +74,13 @@ function difficultyColor(difficulty: string) {
     case "EASY":
       return "text-green-400 bg-green-500/10";
     case "MEDIUM":
-      return "text-blue-400 bg-blue-500/10";
+      return "text-info bg-info-wash";
     case "HARD":
-      return "text-orange-400 bg-orange-500/10";
+      return "text-sev-high bg-sev-high-wash";
     case "INSANE":
-      return "text-red-400 bg-red-500/10";
+      return "text-danger bg-danger-wash";
     default:
-      return "text-zinc-400 bg-zinc-500/10";
+      return "text-ink-2 bg-surface-3";
   }
 }
 
@@ -92,16 +92,16 @@ function StageAccordion({
   hints: HintWithQuality[];
 }) {
   return (
-    <details className="group border border-zinc-700 rounded-lg overflow-hidden">
-      <summary className="flex items-center justify-between px-4 py-3 bg-zinc-900 hover:bg-zinc-800 cursor-pointer transition-colors">
-        <span className="font-medium text-zinc-100">{stage}</span>
+    <details className="group border border-edge-strong rounded-lg overflow-hidden">
+      <summary className="flex items-center justify-between px-4 py-3 bg-surface-1 hover:bg-surface-2 cursor-pointer transition-colors">
+        <span className="font-medium text-ink">{stage}</span>
         <ChevronDown
           size={18}
-          className="text-zinc-500 group-open:rotate-180 transition-transform"
+          className="text-ink-3 group-open:rotate-180 transition-transform"
         />
       </summary>
 
-      <div className="bg-black/50 border-t border-zinc-700 divide-y divide-zinc-700">
+      <div className="bg-black/50 border-t border-edge-strong divide-y divide-edge-strong">
         {hints.map((hint) => {
           const stars = Math.round((hint.quality?.avgScore ?? 5) / 2);
           const helpPct = hint.quality
@@ -112,7 +112,7 @@ function StageAccordion({
             <div key={hint.id} className="p-4 space-y-3">
               {/* Hint Text */}
               <div>
-                <p className="text-sm text-zinc-300 line-clamp-3 font-mono">
+                <p className="text-sm text-ink-2 line-clamp-3 font-mono">
                   {hint.text}
                 </p>
               </div>
@@ -128,13 +128,13 @@ function StageAccordion({
                         size={14}
                         className={
                           i < stars
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-zinc-700"
+                            ? "fill-warn text-warn"
+                            : "text-ink-3"
                         }
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-xs text-ink-3">
                     {hint.quality?.avgScore.toFixed(1) ?? "5.0"}/10 (
                     {hint.quality?.totalRatings ?? 0} ratings)
                   </span>
@@ -143,25 +143,25 @@ function StageAccordion({
                 {/* Helpful % & Submission Rate */}
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <p className="text-zinc-600 mb-1">Helpful</p>
-                    <div className="w-full bg-zinc-800 rounded-full h-1.5">
+                    <p className="text-ink-3 mb-1">Helpful</p>
+                    <div className="w-full bg-surface-2 rounded-full h-1.5">
                       <div
-                        className="bg-sage-500 h-1.5 rounded-full"
+                        className="bg-ok h-1.5 rounded-full"
                         style={{ width: `${helpPct}%` }}
                       />
                     </div>
-                    <p className="text-zinc-500 mt-1">{helpPct}%</p>
+                    <p className="text-ink-3 mt-1">{helpPct}%</p>
                   </div>
 
                   <div>
-                    <p className="text-zinc-600 mb-1">Submission Rate</p>
-                    <div className="w-full bg-zinc-800 rounded-full h-1.5">
+                    <p className="text-ink-3 mb-1">Submission Rate</p>
+                    <div className="w-full bg-surface-2 rounded-full h-1.5">
                       <div
-                        className="bg-blue-500 h-1.5 rounded-full"
+                        className="bg-info h-1.5 rounded-full"
                         style={{ width: `${hint.quality?.submissionRate ?? 0}%` }}
                       />
                     </div>
-                    <p className="text-zinc-500 mt-1">
+                    <p className="text-ink-3 mt-1">
                       {hint.quality?.submissionRate.toFixed(0) ?? 0}%
                     </p>
                   </div>
@@ -198,10 +198,10 @@ async function HintBrowserContent({ labId }: { labId: string }) {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-100 mb-2">
+          <h1 className="text-3xl font-bold text-ink mb-2">
             {lab.title} — Hints
           </h1>
-          <p className="text-zinc-400">
+          <p className="text-ink-2">
             Browse hints by stage. All ratings and quality metrics help improve
             the hint system.
           </p>
@@ -216,7 +216,7 @@ async function HintBrowserContent({ labId }: { labId: string }) {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-zinc-500">No hints available yet for this lab.</p>
+            <p className="text-ink-3">No hints available yet for this lab.</p>
           </div>
         )}
       </div>

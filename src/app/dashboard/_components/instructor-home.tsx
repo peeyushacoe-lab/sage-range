@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import type { AppUser } from "@/lib/current-user";
+import { cn } from "@/lib/utils";
+import { Badge, Button, StatCard, Table, TableScroll, THead, TBody, TR, TH, TD } from "@/components/ui";
 
 function toRating(score: number) {
   if (score >= 88) return "EXCEPTIONAL";
@@ -8,6 +10,15 @@ function toRating(score: number) {
   if (score >= 48) return "ADEQUATE";
   return "DEVELOPING";
 }
+
+// A quality tier, not a severity — higher is better, so it never touches the
+// danger/critical hues (those mean "bad" everywhere else in the app).
+const RATING_TONE = {
+  EXCEPTIONAL: "ok",
+  STRONG: "info",
+  ADEQUATE: "warn",
+  DEVELOPING: "neutral",
+} as const;
 
 export async function InstructorHome({ user }: { user: AppUser }) {
   const classrooms = await db.classroom.findMany({
@@ -60,62 +71,52 @@ export async function InstructorHome({ user }: { user: AppUser }) {
   const topUserMap = new Map(topUsers.map((u) => [u.id, u]));
 
   return (
-    <main className="mx-auto max-w-7xl px-6 py-8 space-y-8">
+    <main className="mx-auto max-w-7xl space-y-8 px-6 py-8">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-0.5">Instructor Hub</p>
-          <h1 className="text-2xl font-bold text-zinc-100">{user.displayName ?? user.email.split("@")[0]}</h1>
-          <p className="text-sm text-zinc-400 mt-1">Manage classrooms, track student progress, and run exercises.</p>
+          <p className="mb-0.5 font-mono text-xs uppercase tracking-[0.14em] text-ink-3">Instructor Hub</p>
+          <h1 className="text-2xl font-medium text-ink">{user.displayName ?? user.email.split("@")[0]}</h1>
+          <p className="mt-1 text-sm text-ink-2">Manage classrooms, track student progress, and run exercises.</p>
         </div>
         <div className="flex gap-2">
-          <Link href="/mentor"
-            className="rounded-lg border border-sage-500/30 bg-sage-500/10 px-4 py-2.5 text-sm font-semibold text-sage-400 hover:bg-sage-500/20 transition">
-            Review Queue →
-          </Link>
-          <Link href="/classroom"
-            className="rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-400 transition">
-            Open Classroom Hub →
-          </Link>
+          <Link href="/mentor"><Button variant="secondary">Review Queue →</Button></Link>
+          <Link href="/classroom"><Button variant="primary">Open Classroom Hub →</Button></Link>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Classrooms", value: classrooms.length, color: "text-zinc-100" },
-          { label: "Total Students", value: studentIds.length, color: "text-blue-400" },
-          { label: "Lab Assignments", value: totalAssignments, color: "text-sage-400" },
-          { label: "Completed Sims", value: simCompletedCount, color: "text-amber-400" },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-white/8 bg-zinc-900/50 p-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">{s.label}</p>
-            <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
-          </div>
-        ))}
+      {/* Stats — four counts, no shared meaning, so none of them borrow status colour */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Classrooms" value={classrooms.length} />
+        <StatCard label="Total students" value={studentIds.length} />
+        <StatCard label="Lab assignments" value={totalAssignments} />
+        <StatCard label="Completed sims" value={simCompletedCount} />
       </div>
 
       {/* Classrooms */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">My Classrooms</h2>
-          <Link href="/classroom" className="text-xs text-blue-400 hover:text-blue-300 transition">Manage all →</Link>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-medium uppercase tracking-wide text-ink-2">My classrooms</h2>
+          <Link href="/classroom" className="text-xs text-accent transition-colors duration-fast hover:text-accent-hover">Manage all →</Link>
         </div>
         {classrooms.length === 0 ? (
-          <div className="rounded-xl border border-white/8 bg-zinc-900/30 p-8 text-center">
-            <p className="text-zinc-500 text-sm mb-3">No classrooms yet.</p>
-            <Link href="/classroom" className="text-xs text-blue-400 hover:underline">Create your first classroom →</Link>
+          <div className="rounded-lg border border-edge bg-surface-1 p-8 text-center">
+            <p className="mb-3 text-sm text-ink-3">No classrooms yet.</p>
+            <Link href="/classroom" className="text-xs text-accent hover:underline">Create your first classroom →</Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {classrooms.map((c) => (
-              <Link key={c.id} href={`/classroom/${c.id}`}
-                className="rounded-xl border border-white/8 bg-zinc-900/40 p-4 hover:border-white/20 hover:bg-zinc-800/40 transition block">
-                <p className="font-semibold text-zinc-100 text-sm mb-1">{c.name}</p>
-                <p className="text-xs text-zinc-500 font-mono mb-3">Code: {c.joinCode}</p>
-                <div className="flex gap-4 text-xs text-zinc-400">
-                  <span><span className="font-bold text-blue-400">{c._count.enrollments}</span> students</span>
-                  <span><span className="font-bold text-sage-400">{c._count.assignments}</span> labs</span>
+              <Link
+                key={c.id}
+                href={`/classroom/${c.id}`}
+                className="block rounded-lg border border-edge bg-surface-1 p-4 transition-colors duration-fast hover:border-edge-strong hover:bg-surface-2"
+              >
+                <p className="mb-1 text-sm font-medium text-ink">{c.name}</p>
+                <p className="mb-3 font-mono text-xs text-ink-3">Code: {c.joinCode}</p>
+                <div className="flex gap-4 text-xs text-ink-3">
+                  <span><span className="font-medium text-ink-2">{c._count.enrollments}</span> students</span>
+                  <span><span className="font-medium text-ink-2">{c._count.assignments}</span> labs</span>
                 </div>
               </Link>
             ))}
@@ -125,51 +126,44 @@ export async function InstructorHome({ user }: { user: AppUser }) {
 
       {/* Top simulation performers */}
       <section className="pb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Top Simulation Performers</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-medium uppercase tracking-wide text-ink-2">Top simulation performers</h2>
           {classrooms.length > 0 && (
-            <Link href={`/classroom/${classrooms[0].id}/report`} className="text-xs text-blue-400 hover:text-blue-300 transition">Full report →</Link>
+            <Link href={`/classroom/${classrooms[0].id}/report`} className="text-xs text-accent transition-colors duration-fast hover:text-accent-hover">Full report →</Link>
           )}
         </div>
         {topPerformers.length === 0 ? (
-          <div className="rounded-xl border border-white/8 bg-zinc-900/30 p-6 text-center">
-            <p className="text-zinc-500 text-sm">No students have completed a simulation yet.</p>
+          <div className="rounded-lg border border-edge bg-surface-1 p-6 text-center">
+            <p className="text-sm text-ink-3">No students have completed a simulation yet.</p>
           </div>
         ) : (
-          <div className="rounded-xl border border-white/8 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/8 text-zinc-500 text-xs uppercase tracking-wider bg-zinc-900/50">
-                  <th className="text-left p-4">Rank</th>
-                  <th className="text-left p-4">Student</th>
-                  <th className="text-center p-4">Assessment</th>
-                  <th className="text-right p-4">Best Score</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {topPerformers.map(([userId, score], idx) => {
-                  const u = topUserMap.get(userId);
-                  const rating = toRating(score);
-                  return (
-                    <tr key={userId} className="hover:bg-zinc-900/50 transition">
-                      <td className="p-4 text-zinc-500 font-mono">{idx + 1}</td>
-                      <td className="p-4">
-                        <p className="font-medium text-zinc-100">{u?.displayName ?? u?.email.split("@")[0] ?? userId}</p>
-                      </td>
-                      <td className="p-4 text-center">
-                        <span className={`text-[10px] font-bold uppercase border rounded px-2 py-0.5 ${
-                          rating === "EXCEPTIONAL" ? "text-sage-400 border-sage-500/40 bg-sage-500/8" :
-                          rating === "STRONG"      ? "text-blue-400 border-blue-500/40 bg-blue-500/8" :
-                          rating === "ADEQUATE"    ? "text-amber-400 border-amber-500/40 bg-amber-500/8" :
-                                                     "text-zinc-400 border-zinc-600 bg-zinc-800"
-                        }`}>{rating}</span>
-                      </td>
-                      <td className="p-4 text-right font-bold text-sage-400">{score}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="overflow-hidden rounded-lg border border-edge">
+            <TableScroll>
+              <Table>
+                <THead>
+                  <TR>
+                    <TH>Rank</TH>
+                    <TH>Student</TH>
+                    <TH align="right">Assessment</TH>
+                    <TH align="right">Best score</TH>
+                  </TR>
+                </THead>
+                <TBody>
+                  {topPerformers.map(([userId, score], idx) => {
+                    const u = topUserMap.get(userId);
+                    const rating = toRating(score);
+                    return (
+                      <TR key={userId}>
+                        <TD numeric>{idx + 1}</TD>
+                        <TD className="font-medium text-ink">{u?.displayName ?? u?.email.split("@")[0] ?? userId}</TD>
+                        <TD align="right"><Badge tone={RATING_TONE[rating]}>{rating}</Badge></TD>
+                        <TD align="right" numeric className="font-medium text-ok">{score}</TD>
+                      </TR>
+                    );
+                  })}
+                </TBody>
+              </Table>
+            </TableScroll>
           </div>
         )}
       </section>

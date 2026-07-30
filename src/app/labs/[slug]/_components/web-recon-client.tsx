@@ -133,15 +133,15 @@ Content-Type: text/plain
 ];
 
 const RISK_COLORS: Record<FfufRow["risk"], string> = {
-  critical: "text-red-400 border-red-500/40 bg-red-500/10",
-  high:     "text-orange-400 border-orange-500/40 bg-orange-500/10",
-  medium:   "text-amber-400 border-amber-500/40 bg-amber-500/10",
-  low:      "text-zinc-400 border-zinc-600 bg-zinc-800",
+  critical: "text-danger border-danger-edge bg-danger-wash",
+  high:     "text-sev-high border-sev-high-edge bg-sev-high-wash",
+  medium:   "text-warn border-warn-edge bg-warn-wash",
+  low:      "text-ink-2 border-edge-strong bg-surface-2",
 };
 
 const STATUS_COLORS: Record<number, string> = {
-  200: "text-sage-400",
-  403: "text-amber-400",
+  200: "text-ok",
+  403: "text-warn",
 };
 
 type CrtRow = {
@@ -222,46 +222,46 @@ export function WebReconClient({
     <div className="space-y-6">
       {/* Task 1 — robots.txt Discovery */}
       <TaskShell number={1} title="robots.txt Discovery" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
-          The <code className="font-mono text-amber-300">robots.txt</code> file instructs crawlers
-          which paths to skip — but <code className="font-mono text-amber-300">Disallow</code> entries act as a roadmap.
+        <p className="text-ink-2 text-sm mb-3">
+          The <code className="font-mono text-warn">robots.txt</code> file instructs crawlers
+          which paths to skip — but <code className="font-mono text-warn">Disallow</code> entries act as a roadmap.
           Click each entry to understand why it is interesting.
         </p>
 
-        <div className="rounded-lg bg-zinc-950 border border-white/8 overflow-hidden mb-4">
-          <div className="px-4 py-2 border-b border-white/5 font-mono text-xs text-zinc-500">
+        <div className="rounded-lg bg-surface-0 border border-edge overflow-hidden mb-4">
+          <div className="px-4 py-2 border-b border-edge-subtle font-mono text-xs text-ink-3">
             https://target.com/robots.txt
           </div>
-          <div className="px-4 py-3 font-mono text-xs border-b border-white/5">
-            <p className="text-zinc-500">User-agent: *</p>
+          <div className="px-4 py-3 font-mono text-xs border-b border-edge-subtle">
+            <p className="text-ink-3">User-agent: *</p>
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-edge-subtle">
             {ROBOTS_ENTRIES.map((r) => (
               <div key={r.path}>
                 <button
-                  className="w-full text-left px-4 py-2.5 font-mono text-xs hover:bg-white/3 transition-colors flex items-center gap-3 group"
+                  className="w-full text-left px-4 py-2.5 font-mono text-xs hover:bg-surface-2 transition-colors flex items-center gap-3 group"
                   onClick={() => setExpandedRobots(expandedRobots === r.path ? null : r.path)}
                 >
-                  <span className="text-zinc-500 shrink-0">Disallow:</span>
-                  <span className={r.interesting ? "text-amber-300 flex-1" : "text-zinc-400 flex-1"}>{r.path}</span>
-                  <span className="shrink-0 text-zinc-600 group-hover:text-zinc-400">
+                  <span className="text-ink-3 shrink-0">Disallow:</span>
+                  <span className={r.interesting ? "text-warn flex-1" : "text-ink-2 flex-1"}>{r.path}</span>
+                  <span className="shrink-0 text-ink-3 group-hover:text-ink-2">
                     {expandedRobots === r.path ? "▲" : "▼"}
                   </span>
                 </button>
                 {expandedRobots === r.path && (
-                  <div className="px-4 py-2.5 bg-zinc-900/60 border-t border-white/5 text-xs text-zinc-300 leading-relaxed">
+                  <div className="px-4 py-2.5 bg-surface-1 border-t border-edge-subtle text-xs text-ink-2 leading-relaxed">
                     {r.note}
                   </div>
                 )}
               </div>
             ))}
-            <div className="px-4 py-2.5 font-mono text-xs text-zinc-500">Allow: /</div>
+            <div className="px-4 py-2.5 font-mono text-xs text-ink-3">Allow: /</div>
           </div>
         </div>
 
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What hidden admin path is revealed by robots.txt?</p>
+            <p className="text-sm text-ink-2 font-medium">What hidden admin path is revealed by robots.txt?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
                 value={t1Answer}
@@ -271,11 +271,11 @@ export function WebReconClient({
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — /admin-panel-9f3a2/ was disclosed. Flag: SAGE&#123;r0b0ts_txt_4dm1n_p4th&#125;
           </p>
         )}
@@ -283,41 +283,41 @@ export function WebReconClient({
 
       {/* Task 2 — Directory Brute Force */}
       <TaskShell number={2} title="Directory Brute Force" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           ffuf discovers hidden paths. Click each result row to see the HTTP response and risk assessment.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 overflow-hidden mb-4">
-          <div className="px-4 py-2 border-b border-white/5 font-mono text-xs text-zinc-500">
+        <div className="rounded-lg bg-surface-0 border border-edge overflow-hidden mb-4">
+          <div className="px-4 py-2 border-b border-edge-subtle font-mono text-xs text-ink-3">
             $ ffuf -w common.txt -u https://target.com/FUZZ — {FFUF_ROWS.length} results
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-edge-subtle">
             {FFUF_ROWS.map((row) => (
               <div key={row.path}>
                 <button
-                  className="w-full text-left px-4 py-2.5 font-mono text-xs hover:bg-white/3 transition-colors flex items-center gap-3 group"
+                  className="w-full text-left px-4 py-2.5 font-mono text-xs hover:bg-surface-2 transition-colors flex items-center gap-3 group"
                   onClick={() => setExpandedFfuf(expandedFfuf === row.path ? null : row.path)}
                 >
-                  <span className={`w-10 shrink-0 font-bold ${STATUS_COLORS[row.status] ?? "text-zinc-400"}`}>
+                  <span className={`w-10 shrink-0 font-bold ${STATUS_COLORS[row.status] ?? "text-ink-2"}`}>
                     {row.status}
                   </span>
-                  <span className="text-amber-300 flex-1 truncate text-left">{row.path}</span>
-                  <span className="text-zinc-600 text-[10px] shrink-0">{(row.size / 1024).toFixed(0)}KB</span>
+                  <span className="text-warn flex-1 truncate text-left">{row.path}</span>
+                  <span className="text-ink-3 text-[10px] shrink-0">{(row.size / 1024).toFixed(0)}KB</span>
                   <span className={`shrink-0 text-[9px] font-bold uppercase tracking-wider border rounded px-1.5 py-0.5 ${RISK_COLORS[row.risk]}`}>
                     {row.risk}
                   </span>
-                  <span className="text-zinc-600 group-hover:text-zinc-400 shrink-0">
+                  <span className="text-ink-3 group-hover:text-ink-2 shrink-0">
                     {expandedFfuf === row.path ? "▲" : "▼"}
                   </span>
                 </button>
                 {expandedFfuf === row.path && (
-                  <div className="border-t border-white/5">
-                    <div className="px-4 py-3 grid grid-cols-1 lg:grid-cols-2 gap-4 bg-zinc-900/50">
+                  <div className="border-t border-edge-subtle">
+                    <div className="px-4 py-3 grid grid-cols-1 lg:grid-cols-2 gap-4 bg-surface-1">
                       <div>
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">HTTP Response</p>
+                        <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-2">HTTP Response</p>
                         <pre className="font-mono text-xs text-cyan-300 whitespace-pre-wrap leading-relaxed">{row.response}</pre>
                       </div>
                       <div>
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Analysis</p>
+                        <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-2">Analysis</p>
                         <div className={`rounded border px-3 py-2 text-xs leading-relaxed ${RISK_COLORS[row.risk]}`}>
                           {row.analysis}
                         </div>
@@ -332,7 +332,7 @@ export function WebReconClient({
 
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Which discovered file poses the highest risk?</p>
+            <p className="text-sm text-ink-2 font-medium">Which discovered file poses the highest risk?</p>
             <div className="flex flex-col gap-2">
               {["/backup/db_dump_2026.sql", "/staging/index.html", "/admin-panel-9f3a2/ (403)", "/.git/config"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -344,16 +344,16 @@ export function WebReconClient({
                     onChange={() => setT2Choice(opt)}
                     className="accent-emerald-500"
                   />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — an exposed .git/config leaks full source history. Flag: SAGE&#123;g1t_c0nf1g_3xp0s3d&#125;
           </p>
         )}
@@ -361,35 +361,35 @@ export function WebReconClient({
 
       {/* Task 3 — Certificate Transparency */}
       <TaskShell number={3} title="Certificate Transparency" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           Certificate Transparency logs record every TLS certificate issued.
           Click each subdomain to evaluate its attack surface.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 overflow-hidden mb-4">
-          <div className="px-4 py-2 border-b border-white/5 font-mono text-xs text-zinc-500">
+        <div className="rounded-lg bg-surface-0 border border-edge overflow-hidden mb-4">
+          <div className="px-4 py-2 border-b border-edge-subtle font-mono text-xs text-ink-3">
             crt.sh results for target.com
           </div>
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-edge-subtle">
             {CRT_ROWS.map((row) => (
               <div key={row.subdomain}>
                 <button
-                  className="w-full text-left px-4 py-2.5 font-mono text-xs hover:bg-white/3 transition-colors flex items-center gap-3 group"
+                  className="w-full text-left px-4 py-2.5 font-mono text-xs hover:bg-surface-2 transition-colors flex items-center gap-3 group"
                   onClick={() => setExpandedCrt(expandedCrt === row.subdomain ? null : row.subdomain)}
                 >
-                  <span className={`flex-1 ${row.interesting ? "text-red-300" : "text-amber-300"}`}>{row.subdomain}</span>
-                  <span className="text-zinc-500 shrink-0">{row.issued}</span>
+                  <span className={`flex-1 ${row.interesting ? "text-danger" : "text-warn"}`}>{row.subdomain}</span>
+                  <span className="text-ink-3 shrink-0">{row.issued}</span>
                   {row.interesting && (
-                    <span className="shrink-0 text-[9px] font-bold text-red-400 border border-red-500/30 bg-red-500/10 rounded px-1.5 py-0.5 uppercase tracking-wider">
+                    <span className="shrink-0 text-[9px] font-bold text-danger border border-danger-edge bg-danger-wash rounded px-1.5 py-0.5 uppercase tracking-wider">
                       interesting
                     </span>
                   )}
-                  <span className="text-zinc-600 group-hover:text-zinc-400 shrink-0">
+                  <span className="text-ink-3 group-hover:text-ink-2 shrink-0">
                     {expandedCrt === row.subdomain ? "▲" : "▼"}
                   </span>
                 </button>
                 {expandedCrt === row.subdomain && (
-                  <div className={`px-4 py-2.5 border-t border-white/5 text-xs leading-relaxed ${
-                    row.interesting ? "text-amber-300 bg-amber-950/10" : "text-zinc-400 bg-zinc-900/40"
+                  <div className={`px-4 py-2.5 border-t border-edge-subtle text-xs leading-relaxed ${
+                    row.interesting ? "text-warn bg-warn-wash" : "text-ink-2 bg-surface-1"
                   }`}>
                     {row.note}
                   </div>
@@ -401,7 +401,7 @@ export function WebReconClient({
 
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Which subdomain is most interesting for further testing?</p>
+            <p className="text-sm text-ink-2 font-medium">Which subdomain is most interesting for further testing?</p>
             <div className="flex flex-col gap-2">
               {["dev.target.com", "api.target.com", "admin-staging.target.com", "mail.target.com"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -413,28 +413,28 @@ export function WebReconClient({
                     onChange={() => setT3Choice(opt)}
                     className="accent-emerald-500"
                   />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — admin-staging combines admin access with reduced security controls. Flag: SAGE&#123;4dm1n_st4g1ng_subd0m41n&#125;
           </p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;r0b0ts_txt_4dm1n_p4th&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;g1t_c0nf1g_3xp0s3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;4dm1n_st4g1ng_subd0m41n&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;r0b0ts_txt_4dm1n_p4th&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;g1t_c0nf1g_3xp0s3d&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;4dm1n_st4g1ng_subd0m41n&#125;</span></li>
           </ul>
         </div>
       )}

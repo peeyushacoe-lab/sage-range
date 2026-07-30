@@ -84,13 +84,13 @@ export function FileUploadBypassClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Review the Filter" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">An avatar upload feature validates file extensions before saving.</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{FILTER_CODE}</pre>
+        <p className="text-ink-2 text-sm mb-3">An avatar upload feature validates file extensions before saving.</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{FILTER_CODE}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the fundamental weakness of this filter?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the fundamental weakness of this filter?</p>
             <div className="flex flex-col gap-2">
               {[
                 "It doesn't check file size",
@@ -100,48 +100,48 @@ export function FileUploadBypassClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — deny-lists must enumerate every dangerous extension; Apache's mod_php config often executes lesser-known extensions like .phtml and .pht too. Flag: SAGE&#123;1nc0mpl3t3_d3ny_l1st&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — deny-lists must enumerate every dangerous extension; Apache's mod_php config often executes lesser-known extensions like .phtml and .pht too. Flag: SAGE&#123;1nc0mpl3t3_d3ny_l1st&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Find the Bypass" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">Here are the attacker's actual upload attempts against this endpoint:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{ATTEMPT_LOG}</pre>
+        <p className="text-ink-2 text-sm mb-3">Here are the attacker's actual upload attempts against this endpoint:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{ATTEMPT_LOG}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Flag the extension that bypassed the filter.</p>
+            <p className="text-sm text-ink-2 font-medium">Flag the extension that bypassed the filter.</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t2Answer} onChange={setT2Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — .pht wasn't in the deny-list but is still executed as PHP by the server, giving the attacker code execution as www-data. Flag: SAGE&#123;pht_extension_bypass&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — .pht wasn't in the deny-list but is still executed as PHP by the server, giving the attacker code execution as www-data. Flag: SAGE&#123;pht_extension_bypass&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Fix It Properly" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-4">The team wants a durable fix, not just adding .pht to the blocked list.</p>
+        <p className="text-ink-2 text-sm mb-4">The team wants a durable fix, not just adding .pht to the blocked list.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's the more robust approach?</p>
+            <p className="text-sm text-ink-2 font-medium">What's the more robust approach?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Add every known PHP-executable extension to the deny-list, one by one",
@@ -151,17 +151,17 @@ export function FileUploadBypassClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — allow-listing only known-safe extensions (jpg, png, gif), validating actual content type, and
             storing uploads outside the web root (or serving them with a non-executable content-disposition) closes
             the whole vulnerability class at once. Flag: SAGE&#123;4ll0w_l1st_4nd_1s0l4t3&#125;
@@ -170,12 +170,12 @@ export function FileUploadBypassClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;1nc0mpl3t3_d3ny_l1st&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;pht_extension_bypass&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;4ll0w_l1st_4nd_1s0l4t3&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;1nc0mpl3t3_d3ny_l1st&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;pht_extension_bypass&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;4ll0w_l1st_4nd_1s0l4t3&#125;</span></li>
           </ul>
         </div>
       )}

@@ -24,10 +24,10 @@ interface Props {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "text-amber-400 border-amber-500/30 bg-amber-500/5",
-  APPROVED: "text-sage-400 border-sage-500/30 bg-sage-500/5",
-  REJECTED: "text-red-400 border-red-500/30 bg-red-500/5",
-  CHANGES_REQUESTED: "text-orange-400 border-orange-500/30 bg-orange-500/5",
+  PENDING: "text-warn border-warn-edge bg-warn-wash",
+  APPROVED: "text-ok border-ok-edge bg-ok-wash",
+  REJECTED: "text-danger border-danger-edge bg-danger-wash",
+  CHANGES_REQUESTED: "text-sev-high border-sev-high-edge bg-sev-high-wash",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -127,19 +127,19 @@ export function AssessmentSection({ moduleId, assessmentId, instructions, existi
           )}
         </div>
 
-        <div className="rounded-xl border border-white/8 p-5">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Your Submission</p>
-          <p className="text-xs text-zinc-500 mb-2">
+        <div className="rounded-xl border border-edge p-5">
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">Your Submission</p>
+          <p className="text-xs text-ink-3 mb-2">
             Type: {submitted.type} · Submitted {new Date(submitted.submittedAt).toLocaleDateString()}
           </p>
           {submitted.type === "TEXT" ? (
-            <p className="text-sm text-zinc-300 whitespace-pre-wrap">{submitted.content}</p>
+            <p className="text-sm text-ink-2 whitespace-pre-wrap">{submitted.content}</p>
           ) : (
             <a
               href={submitted.content}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-sage-400 hover:underline break-all"
+              className="text-sm text-ok hover:underline break-all"
             >
               {submitted.content}
             </a>
@@ -149,7 +149,7 @@ export function AssessmentSection({ moduleId, assessmentId, instructions, existi
         {submitted.review?.status === "CHANGES_REQUESTED" && (
           <button
             onClick={() => setSubmitted(null)}
-            className="w-full rounded-lg border border-white/10 px-4 py-3 text-sm font-semibold text-zinc-300 hover:border-sage-500/40 hover:text-sage-500 transition"
+            className="w-full rounded-lg border border-edge px-4 py-3 text-sm font-semibold text-ink-2 hover:border-ok-edge hover:text-ok transition"
           >
             Resubmit
           </button>
@@ -160,13 +160,13 @@ export function AssessmentSection({ moduleId, assessmentId, instructions, existi
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-white/8 bg-white/2 p-5">
-        <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Instructions</p>
-        <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">{instructions}</p>
+      <div className="rounded-xl border border-edge bg-white/2 p-5">
+        <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">Instructions</p>
+        <p className="text-sm text-ink-2 leading-relaxed whitespace-pre-wrap">{instructions}</p>
       </div>
 
       <div>
-        <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Submission Type</p>
+        <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">Submission Type</p>
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {(["TEXT", "PDF", "IMAGE", "ZIP", "GITHUB_LINK"] as SubmissionType[]).map((t) => (
             <button
@@ -174,8 +174,8 @@ export function AssessmentSection({ moduleId, assessmentId, instructions, existi
               onClick={() => setSubmissionType(t)}
               className={`rounded-lg border px-3 py-2 text-xs font-semibold transition ${
                 submissionType === t
-                  ? "border-sage-500/50 bg-sage-500/10 text-sage-400"
-                  : "border-white/10 text-zinc-500 hover:text-zinc-300 hover:border-white/20"
+                  ? "border-ok-edge bg-ok-wash text-ok"
+                  : "border-edge text-ink-3 hover:text-ink-2 hover:border-edge-strong"
               }`}
             >
               {t.replace("_", " ")}
@@ -186,33 +186,33 @@ export function AssessmentSection({ moduleId, assessmentId, instructions, existi
 
       {submissionType === "TEXT" && (
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">Your Response</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">Your Response</p>
           <textarea
             value={textContent}
             onChange={(e) => setTextContent(e.target.value)}
             rows={10}
             placeholder="Write your response here..."
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/50 resize-none"
+            className="w-full rounded-lg border border-edge bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge resize-none"
           />
         </div>
       )}
 
       {isUrlType && (
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">GitHub Repository URL</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">GitHub Repository URL</p>
           <input
             type="url"
             value={urlContent}
             onChange={(e) => setUrlContent(e.target.value)}
             placeholder="https://github.com/username/repo"
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/50"
+            className="w-full rounded-lg border border-edge bg-surface-2 px-4 py-2.5 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
           />
         </div>
       )}
 
       {isFileType && (
         <div>
-          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">Upload File</p>
+          <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">Upload File</p>
           <input
             ref={fileRef}
             type="file"
@@ -222,25 +222,25 @@ export function AssessmentSection({ moduleId, assessmentId, instructions, existi
           />
           <div
             onClick={() => fileRef.current?.click()}
-            className="cursor-pointer rounded-lg border border-dashed border-white/20 p-8 text-center hover:border-sage-500/40 transition"
+            className="cursor-pointer rounded-lg border border-dashed border-edge-strong p-8 text-center hover:border-ok-edge transition"
           >
             {file ? (
-              <p className="text-sm text-zinc-300">{file.name} ({(file.size / 1024).toFixed(1)} KB)</p>
+              <p className="text-sm text-ink-2">{file.name} ({(file.size / 1024).toFixed(1)} KB)</p>
             ) : (
-              <p className="text-sm text-zinc-500">Click to choose a {submissionType.toLowerCase()} file</p>
+              <p className="text-sm text-ink-3">Click to choose a {submissionType.toLowerCase()} file</p>
             )}
           </div>
         </div>
       )}
 
       {error && (
-        <p className="text-sm text-red-400 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3">{error}</p>
+        <p className="text-sm text-danger rounded-lg border border-danger-edge bg-danger-wash px-4 py-3">{error}</p>
       )}
 
       <button
         onClick={submit}
         disabled={loading}
-        className="w-full rounded-lg bg-sage-500 px-4 py-3 text-sm font-semibold text-zinc-950 hover:bg-sage-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
+        className="w-full rounded-lg bg-ok px-4 py-3 text-sm font-semibold text-surface-0 hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition"
       >
         {loading ? "Submitting…" : "Submit Assessment"}
       </button>

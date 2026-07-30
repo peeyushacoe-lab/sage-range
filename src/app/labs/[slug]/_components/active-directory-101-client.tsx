@@ -108,25 +108,25 @@ export function ActiveDirectory101Client({
     <div className="space-y-6">
       {/* Task 1 — Domain Enumeration */}
       <TaskShell number={1} title="Domain Enumeration" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
-          Running <code className="font-mono text-amber-300">net user /domain</code> enumerates all accounts
-          in the domain. Service accounts — identifiable by naming conventions like <code className="font-mono text-amber-300">svc_</code> —
+        <p className="text-ink-2 text-sm mb-3">
+          Running <code className="font-mono text-warn">net user /domain</code> enumerates all accounts
+          in the domain. Service accounts — identifiable by naming conventions like <code className="font-mono text-warn">svc_</code> —
           often have weak passwords and elevated privileges, making them prime Kerberoasting targets.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <p className="font-mono text-xs text-zinc-500 mb-2">$ net user /domain</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <p className="font-mono text-xs text-ink-3 mb-2">$ net user /domain</p>
           <div className="space-y-1">
             {DOMAIN_USERS.map((u) => (
               <div key={u.name} className="flex gap-4 font-mono text-xs">
-                <span className="text-amber-300 w-24 shrink-0">{u.name}</span>
-                <span className="text-zinc-500">{u.desc}</span>
+                <span className="text-warn w-24 shrink-0">{u.name}</span>
+                <span className="text-ink-3">{u.desc}</span>
               </div>
             ))}
           </div>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Which accounts are likely service accounts? (select all that apply)</p>
+            <p className="text-sm text-ink-2 font-medium">Which accounts are likely service accounts? (select all that apply)</p>
             <div className="flex flex-col gap-2">
               {DOMAIN_USERS.map((u) => (
                 <label key={u.name} className="flex items-center gap-2 cursor-pointer">
@@ -137,17 +137,17 @@ export function ActiveDirectory101Client({
                     onChange={() => toggleT1(u.name)}
                     className="accent-emerald-500"
                   />
-                  <span className="text-sm font-mono text-zinc-200">{u.name}</span>
-                  <span className="text-xs text-zinc-500">— {u.desc}</span>
+                  <span className="text-sm font-mono text-ink">{u.name}</span>
+                  <span className="text-xs text-ink-3">— {u.desc}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — svc_sqlserver and svc_backup are service accounts. Flag: SAGE&#123;d0m41n_3num3r4t10n_c0mpl3t3&#125;
           </p>
         )}
@@ -155,17 +155,17 @@ export function ActiveDirectory101Client({
 
       {/* Task 2 — Kerberoasting */}
       <TaskShell number={2} title="Kerberoasting" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           Kerberoasting requests Kerberos TGS tickets for service accounts with registered SPNs.
           These tickets are encrypted with the service account&apos;s password hash and can be
           cracked offline without any privilege escalation.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{KERBEROAST_OUTPUT}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{KERBEROAST_OUTPUT}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">Which tool is used for Kerberoasting?</p>
+            <p className="text-sm text-ink-2 font-medium">Which tool is used for Kerberoasting?</p>
             <div className="flex flex-col gap-2">
               {["mimikatz", "Impacket GetUserSPNs", "BloodHound", "CrackMapExec"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -177,16 +177,16 @@ export function ActiveDirectory101Client({
                     onChange={() => setT2Choice(opt)}
                     className="accent-emerald-500"
                   />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — Impacket&apos;s GetUserSPNs.py requests roastable TGS tickets. Flag: SAGE&#123;k3rb3r04st1ng_svc_4cc0unt&#125;
           </p>
         )}
@@ -194,20 +194,20 @@ export function ActiveDirectory101Client({
 
       {/* Task 3 — Pass-the-Hash */}
       <TaskShell number={3} title="Pass-the-Hash" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           After extracting NTLM hashes with secretsdump, an attacker can authenticate as any user
           without knowing the plaintext password. NTLM authentication accepts the raw hash as a credential.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SECRETSDUMP_OUTPUT}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SECRETSDUMP_OUTPUT}</pre>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">
-          The NT hash <code className="font-mono text-amber-300">31d6cfe0d16ae931b73c59d7e0c089c0</code> can
+        <p className="text-xs text-ink-3 mb-4">
+          The NT hash <code className="font-mono text-warn">31d6cfe0d16ae931b73c59d7e0c089c0</code> can
           be passed directly to Impacket tools — no cracking required.
         </p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">What Impacket script uses NTLM hashes to get a remote shell?</p>
+            <p className="text-sm text-ink-2 font-medium">What Impacket script uses NTLM hashes to get a remote shell?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
                 value={t3Answer}
@@ -217,23 +217,23 @@ export function ActiveDirectory101Client({
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — psexec.py spawns a SYSTEM shell using NTLM pass-the-hash. Flag: SAGE&#123;p4ss_th3_h4sh_4dm1n&#125;
           </p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d0m41n_3num3r4t10n_c0mpl3t3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;k3rb3r04st1ng_svc_4cc0unt&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;p4ss_th3_h4sh_4dm1n&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;d0m41n_3num3r4t10n_c0mpl3t3&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;k3rb3r04st1ng_svc_4cc0unt&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;p4ss_th3_h4sh_4dm1n&#125;</span></li>
           </ul>
         </div>
       )}

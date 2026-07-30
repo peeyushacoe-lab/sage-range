@@ -86,37 +86,37 @@ export function BrowserForensicsClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Reconstruct the Browsing Timeline" unlocked completed={done("task_1")}>
-        <p className="text-zinc-300 text-sm mb-3">
+        <p className="text-ink-2 text-sm mb-3">
           A user reported their laptop &quot;acting weird&quot;. You pull their Chrome SQLite history database.
         </p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{HISTORY_TABLE}</pre>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{HISTORY_TABLE}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-zinc-300 font-medium">Flag the suspicious domain visited between two legitimate email checks.</p>
+            <p className="text-sm text-ink-2 font-medium">Flag the suspicious domain visited between two legitimate email checks.</p>
             <div className="flex gap-2 max-w-lg">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — docs-share-corp.info mimics a legitimate document-sharing brand but is an unrelated, unfamiliar domain. Flag: SAGE&#123;d0cs_sh4r3_c0rp_1nf0_typ0squ4t&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — docs-share-corp.info mimics a legitimate document-sharing brand but is an unrelated, unfamiliar domain. Flag: SAGE&#123;d0cs_sh4r3_c0rp_1nf0_typ0squ4t&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Check the Downloads" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-zinc-300 text-sm mb-3">The Chrome downloads table shows one file grabbed from that domain.</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{DOWNLOAD_TABLE}</pre>
+        <p className="text-ink-2 text-sm mb-3">The Chrome downloads table shows one file grabbed from that domain.</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{DOWNLOAD_TABLE}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What's suspicious about this download?</p>
+            <p className="text-sm text-ink-2 font-medium">What's suspicious about this download?</p>
             <div className="flex flex-col gap-2">
               {[
                 "It's too large a file size for an invoice",
@@ -126,29 +126,29 @@ export function BrowserForensicsClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — invoice_Q1.html.exe uses a double extension to look like a harmless HTML file while actually being a Windows executable. Flag: SAGE&#123;d0ubl3_3xt3ns10n_3x3c&#125;</p>
+          <p className="text-sm font-mono text-ok">Correct — invoice_Q1.html.exe uses a double extension to look like a harmless HTML file while actually being a Windows executable. Flag: SAGE&#123;d0ubl3_3xt3ns10n_3x3c&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Assess the Credential Exposure" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-zinc-300 text-sm mb-3">The browser's saved-password store reveals more:</p>
-        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
-          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{LOGIN_DATA}</pre>
+        <p className="text-ink-2 text-sm mb-3">The browser's saved-password store reveals more:</p>
+        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
+          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{LOGIN_DATA}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-zinc-300 font-medium">What does this tell you, and what's the required action?</p>
+            <p className="text-sm text-ink-2 font-medium">What does this tell you, and what's the required action?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Nothing of concern — Chrome always saves logins",
@@ -158,17 +158,17 @@ export function BrowserForensicsClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
+                  <span className="text-sm font-mono text-ink">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">
+          <p className="text-sm font-mono text-ok">
             Correct — the user typed their real corporate SSO credentials into the fake "verify-login" page.
             Those credentials must be treated as compromised: force a reset immediately and check for any use
             of them elsewhere. Flag: SAGE&#123;cr3d3nt14ls_c0mpr0m1s3d_r3s3t&#125;
@@ -177,12 +177,12 @@ export function BrowserForensicsClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
-          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
+          <h3 className="font-bold text-ok text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d0cs_sh4r3_c0rp_1nf0_typ0squ4t&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;d0ubl3_3xt3ns10n_3x3c&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;cr3d3nt14ls_c0mpr0m1s3d_r3s3t&#125;</span></li>
+            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;d0cs_sh4r3_c0rp_1nf0_typ0squ4t&#125;</span></li>
+            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;d0ubl3_3xt3ns10n_3x3c&#125;</span></li>
+            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;cr3d3nt14ls_c0mpr0m1s3d_r3s3t&#125;</span></li>
           </ul>
         </div>
       )}
