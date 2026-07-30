@@ -4,6 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { canViewOrgMember } from "@/lib/org-access";
 import { db } from "@/lib/db";
 import { getRankInfo, RANK_BADGE_CLASS } from "@/lib/cyber-identity";
+import { RankLegend } from "@/components/insights/rank-legend";
 import { computeSkillRadar } from "@/lib/insights/skills";
 import { computeMitreCoverage } from "@/lib/insights/mitre";
 import { computeAchievements } from "@/lib/insights/achievements";
@@ -87,6 +88,8 @@ export default async function OrgMemberPage({ params }: { params: Promise<{ user
             <p className="text-xs text-zinc-500">skill score</p>
           </div>
         </div>
+
+        <RankLegend />
 
         {/* Stat cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

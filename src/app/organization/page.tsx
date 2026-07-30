@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { getRankInfo, RANK_BADGE_CLASS } from "@/lib/cyber-identity";
+import { RankLegend } from "@/components/insights/rank-legend";
 import { JoinOrganizationClient } from "./_components/join-organization-client";
 import { Navbar } from "@/components/navbar";
 
@@ -252,6 +253,8 @@ export default async function OrganizationPage() {
             </div>
           ))}
         </div>
+
+        <RankLegend />
 
         {/* Leaderboard + Activity feed */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
