@@ -1,19 +1,21 @@
 import { type IconName } from "@/components/ui/icon";
 // ── Rank System ────────────────────────────────────────────────────────────────
-// 9 deterministic tiers, single source of truth. Spread out to ~30k so real
-// skill-score growth (labs currently award up to ~27k+ for active players)
-// doesn't flatten everyone into the top tier with no further progression.
+// 9 deterministic tiers, single source of truth. Top tiers (Master, Legend)
+// are deliberately hard to reach — early builds put a top scorer of ~27k
+// already at Master with 6/8 of an active team maxed out, so the upper
+// half of the ladder was stretched out to keep those tiers rare/aspirational
+// even as skill scores keep climbing with more content.
 
 export const RANKS = [
   { tier: "recruit",  label: "Recruit",  min: 0,     nextMin: 100,   color: "#52525b" },
   { tier: "bronze",   label: "Bronze",   min: 100,   nextMin: 600,   color: "#f97316" },
   { tier: "silver",   label: "Silver",   min: 600,   nextMin: 1500,  color: "#94a3b8" },
-  { tier: "gold",     label: "Gold",     min: 1500,  nextMin: 3500,  color: "#f59e0b" },
-  { tier: "platinum", label: "Platinum", min: 3500,  nextMin: 7000,  color: "#2dd4bf" },
-  { tier: "diamond",  label: "Diamond",  min: 7000,  nextMin: 12000, color: "#38bdf8" },
-  { tier: "elite",    label: "Elite",    min: 12000, nextMin: 19000, color: "#a78bfa" },
-  { tier: "master",   label: "Master",   min: 19000, nextMin: 30000, color: "#f472b6" },
-  { tier: "legend",   label: "Legend",   min: 30000, nextMin: null,  color: "#facc15" },
+  { tier: "gold",     label: "Gold",     min: 1500,  nextMin: 4000,  color: "#f59e0b" },
+  { tier: "platinum", label: "Platinum", min: 4000,  nextMin: 9000,  color: "#2dd4bf" },
+  { tier: "diamond",  label: "Diamond",  min: 9000,  nextMin: 18000, color: "#38bdf8" },
+  { tier: "elite",    label: "Elite",    min: 18000, nextMin: 35000, color: "#a78bfa" },
+  { tier: "master",   label: "Master",   min: 35000, nextMin: 60000, color: "#f472b6" },
+  { tier: "legend",   label: "Legend",   min: 60000, nextMin: null,  color: "#facc15" },
 ] as const;
 
 export type RankTier = (typeof RANKS)[number]["tier"];
