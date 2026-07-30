@@ -1,13 +1,19 @@
 /**
  * Seed script for Weekly Incident Cases
- * Creates W1-W8 test cases with progressive difficulty (EASY -> INSANE)
- * and links them to sample incident simulations.
+ * Creates 8 cases starting from the current week with progressive difficulty
+ * (EASY -> INSANE), linked to whichever incident simulations exist.
  *
- * Usage: npx ts-node scripts/seed-weekly-incidents.ts
+ * Usage: npm run seed:weekly-incidents
  */
 
 import { PrismaClient } from "@prisma/client";
 import type { Difficulty } from "@prisma/client";
+import {
+  mondayOfWeekUTC,
+  deadlineForWeek,
+  isoWeekNumber,
+  isoWeekYear,
+} from "../src/lib/week-dates";
 
 const db = new PrismaClient();
 
@@ -63,32 +69,33 @@ async function seedWeeklyIncidents() {
   let updated = 0;
   let skipped = 0;
 
-  for (let week = 1; week <= 8; week++) {
-    // Calculate Monday 00:00 UTC for the given week
-    // Week 1 = first Monday of the year
-    const jan1 = new Date(Date.UTC(SEASON, 0, 1));
-    const dayOfWeek = jan1.getUTCDay();
-    const firstMonday = new Date(jan1);
-    firstMonday.setUTCDate(firstMonday.getUTCDate() + (dayOfWeek <= 1 ? 1 - dayOfWeek : 8 - dayOfWeek));
-    firstMonday.setUTCHours(0, 0, 0, 0);
+  // Anchor the run on the CURRENT week, not the first week of the year.
+  // Anchoring on January meant every seeded case had a deadline months in the
+  // past, so releaseWeeklyIncident() would publish an already-expired case and
+  // no certificate could ever be issued.
+  const thisMonday = mondayOfWeekUTC();
 
-    const monday = new Date(firstMonday);
-    monday.setUTCDate(monday.getUTCDate() + (week - 1) * 7);
+  for (let offset = 0; offset < 8; offset++) {
+    const monday = new Date(thisMonday);
+    monday.setUTCDate(monday.getUTCDate() + offset * 7);
 
-    const sunday = new Date(monday);
-    sunday.setUTCDate(sunday.getUTCDate() + 6);
-    sunday.setUTCHours(23, 59, 0, 0);
+    const sunday = deadlineForWeek(monday);
 
-    const difficulty = DIFFICULTY_MAP[week];
-    const points = POINTS_MAP[week];
+    // Slot 1..8 drives the difficulty ramp; weekNumber is the real ISO week so
+    // the [season, weekNumber] unique key stays meaningful across runs.
+    const slot = offset + 1;
+    const season = isoWeekYear(monday);
+    const week = isoWeekNumber(monday);
+    const difficulty = DIFFICULTY_MAP[slot];
+    const points = POINTS_MAP[slot];
 
     // Cycle through incidents
-    const incident = incidents[(week - 1) % incidents.length];
+    const incident = incidents[offset % incidents.length];
 
     try {
       const existing = await db.weeklyIncidentCase.findFirst({
         where: {
-          season: SEASON,
+          season,
           weekNumber: week,
         },
       });
@@ -103,7 +110,7 @@ async function seedWeeklyIncidents() {
 
       const case_ = await db.weeklyIncidentCase.create({
         data: {
-          season: SEASON,
+          season,
           weekNumber: week,
           weekStartUTC: monday,
           incidentSlug: incident.slug,
@@ -111,12 +118,16 @@ async function seedWeeklyIncidents() {
           points,
           releaseTime: monday,
           deadlineTime: sunday,
-          published: false, // Start unpublished; release via background job
+          // Publish the current week so the feature is live straight after
+          // seeding; later weeks wait for the Monday release job.
+          published: offset === 0,
         },
       });
 
       console.log(
-        `✓ W${week} (${difficulty}): ${incident.title} [${points} pts] - ID: ${case_.id}`
+        `✓ W${week} (${difficulty}) ${monday.toISOString().slice(0, 10)} → ${sunday
+          .toISOString()
+          .slice(0, 10)}${offset === 0 ? "  [LIVE]" : ""}: ${incident.title} [${points} pts]`
       );
       created++;
     } catch (err: any) {
