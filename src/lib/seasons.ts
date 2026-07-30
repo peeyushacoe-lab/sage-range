@@ -122,10 +122,18 @@ export async function recomputeSeasonRanks(seasonId: string): Promise<number> {
   return ranked.length;
 }
 
+// Admins, org leads, and hidden (QA/internal) accounts are excluded from the
+// ladder, same as the main leaderboard — keeps rankings limited to real players.
+const RATED_PLAYER_FILTER = {
+  role: { not: "ADMIN" as const },
+  organizationMemberships: { none: { isLead: true } },
+  hidden: false,
+};
+
 /** Top of the ladder, ordered by stored rank. */
 export async function getSeasonLeaderboard(seasonId: string, limit = 100) {
   const rows = await db.seasonRating.findMany({
-    where: { seasonId },
+    where: { seasonId, user: RATED_PLAYER_FILTER },
     include: { user: { select: { id: true, displayName: true, email: true, avatarUrl: true } } },
     orderBy: [{ rating: "desc" }, { wins: "desc" }],
     take: Math.min(limit, 500),
@@ -151,7 +159,7 @@ export async function getPlayerStanding(seasonId: string, userId: string) {
   });
   if (!rating) return null;
 
-  const totalPlayers = await db.seasonRating.count({ where: { seasonId } });
+  const totalPlayers = await db.seasonRating.count({ where: { seasonId, user: RATED_PLAYER_FILTER } });
 
   return {
     rating: rating.rating,
