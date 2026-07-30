@@ -9,6 +9,7 @@
     { "path": "/api/cron/weekly-incident-release", "schedule": "0 0 * * 1" },
     { "path": "/api/cron/ticket-leaderboard", "schedule": "59 23 * * 0" },
     { "path": "/api/cron/mentor-hint-quality", "schedule": "30 3 * * *" },
+    { "path": "/api/cron/season-ranks", "schedule": "0 4 * * *" },
     { "path": "/api/cron/portfolio-aggregation", "schedule": "*/5 * * * *" }
   ]
 }

@@ -33,6 +33,8 @@ const STUDENT_MORE: NavGroup[] = [
   {
     label: "Compete",
     links: [
+      { href: "/seasons",                 label: "Ranked Season"  },
+      { href: "/tournaments",             label: "Tournaments"    },
       { href: "/competitions",            label: "Competitions"   },
       { href: "/labs/incidents/weekly",   label: "Weekly Case"    },
       { href: "/daily-hunt",              label: "Daily Hunt"     },
@@ -67,6 +69,7 @@ const STUDENT_MORE: NavGroup[] = [
   {
     label: "Community",
     links: [
+      { href: "/squads",             label: "Squads"         },
       { href: "/organization",       label: "Team"           },
       { href: "/profile",            label: "Portfolio"      },
       { href: "/labs/mentor/quality",label: "Hint Quality"   },
