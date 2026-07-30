@@ -1,5 +1,10 @@
 {
   "regions": ["lhr1"],
+  "git": {
+    "deploymentEnabled": {
+      "dependabot/**": false
+    }
+  },
   "crons": [
     { "path": "/api/cron/weekly-incident-release", "schedule": "0 0 * * 1" },
     { "path": "/api/cron/ticket-leaderboard", "schedule": "59 23 * * 0" },

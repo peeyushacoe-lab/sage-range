@@ -36,32 +36,24 @@ const POINTS_MAP: Record<number, number> = {
   8: 2000,
 };
 
-// Reference incident slugs (must exist in IncidentSimulation table)
-// These are the existing incidents in the codebase
-const INCIDENT_SLUGS = [
-  "phishing-click-incident",
-  "ddos-attack-incident",
-  "cloud-incident-response",
-  "ransomware-incident",
-  "incident-severity-classification",
-  // Fallback if not enough incidents
-  "phishing-click-incident",
-  "ddos-attack-incident",
-  "cloud-incident-response",
-];
-
 async function seedWeeklyIncidents() {
   console.log(`\n📅 Seeding Weekly Incident Cases for Season ${SEASON}...\n`);
 
-  // Verify incident simulations exist
+  // Use whatever incidents the database actually has. An earlier version of
+  // this script hardcoded slugs that belong to Lab rows (seed-batch-*.ts), not
+  // IncidentSimulation, so it could never match anything.
   const incidents = await db.incidentSimulation.findMany({
-    where: {
-      slug: { in: INCIDENT_SLUGS },
-    },
+    where: { published: true },
+    orderBy: { createdAt: "asc" },
+    select: { slug: true, title: true },
   });
 
   if (incidents.length === 0) {
-    console.error("❌ No incident simulations found. Please seed incidents first.");
+    console.error(
+      "❌ No published incident simulations found.\n" +
+        "   Weekly cases reference IncidentSimulation.slug, so seed incidents first:\n" +
+        "     npm run seed:incidents\n",
+    );
     process.exit(1);
   }
 
