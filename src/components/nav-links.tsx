@@ -33,18 +33,23 @@ const STUDENT_MORE: NavGroup[] = [
   {
     label: "Compete",
     links: [
-      { href: "/competitions",     label: "Competitions"   },
-      { href: "/daily-hunt",       label: "Daily Hunt"     },
-      { href: "/soc-shift",        label: "SOC Shift"      },
-      { href: "/soc-league",       label: "SOC League"     },
-      { href: "/scoreboard",       label: "Leaderboard"    },
+      { href: "/competitions",            label: "Competitions"   },
+      { href: "/labs/incidents/weekly",   label: "Weekly Case"    },
+      { href: "/daily-hunt",              label: "Daily Hunt"     },
+      { href: "/soc-shift",               label: "SOC Shift"      },
+      { href: "/labs/tickets",            label: "Ticket Queue"   },
+      { href: "/soc-league",              label: "SOC League"     },
+      { href: "/scoreboard",              label: "Leaderboard"    },
     ],
   },
   {
     label: "Blue team tools",
     links: [
       { href: "/threat-bulletin",  label: "Threat Bulletin"},
+      { href: "/labs/hunts",       label: "Threat Hunt"    },
       { href: "/detection-lab",    label: "Detection Lab"  },
+      { href: "/labs/rules/builder",   label: "Rule Builder"   },
+      { href: "/labs/rules/community", label: "Community Rules"},
       { href: "/purple-team",      label: "Purple Team"    },
       { href: "/workspace",        label: "IR Workspace"   },
     ],
@@ -62,8 +67,10 @@ const STUDENT_MORE: NavGroup[] = [
   {
     label: "Community",
     links: [
-      { href: "/organization",     label: "Team"           },
-      { href: "/resume",           label: "Resume"         },
+      { href: "/organization",       label: "Team"           },
+      { href: "/profile",            label: "Portfolio"      },
+      { href: "/labs/mentor/quality",label: "Hint Quality"   },
+      { href: "/resume",             label: "Resume"         },
     ],
   },
 ];

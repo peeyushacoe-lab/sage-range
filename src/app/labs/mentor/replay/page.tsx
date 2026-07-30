@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { RotateCcw, Calendar } from "lucide-react";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
+export const dynamic = "force-dynamic";
 
 type EligibleLab = {
   labId: string;

@@ -13,7 +13,15 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "validate:replay": "tsx scripts/validate-replay.ts",
-    "fix:drift": "tsx scripts/fix-replay-drift.ts"
+    "fix:drift": "tsx scripts/fix-replay-drift.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "seed:weekly-incidents": "tsx scripts/seed-weekly-incidents.ts",
+    "seed:hunt-datasets": "tsx scripts/seed-hunt-datasets.ts",
+    "seed:tickets": "tsx scripts/seed-tickets.ts",
+    "seed:detection-rules": "tsx scripts/seed-detection-rules.ts",
+    "seed:ai-mentor": "tsx scripts/seed-ai-mentor.ts",
+    "seed:phase2": "npm run seed:weekly-incidents && npm run seed:hunt-datasets && npm run seed:tickets && npm run seed:detection-rules && npm run seed:ai-mentor"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -44,10 +52,12 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "node-mocks-http": "^1.18.1",
     "postcss": "^8.4.49",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.15",
     "tsx": "^4.19.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.9"
   }
 }

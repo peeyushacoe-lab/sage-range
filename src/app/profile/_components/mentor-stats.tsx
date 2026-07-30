@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { MessageSquare, Star, RotateCcw, Clock } from "lucide-react";
 
@@ -95,12 +96,12 @@ export async function MentorStats({ userId }: MentorStatsProps) {
 
       {/* Learn More Link */}
       {replayLabsCount > 0 && (
-        <a
+        <Link
           href="/labs/mentor/replay"
           className="block text-center text-xs text-sage-400 hover:text-sage-300 py-2 border-t border-zinc-700 pt-4 transition-colors"
         >
           View replay-eligible labs
-        </a>
+        </Link>
       )}
     </div>
   );

@@ -123,6 +123,13 @@ model User {
   announcementsCreated      Announcement[]
   certificateApprovals      CertificateApproval[]
   certApprovalDecisions     CertificateApproval[]     @relation("CertApprovalDecisions")
+  careerPortfolio           CareerPortfolio?
+  portfolioVisits           PortfolioVisitorLog[]     @relation("PortfolioVisitors")
+  sharedRules               DetectionRuleShareAcl[]
+  mentorHintSequences       MentorHintSequence[]
+  huntInvestigationSessions HuntInvestigationSession[]
+  weeklyIncidentLeaderboard WeeklyIncidentLeaderboard[]
+  ticketQueueLeaderboard    TicketQueueLeaderboard[]
 
   @@index([skillScore])
   @@index([coins])
@@ -192,6 +199,7 @@ model Lab {
   writeups             Writeup[]
   changelog            LabChangelog[]
   dailyHunts           DailyHunt[]
+  mentorHintSequences  MentorHintSequence[]
 
   @@index([type, difficulty])
 }
@@ -509,12 +517,20 @@ model UsedHint {
   userId String
   hintId String
   usedAt DateTime @default(now())
+  // Phase 2: AI Mentor tracking
+  qualityScore      Int?     // 0-10: how much it helped (user feedback)
+  wasHelpful        Boolean? // Thumbs up/down
+  contextDifficulty String?  // EASY, MEDIUM, HARD, INSANE when hint viewed
+  submissionLater   Boolean @default(false) // Did they solve after viewing?
+  timeThenSolvedSec Int?     // Time from hint to solution
 
   user User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   hint LabHint @relation(fields: [hintId], references: [id])
 
   @@unique([userId, hintId])
   @@index([userId])
+  @@index([userId, usedAt]) // For adaptive sequencing
+  @@index([qualityScore]) // For effectiveness analysis
 }
 
 // ── Recruiter Marketplace ─────────────────────────────────────────────────────
@@ -1249,6 +1265,7 @@ enum AuditAction {
   DETECTION_CHALLENGE_SUBMIT
   PURPLE_TEAM_REPLAY_COMPLETE
   SOC_SHIFT_COMPLETE
+  INCIDENT_WEEKLY_CREATE
 }
 
 model AuditLog {
@@ -1780,12 +1797,21 @@ model DetectionSubmission {
   score          Int
   passed         Boolean  @default(false)
   submittedAt    DateTime @default(now())
+  // Phase 2: Detection Rule Builder enhancements
+  ruleType       String   @default("SIGMA") // SIGMA, KQL, SPLUNK, ELASTIC, YARA
+  version        Int      @default(1) // Iteration counter
+  isPublic       Boolean  @default(false) // Community sharing flag
+  updatedAt      DateTime @updatedAt // Last modified
 
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   challenge DetectionChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  versions  DetectionRuleVersion[] // Phase 2: Version history
+  shareAcl  DetectionRuleShareAcl?
 
   @@index([userId])
   @@index([challengeId])
+  @@index([isPublic, updatedAt]) // For community feed
+  @@index([userId, ruleType]) // User's rules by type
 }
 
 // ── Purple Team Replay ───────────────────────────────────────────────────────
@@ -1853,8 +1879,10 @@ model SocShift {
   published     Boolean  @default(true)
   createdAt     DateTime @default(now())
 
-  alerts   ShiftAlert[]
-  attempts SocShiftAttempt[]
+  alerts                ShiftAlert[]
+  attempts              SocShiftAttempt[]
+  tickets               ShiftTicket[]
+  ticketQueueLeaderboard TicketQueueLeaderboard[]
 }
 
 model ShiftAlert {
@@ -1886,6 +1914,7 @@ model SocShiftAttempt {
   user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   shift   SocShift           @relation(fields: [shiftId], references: [id], onDelete: Cascade)
   triages ShiftAlertTriage[]
+  ticketTriages ShiftTicketTriage[]
 
   @@index([userId])
   @@index([shiftId])
@@ -1922,4 +1951,381 @@ model ThreatBulletin {
   createdAt    DateTime @default(now())
 
   @@index([weekOf])
+}
+
+// ── PHASE 2 ENGAGEMENT FEATURES ────────────────────────────────────────────
+// 17 new models, 2 extensions, no breaking changes
+
+// ── Weekly Incident Cases ─────────────────────────────────────────────────
+// Auto-released, difficulty-scaled weekly incident with leaderboard & certs.
+// Season/week model prevents year-boundary collisions.
+
+model WeeklyIncidentCase {
+  id             String   @id @default(cuid())
+  weekStartUTC   DateTime // Monday 00:00 UTC — e.g., 2026-01-05
+  weekNumber     Int      // 1-52 for current season
+  season         Int      // e.g., 2026
+  incidentSlug   String   // Soft reference to IncidentSimulation.slug (not FK)
+  difficulty     Difficulty // Progression: EASY (W1-2) -> INSANE (W7-8)
+  points         Int      @default(1000)
+  releaseTime    DateTime // When case goes live (should match weekStartUTC)
+  deadlineTime   DateTime // Sunday 23:59 UTC of that week
+  certificateId  String?  @unique // Weekly completion cert ID
+  published      Boolean  @default(false)
+  archivedAt     DateTime? // Soft delete at +8 weeks (null = active)
+  createdAt      DateTime @default(now())
+
+  leaderboard    WeeklyIncidentLeaderboard[]
+  certificate    WeeklyIncidentCertificate?
+
+  @@unique([season, weekNumber])
+  @@index([weekStartUTC])
+  @@index([published, releaseTime])
+  @@index([archivedAt]) // For filtering active cases
+}
+
+model WeeklyIncidentLeaderboard {
+  id               String   @id @default(cuid())
+  caseId           String
+  userId           String
+  completedAt      DateTime? // Null if not completed by deadline
+  timeTakenMin     Int?      // Minutes from release to completion (for tiebreaker)
+  score            Int       @default(0) // Derived from evidence board + report
+  rank             Int?      // Denormalized: 1-N, computed after deadline (null during week)
+  rankUpdatedAt    DateTime? // When rank was last computed
+  evidenceBoardScore Int?    // Pulled from IncidentSimEvidenceBoard.accuracyPct
+  reportScore      Int?      // From admin review of IncidentSimReport
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  case WeeklyIncidentCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  user User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, userId])
+  @@index([caseId, rank]) // Fast leaderboard: WHERE caseId=X ORDER BY rank LIMIT 100
+  @@index([userId, completedAt]) // User progress: did they complete?
+  @@index([caseId, completedAt]) // Weekly completion rate analytics
+}
+
+model WeeklyIncidentCertificate {
+  id          String   @id @default(cuid())
+  caseId      String   @unique
+  season      Int
+  weekNumber  Int
+  certCode    String   @unique // e.g., WIC-2026-W01-ABC123DEF
+  issuedAt    DateTime @default(now())
+  publishedAt DateTime? // When announced on feed/platform
+  createdAt   DateTime @default(now())
+
+  case WeeklyIncidentCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([season, weekNumber])
+  @@index([publishedAt]) // For "recent certificates" feed
+}
+
+// ── Ticket Queue Simulator ────────────────────────────────────────────────
+// SOC shift tickets with SLA enforcement and detailed triage tracking.
+// Extends existing SocShift model with per-ticket analysis.
+
+model ShiftTicket {
+  id            String        @id @default(cuid())
+  shiftId       String
+  queuePosition Int           // Display order in shift (1-100)
+  severity      String        // CRITICAL, HIGH, MEDIUM, LOW
+  category      String        // MALWARE, NETWORK_ANOMALY, COMPLIANCE, FALSE_POSITIVE, etc.
+  title         String
+  description   String        @db.Text
+  rawAlert      Json          // Full log event payload
+  // SLA enforcement (minutes from creation to resolution)
+  slaMinutes    Int           // 60 (critical), 240 (high), 480 (medium), 1440 (low)
+  createdAt     DateTime      @default(now())
+  firstViewedAt DateTime?     // When analyst first opened it
+  resolvedAt    DateTime?     // When marked resolved/escalated/closed
+  archivedAt    DateTime?     // Soft delete at +8 weeks
+
+  // Triage decision by student
+  triage ShiftTicketTriage?
+
+  shift SocShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  @@index([shiftId, createdAt])
+  @@index([shiftId, severity])
+  @@index([archivedAt])
+}
+
+model ShiftTicketTriage {
+  id          String   @id @default(cuid())
+  ticketId    String   @unique
+  attemptId   String
+  userAction  String   // CLOSED, ESCALATED, RESOLVED, IGNORED, MONITOR
+  confidence  Int      // 0-100: student's certainty level
+  resolution  String?  @db.Text // Notes/explanation
+  isCorrect   Boolean? // Graded after deadline
+  pointsAward Int      @default(0)
+  triageTime  Int      // Seconds from queue open to decision
+  createdAt   DateTime @default(now())
+
+  ticket ShiftTicket     @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  attempt SocShiftAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([createdAt])
+}
+
+model TicketQueueLeaderboard {
+  id              String    @id @default(cuid())
+  shiftId         String
+  userId          String
+  scope           String    @default("ALL_TIME") // ALL_TIME, WEEKLY, DAILY
+  completedAt     DateTime? // When finished the shift
+  accuracy        Float     @default(0.0) // % of correct decisions (0-100)
+  speed           Float     @default(0.0) // Average seconds per ticket
+  slaViolations   Int       @default(0) // Tickets resolved late
+  falsePositives  Int       @default(0) // Incorrectly escalated
+  missedCritical  Int       @default(0) // Missed real incidents
+  score           Int       @default(0) // Composite: accuracy + speed - penalties
+  rank            Int?      // Denormalized: 1-N
+  rankUpdatedAt   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  shift SocShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([shiftId, userId, scope])
+  @@index([shiftId, scope, rank]) // Fast leaderboard
+  @@index([userId, scope, completedAt])
+  @@index([scope, createdAt]) // For analytics
+}
+
+// ── Threat Hunt Sandbox ───────────────────────────────────────────────────
+// Investigation sandbox: user hunts through logs to find IoCs and patterns.
+// Supports EVTX, Sysmon, Apache, DNS, firewall data at varying scales.
+
+model HuntDataset {
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  name         String
+  description  String     @db.Text
+  difficulty   Difficulty // EASY (1k), MEDIUM (50k), HARD (500k+)
+  category     String     // SYSMON, APACHE, NETWORK, DNS, FIREWALL, WINDOWS_EVENTS
+  logCount     Int        // 1000, 50000, 500000
+  formatType   String     // EVTX, CSV, JSON, SYSLOG
+  // Compressed dataset URL or base64-embedded data
+  dataUrl      String?
+  dataEmbedded String?    @db.Text // For small datasets
+  // Expected IoCs/patterns: ["IP:192.168.1.100", "PROCESS:cmd.exe", "DOMAIN:evil.com"]
+  expectedArtifacts String[]
+  published    Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  sessions HuntInvestigationSession[]
+
+  @@index([difficulty])
+  @@index([published])
+}
+
+model HuntInvestigationSession {
+  id            String    @id @default(cuid())
+  userId        String
+  datasetId     String
+  startedAt     DateTime  @default(now())
+  endedAt       DateTime?
+  duration      Int?      // Total seconds (null if ongoing)
+  queriesCount  Int       @default(0)
+  artifactsFound Int      @default(0) // Count of HuntArtifact rows
+  score         Int       @default(0) // Accuracy * speed / time taken
+  status        String    @default("ACTIVE") // ACTIVE, COMPLETED, ABANDONED
+  archivedAt    DateTime? // Soft delete at +4 weeks
+  createdAt     DateTime  @default(now())
+
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dataset HuntDataset        @relation(fields: [datasetId], references: [id])
+  queries HuntQuery[]
+  artifacts HuntArtifact[]
+
+  @@index([userId, startedAt])
+  @@index([userId, status]) // "My active hunts"
+  @@index([datasetId])
+  @@index([status, createdAt])
+  @@index([archivedAt])
+}
+
+model HuntQuery {
+  id        String   @id @default(cuid())
+  sessionId String
+  query     String   @db.Text // User's search/filter expression
+  language  String   // GREP, REGEX, KQL, SQL_LITE, NATURAL_LANGUAGE
+  resultCount Int    // How many log lines matched
+  matchedIocs String[] // Which expected artifacts this query caught
+  isEffective Boolean? // True if found something new (not seen in prior queries)
+  executedAt DateTime @default(now())
+
+  session HuntInvestigationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, executedAt])
+  @@index([executedAt])
+}
+
+model HuntArtifact {
+  id          String   @id @default(cuid())
+  sessionId   String
+  artifactId  String   // Must match one in HuntDataset.expectedArtifacts
+  type        String   // IP, DOMAIN, PROCESS, FILE, REGISTRY, HASH, etc.
+  value       String   // e.g., "192.168.1.100", "cmd.exe"
+  confidence  Int      // 0-100: user's certainty
+  foundAt     DateTime @default(now())
+
+  session HuntInvestigationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, artifactId])
+  @@index([sessionId])
+}
+
+// ── Detection Rule Builder ───────────────────────────────────────────────
+
+model DetectionRuleVersion {
+  id             String   @id @default(cuid())
+  submissionId   String
+  version        Int      // 1, 2, 3, ...
+  rule           Json     // Full rule snapshot at this version
+  ruleType       String   // Inherited from parent
+  f1             Float    // Validation score at this version
+  notes          String?  // Change summary: "Added process.name filter"
+  createdAt      DateTime @default(now())
+
+  submission DetectionSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, version])
+  @@index([submissionId, createdAt])
+}
+
+model DetectionRuleShareAcl {
+  id          String   @id @default(cuid())
+  submissionId String   @unique
+  accessType  String   @default("PRIVATE") // PRIVATE, COMMUNITY, RECRUITER_ONLY
+  sharedBy    String   // User ID who shared it
+  sharedAt    DateTime @default(now())
+
+  submission DetectionSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  owner      User                @relation(fields: [sharedBy], references: [id], onDelete: Cascade)
+
+  @@index([accessType])
+  @@index([sharedBy, sharedAt])
+}
+
+// ── Career Portfolio ──────────────────────────────────────────────────────
+// Read-only materialized view of user's achievements: labs, incidents, certs, etc.
+// Portfolio aggregation runs on 5-min schedule; visibility controlled by user.
+
+model CareerPortfolio {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  slug            String   @unique // URL-safe: "alice-smith" or "alice-smith-2"
+  visibility      String   @default("PRIVATE") // PRIVATE, PUBLIC, RECRUITER_ONLY
+  bio             String?  @db.Text
+  profileHtml     String?  @db.Text // Pre-rendered portfolio HTML (optional)
+  lastUpdatedAt   DateTime @default(now())
+  lastComputedAt  DateTime? // When aggregation job ran
+
+  // Denormalized aggregates (updated by background job)
+  totalLabsSolved     Int @default(0)
+  totalIncidentsSolved Int @default(0)
+  totalWeeklyCerts     Int @default(0)
+  totalCompetitionsWon Int @default(0)
+  totalRulesShared    Int @default(0)
+  huntsCompleted      Int @default(0)
+  mitreTopTactics     String[] // Top 5: ["PERSISTENCE", "PRIVILEGE_ESCALATION", ...]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievements CareerPortfolioAchievement[]
+  mitreCoverage CareerPortfolioMitreCoverage?
+  visitorLog PortfolioVisitorLog[]
+
+  @@index([visibility, lastUpdatedAt]) // For recruiter/public discovery
+  @@index([userId])
+}
+
+model CareerPortfolioAchievement {
+  id              String   @id @default(cuid())
+  portfolioId     String
+  type            String   // LAB_SOLVED, INCIDENT_COMPLETED, WEEKLY_CERT, LEADERBOARD_TOP10, HUNT_STREAK, RULE_SHARED
+  title           String   // "Solved: Advanced XSS" or "Weekly Champion: Week 5"
+  description     String   @db.Text
+  icon            String?  // Glyph/emoji: "⚡", "🏆", etc.
+  relatedId       String?  // Lab slug, Incident slug, Cert ID, Hunt ID
+  earnedAt        DateTime // When achievement was unlocked
+  displayOrder    Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  portfolio CareerPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, displayOrder])
+  @@index([portfolioId, earnedAt])
+  @@index([earnedAt]) // For timeline queries
+}
+
+model CareerPortfolioMitreCoverage {
+  id          String   @id @default(cuid())
+  portfolioId String   @unique
+  // HeatMap JSON: { INITIAL_ACCESS: 5, PERSISTENCE: 8, ... }
+  // Value = count of incidents/labs addressing that tactic
+  heatmap     Json     @default("{}")
+  lastUpdated DateTime @updatedAt
+
+  portfolio CareerPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([lastUpdated])
+}
+
+model PortfolioVisitorLog {
+  id          String   @id @default(cuid())
+  portfolioId String
+  visitorId   String? // Null for anonymous viewers
+  viewedAt    DateTime @default(now())
+
+  portfolio CareerPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  visitor   User?          @relation("PortfolioVisitors", fields: [visitorId], references: [id], onDelete: SetNull)
+
+  @@index([portfolioId, viewedAt])
+  @@index([visitorId, viewedAt])
+}
+
+// ── AI Mentor (Hint Enhancement) ──────────────────────────────────────────
+
+model MentorHintQuality {
+  id              String   @id @default(cuid())
+  hintId          String   @unique
+  avgScore        Float    @default(5.0) // 0-10 weighted moving average
+  totalRatings    Int      @default(0) // Denominator for avgScore
+  helpfulCount    Int      @default(0)
+  notHelpfulCount Int      @default(0)
+  submissionRate  Float    @default(0.0) // % of viewers who solved after
+  inferredDifficulty String @default("MEDIUM") // Computed from contextDifficulty
+  lastUpdatedAt   DateTime @updatedAt
+
+  @@index([avgScore]) // Rank hints by effectiveness
+  @@index([hintId])
+}
+
+model MentorHintSequence {
+  id          String   @id @default(cuid())
+  userId      String
+  labId       String
+  stage       String   // e.g., "reconnaissance", "exploitation"
+  // Array of hint IDs already shown: ["hint-001", "hint-003"]
+  shownHints  String[]
+  // Timestamp when last hint was shown (prevents rapid re-use within 5 min)
+  lastShownAt DateTime @default(now())
+  // After 90 days, hints can be re-shown (learning opportunity revisit)
+  expiresAt   DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lab  Lab  @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, labId, stage])
+  @@index([userId, expiresAt]) // For cleanup jobs
 }

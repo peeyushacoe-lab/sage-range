@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Star, ChevronDown } from "lucide-react";
 import { db } from "@/lib/db";
+export const dynamic = "force-dynamic";
 
 type HintWithQuality = {
   id: string;

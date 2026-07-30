@@ -16,8 +16,9 @@
  */
 
 import {
-  Activity, ArrowUp, Award, Beaker, Bell, Binary, BookOpen, Brain, Bug, Building2,
-  Calendar, ChartColumnBig, Check, ChevronDown, ChevronRight, CircleCheck, Cloud,
+  Activity, ArrowRight, ArrowUp, Award, Beaker, Bell, Binary, BookOpen, Brain, Bug, Building2,
+  Calendar, ChartColumnBig, Check, ChevronDown, ChevronLeft, ChevronRight, CircleCheck, Clock,
+  Copy, LoaderCircle, Cloud,
   CircuitBoard, ClipboardList, Drama, Fish, Satellite, Syringe, Bomb, Download,
   PenLine, ScanEye, Skull, User,
   Coins, Compass, Cpu, Crosshair, Crown, Droplet, Eye, FileText, FingerprintPattern,
@@ -97,6 +98,15 @@ const UI_ICONS = {
   bell:         { base: Bell,           tone: "blue"    },
   chevronDown:  { base: ChevronDown,    tone: "slate"   },
   chevronRight: { base: ChevronRight,   tone: "slate"   },
+  chevronLeft:  { base: ChevronLeft,    tone: "slate"   },
+  arrowRight:   { base: ArrowRight,     tone: "slate"   },
+  clock:        { base: Clock,          tone: "slate"   },
+  calendar:     { base: Calendar,       tone: "slate"   },
+  copy:         { base: Copy,           tone: "slate"   },
+  award:        { base: Award,          tone: "gold"    },
+  crown:        { base: Crown,          tone: "gold"    },
+  target:       { base: Target,         tone: "crimson" },
+  loader:       { base: LoaderCircle,   tone: "slate"   },
   search:       { base: Search,         tone: "slate"   },
   lock:         { base: Lock,           tone: "slate"   },
   key:          { base: Key,            tone: "gold"    },

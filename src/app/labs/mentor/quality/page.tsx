@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Star, TrendingUp } from "lucide-react";
 import { db } from "@/lib/db";
+export const dynamic = "force-dynamic";
 
 type TopHint = {
   rank: number;
