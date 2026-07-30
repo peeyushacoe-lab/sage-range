@@ -1,5 +1,10 @@
 {
   "disabledMcpjsonServers": [
     "ruflo"
-  ]
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)"
+    ]
+  }
 }
