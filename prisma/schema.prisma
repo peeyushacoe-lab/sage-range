@@ -131,6 +131,20 @@ model User {
   weeklyIncidentLeaderboard WeeklyIncidentLeaderboard[]
   ticketQueueLeaderboard    TicketQueueLeaderboard[]
 
+  // ── Phase 3: competition & community ──
+  seasonRatings             SeasonRating[]
+  ownedSquads               Squad[]                   @relation("SquadOwner")
+  squadMemberships          SquadMember[]
+  squadInvitesReceived      SquadInvite[]             @relation("SquadInviteRecipient")
+  squadInvitesSent          SquadInvite[]             @relation("SquadInviteSender")
+  tournamentEntries         TournamentEntrant[]
+  following                 Follow[]                  @relation("FollowFollower")
+  followers                 Follow[]                  @relation("FollowTarget")
+  writeupVotes              WriteupVote[]
+  peerReviews               PeerReview[]
+  mentorshipsAsMentor       MentorshipPair[]          @relation("MentorshipMentor")
+  mentorshipsAsMentee       MentorshipPair[]          @relation("MentorshipMentee")
+
   @@index([skillScore])
   @@index([coins])
 }
@@ -1238,6 +1252,9 @@ model Writeup {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   lab  Lab  @relation(fields: [labId], references: [id], onDelete: Cascade)
 
+  votes   WriteupVote[]
+  reviews PeerReview[]
+
   @@unique([userId, labId])
   @@index([labId, status])
   @@index([userId])
@@ -2328,4 +2345,354 @@ model MentorHintSequence {
 
   @@unique([userId, labId, stage])
   @@index([userId, expiresAt]) // For cleanup jobs
+}
+
+// â”€â”€ PHASE 3: COMPETITION & COMMUNITY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Naming note: Team* is already taken by per-simulation session teams, so
+// persistent player groups are Squad*.
+
+enum Tier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+  MASTER
+}
+
+enum SquadRole {
+  OWNER
+  OFFICER
+  MEMBER
+}
+
+enum SquadJoinPolicy {
+  OPEN
+  INVITE_ONLY
+  CLOSED
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum TournamentFormat {
+  SINGLE_ELIMINATION
+  DOUBLE_ELIMINATION
+  ROUND_ROBIN
+}
+
+enum TournamentEntrantType {
+  SOLO
+  SQUAD
+}
+
+enum TournamentStatus {
+  DRAFT
+  REGISTRATION
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MatchStatus {
+  PENDING
+  READY
+  IN_PROGRESS
+  COMPLETED
+  WALKOVER
+}
+
+enum MentorshipStatus {
+  REQUESTED
+  ACTIVE
+  COMPLETED
+  DECLINED
+  ENDED
+}
+
+// â”€â”€ Ranked seasons & tier ladder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+model Season {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  startsAt    DateTime
+  endsAt      DateTime
+  active      Boolean   @default(false)
+  // Set once the season closes and final placements are frozen.
+  concludedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  ratings     SeasonRating[]
+  squadStats  SquadSeasonStat[]
+  tournaments Tournament[]
+
+  @@index([active, startsAt])
+  @@index([endsAt])
+}
+
+model SeasonRating {
+  id           String    @id @default(cuid())
+  seasonId     String
+  userId       String
+  // Elo-style rating; tier is derived from it but stored for cheap filtering.
+  rating       Int       @default(1000)
+  tier         Tier      @default(BRONZE)
+  peakRating   Int       @default(1000)
+  wins         Int       @default(0)
+  losses       Int       @default(0)
+  eventsPlayed Int       @default(0)
+  // Denormalised placement, recomputed by the season ranking job.
+  rank          Int?
+  rankUpdatedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([seasonId, userId])
+  @@index([seasonId, rank])
+  @@index([seasonId, rating])
+  @@index([seasonId, tier])
+  @@index([userId])
+}
+
+// â”€â”€ Persistent squads â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+model Squad {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  name        String
+  // Short display tag, e.g. SOC
+  tag         String
+  description String?         @db.Text
+  ownerId     String
+  joinPolicy  SquadJoinPolicy @default(INVITE_ONLY)
+  maxMembers  Int             @default(20)
+  disbandedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  owner             User                @relation("SquadOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members           SquadMember[]
+  invites           SquadInvite[]
+  seasonStats       SquadSeasonStat[]
+  tournamentEntries TournamentEntrant[]
+
+  @@index([joinPolicy, disbandedAt])
+  @@index([ownerId])
+}
+
+model SquadMember {
+  id       String    @id @default(cuid())
+  squadId  String
+  userId   String
+  role     SquadRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+
+  squad Squad @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // One squad per user keeps rosters and team scoring unambiguous.
+  @@unique([userId])
+  @@unique([squadId, userId])
+  @@index([squadId, role])
+}
+
+model SquadInvite {
+  id          String       @id @default(cuid())
+  squadId     String
+  inviteeId   String
+  invitedById String
+  status      InviteStatus @default(PENDING)
+  expiresAt   DateTime
+  respondedAt DateTime?
+  createdAt   DateTime     @default(now())
+
+  squad     Squad @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  invitee   User  @relation("SquadInviteRecipient", fields: [inviteeId], references: [id], onDelete: Cascade)
+  invitedBy User  @relation("SquadInviteSender", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@unique([squadId, inviteeId, status])
+  @@index([inviteeId, status])
+  @@index([expiresAt])
+}
+
+model SquadSeasonStat {
+  id            String    @id @default(cuid())
+  squadId       String
+  seasonId      String
+  points        Int       @default(0)
+  wins          Int       @default(0)
+  losses        Int       @default(0)
+  rank          Int?
+  rankUpdatedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  squad  Squad  @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([squadId, seasonId])
+  @@index([seasonId, rank])
+  @@index([seasonId, points])
+}
+
+// â”€â”€ Tournaments & brackets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+model Tournament {
+  id          String                @id @default(cuid())
+  slug        String                @unique
+  name        String
+  description String?               @db.Text
+  seasonId    String?
+  format      TournamentFormat      @default(SINGLE_ELIMINATION)
+  entrantType TournamentEntrantType @default(SOLO)
+  status      TournamentStatus      @default(DRAFT)
+  // Bracket size must be a power of two for single elimination; entrants
+  // beyond this are rejected at registration.
+  maxEntrants Int                   @default(16)
+
+  registrationOpensAt  DateTime
+  registrationClosesAt DateTime
+  startsAt             DateTime
+  completedAt          DateTime?
+
+  labSlugs  Json     @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  season   Season?             @relation(fields: [seasonId], references: [id], onDelete: SetNull)
+  entrants TournamentEntrant[]
+  matches  TournamentMatch[]
+
+  @@index([status, startsAt])
+  @@index([seasonId])
+}
+
+model TournamentEntrant {
+  id           String    @id @default(cuid())
+  tournamentId String
+  // Exactly one of userId / squadId is set, matching Tournament.entrantType.
+  userId       String?
+  squadId      String?
+  seed         Int?
+  eliminatedAt DateTime?
+  finalRank    Int?
+  createdAt    DateTime  @default(now())
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  squad      Squad?     @relation(fields: [squadId], references: [id], onDelete: Cascade)
+
+  matchesAsA TournamentMatch[] @relation("MatchEntrantA")
+  matchesAsB TournamentMatch[] @relation("MatchEntrantB")
+  matchesWon TournamentMatch[] @relation("MatchWinner")
+
+  @@unique([tournamentId, userId])
+  @@unique([tournamentId, squadId])
+  @@index([tournamentId, seed])
+}
+
+model TournamentMatch {
+  id           String      @id @default(cuid())
+  tournamentId String
+  // Round 1 is the first played round; position orders pairings within it.
+  round        Int
+  position     Int
+  entrantAId   String?
+  entrantBId   String?
+  winnerId     String?
+  scoreA       Int         @default(0)
+  scoreB       Int         @default(0)
+  status       MatchStatus @default(PENDING)
+  scheduledAt  DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  tournament Tournament         @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  entrantA   TournamentEntrant? @relation("MatchEntrantA", fields: [entrantAId], references: [id], onDelete: SetNull)
+  entrantB   TournamentEntrant? @relation("MatchEntrantB", fields: [entrantBId], references: [id], onDelete: SetNull)
+  winner     TournamentEntrant? @relation("MatchWinner", fields: [winnerId], references: [id], onDelete: SetNull)
+
+  @@unique([tournamentId, round, position])
+  @@index([tournamentId, status])
+}
+
+// â”€â”€ Social graph & peer review â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("FollowFollower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("FollowTarget", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followingId, createdAt])
+  @@index([followerId, createdAt])
+}
+
+model WriteupVote {
+  id        String   @id @default(cuid())
+  writeupId String
+  userId    String
+  // +1 or -1; enforced in application code.
+  value     Int
+  createdAt DateTime @default(now())
+
+  writeup Writeup @relation(fields: [writeupId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([writeupId, userId])
+  @@index([writeupId])
+}
+
+model PeerReview {
+  id         String       @id @default(cuid())
+  writeupId  String
+  reviewerId String
+  // 1-5 overall quality score.
+  rating     Int
+  comment    String       @db.Text
+  status     ReviewStatus @default(PENDING)
+  helpful    Int          @default(0)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  writeup  Writeup @relation(fields: [writeupId], references: [id], onDelete: Cascade)
+  reviewer User    @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  // A reviewer gives one review per writeup.
+  @@unique([writeupId, reviewerId])
+  @@index([writeupId, status])
+  @@index([reviewerId])
+}
+
+model MentorshipPair {
+  id        String           @id @default(cuid())
+  mentorId  String
+  menteeId  String
+  status    MentorshipStatus @default(REQUESTED)
+  focus     String?
+  startedAt DateTime?
+  endedAt   DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  mentor User @relation("MentorshipMentor", fields: [mentorId], references: [id], onDelete: Cascade)
+  mentee User @relation("MentorshipMentee", fields: [menteeId], references: [id], onDelete: Cascade)
+
+  @@unique([mentorId, menteeId])
+  @@index([menteeId, status])
+  @@index([mentorId, status])
 }
