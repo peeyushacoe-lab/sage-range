@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
-import { getRankInfo } from "@/lib/cyber-identity";
+import { getRankInfo, RANK_BADGE_CLASS } from "@/lib/cyber-identity";
+import { RankLegend } from "@/components/insights/rank-legend";
 import { JoinOrganizationClient } from "./_components/join-organization-client";
 import { Navbar } from "@/components/navbar";
 
@@ -37,14 +38,6 @@ function calcStreak(dates: Date[]): number {
   }
   return streak;
 }
-
-const RANK_COLOR: Record<string, string> = {
-  recruit: "text-ink-2 border-edge-strong/30 bg-surface-3",
-  bronze:  "text-sev-high border-sev-high-edge bg-sev-high-wash",
-  silver:  "text-slate-300 border-slate-400/30 bg-slate-400/8",
-  gold:    "text-warn border-warn-edge bg-warn-wash",
-  elite:   "text-ok border-ok-edge bg-ok-wash",
-};
 
 export default async function OrganizationPage() {
   const user = await getOrCreateAppUser();
@@ -261,6 +254,8 @@ export default async function OrganizationPage() {
           ))}
         </div>
 
+        <RankLegend />
+
         {/* Leaderboard + Activity feed */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
@@ -297,7 +292,7 @@ export default async function OrganizationPage() {
                           </Link>
                           {m.member.isLead && <span className="text-[10px] text-warn border border-warn-edge rounded px-1">Lead</span>}
                         </div>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${RANK_COLOR[m.rank.tier]}`}>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${RANK_BADGE_CLASS[m.rank.tier]}`}>
                           {m.rank.label}
                         </span>
                       </td>

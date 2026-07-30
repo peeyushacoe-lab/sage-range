@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { PlanRow } from "@/lib/plan-pricing";
 
 const DESCRIPTIONS: Record<string, string> = {
-  STUDENT:    "Free forever — labs, paths & community.",
+  STUDENT:    "Forever — labs, paths & community.",
   INSTRUCTOR: "Classrooms, assignments & analytics.",
   RECRUITER:  "Talent search, assessments & bookmarks.",
 };

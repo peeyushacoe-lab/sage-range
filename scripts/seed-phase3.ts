@@ -29,6 +29,12 @@ async function main() {
   console.log("\nSeeding Phase 3: season, squads, tournament\n");
 
   const users = await db.user.findMany({
+    where: {
+      role: { not: "ADMIN" },
+      organizationMemberships: { none: { isLead: true } },
+      hidden: false,
+      email: { not: { endsWith: "@example.com" } },
+    },
     select: { id: true, email: true, displayName: true },
     take: 24,
     orderBy: { createdAt: "asc" },

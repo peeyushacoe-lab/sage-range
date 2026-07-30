@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { canViewOrgMember } from "@/lib/org-access";
 import { db } from "@/lib/db";
-import { getRankInfo } from "@/lib/cyber-identity";
+import { getRankInfo, RANK_BADGE_CLASS } from "@/lib/cyber-identity";
+import { RankLegend } from "@/components/insights/rank-legend";
 import { computeSkillRadar } from "@/lib/insights/skills";
 import { computeMitreCoverage } from "@/lib/insights/mitre";
 import { computeAchievements } from "@/lib/insights/achievements";
@@ -15,14 +16,6 @@ import { Navbar } from "@/components/navbar";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Member Insights · Sage Vault" };
-
-const RANK_COLOR: Record<string, string> = {
-  recruit: "text-ink-2 border-edge-strong/30 bg-surface-3",
-  bronze:  "text-sev-high border-sev-high-edge bg-sev-high-wash",
-  silver:  "text-slate-300 border-slate-400/30 bg-slate-400/8",
-  gold:    "text-warn border-warn-edge bg-warn-wash",
-  elite:   "text-ok border-ok-edge bg-ok-wash",
-};
 
 function calcStreak(dates: Date[]): number {
   if (!dates.length) return 0;
@@ -88,13 +81,15 @@ export default async function OrgMemberPage({ params }: { params: Promise<{ user
             <p className="text-sm text-ink-3 mt-1">{target.email} · {target.role}</p>
           </div>
           <div className="text-right">
-            <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded border ${RANK_COLOR[rank.tier]}`}>
+            <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded border ${RANK_BADGE_CLASS[rank.tier]}`}>
               {rank.label}
             </span>
             <p className="text-3xl font-black tabular-nums mt-1">{target.skillScore}</p>
             <p className="text-xs text-ink-3">skill score</p>
           </div>
         </div>
+
+        <RankLegend />
 
         {/* Stat cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

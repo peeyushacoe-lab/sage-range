@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { LabType } from "@prisma/client";
 import { Navbar } from "@/components/navbar";
 import { EmptyState, PageHeader } from "@/components/ui";
+import { RankLegend } from "@/components/insights/rank-legend";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,8 @@ export default async function Leaderboard({
           );
         })}
       </nav>
+
+      {filter === "ALL" && <div className="mb-6"><RankLegend /></div>}
 
       {top.length === 0 ? (
         <EmptyState icon="medal" title="No scores yet" description="Be the first to solve a lab and claim the top spot." action={{ label: "Browse Labs", href: "/labs" }} />
