@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 type NavLink = { href: string; label: string };
 
@@ -13,10 +11,10 @@ function isActive(href: string, pathname: string) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-// Active state reads by weight + colour together, never colour alone — a
-// colourblind or greyscale view still shows which link is current.
 function linkCls(href: string, pathname: string) {
-  return isActive(href, pathname) ? "text-ink font-medium" : "text-ink-3 hover:text-ink-2";
+  if (!isActive(href, pathname)) return "text-zinc-500 hover:text-zinc-100 transition-colors";
+  if (href === "/daily") return "text-emerald-400 font-semibold";
+  return "text-zinc-100 font-semibold";
 }
 
 const STUDENT_PRIMARY: NavLink[] = [
@@ -119,31 +117,29 @@ function MoreMenu({ groups, pathname }: { groups: NavGroup[]; pathname: string }
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className={cn(
-          "flex cursor-pointer items-center gap-1 transition-colors duration-fast",
-          anyActive ? "font-medium text-ink" : "text-ink-3 hover:text-ink-2"
-        )}
+        className={`flex items-center gap-1 transition-colors ${anyActive ? "text-zinc-100 font-semibold" : "text-zinc-500 hover:text-zinc-100"}`}
       >
         More
-        <ChevronDown aria-hidden="true" className={cn("h-3 w-3 transition-transform duration-fast", open && "rotate-180")} />
+        <svg className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 12 12">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-overlay mt-2 max-h-[80vh] w-56 overflow-y-auto rounded-lg border border-edge bg-surface-2 py-2 shadow-lg">
+        <div className="absolute top-full right-0 mt-2 w-56 rounded-xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/40 py-2 z-50 max-h-[80vh] overflow-y-auto">
           {groups.map((g, gi) => (
-            <div key={g.label} className={gi > 0 ? "mt-1.5 border-t border-edge-subtle pt-1.5" : ""}>
-              <p className="px-4 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-ink-3">{g.label}</p>
+            <div key={g.label} className={gi > 0 ? "mt-1.5 pt-1.5 border-t border-white/6" : ""}>
+              <p className="px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{g.label}</p>
               {g.links.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className={cn(
-                    "block px-4 py-2 text-xs transition-colors duration-fast",
+                  className={`block px-4 py-2 text-xs transition-colors ${
                     isActive(l.href, pathname)
-                      ? "bg-surface-3 font-medium text-ink"
-                      : "text-ink-2 hover:bg-surface-3 hover:text-ink"
-                  )}
+                      ? "text-zinc-100 font-semibold bg-white/4"
+                      : "text-zinc-400 hover:text-zinc-100 hover:bg-white/4"
+                  }`}
                 >
                   {l.label}
                 </Link>

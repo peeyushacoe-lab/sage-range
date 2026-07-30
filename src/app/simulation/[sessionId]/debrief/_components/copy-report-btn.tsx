@@ -32,7 +32,7 @@ export function CopyReportBtn({ report }: CopyReportBtnProps) {
   return (
     <button
       onClick={handleCopy}
-      className="text-xs px-3 py-1.5 rounded border border-edge text-ink-2 hover:text-white hover:border-edge-strong transition-colors"
+      className="text-xs px-3 py-1.5 rounded border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition-colors"
     >
       {copied ? "Copied!" : "Copy Report"}
     </button>

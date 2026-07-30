@@ -11,9 +11,9 @@ export const dynamic = "force-dynamic";
 type MitreMiss = { id: string; name: string; tactic: string; count: number };
 
 function diffColor(d: string) {
-  if (d === "HARD" || d === "INSANE") return "text-danger";
-  if (d === "MEDIUM") return "text-warn";
-  return "text-ink-3";
+  if (d === "HARD" || d === "INSANE") return "text-red-400";
+  if (d === "MEDIUM") return "text-amber-400";
+  return "text-zinc-500";
 }
 
 function formatTime(sec: number) {
@@ -30,10 +30,10 @@ function toRating(score: number) {
 }
 
 const RATING_COLOR: Record<string, string> = {
-  EXCEPTIONAL: "text-ok",
-  STRONG:      "text-info",
-  ADEQUATE:    "text-warn",
-  DEVELOPING:  "text-sev-high",
+  EXCEPTIONAL: "text-sage-400",
+  STRONG:      "text-blue-400",
+  ADEQUATE:    "text-amber-400",
+  DEVELOPING:  "text-orange-400",
 };
 
 export default async function InstructorAnalyticsPage() {
@@ -197,26 +197,26 @@ export default async function InstructorAnalyticsPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-surface-0 text-white">
+      <main className="min-h-screen bg-zinc-950 text-white">
         <div className="max-w-6xl mx-auto px-6 py-8 space-y-10">
 
           {/* Header */}
           <div>
-            <p className="text-xs uppercase tracking-widest text-ink-3 font-semibold mb-1">Instructor Analytics</p>
+            <p className="text-xs uppercase tracking-widest text-blue-400 font-semibold mb-1">Instructor Analytics</p>
             <h1 className="text-3xl font-bold">Platform Overview</h1>
-            <p className="text-ink-2 text-sm mt-1">Aggregate performance across all your classrooms</p>
+            <p className="text-zinc-400 text-sm mt-1">Aggregate performance across all your classrooms</p>
           </div>
 
           {/* Top-line stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { label: "Classrooms",      value: totalClassrooms, color: "text-info" },
-              { label: "Total Students",  value: totalStudents,   color: "text-ink" },
-              { label: "Avg Sim Score",   value: avgScore !== null ? avgScore : "—", color: avgScore !== null && avgScore >= 68 ? "text-ok" : "text-warn" },
-              { label: "Containment Rate", value: containmentRate !== null ? `${containmentRate}%` : "—", color: containmentRate !== null && containmentRate >= 60 ? "text-ok" : "text-danger" },
+              { label: "Classrooms",      value: totalClassrooms, color: "text-blue-400" },
+              { label: "Total Students",  value: totalStudents,   color: "text-zinc-100" },
+              { label: "Avg Sim Score",   value: avgScore !== null ? avgScore : "—", color: avgScore !== null && avgScore >= 68 ? "text-sage-400" : "text-amber-400" },
+              { label: "Containment Rate", value: containmentRate !== null ? `${containmentRate}%` : "—", color: containmentRate !== null && containmentRate >= 60 ? "text-sage-400" : "text-red-400" },
             ].map(({ label, value, color }) => (
-              <div key={label} className="rounded-xl border border-edge bg-surface-1 p-5">
-                <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-1">{label}</p>
+              <div key={label} className="rounded-xl border border-white/8 bg-zinc-900/40 p-5">
+                <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">{label}</p>
                 <p className={`text-3xl font-bold ${color}`}>{value}</p>
               </div>
             ))}
@@ -225,16 +225,16 @@ export default async function InstructorAnalyticsPage() {
           {/* Assessment distribution */}
           {scores.length > 0 && (
             <section>
-              <h2 className="text-sm uppercase tracking-widest text-ink-3 mb-4">Assessment Distribution</h2>
+              <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-4">Assessment Distribution</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {(["EXCEPTIONAL", "STRONG", "ADEQUATE", "DEVELOPING"] as const).map((r) => {
                   const pct = scores.length > 0 ? Math.round((dist[r] / scores.length) * 100) : 0;
                   return (
-                    <div key={r} className="rounded-xl border border-edge bg-surface-1 p-4">
+                    <div key={r} className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
                       <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${RATING_COLOR[r]}`}>{r}</p>
                       <p className="text-3xl font-bold text-white">{dist[r]}</p>
-                      <p className="text-xs text-ink-3 mt-1">{pct}% of students</p>
-                      <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden mt-2">
+                      <p className="text-xs text-zinc-500 mt-1">{pct}% of students</p>
+                      <div className="h-1.5 rounded-full bg-white/5 overflow-hidden mt-2">
                         <div className={`h-full rounded-full ${RATING_COLOR[r].replace("text", "bg")}`} style={{ width: `${pct}%` }} />
                       </div>
                     </div>
@@ -247,32 +247,32 @@ export default async function InstructorAnalyticsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Top performers */}
             <section>
-              <h2 className="text-sm uppercase tracking-widest text-ink-3 mb-4">Top Performers</h2>
+              <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-4">Top Performers</h2>
               {topPerformers.length === 0 ? (
-                <p className="text-ink-3 text-sm italic">No simulation data yet.</p>
+                <p className="text-zinc-600 text-sm italic">No simulation data yet.</p>
               ) : (
-                <div className="rounded-xl border border-edge overflow-hidden">
+                <div className="rounded-xl border border-white/8 overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-edge text-[10px] uppercase tracking-wider text-ink-3">
+                      <tr className="border-b border-white/8 text-[10px] uppercase tracking-wider text-zinc-500">
                         <th className="text-left p-3 pl-4">#</th>
                         <th className="text-left p-3">Student</th>
                         <th className="text-left p-3">Scenario</th>
                         <th className="text-right p-3 pr-4">Score</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-edge-subtle">
+                    <tbody className="divide-y divide-white/5">
                       {topPerformers.map((p, i) => {
                         const r = toRating(p.score);
                         return (
-                          <tr key={p.user.id} className="hover:bg-surface-2 transition">
-                            <td className="p-3 pl-4 text-ink-3 text-xs">{i + 1}</td>
+                          <tr key={p.user.id} className="hover:bg-white/3 transition">
+                            <td className="p-3 pl-4 text-zinc-600 text-xs">{i + 1}</td>
                             <td className="p-3">
                               <p className="font-medium">{p.user.displayName ?? p.user.email?.split("@")[0]}</p>
                               <p className={`text-[10px] font-bold ${RATING_COLOR[r]}`}>{r}</p>
                             </td>
-                            <td className="p-3 text-xs text-ink-3 truncate max-w-[140px]">{p.scenario}</td>
-                            <td className={`p-3 pr-4 text-right font-bold ${p.status === "CONTAINED" ? "text-ok" : "text-danger"}`}>
+                            <td className="p-3 text-xs text-zinc-500 truncate max-w-[140px]">{p.scenario}</td>
+                            <td className={`p-3 pr-4 text-right font-bold ${p.status === "CONTAINED" ? "text-sage-400" : "text-red-400"}`}>
                               {p.score}
                             </td>
                           </tr>
@@ -286,21 +286,21 @@ export default async function InstructorAnalyticsPage() {
 
             {/* Most missed MITRE techniques */}
             <section>
-              <h2 className="text-sm uppercase tracking-widest text-ink-3 mb-4">Most Missed Techniques</h2>
+              <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-4">Most Missed Techniques</h2>
               {topMissed.length === 0 ? (
-                <p className="text-ink-3 text-sm italic">No miss data yet.</p>
+                <p className="text-zinc-600 text-sm italic">No miss data yet.</p>
               ) : (
                 <div className="space-y-2">
                   {topMissed.map((t) => (
-                    <div key={t.id} className="rounded-lg border border-edge bg-surface-1 px-4 py-3 flex items-center justify-between gap-3">
+                    <div key={t.id} className="rounded-lg border border-white/8 bg-zinc-900/40 px-4 py-3 flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-mono text-[10px] text-ink-3">{t.id}</span>
-                          <span className="text-[10px] text-ink-3">{t.tactic}</span>
+                          <span className="font-mono text-[10px] text-zinc-500">{t.id}</span>
+                          <span className="text-[10px] text-zinc-600">{t.tactic}</span>
                         </div>
                         <p className="text-sm font-medium truncate">{t.name}</p>
                       </div>
-                      <span className="shrink-0 text-xs text-danger font-semibold border border-danger-edge bg-danger-wash rounded px-2 py-0.5">
+                      <span className="shrink-0 text-xs text-red-400 font-semibold border border-red-500/30 bg-red-500/8 rounded px-2 py-0.5">
                         ×{t.count}
                       </span>
                     </div>
@@ -312,14 +312,14 @@ export default async function InstructorAnalyticsPage() {
 
           {/* Lab Performance */}
           <section>
-            <h2 className="text-sm uppercase tracking-widest text-ink-3 mb-4">Lab Performance</h2>
+            <h2 className="text-sm uppercase tracking-widest text-zinc-500 mb-4">Lab Performance</h2>
             {labStats.length === 0 ? (
-              <p className="text-ink-3 text-sm italic">No lab attempts from your students yet.</p>
+              <p className="text-zinc-600 text-sm italic">No lab attempts from your students yet.</p>
             ) : (
-              <div className="rounded-xl border border-edge overflow-x-auto">
+              <div className="rounded-xl border border-white/8 overflow-x-auto">
                 <table className="w-full text-sm min-w-[560px]">
                   <thead>
-                    <tr className="border-b border-edge text-[10px] uppercase tracking-wider text-ink-3">
+                    <tr className="border-b border-white/8 text-[10px] uppercase tracking-wider text-zinc-500">
                       <th className="text-left p-3 pl-4">Lab</th>
                       <th className="text-center p-3">Attempts</th>
                       <th className="text-center p-3">Solved</th>
@@ -328,32 +328,32 @@ export default async function InstructorAnalyticsPage() {
                       <th className="text-right p-3 pr-4">Avg Time</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-edge-subtle">
+                  <tbody className="divide-y divide-white/5">
                     {labStats.map((lab) => {
-                      const rateColor = lab.solveRate >= 70 ? "text-ok" : lab.solveRate >= 40 ? "text-warn" : "text-danger";
-                      const barColor  = lab.solveRate >= 70 ? "bg-ok"  : lab.solveRate >= 40 ? "bg-warn"  : "bg-danger";
+                      const rateColor = lab.solveRate >= 70 ? "text-sage-400" : lab.solveRate >= 40 ? "text-amber-400" : "text-red-400";
+                      const barColor  = lab.solveRate >= 70 ? "bg-sage-500"  : lab.solveRate >= 40 ? "bg-amber-500"  : "bg-red-500";
                       return (
-                        <tr key={lab.title} className="hover:bg-surface-2 transition">
+                        <tr key={lab.title} className="hover:bg-white/3 transition">
                           <td className="p-3 pl-4">
-                            <p className="font-medium text-ink">{lab.title}</p>
+                            <p className="font-medium text-zinc-100">{lab.title}</p>
                             <span className={`text-[10px] font-mono ${diffColor(lab.difficulty)}`}>{lab.difficulty}</span>
                           </td>
-                          <td className="p-3 text-center text-ink-2">{lab.attempts}</td>
-                          <td className="p-3 text-center text-ink-2">{lab.solved}</td>
+                          <td className="p-3 text-center text-zinc-400">{lab.attempts}</td>
+                          <td className="p-3 text-center text-zinc-400">{lab.solved}</td>
                           <td className="p-3 text-center">
                             <div className="flex flex-col items-center gap-1">
                               <span className={`font-bold text-xs ${rateColor}`}>{lab.solveRate}%</span>
-                              <div className="h-1 w-16 rounded-full bg-surface-2">
+                              <div className="h-1 w-16 rounded-full bg-zinc-800">
                                 <div className={`h-full rounded-full ${barColor}`} style={{ width: `${lab.solveRate}%` }} />
                               </div>
                             </div>
                           </td>
                           <td className="p-3 text-center">
                             {lab.inProgress > 0
-                              ? <span className="text-warn font-bold text-xs">{lab.inProgress}</span>
-                              : <span className="text-ink-3">—</span>}
+                              ? <span className="text-amber-400 font-bold text-xs">{lab.inProgress}</span>
+                              : <span className="text-zinc-700">—</span>}
                           </td>
-                          <td className="p-3 pr-4 text-right text-xs text-ink-3">
+                          <td className="p-3 pr-4 text-right text-xs text-zinc-500">
                             {lab.avgTimeSec ? formatTime(lab.avgTimeSec) : "—"}
                           </td>
                         </tr>
@@ -361,7 +361,7 @@ export default async function InstructorAnalyticsPage() {
                     })}
                   </tbody>
                 </table>
-                <div className="border-t border-edge-subtle px-4 py-2 text-[10px] text-ink-3 flex gap-4">
+                <div className="border-t border-white/5 px-4 py-2 text-[10px] text-zinc-600 flex gap-4">
                   <span>Sorted by solve rate ascending (hardest first)</span>
                   <span>·</span>
                   <span>Stuck = students still IN_PROGRESS</span>
@@ -376,35 +376,35 @@ export default async function InstructorAnalyticsPage() {
           {atRisk.length > 0 && (
             <section>
               <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-sm uppercase tracking-widest text-ink-3">Students at Risk</h2>
-                <span className="text-[10px] font-bold uppercase tracking-widest border border-warn-edge bg-warn-wash text-warn rounded px-2 py-0.5">
+                <h2 className="text-sm uppercase tracking-widest text-zinc-500">Students at Risk</h2>
+                <span className="text-[10px] font-bold uppercase tracking-widest border border-amber-500/30 bg-amber-500/8 text-amber-400 rounded px-2 py-0.5">
                   {atRisk.length} stuck
                 </span>
               </div>
-              <div className="rounded-xl border border-warn-edge overflow-hidden">
+              <div className="rounded-xl border border-amber-500/15 overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-edge text-[10px] uppercase tracking-wider text-ink-3">
+                    <tr className="border-b border-white/8 text-[10px] uppercase tracking-wider text-zinc-500">
                       <th className="text-left p-3 pl-4">Student</th>
                       <th className="text-center p-3">Labs In Progress</th>
                       <th className="text-center p-3">Labs Solved</th>
                       <th className="text-right p-3 pr-4">Oldest Attempt</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-edge-subtle">
+                  <tbody className="divide-y divide-white/5">
                     {atRisk.map((s) => {
                       const daysSince = s.oldest
                         ? Math.floor((Date.now() - s.oldest.getTime()) / 86_400_000)
                         : null;
                       return (
-                        <tr key={s.userId} className="hover:bg-surface-2 transition">
+                        <tr key={s.userId} className="hover:bg-white/3 transition">
                           <td className="p-3 pl-4">
-                            <p className="font-medium text-ink">{s.displayName ?? s.email.split("@")[0]}</p>
-                            <p className="text-[10px] text-ink-3">{s.email}</p>
+                            <p className="font-medium text-zinc-100">{s.displayName ?? s.email.split("@")[0]}</p>
+                            <p className="text-[10px] text-zinc-600">{s.email}</p>
                           </td>
-                          <td className="p-3 text-center text-warn font-bold">{s.inProgress}</td>
-                          <td className="p-3 text-center text-ink-3">{s.solved}</td>
-                          <td className="p-3 pr-4 text-right text-xs text-ink-3">
+                          <td className="p-3 text-center text-amber-400 font-bold">{s.inProgress}</td>
+                          <td className="p-3 text-center text-zinc-600">{s.solved}</td>
+                          <td className="p-3 pr-4 text-right text-xs text-zinc-500">
                             {daysSince !== null ? `${daysSince}d ago` : "—"}
                           </td>
                         </tr>
@@ -412,7 +412,7 @@ export default async function InstructorAnalyticsPage() {
                     })}
                   </tbody>
                 </table>
-                <div className="border-t border-edge-subtle px-4 py-2 text-[10px] text-ink-3">
+                <div className="border-t border-white/5 px-4 py-2 text-[10px] text-zinc-600">
                   Students with ≥1 in-progress lab and 0 solves · sorted by oldest attempt
                 </div>
               </div>
@@ -422,18 +422,18 @@ export default async function InstructorAnalyticsPage() {
           {/* Per-classroom breakdown */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm uppercase tracking-widest text-ink-3">Classroom Breakdown</h2>
-              <Link href="/classroom" className="text-xs text-ink-3 hover:text-ink-2 transition">
+              <h2 className="text-sm uppercase tracking-widest text-zinc-500">Classroom Breakdown</h2>
+              <Link href="/classroom" className="text-xs text-zinc-500 hover:text-zinc-300 transition">
                 Manage Classrooms →
               </Link>
             </div>
             {classroomSummaries.length === 0 ? (
-              <p className="text-ink-3 text-sm italic">No classrooms yet.</p>
+              <p className="text-zinc-600 text-sm italic">No classrooms yet.</p>
             ) : (
-              <div className="rounded-xl border border-edge overflow-hidden">
+              <div className="rounded-xl border border-white/8 overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-edge text-[10px] uppercase tracking-wider text-ink-3">
+                    <tr className="border-b border-white/8 text-[10px] uppercase tracking-wider text-zinc-500">
                       <th className="text-left p-3 pl-4">Classroom</th>
                       <th className="text-center p-3">Students</th>
                       <th className="text-center p-3">Labs Assigned</th>
@@ -441,25 +441,25 @@ export default async function InstructorAnalyticsPage() {
                       <th className="text-right p-3 pr-4">Report</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-edge-subtle">
+                  <tbody className="divide-y divide-white/5">
                     {classroomSummaries.map((c) => (
-                      <tr key={c.id} className="hover:bg-surface-2 transition">
+                      <tr key={c.id} className="hover:bg-white/3 transition">
                         <td className="p-3 pl-4 font-medium">
-                          <Link href={`/classroom/${c.id}`} className="hover:text-info transition">{c.name}</Link>
+                          <Link href={`/classroom/${c.id}`} className="hover:text-blue-400 transition">{c.name}</Link>
                         </td>
-                        <td className="p-3 text-center text-ink-2">{c.students}</td>
-                        <td className="p-3 text-center text-ink-2">{c.labCount}</td>
+                        <td className="p-3 text-center text-zinc-400">{c.students}</td>
+                        <td className="p-3 text-center text-zinc-400">{c.labCount}</td>
                         <td className="p-3 text-center">
                           {c.avgScore !== null ? (
-                            <span className={`font-bold ${c.avgScore >= 68 ? "text-ok" : c.avgScore >= 48 ? "text-warn" : "text-danger"}`}>
+                            <span className={`font-bold ${c.avgScore >= 68 ? "text-sage-400" : c.avgScore >= 48 ? "text-amber-400" : "text-red-400"}`}>
                               {c.avgScore}
                             </span>
                           ) : (
-                            <span className="text-ink-3">—</span>
+                            <span className="text-zinc-600">—</span>
                           )}
                         </td>
                         <td className="p-3 pr-4 text-right">
-                          <Link href={`/classroom/${c.id}/report`} className="text-xs text-ink-3 hover:text-ink-2 transition">
+                          <Link href={`/classroom/${c.id}/report`} className="text-xs text-zinc-500 hover:text-zinc-300 transition">
                             Print →
                           </Link>
                         </td>

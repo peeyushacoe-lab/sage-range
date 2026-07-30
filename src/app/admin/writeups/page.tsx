@@ -14,9 +14,9 @@ function relativeTime(d: Date): string {
 }
 
 const STATUS_BADGE: Record<string, string> = {
-  PENDING:  "bg-warn-wash text-warn border-warn-edge",
-  APPROVED: "bg-ok-wash text-ok border-ok-edge",
-  REJECTED: "bg-danger-wash text-danger border-danger-edge",
+  PENDING:  "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  APPROVED: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  REJECTED: "bg-red-500/15 text-red-400 border-red-500/30",
 };
 
 export default async function AdminWriteupsPage({
@@ -69,79 +69,79 @@ export default async function AdminWriteupsPage({
           {(["PENDING", "APPROVED", "REJECTED"] as const).map(s => (
             <Link key={s} href={`/admin/writeups?status=${s}`}
               className={`text-xs px-3 py-1.5 rounded-lg border transition ${
-                filterStatus === s ? "bg-surface-3 border-edge-strong text-ink" : "border-edge text-ink-2 hover:border-edge-strong"
+                filterStatus === s ? "bg-zinc-700 border-white/20 text-zinc-100" : "border-white/8 text-zinc-400 hover:border-white/20"
               }`}>
-              {s} <span className="text-ink-3 ml-1">{countMap[s] ?? 0}</span>
+              {s} <span className="text-zinc-600 ml-1">{countMap[s] ?? 0}</span>
             </Link>
           ))}
         </div>
       </div>
 
       {writeups.length === 0 ? (
-        <div className="rounded-xl border border-edge bg-surface-1 py-16 text-center">
-          <p className="text-ink-3 text-sm">No {filterStatus.toLowerCase()} writeups</p>
+        <div className="rounded-xl border border-white/8 bg-zinc-900/40 py-16 text-center">
+          <p className="text-zinc-500 text-sm">No {filterStatus.toLowerCase()} writeups</p>
         </div>
       ) : (
         <div className="space-y-4">
           {writeups.map(w => (
-            <div key={w.id} className="rounded-xl border border-edge bg-surface-1 overflow-hidden">
+            <div key={w.id} className="rounded-xl border border-white/8 bg-zinc-900/40 overflow-hidden">
               {/* Header */}
-              <div className="px-5 py-4 border-b border-edge flex items-start justify-between gap-4">
+              <div className="px-5 py-4 border-b border-white/8 flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${STATUS_BADGE[w.status]}`}>
                       {w.status}
                     </span>
-                    <span className="text-xs text-ink-3">{relativeTime(w.createdAt)}</span>
+                    <span className="text-xs text-zinc-600">{relativeTime(w.createdAt)}</span>
                   </div>
-                  <p className="font-semibold text-ink">{w.title}</p>
-                  <p className="text-xs text-ink-3 mt-0.5">
+                  <p className="font-semibold text-zinc-100">{w.title}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">
                     by {w.user.displayName ?? w.user.email} ·{" "}
-                    <Link href={`/labs/${w.lab.slug}`} className="hover:text-ink-2 transition">{w.lab.title}</Link>
+                    <Link href={`/labs/${w.lab.slug}`} className="hover:text-zinc-300 transition">{w.lab.title}</Link>
                   </p>
                 </div>
                 <Link href={`/writeups/${w.id}`} target="_blank"
-                  className="text-xs text-ink-3 hover:text-ink-2 transition shrink-0">
+                  className="text-xs text-zinc-500 hover:text-zinc-300 transition shrink-0">
                   Preview ↗
                 </Link>
               </div>
 
               {/* Body preview */}
               <div className="px-5 py-3 max-h-40 overflow-y-auto">
-                <pre className="text-xs text-ink-2 whitespace-pre-wrap font-mono leading-relaxed">
+                <pre className="text-xs text-zinc-400 whitespace-pre-wrap font-mono leading-relaxed">
                   {w.body.slice(0, 600)}{w.body.length > 600 ? "\n…" : ""}
                 </pre>
               </div>
 
               {/* Actions */}
               {filterStatus === "PENDING" && (
-                <div className="px-5 py-3 border-t border-edge flex items-center gap-3">
+                <div className="px-5 py-3 border-t border-white/8 flex items-center gap-3">
                   <form action={approve}>
                     <input type="hidden" name="id" value={w.id} />
                     <button type="submit"
-                      className="px-4 py-1.5 rounded-lg bg-ok text-white text-xs font-bold hover:bg-ok-wash transition">
+                      className="px-4 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition">
                       <Icon name="check" size={14} className="inline-block shrink-0" /> Approve
                     </button>
                   </form>
                   <form action={reject} className="flex items-center gap-2 flex-1">
                     <input type="hidden" name="id" value={w.id} />
                     <input name="verdict" placeholder="Rejection reason (optional)"
-                      className="flex-1 bg-surface-2 border border-edge rounded px-2 py-1.5 text-xs text-ink-2 placeholder:text-ink-3 focus:outline-none focus:border-danger-edge" />
+                      className="flex-1 bg-zinc-800 border border-white/10 rounded px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-red-500/40" />
                     <button type="submit"
-                      className="px-4 py-1.5 rounded-lg bg-danger text-white text-xs font-bold hover:bg-danger-wash transition">
+                      className="px-4 py-1.5 rounded-lg bg-red-700 text-white text-xs font-bold hover:bg-red-600 transition">
                       <Icon name="cross" size={14} className="inline-block shrink-0" /> Reject
                     </button>
                   </form>
                 </div>
               )}
               {filterStatus === "APPROVED" && (
-                <div className="px-5 py-3 border-t border-edge">
+                <div className="px-5 py-3 border-t border-white/8">
                   <form action={reject} className="flex items-center gap-2">
                     <input type="hidden" name="id" value={w.id} />
                     <input name="verdict" placeholder="Reason for removal (optional)"
-                      className="flex-1 bg-surface-2 border border-edge rounded px-2 py-1.5 text-xs text-ink-2 placeholder:text-ink-3 focus:outline-none focus:border-danger-edge" />
+                      className="flex-1 bg-zinc-800 border border-white/10 rounded px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-red-500/40" />
                     <button type="submit"
-                      className="px-3 py-1.5 rounded-lg border border-danger-edge text-danger text-xs hover:bg-danger-wash transition">
+                      className="px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 text-xs hover:bg-red-500/10 transition">
                       Remove
                     </button>
                   </form>

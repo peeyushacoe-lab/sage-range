@@ -28,8 +28,8 @@ export function VoucherToggle({ id, active }: { id: string; active: boolean }) {
       disabled={loading}
       className={`text-xs px-3 py-1 rounded-full font-semibold transition disabled:opacity-50 ${
         on
-          ? "bg-ok-wash text-ok hover:bg-danger-wash hover:text-danger"
-          : "bg-surface-3 text-ink-2 hover:bg-ok-wash hover:text-ok"
+          ? "bg-emerald-500/20 text-emerald-400 hover:bg-red-500/10 hover:text-red-400"
+          : "bg-zinc-500/20 text-zinc-400 hover:bg-emerald-500/20 hover:text-emerald-400"
       }`}
     >
       {loading ? "…" : on ? "Active" : "Inactive"}

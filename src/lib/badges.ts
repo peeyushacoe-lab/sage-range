@@ -49,8 +49,8 @@ export function computeBadges(params: {
 }
 
 export const TIER_STYLE: Record<Badge["tier"], { bg: string; border: string; text: string }> = {
-  bronze:   { bg: "bg-sev-high-wash",   border: "border-sev-high-edge",  text: "text-sev-high" },
-  silver:   { bg: "bg-ink-3/8",     border: "border-edge-strong/25",    text: "text-ink-2" },
-  gold:     { bg: "bg-warn-wash",   border: "border-warn-edge",   text: "text-warn" },
-  platinum: { bg: "bg-ok-wash", border: "border-ok-edge", text: "text-ok" },
+  bronze:   { bg: "bg-orange-500/8",   border: "border-orange-500/25",  text: "text-orange-400" },
+  silver:   { bg: "bg-zinc-400/8",     border: "border-zinc-400/25",    text: "text-zinc-300" },
+  gold:     { bg: "bg-amber-400/10",   border: "border-amber-400/30",   text: "text-amber-300" },
+  platinum: { bg: "bg-emerald-400/10", border: "border-emerald-400/30", text: "text-emerald-300" },
 };

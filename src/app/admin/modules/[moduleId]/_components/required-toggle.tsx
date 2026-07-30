@@ -26,8 +26,8 @@ export function RequiredToggle({ moduleId, isRequired }: Props) {
       disabled={loading}
       className={`rounded-lg border px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${
         isRequired
-          ? "border-warn-edge text-warn bg-warn-wash hover:bg-warn-wash"
-          : "border-edge text-ink-3 hover:border-warn-edge hover:text-warn"
+          ? "border-amber-500/30 text-amber-400 bg-amber-500/5 hover:bg-amber-500/15"
+          : "border-white/10 text-zinc-500 hover:border-amber-500/30 hover:text-amber-400"
       }`}
     >
       {loading ? "…" : isRequired ? "Required" : "Optional"}

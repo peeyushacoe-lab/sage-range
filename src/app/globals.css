@@ -2,175 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   RANGE — Sage Vault design tokens. v2.0.0-beta.
-
-   Graphite workstation palette. Every colour below is contrast-verified
-   against the surface it is intended to sit on (AA: 4.5:1 body, 3:1 large
-   text and UI graphics). If you change a value, re-verify it.
-
-   Naming rule — read this before adding a colour:
-     accent  = interactive. Links, primary buttons, active nav, completion.
-     ok      = success ONLY. Passed, resolved, secure.
-     sev-*   = how bad a finding is. Independent of status.
-
-   `emerald-*` used to mean brand AND success AND progress at once, which made
-   "Active" and "Resolved" render identically. Do not reintroduce it as brand.
-   ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   color-scheme: dark;
-
-  /* ── Surfaces — elevation by lightness, not translucency ───────────────── */
-  --bg:            #14171C;
-  --surface-1:     #1A1E25;
-  --surface-2:     #21262F;
-  --surface-3:     #272D38;
-  --surface-inset: #101318;
-
-  /* ── Borders ──────────────────────────────────────────────────────────── */
-  --border:        #2C323C;
-  --border-subtle: #23272F;
-  --border-strong: #3A4250;
-
-  /* ── Text — 13.68 / 6.81 / 3.91 against --bg ──────────────────────────── */
-  --text:   #DDE1E7;
-  --text-2: #98A0AC;
-  --text-3: #6D7683;
-
-  /* ── Interactive ──────────────────────────────────────────────────────── */
-  --accent:       #6E9FD4;
-  --accent-fill:  #3A6EA5;
-  --accent-hover: #4A7FBB;
-  --accent-wash:  #1C2836;
-  --accent-edge:  #33465C;
-
-  /* ── Status — what happened ───────────────────────────────────────────── */
-  --ok:     #6FAE84;  --ok-wash:     #1A2620;  --ok-edge:     #2E4A38;
-  --warn:   #C9A35C;  --warn-wash:   #2A2418;  --warn-edge:   #4E4326;
-  --danger: #D07068;  --danger-wash: #2A1C1C;  --danger-edge: #4E3232;
-  --info:   #7C9CBB;  --info-wash:   #1C2836;  --info-edge:   #33465C;
-
-  /* ── Severity — how bad it is. Ordered. Never used for status ─────────── */
-  --sev-critical: #D07068;  --sev-critical-wash: #2A1C1C;  --sev-critical-edge: #4E3232;
-  --sev-high:     #C07A3E;  --sev-high-wash:     #2A2018;  --sev-high-edge:     #4C3A22;
-  --sev-medium:   #B39642;  --sev-medium-wash:   #2A2418;  --sev-medium-edge:   #4E4326;
-  --sev-low:      #7C9CBB;  --sev-low-wash:      #1C2836;  --sev-low-edge:      #33465C;
-  --sev-info:     #6D7683;  --sev-info-wash:     #21262F;  --sev-info-edge:     #3A4250;
-
-  /* ── Type ─────────────────────────────────────────────────────────────── */
-  --font-body: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-
-  /* ── Data-dense layout ────────────────────────────────────────────────── */
-  --card-padding:      12px;
-  --table-row-height:  36px;
-  --sidebar-width:     240px;
-  --header-height:     56px;
-
-  /* ── Radius — square-ish. This is tooling, not a consumer app ─────────── */
-  --r-sm: 3px;
-  --r-md: 4px;
-  --r-lg: 6px;
-
-  /* ── Motion ───────────────────────────────────────────────────────────── */
-  --ease-out: cubic-bezier(.22,.9,.36,1);
-
-  /* Surface the icon accent knocks itself out of. Override on lighter panes. */
-  --sv-icon-halo: #14171C;
 }
 
 html, body {
-  background: var(--bg);
-  color: var(--text);
+  background: #09090b;
+  color: #f4f4f5;
   min-height: 100%;
-  font-family: var(--font-body);
 }
 
-/* ── Focus — visible everywhere, never removed ──────────────────────────── */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+/* ── Button press feel ──────────────────────────────────────────────────────── */
+button:active:not(:disabled),
+a[role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
 }
 
-/* ── Numerals in data contexts do not reflow as they change ─────────────── */
-.tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
-
-@layer components {
-  /* ── Input ────────────────────────────────────────────────────────────── */
-  .input-field {
-    @apply w-full rounded-md bg-surface-inset border border-edge-strong px-3 py-2 text-sm
-           text-ink placeholder-ink-3
-           focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/25
-           transition-colors;
-    min-height: 36px;
-  }
-
-  /* ── Shimmer — skeleton loading only ──────────────────────────────────── */
-  .shimmer {
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.05) 50%, transparent 100%);
-    background-size: 200% 100%;
-    @apply animate-shimmer;
-  }
+/* ── Primary glow button ────────────────────────────────────────────────────── */
+.btn-glow {
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+}
+.btn-glow:hover {
+  box-shadow: 0 0 20px 2px rgba(16, 185, 129, 0.3), 0 4px 24px rgba(0,0,0,0.4);
+  transform: translateY(-1px);
+}
+.btn-glow:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 0 8px 1px rgba(16, 185, 129, 0.2);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   MARKETING-ONLY DECORATION
-   Permitted on the landing, pricing, and about pages. Never on a data surface
-   — these reduce legibility on dense screens and read as decoration rather
-   than meaning.
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ── Card hover lift ────────────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.25);
+}
+
+/* ── Glow border card ───────────────────────────────────────────────────────── */
+.card-glow {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.card-glow:hover {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.12), inset 0 0 30px rgba(16,185,129,0.04);
+  border-color: rgba(16,185,129,0.3);
+}
+
+/* ── Shimmer loading ────────────────────────────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ── Hex grid background ────────────────────────────────────────────────────── */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(110,159,212,.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(110,159,212,.035) 1px, transparent 1px);
+    linear-gradient(rgba(16,185,129,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.04) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
 .bg-grid-sm {
   background-image:
-    linear-gradient(rgba(110,159,212,.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(110,159,212,.028) 1px, transparent 1px);
+    linear-gradient(rgba(16,185,129,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.03) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
+/* ── Glowing text ───────────────────────────────────────────────────────────── */
+.text-glow {
+  text-shadow: 0 0 20px rgba(16,185,129,0.6), 0 0 60px rgba(16,185,129,0.2);
+}
+
+/* ── Gradient text ──────────────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #6E9FD4 0%, #8AB4E0 55%, #A9C8EA 100%);
+  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   RETIRED IN v2.0.0-beta
-   Kept as no-ops so the ~39 remaining call sites keep compiling while they are
-   migrated. Do not apply these to anything new — they are scheduled for
-   deletion once the last usage is gone.
-     .scanline / .noise  — texture over data
-     .text-glow          — competed with the severity it was reporting
-     .card-hover         — translate on hover caused layout jitter
-     .card-glow          — decorative glow, no meaning
-     .btn-glow           — replaced by <Button variant="primary">
-   ═══════════════════════════════════════════════════════════════════════════ */
-.scanline::after, .noise::before { content: none; }
-.text-glow { text-shadow: none; }
-
-.card-hover {
-  transition: border-color 180ms var(--ease-out), background-color 180ms var(--ease-out);
-}
-.card-hover:hover {
-  border-color: var(--border-strong);
-  background-color: var(--surface-2);
+/* ── Scan line ──────────────────────────────────────────────────────────────── */
+.scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
 }
 
-.card-glow { transition: border-color 180ms var(--ease-out); }
-.card-glow:hover { border-color: var(--border-strong); }
+/* ── Noise overlay ──────────────────────────────────────────────────────────── */
+.noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
 
-.btn-glow { transition: background-color 180ms var(--ease-out); }
-.btn-glow:hover { background-color: var(--accent-hover); }
+/* ── Input fields ───────────────────────────────────────────────────────────── */
+@layer components {
+  .input-field {
+    @apply w-full rounded-lg bg-zinc-900/70 border border-white/10 px-4 py-2.5 text-sm
+           text-zinc-100 placeholder-zinc-600
+           focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20
+           transition-colors;
+  }
+}
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   SAGE VAULT ICON SYSTEM
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ── Sage Vault icon system ─────────────────────────────────────────────────── */
+/* Surface colour the accent glyph knocks itself out of. Override on any
+   container that isn't the page background (e.g. a lighter modal). */
+:root { --sv-icon-halo: #09090b; }
+
 .sv-icon {
   position: relative;
   display: inline-flex;
@@ -182,7 +139,12 @@ html, body {
 .sv-icon > svg { display: block; }
 
 /* Base glyph anchors top-left so the accent has clear room in the corner. */
-.sv-icon__base { position: absolute; top: 0; left: 0; line-height: 0; }
+.sv-icon__base {
+  position: absolute;
+  top: 0;
+  left: 0;
+  line-height: 0;
+}
 .sv-icon__base > svg { display: block; }
 
 .sv-icon__accent {
@@ -194,37 +156,55 @@ html, body {
 }
 .sv-icon__accent > svg { position: absolute; inset: 0; }
 
-/* ── Icon tile ──────────────────────────────────────────────────────────── */
+/* ── Icon tile (glass container) ────────────────────────────────────────────── */
 .sv-tile {
-  --sv-icon-halo: #21262F;
+  --sv-icon-halo: #101014;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  transition: border-color 180ms var(--ease-out), background-color 180ms var(--ease-out);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 6px 18px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.3, 1),
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .sv-tile--interactive:hover,
 a:hover > .sv-tile--interactive,
 button:hover > .sv-tile--interactive,
 .group:hover .sv-tile--interactive {
-  border-color: var(--border-strong);
-  background: var(--surface-3);
+  transform: translateY(-2px) scale(1.05);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 26px rgba(0, 0, 0, 0.34);
 }
 
-/* Tilt retired — press and hover states must not shift layout bounds. */
 .sv-tile--tilt:hover,
 a:hover > .sv-tile--tilt,
 button:hover > .sv-tile--tilt,
 .group:hover .sv-tile--tilt {
-  border-color: var(--border-strong);
-  background: var(--surface-3);
+  transform: translateY(-2px) scale(1.05) rotate(1.5deg);
 }
 
-/* ── Animation delay utilities ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sv-tile { transition: border-color 180ms ease, box-shadow 180ms ease; }
+  .sv-tile--interactive:hover,
+  .sv-tile--tilt:hover,
+  a:hover > .sv-tile--interactive,
+  button:hover > .sv-tile--interactive,
+  .group:hover .sv-tile--interactive { transform: none; }
+}
+
+/* ── Animation delay utilities ──────────────────────────────────────────────── */
 .delay-75  { animation-delay: 75ms; }
 .delay-150 { animation-delay: 150ms; }
 .delay-200 { animation-delay: 200ms; }
@@ -252,16 +232,4 @@ button:hover > .sv-tile--tilt,
   -webkit-user-select: text;
   -ms-user-select: text;
   user-select: text;
-}
-
-/* ── Reduced motion ─────────────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-    scroll-behavior: auto !important;
-  }
 }

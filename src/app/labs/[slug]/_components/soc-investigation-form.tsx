@@ -164,9 +164,9 @@ export function SocInvestigationForm({
   return (
     <div className="space-y-8">
       {/* Scenario */}
-      <div className="rounded-lg border border-warn-edge bg-warn-wash p-4 text-sm space-y-1">
-        <p className="text-warn font-medium">Active incident — SOC-2026-0509</p>
-        <p className="text-ink-2">
+      <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm space-y-1">
+        <p className="text-amber-400 font-medium">Active incident — SOC-2026-0509</p>
+        <p className="text-zinc-300">
           SIEM correlation has triggered on multiple anomalous telemetry sources recorded between 08:00–15:30 UTC. Authentication, endpoint, and DNS data are available below. Determine the nature of the compromise and complete the analyst report.
         </p>
       </div>
@@ -181,17 +181,17 @@ export function SocInvestigationForm({
               className={
                 "px-3 py-1.5 text-xs font-mono rounded-t border-t border-x " +
                 (tab === t
-                  ? "bg-surface-1 border-edge text-ok"
-                  : "bg-black/20 border-edge-subtle text-ink-3 hover:text-ink-2")
+                  ? "bg-zinc-900 border-white/10 text-sage-500"
+                  : "bg-black/20 border-white/5 text-zinc-500 hover:text-zinc-300")
               }
             >
               {t}
             </button>
           ))}
         </div>
-        <div className="rounded-b rounded-tr border border-edge bg-surface-0 p-4 overflow-x-auto max-h-64 overflow-y-auto">
+        <div className="rounded-b rounded-tr border border-white/10 bg-zinc-950 p-4 overflow-x-auto max-h-64 overflow-y-auto">
           {LOGS[tab].split("\n").map((line, i) => (
-            <p key={i} className="text-xs font-mono leading-5 whitespace-pre text-ink-2">
+            <p key={i} className="text-xs font-mono leading-5 whitespace-pre text-zinc-300">
               {line}
             </p>
           ))}
@@ -247,7 +247,7 @@ export function SocInvestigationForm({
           <button
             type="submit"
             disabled={isPending || summary.trim().length < 80}
-            className="rounded bg-accent-fill px-5 py-2.5 text-sm font-medium text-white hover:bg-ok-wash hover:text-white disabled:opacity-50"
+            className="rounded bg-sage-500 px-5 py-2.5 text-sm font-medium text-black hover:bg-sage-700 hover:text-white disabled:opacity-50"
           >
             {isPending ? "Submitting…" : "Submit report"}
           </button>
@@ -257,7 +257,7 @@ export function SocInvestigationForm({
           <h3 className="font-semibold text-lg">Report submitted</h3>
 
           {results && (
-            <div className="rounded-lg border border-edge divide-y divide-edge-subtle text-sm">
+            <div className="rounded-lg border border-white/10 divide-y divide-white/10 text-sm">
               <Result
                 label="C2 server IP"
                 correct={results.ip}
@@ -281,16 +281,16 @@ export function SocInvestigationForm({
             </div>
           )}
 
-          <div className="rounded-lg border border-edge bg-surface-1 p-4 text-sm">
-            <p className="text-ink-2 font-medium">Report recorded <Icon name="check" size={14} className="inline-block shrink-0" /></p>
-            <p className="text-ink-3 mt-1">Proceed to Task 2 — containment planning.</p>
+          <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-4 text-sm">
+            <p className="text-zinc-300 font-medium">Report recorded <Icon name="check" size={14} className="inline-block shrink-0" /></p>
+            <p className="text-zinc-500 mt-1">Proceed to Task 2 — containment planning.</p>
           </div>
 
           {!evalResult ? (
             <button
               onClick={requestAiEval}
               disabled={evalPending}
-              className="rounded border border-ok-edge px-4 py-2 text-sm text-ok hover:bg-ok-wash disabled:opacity-50"
+              className="rounded border border-sage-500/40 px-4 py-2 text-sm text-sage-500 hover:bg-sage-500/10 disabled:opacity-50"
             >
               {evalPending ? "Analysing with AI…" : "Get AI feedback on your summary →"}
             </button>
@@ -306,7 +306,7 @@ export function SocInvestigationForm({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-ink-2">{label}</label>
+      <label className="block text-sm font-medium text-zinc-300">{label}</label>
       {children}
     </div>
   );
@@ -347,11 +347,11 @@ function Result({
   return (
     <div className="flex items-start justify-between p-3 gap-4">
       <div>
-        <p className="text-ink-2 text-xs">{label}</p>
-        <p className={correct ? "text-ok" : "text-ink-2"}>{correct ? <><Icon name="check" size={13} /> Correct</> : "Incorrect"}</p>
-        {hint && <p className="text-xs text-ink-3 mt-0.5">{hint}</p>}
+        <p className="text-zinc-400 text-xs">{label}</p>
+        <p className={correct ? "text-sage-500" : "text-zinc-300"}>{correct ? <><Icon name="check" size={13} /> Correct</> : "Incorrect"}</p>
+        {hint && <p className="text-xs text-zinc-500 mt-0.5">{hint}</p>}
       </div>
-      <span className={correct ? "text-ok" : "text-danger"}>
+      <span className={correct ? "text-sage-500" : "text-red-400"}>
         {correct ? <Icon name="check" size={13} /> : <Icon name="cross" size={13} />}
       </span>
     </div>
@@ -361,17 +361,17 @@ function Result({
 function AiEvalDisplay({ result }: { result: EvalResult }) {
   const avg = Math.round((result.accuracyScore + result.clarityScore + result.completenessScore) / 3);
   return (
-    <div className="rounded-lg border border-edge p-4 space-y-4">
+    <div className="rounded-lg border border-white/10 p-4 space-y-4">
       <div className="flex items-center justify-between">
         <p className="font-medium">Sage Brain — AI evaluation</p>
         <span
           className={
             "text-xs px-2 py-0.5 rounded-full font-medium " +
             (result.recommendation === "Strong hire"
-              ? "bg-ok-wash text-ok"
+              ? "bg-sage-500/20 text-sage-500"
               : result.recommendation === "Potential hire"
-              ? "bg-warn-wash text-warn"
-              : "bg-danger-wash text-danger")
+              ? "bg-amber-500/20 text-amber-400"
+              : "bg-red-500/20 text-red-400")
           }
         >
           {result.recommendation}
@@ -385,20 +385,20 @@ function AiEvalDisplay({ result }: { result: EvalResult }) {
       </div>
 
       <div className="text-center">
-        <p className="text-3xl font-bold">{avg}<span className="text-lg text-ink-3">/10</span></p>
-        <p className="text-xs text-ink-3 mt-0.5">overall</p>
+        <p className="text-3xl font-bold">{avg}<span className="text-lg text-zinc-500">/10</span></p>
+        <p className="text-xs text-zinc-500 mt-0.5">overall</p>
       </div>
 
-      <p className="text-sm text-ink-2 border-t border-edge pt-3">{result.feedback}</p>
+      <p className="text-sm text-zinc-400 border-t border-white/10 pt-3">{result.feedback}</p>
     </div>
   );
 }
 
 function Score({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded border border-edge p-3 text-center">
+    <div className="rounded border border-white/10 p-3 text-center">
       <p className="text-2xl font-bold">{value}</p>
-      <p className="text-xs text-ink-3">{label}</p>
+      <p className="text-xs text-zinc-500">{label}</p>
     </div>
   );
 }

@@ -73,31 +73,31 @@ export function LateralMovementTechniquesClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Compare the Techniques" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">Three common lateral movement techniques and their artifacts:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{TECHNIQUES}</pre>
+        <p className="text-zinc-300 text-sm mb-3">Three common lateral movement techniques and their artifacts:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{TECHNIQUES}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">Which technique leaves the least obvious footprint by using a completely legitimate management protocol?</p>
+            <p className="text-sm text-zinc-300 font-medium">Which technique leaves the least obvious footprint by using a completely legitimate management protocol?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — WMI rides a legitimate management channel, leaving the stealthiest footprint. Flag: SAGE&#123;wm1_st34lth13st_l3g1t_pr0t0c0l&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — WMI rides a legitimate management channel, leaving the stealthiest footprint. Flag: SAGE&#123;wm1_st34lth13st_l3g1t_pr0t0c0l&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Detect PsExec" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-4">You want a detection rule specifically for PsExec-style movement.</p>
+        <p className="text-zinc-300 text-sm mb-4">You want a detection rule specifically for PsExec-style movement.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What's the single event log source most useful for catching this technique?</p>
+            <p className="text-sm text-zinc-300 font-medium">What's the single event log source most useful for catching this technique?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Service creation events (7045) showing a newly installed remote service, often named PSEXESVC",
@@ -107,25 +107,25 @@ export function LateralMovementTechniquesClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — Event ID 7045 (service creation), often named PSEXESVC, is the giveaway. Flag: SAGE&#123;s3rv1c3_cr34t10n_7045_psex3c&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — Event ID 7045 (service creation), often named PSEXESVC, is the giveaway. Flag: SAGE&#123;s3rv1c3_cr34t10n_7045_psex3c&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Detect Pass-the-Hash" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">Pass-the-Hash can be delivered by many different tools.</p>
+        <p className="text-zinc-300 text-sm mb-4">Pass-the-Hash can be delivered by many different tools.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What's a detection strategy that catches Pass-the-Hash regardless of which tool delivered it?</p>
+            <p className="text-sm text-zinc-300 font-medium">What's a detection strategy that catches Pass-the-Hash regardless of which tool delivered it?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Alert on NTLM authentication (logon type 3) for privileged accounts where no corresponding Kerberos ticket request exists",
@@ -135,17 +135,17 @@ export function LateralMovementTechniquesClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — NTLM logons for privileged accounts with no matching Kerberos request is a tool-agnostic PtH signal.
             Flag: SAGE&#123;ntlm_w1th0ut_k3rb3r0s_4l3rt&#125;
           </p>
@@ -153,12 +153,12 @@ export function LateralMovementTechniquesClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;wm1_st34lth13st_l3g1t_pr0t0c0l&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;s3rv1c3_cr34t10n_7045_psex3c&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;ntlm_w1th0ut_k3rb3r0s_4l3rt&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;wm1_st34lth13st_l3g1t_pr0t0c0l&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;s3rv1c3_cr34t10n_7045_psex3c&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;ntlm_w1th0ut_k3rb3r0s_4l3rt&#125;</span></li>
           </ul>
         </div>
       )}

@@ -83,13 +83,13 @@ export function PasswordSprayingClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Identify the Attack Pattern" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">Authentication logs for the corporate SSO portal show:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{AUTH_ATTEMPTS}</pre>
+        <p className="text-zinc-300 text-sm mb-3">Authentication logs for the corporate SSO portal show:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{AUTH_ATTEMPTS}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What technique is this?</p>
+            <p className="text-sm text-zinc-300 font-medium">What technique is this?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Credential stuffing (many username/password pairs from a breach)",
@@ -99,31 +99,31 @@ export function PasswordSprayingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — one common password (a seasonal guess) tried against 100 different usernames is password spraying. Flag: SAGE&#123;p4ssw0rd_spr4y_1d3nt1f13d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — one common password (a seasonal guess) tried against 100 different usernames is password spraying. Flag: SAGE&#123;p4ssw0rd_spr4y_1d3nt1f13d&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Understand the Evasion" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           Despite 100 failed attempts total, no account got locked out. Here&apos;s the lockout policy.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{LOCKOUT_POLICY}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{LOCKOUT_POLICY}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why didn&apos;t any account lock out?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why didn&apos;t any account lock out?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The lockout policy was disabled",
@@ -133,28 +133,28 @@ export function PasswordSprayingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — with a 5-attempt threshold per account and only 1 attempt per account, the attacker stays invisible to per-account lockout controls entirely. Flag: SAGE&#123;l0ck0ut_thr3sh0ld_3v4ded&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — with a 5-attempt threshold per account and only 1 attempt per account, the attacker stays invisible to per-account lockout controls entirely. Flag: SAGE&#123;l0ck0ut_thr3sh0ld_3v4ded&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Design the Detection" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">
+        <p className="text-zinc-300 text-sm mb-4">
           You&apos;re asked to write a detection rule for this attack pattern going forward.
         </p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What should the detection actually look for?</p>
+            <p className="text-sm text-zinc-300 font-medium">What should the detection actually look for?</p>
             <div className="flex flex-col gap-2">
               {[
                 "5+ failed logins on a single account within a short window",
@@ -164,17 +164,17 @@ export function PasswordSprayingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — spray detection needs to correlate failures ACROSS accounts within a time window, since
             per-account thresholds are exactly what this technique is built to slip under. Flag: SAGE&#123;cr0ss_4cc0unt_c0rr3l4t10n&#125;
           </p>
@@ -182,12 +182,12 @@ export function PasswordSprayingClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;p4ssw0rd_spr4y_1d3nt1f13d&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;l0ck0ut_thr3sh0ld_3v4ded&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;cr0ss_4cc0unt_c0rr3l4t10n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;p4ssw0rd_spr4y_1d3nt1f13d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;l0ck0ut_thr3sh0ld_3v4ded&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;cr0ss_4cc0unt_c0rr3l4t10n&#125;</span></li>
           </ul>
         </div>
       )}

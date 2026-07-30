@@ -31,11 +31,11 @@ export function JoinCompetitionBtn({ slug, label = "Join Competition" }: { slug:
       <button
         onClick={join}
         disabled={loading}
-        className="rounded-lg bg-accent-fill px-5 py-2.5 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition disabled:opacity-50"
+        className="rounded-lg bg-sage-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition disabled:opacity-50"
       >
         {loading ? "Joining…" : label}
       </button>
-      {error && <p className="text-xs text-danger">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   );
 }

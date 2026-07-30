@@ -32,7 +32,7 @@ export default async function TournamentsPage() {
   const tournaments = await listTournaments();
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
 
       <div className="mx-auto max-w-6xl px-6 py-8">
@@ -58,7 +58,7 @@ export default async function TournamentsPage() {
                   <div className="flex items-start justify-between gap-3">
                     <Link
                       href={`/tournaments/${t.slug}`}
-                      className="text-base font-semibold hover:text-ok"
+                      className="text-base font-semibold hover:text-emerald-400"
                     >
                       {t.name}
                     </Link>
@@ -66,10 +66,10 @@ export default async function TournamentsPage() {
                   </div>
 
                   {t.description && (
-                    <p className="line-clamp-2 text-sm text-ink-2">{t.description}</p>
+                    <p className="line-clamp-2 text-sm text-zinc-400">{t.description}</p>
                   )}
 
-                  <div className="flex flex-wrap gap-3 text-xs text-ink-3">
+                  <div className="flex flex-wrap gap-3 text-xs text-zinc-500">
                     <span className="flex items-center gap-1.5">
                       <Icon name={t.entrantType === "SQUAD" ? "users" : "user"} size={14} />
                       {t.entrantType === "SQUAD" ? "Squads" : "Solo"}
@@ -77,11 +77,11 @@ export default async function TournamentsPage() {
                     <span className="flex items-center gap-1.5">
                       <Icon name="leaderboard" size={14} />
                       {t._count.entrants} / {t.maxEntrants}
-                      {full && <span className="text-warn">full</span>}
+                      {full && <span className="text-amber-400">full</span>}
                     </span>
                   </div>
 
-                  <div className="mt-auto flex items-center gap-1.5 text-xs text-ink-3">
+                  <div className="mt-auto flex items-center gap-1.5 text-xs text-zinc-600">
                     <Icon name="clock" size={14} />
                     starts{" "}
                     {t.startsAt.toLocaleDateString("en-GB", {

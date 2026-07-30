@@ -86,14 +86,14 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
   if (result) {
     return (
       <div className="space-y-6">
-        <div className={`rounded-xl border p-6 text-center ${result.passed ? "border-ok-edge bg-ok-wash" : "border-danger-edge bg-danger-wash"}`}>
-          <p className={`text-4xl font-bold mb-1 ${result.passed ? "text-ok" : "text-danger"}`}>
+        <div className={`rounded-xl border p-6 text-center ${result.passed ? "border-sage-500/40 bg-sage-500/5" : "border-red-500/30 bg-red-500/5"}`}>
+          <p className={`text-4xl font-bold mb-1 ${result.passed ? "text-sage-400" : "text-red-400"}`}>
             {result.score}%
           </p>
-          <p className="text-ink-2 text-sm mb-2">
+          <p className="text-zinc-400 text-sm mb-2">
             {result.correct} / {result.total} correct · Pass mark {quiz.passMark}%
           </p>
-          <p className={`text-sm font-semibold ${result.passed ? "text-ok" : "text-danger"}`}>
+          <p className={`text-sm font-semibold ${result.passed ? "text-sage-400" : "text-red-400"}`}>
             {result.passed ? <><Icon name="check" size={12} /> Passed</> : "Not passed — review the material and try again"}
           </p>
         </div>
@@ -103,13 +103,13 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
             const fb = result.answers[q.id];
             if (!fb) return null;
             return (
-              <div key={q.id} className={`rounded-xl border p-4 ${fb.correct ? "border-ok-edge" : "border-danger-edge"}`}>
+              <div key={q.id} className={`rounded-xl border p-4 ${fb.correct ? "border-sage-500/30" : "border-red-500/30"}`}>
                 <p className="text-sm font-medium mb-1">{q.question}</p>
-                <p className={`text-xs ${fb.correct ? "text-ok" : "text-danger"}`}>
+                <p className={`text-xs ${fb.correct ? "text-sage-400" : "text-red-400"}`}>
                   {fb.correct ? "Correct" : "Incorrect"}
                 </p>
                 {fb.explanation && (
-                  <p className="text-xs text-ink-2 mt-2 pt-2 border-t border-edge">{fb.explanation}</p>
+                  <p className="text-xs text-zinc-400 mt-2 pt-2 border-t border-white/8">{fb.explanation}</p>
                 )}
               </div>
             );
@@ -119,7 +119,7 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
         {!result.passed && (
           <button
             onClick={() => { setResult(null); setAnswers({}); }}
-            className="w-full rounded-lg border border-edge px-4 py-3 text-sm font-semibold text-ink-2 hover:border-ok-edge hover:text-ok transition"
+            className="w-full rounded-lg border border-white/10 px-4 py-3 text-sm font-semibold text-zinc-300 hover:border-sage-500/40 hover:text-sage-500 transition"
           >
             Try Again
           </button>
@@ -131,21 +131,21 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
   return (
     <div className="space-y-6">
       {priorAttempt && (
-        <div className={`rounded-xl border p-4 text-sm ${priorAttempt.passed ? "border-ok-edge bg-ok-wash text-ok" : "border-edge text-ink-2"}`}>
+        <div className={`rounded-xl border p-4 text-sm ${priorAttempt.passed ? "border-sage-500/30 bg-sage-500/5 text-sage-400" : "border-white/8 text-zinc-400"}`}>
           Previous attempt: {priorAttempt.score}% — {priorAttempt.passed ? <><Icon name="check" size={12} /> Passed</> : "Not passed"}
         </div>
       )}
 
       <div>
         <h3 className="text-lg font-semibold mb-1">{quiz.title}</h3>
-        {quiz.description && <p className="text-sm text-ink-2 mb-6">{quiz.description}</p>}
+        {quiz.description && <p className="text-sm text-zinc-400 mb-6">{quiz.description}</p>}
       </div>
 
       <div className="space-y-8">
         {quiz.questions.map((q, idx) => (
           <div key={q.id}>
             <p className="text-sm font-medium mb-3">
-              <span className="text-ink-3 mr-2">{idx + 1}.</span>
+              <span className="text-zinc-500 mr-2">{idx + 1}.</span>
               {q.question}
             </p>
 
@@ -161,7 +161,7 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
                       onChange={() => setAnswer(q.id, opt)}
                       className="accent-sage-500"
                     />
-                    <span className="text-sm text-ink-2 group-hover:text-white transition">{opt}</span>
+                    <span className="text-sm text-zinc-300 group-hover:text-white transition">{opt}</span>
                   </label>
                 ))}
               </div>
@@ -179,7 +179,7 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
                       onChange={() => setAnswer(q.id, opt.toLowerCase())}
                       className="accent-sage-500"
                     />
-                    <span className="text-sm text-ink-2 group-hover:text-white transition">{opt}</span>
+                    <span className="text-sm text-zinc-300 group-hover:text-white transition">{opt}</span>
                   </label>
                 ))}
               </div>
@@ -187,7 +187,7 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
 
             {q.type === "MULTIPLE_SELECT" && q.options && (
               <div className="space-y-2">
-                <p className="text-xs text-ink-3 mb-1">Select all that apply</p>
+                <p className="text-xs text-zinc-500 mb-1">Select all that apply</p>
                 {q.options.map((opt) => {
                   const selected = ((answers[q.id] as string[]) ?? []).includes(opt);
                   return (
@@ -198,7 +198,7 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
                         onChange={() => toggleMultiSelect(q.id, opt)}
                         className="accent-sage-500"
                       />
-                      <span className="text-sm text-ink-2 group-hover:text-white transition">{opt}</span>
+                      <span className="text-sm text-zinc-300 group-hover:text-white transition">{opt}</span>
                     </label>
                   );
                 })}
@@ -211,7 +211,7 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
                 onChange={(e) => setAnswer(q.id, e.target.value)}
                 rows={4}
                 placeholder="Write your answer..."
-                className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge resize-none"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/50 resize-none"
               />
             )}
           </div>
@@ -219,13 +219,13 @@ export function QuizSection({ moduleId, quiz, priorAttempt }: Props) {
       </div>
 
       {error && (
-        <p className="text-sm text-danger rounded-lg border border-danger-edge bg-danger-wash px-4 py-3">{error}</p>
+        <p className="text-sm text-red-400 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3">{error}</p>
       )}
 
       <button
         onClick={submit}
         disabled={loading}
-        className="w-full rounded-lg bg-ok px-4 py-3 text-sm font-semibold text-surface-0 hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition"
+        className="w-full rounded-lg bg-sage-500 px-4 py-3 text-sm font-semibold text-zinc-950 hover:bg-sage-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
       >
         {loading ? "Submitting…" : "Submit Quiz"}
       </button>

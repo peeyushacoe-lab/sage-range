@@ -14,14 +14,14 @@ export default async function MitrePage() {
   const coverage = await computeMitreCoverage(me.id);
 
   return (
-    <div className="min-h-screen bg-surface-0 text-white">
+    <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">MITRE ATT&CK Framework</p>
+            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">MITRE ATT&CK Framework</p>
             <h1 className="text-2xl font-bold">Kill Chain Coverage</h1>
-            <p className="text-sm text-ink-3 mt-1">Your coverage across 14 Enterprise tactics</p>
+            <p className="text-sm text-zinc-500 mt-1">Your coverage across 14 Enterprise tactics</p>
           </div>
           <MitreCoverageHeader coverage={coverage} />
         </div>

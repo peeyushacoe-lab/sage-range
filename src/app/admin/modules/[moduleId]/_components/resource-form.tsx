@@ -40,29 +40,29 @@ export function ResourceForm({ moduleId, nextOrder }: Props) {
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="text-xs text-ink-3 hover:text-ok border border-dashed border-edge hover:border-ok-edge rounded-lg px-4 py-2.5 transition w-full text-left">
+      <button onClick={() => setOpen(true)} className="text-xs text-zinc-500 hover:text-emerald-400 border border-dashed border-white/10 hover:border-emerald-500/30 rounded-lg px-4 py-2.5 transition w-full text-left">
         + Add resource
       </button>
     );
   }
 
   return (
-    <div className="rounded-xl border border-edge bg-white/2 p-4 space-y-3">
+    <div className="rounded-xl border border-white/10 bg-white/2 p-4 space-y-3">
       <div className="flex flex-wrap gap-1.5">
         {TYPES.map((t) => (
-          <button key={t} onClick={() => setType(t)} className={`rounded px-2.5 py-1 text-xs font-medium transition ${type === t ? "bg-ok-wash border border-ok-edge text-ok" : "border border-edge text-ink-3 hover:text-ink-2"}`}>
+          <button key={t} onClick={() => setType(t)} className={`rounded px-2.5 py-1 text-xs font-medium transition ${type === t ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-400" : "border border-white/10 text-zinc-500 hover:text-zinc-300"}`}>
             {t}
           </button>
         ))}
       </div>
-      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Resource title" className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge" />
-      <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge" />
-      {error && <p className="text-xs text-danger">{error}</p>}
+      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Resource title" className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
+      <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
+      {error && <p className="text-xs text-red-400">{error}</p>}
       <div className="flex gap-2">
-        <button onClick={submit} disabled={loading} className="rounded-lg bg-ok-wash border border-ok-edge px-3 py-1.5 text-xs font-semibold text-ok hover:bg-ok-wash disabled:opacity-50 transition">
+        <button onClick={submit} disabled={loading} className="rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/25 disabled:opacity-50 transition">
           {loading ? "Adding…" : "Add Resource"}
         </button>
-        <button onClick={() => { setOpen(false); setError(null); }} className="rounded-lg border border-edge px-3 py-1.5 text-xs text-ink-3 hover:text-ink-2 transition">
+        <button onClick={() => { setOpen(false); setError(null); }} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition">
           Cancel
         </button>
       </div>

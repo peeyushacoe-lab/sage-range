@@ -30,9 +30,9 @@ const ROLES: Array<{
       "Shareable performance certificates",
       "Recruiter-visible score profile",
     ],
-    color: "text-ok",
-    border: "border-ok-edge hover:border-ok-edge",
-    badge: "bg-ok-wash text-ok border-ok-edge",
+    color: "text-sage-400",
+    border: "border-sage-500/40 hover:border-sage-500",
+    badge: "bg-sage-500/10 text-sage-400 border-sage-500/30",
   },
   {
     id: "INSTRUCTOR",
@@ -47,9 +47,9 @@ const ROLES: Array<{
       "Class-wide MITRE coverage analytics",
       "Curriculum gap recommendations",
     ],
-    color: "text-info",
-    border: "border-info-edge hover:border-info-edge",
-    badge: "bg-info-wash text-info border-info-edge",
+    color: "text-blue-400",
+    border: "border-blue-500/40 hover:border-blue-500",
+    badge: "bg-blue-500/10 text-blue-400 border-blue-500/30",
   },
   {
     id: "RECRUITER",
@@ -64,9 +64,9 @@ const ROLES: Array<{
       "Decision speed and response quality metrics",
       "Candidate bookmarking and job postings",
     ],
-    color: "text-warn",
-    border: "border-warn-edge hover:border-warn-edge",
-    badge: "bg-warn-wash text-warn border-warn-edge",
+    color: "text-amber-400",
+    border: "border-amber-500/40 hover:border-amber-500",
+    badge: "bg-amber-500/10 text-amber-400 border-amber-500/30",
   },
 ];
 
@@ -103,13 +103,13 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-surface-0 flex flex-col items-center justify-center px-4 py-12">
+    <main className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-4xl">
         {/* Header */}
         <div className="text-center mb-10">
-          <p className="text-xs uppercase tracking-widest text-ink-3 font-semibold mb-3">Welcome to Sage Vault</p>
+          <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-3">Welcome to Sage Vault</p>
           <h1 className="text-3xl font-bold text-white mb-3">How will you use the platform?</h1>
-          <p className="text-ink-2 text-sm max-w-lg mx-auto leading-relaxed">
+          <p className="text-zinc-400 text-sm max-w-lg mx-auto leading-relaxed">
             Choose your role so we can personalise your experience. You can change this any time in settings.
           </p>
         </div>
@@ -120,17 +120,17 @@ export default function OnboardingPage() {
             <button
               key={r.id}
               onClick={() => setSelected(r.id)}
-              className={`text-left rounded-xl border p-5 transition-all ${selected === r.id ? r.border + " bg-surface-2 ring-1 ring-white/10" : "border-edge hover:border-edge-strong"}`}
+              className={`text-left rounded-xl border p-5 transition-all ${selected === r.id ? r.border + " bg-white/5 ring-1 ring-white/10" : "border-white/10 hover:border-white/20"}`}
             >
               <span className={`inline-block text-xs font-bold uppercase tracking-widest border rounded px-2 py-0.5 mb-3 ${r.badge}`}>
                 {r.title}
               </span>
-              <p className="text-sm text-ink-2 font-medium mb-1">{r.subtitle}</p>
-              <p className="text-xs text-ink-3 leading-relaxed mb-4">{r.description}</p>
+              <p className="text-sm text-zinc-300 font-medium mb-1">{r.subtitle}</p>
+              <p className="text-xs text-zinc-500 leading-relaxed mb-4">{r.description}</p>
               <ul className="space-y-1.5">
                 {r.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-xs text-ink-2">
-                    <span className={`mt-0.5 shrink-0 w-1 h-1 rounded-full ${selected === r.id ? r.color.replace("text-", "bg-") : "bg-surface-3"}`} />
+                  <li key={f} className="flex items-start gap-2 text-xs text-zinc-400">
+                    <span className={`mt-0.5 shrink-0 w-1 h-1 rounded-full ${selected === r.id ? r.color.replace("text-", "bg-") : "bg-zinc-600"}`} />
                     {f}
                   </li>
                 ))}
@@ -146,22 +146,22 @@ export default function OnboardingPage() {
 
         {/* Name input + continue */}
         <div className="max-w-sm mx-auto">
-          <label className="block text-xs text-ink-3 uppercase tracking-wider mb-1.5">Display Name</label>
+          <label className="block text-xs text-zinc-500 uppercase tracking-wider mb-1.5">Display Name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="How should we address you?"
-            className="w-full rounded-lg border border-edge bg-surface-1 px-4 py-2.5 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge mb-4"
+            className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60 mb-4"
           />
-          {error && <p className="text-xs text-danger mb-3">{error}</p>}
+          {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
           <button
             onClick={handleContinue}
             disabled={!selected || saving}
-            className="w-full rounded-lg bg-accent-fill px-6 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition"
+            className="w-full rounded-lg bg-sage-500 px-6 py-3 text-sm font-bold text-black hover:bg-sage-400 disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
             {saving ? "Setting up your account…" : "Continue →"}
           </button>
-          <p className="text-xs text-ink-3 text-center mt-3">
+          <p className="text-xs text-zinc-600 text-center mt-3">
             You can switch roles anytime from your profile settings.
           </p>
         </div>

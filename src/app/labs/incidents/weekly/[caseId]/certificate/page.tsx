@@ -53,7 +53,7 @@ export default async function CertificatePage({
   const { earned, certificate } = certData;
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar
         backHref={`/labs/incidents/weekly/${caseId}`}
         backLabel="Back to Case"
@@ -96,14 +96,14 @@ export default async function CertificatePage({
             </div>
 
             {/* Info box */}
-            <div className="rounded-lg border border-edge bg-surface-1 p-6">
+            <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-6">
               <div className="flex gap-3">
-                <Icon name="info" size={20} className="text-ink-3 shrink-0 mt-0.5" />
+                <Icon name="info" size={20} className="text-zinc-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-ink mb-2">
+                  <p className="text-sm font-semibold text-zinc-100 mb-2">
                     What&apos;s Next?
                   </p>
-                  <ul className="text-xs text-ink-2 space-y-1">
+                  <ul className="text-xs text-zinc-400 space-y-1">
                     <li>• Add this certificate to your LinkedIn profile</li>
                     <li>
                       • Your ranking appears on the public leaderboard for this week
@@ -121,7 +121,7 @@ export default async function CertificatePage({
             <div className="mt-8">
               <Link
                 href={`/labs/incidents/weekly/${caseId}`}
-                className="block w-full text-center px-6 py-3 rounded-lg bg-accent-fill text-white font-semibold hover:bg-ok-wash transition"
+                className="block w-full text-center px-6 py-3 rounded-lg bg-sage-500 text-black font-semibold hover:bg-sage-600 transition"
               >
                 Back to Case
               </Link>
@@ -138,17 +138,17 @@ export default async function CertificatePage({
             />
 
             {/* Empty state */}
-            <div className="rounded-xl border-2 border-warn-edge bg-warn-wash p-12 text-center mb-8">
+            <div className="rounded-xl border-2 border-amber-500/20 bg-amber-500/5 p-12 text-center mb-8">
               <div className="flex justify-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-warn-wash border-2 border-warn-edge flex items-center justify-center">
-                  <Icon name="lock" size={32} className="text-warn/60" />
+                <div className="w-16 h-16 rounded-full bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center">
+                  <Icon name="lock" size={32} className="text-amber-400/60" />
                 </div>
               </div>
 
               <p className="text-lg font-semibold text-white mb-2">
                 Certificate Locked
               </p>
-              <p className="text-sm text-ink-2 mb-6 max-w-sm mx-auto">
+              <p className="text-sm text-zinc-400 mb-6 max-w-sm mx-auto">
                 You haven&apos;t completed this week&apos;s incident challenge yet. Start
                 the investigation, submit your evidence board categorization,
                 and write your executive report to unlock your certificate.
@@ -156,39 +156,39 @@ export default async function CertificatePage({
 
               <Link
                 href={`/labs/incidents/weekly/${caseId}`}
-                className="inline-block px-6 py-3 rounded-lg bg-accent-fill text-white font-semibold hover:bg-ok-wash transition"
+                className="inline-block px-6 py-3 rounded-lg bg-sage-500 text-black font-semibold hover:bg-sage-600 transition"
               >
                 Start Investigation →
               </Link>
             </div>
 
             {/* Requirements */}
-            <div className="rounded-lg border border-edge bg-surface-1 p-6 mb-8">
+            <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-6 mb-8">
               <p className="text-sm font-semibold text-white mb-4">
                 Requirements to Earn Certificate
               </p>
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded border border-edge-strong flex items-center justify-center">
-                    <Icon name="check" size={12} className="text-ink-3" />
+                  <div className="w-4 h-4 rounded border border-white/20 flex items-center justify-center">
+                    <Icon name="check" size={12} className="text-zinc-500" />
                   </div>
-                  <span className="text-ink-2">
+                  <span className="text-zinc-400">
                     Complete the evidence board categorization
                   </span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded border border-edge-strong flex items-center justify-center">
-                    <Icon name="check" size={12} className="text-ink-3" />
+                  <div className="w-4 h-4 rounded border border-white/20 flex items-center justify-center">
+                    <Icon name="check" size={12} className="text-zinc-500" />
                   </div>
-                  <span className="text-ink-2">
+                  <span className="text-zinc-400">
                     Write and submit your executive report
                   </span>
                 </li>
                 <li className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded border border-edge-strong flex items-center justify-center">
-                    <Icon name="check" size={12} className="text-ink-3" />
+                  <div className="w-4 h-4 rounded border border-white/20 flex items-center justify-center">
+                    <Icon name="check" size={12} className="text-zinc-500" />
                   </div>
-                  <span className="text-ink-2">
+                  <span className="text-zinc-400">
                     Submit before Sunday 23:59 UTC
                   </span>
                 </li>
@@ -196,14 +196,14 @@ export default async function CertificatePage({
             </div>
 
             {/* Info box */}
-            <div className="rounded-lg border border-edge bg-surface-1 p-6">
+            <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-6">
               <div className="flex gap-3">
-                <Icon name="info" size={20} className="text-ink-3 shrink-0 mt-0.5" />
+                <Icon name="info" size={20} className="text-zinc-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-ink mb-2">
+                  <p className="text-sm font-semibold text-zinc-100 mb-2">
                     Deadline Information
                   </p>
-                  <p className="text-xs text-ink-2">
+                  <p className="text-xs text-zinc-400">
                     Each weekly case is available from Monday 00:00 UTC through
                     Sunday 23:59 UTC. After the deadline, the case is archived
                     but you can still review it for learning purposes.

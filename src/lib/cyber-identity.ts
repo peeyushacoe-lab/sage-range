@@ -66,7 +66,7 @@ export function computeRoleBadge(solvedLabTypes: string[]): RoleBadge {
   const total = solvedLabTypes.length;
 
   if (total === 0) {
-    return { label: "Explorer", icon: "compass", color: "text-ink-3" };
+    return { label: "Explorer", icon: "compass", color: "text-zinc-500" };
   }
 
   const ctf  = solvedLabTypes.filter((t) => t === "CTF").length;
@@ -75,16 +75,16 @@ export function computeRoleBadge(solvedLabTypes: string[]): RoleBadge {
 
   // Full Spectrum: 6+ labs in EACH of the 3 types
   if (ctf >= 6 && blue >= 6 && red >= 6) {
-    return { label: "Full Spectrum", icon: "simulations", color: "text-accent" };
+    return { label: "Full Spectrum", icon: "simulations", color: "text-purple-400" };
   }
 
   // >60% dominance
-  if (ctf / total > 0.6)  return { label: "CTF Specialist", icon: "challenges", color: "text-warn" };
-  if (red / total > 0.6)  return { label: "Red Team",       icon: "redTeam",  color: "text-danger"  };
-  if (blue / total > 0.6) return { label: "Blue Team",      icon: "blueTeam",  color: "text-info" };
+  if (ctf / total > 0.6)  return { label: "CTF Specialist", icon: "challenges", color: "text-amber-400" };
+  if (red / total > 0.6)  return { label: "Red Team",       icon: "redTeam",  color: "text-red-400"  };
+  if (blue / total > 0.6) return { label: "Blue Team",      icon: "blueTeam",  color: "text-blue-400" };
 
   // No dominant type
-  return { label: "Explorer", icon: "compass", color: "text-ink-2" };
+  return { label: "Explorer", icon: "compass", color: "text-zinc-400" };
 }
 
 // ── Skill Emblems ──────────────────────────────────────────────────────────────

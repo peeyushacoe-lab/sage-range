@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 
 import { Icon } from "@/components/ui/icon";
 const PERSONAS = [
-  { id: "ransomware_gang",  label: "Ransomware Gang",    color: "text-danger",    badge: "border-danger-edge bg-danger-wash text-danger" },
-  { id: "nation_state_apt", label: "Nation-State APT",   color: "text-accent", badge: "border-accent-edge bg-accent-wash text-accent" },
-  { id: "insider",          label: "Malicious Insider",  color: "text-warn",  badge: "border-warn-edge bg-warn-wash text-warn" },
+  { id: "ransomware_gang",  label: "Ransomware Gang",    color: "text-red-400",    badge: "border-red-500/40 bg-red-500/8 text-red-400" },
+  { id: "nation_state_apt", label: "Nation-State APT",   color: "text-purple-400", badge: "border-purple-500/40 bg-purple-500/8 text-purple-400" },
+  { id: "insider",          label: "Malicious Insider",  color: "text-amber-400",  badge: "border-amber-500/40 bg-amber-500/8 text-amber-400" },
   { id: "hacktivist",       label: "Hacktivist",         color: "text-cyan-400",   badge: "border-cyan-500/40 bg-cyan-500/8 text-cyan-400" },
-  { id: "cybercriminal",    label: "Cybercriminal",      color: "text-sev-high", badge: "border-sev-high-edge bg-sev-high-wash text-sev-high" },
+  { id: "cybercriminal",    label: "Cybercriminal",      color: "text-orange-400", badge: "border-orange-500/40 bg-orange-500/8 text-orange-400" },
 ];
 
 const ARCHETYPES = [
@@ -30,16 +30,16 @@ const TEMPLATES = [
 ];
 
 const DIFFICULTY_STYLES: Record<string, string> = {
-  EASY:   "border-ok-edge text-ok",
-  MEDIUM: "border-warn-edge text-warn",
-  HARD:   "border-sev-high-edge text-sev-high",
-  INSANE: "border-danger-edge text-danger",
+  EASY:   "border-sage-500/40 text-sage-400",
+  MEDIUM: "border-amber-400/40 text-amber-400",
+  HARD:   "border-orange-400/40 text-orange-400",
+  INSANE: "border-red-400/40 text-red-400",
 };
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-semibold text-ink-2 uppercase tracking-wider">{label}</label>
+      <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider">{label}</label>
       {children}
     </div>
   );
@@ -49,7 +49,7 @@ function Input({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full bg-surface-1 border border-edge rounded-lg px-3 py-2 text-sm text-ink placeholder-ink-3 focus:outline-none focus:border-ok-edge focus:ring-1 focus:ring-ok"
+      className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-sage-500/50 focus:ring-1 focus:ring-sage-500/30"
     />
   );
 }
@@ -58,7 +58,7 @@ function Textarea({ ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement
   return (
     <textarea
       {...props}
-      className="w-full bg-surface-1 border border-edge rounded-lg px-3 py-2 text-sm text-ink placeholder-ink-3 focus:outline-none focus:border-ok-edge focus:ring-1 focus:ring-ok resize-none"
+      className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-sage-500/50 focus:ring-1 focus:ring-sage-500/30 resize-none"
     />
   );
 }
@@ -151,8 +151,8 @@ export function ScenarioForm() {
     <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
       {/* Left — form */}
       <div className="space-y-6">
-        {error && <div className="rounded-lg border border-danger-edge bg-danger-wash px-4 py-3 text-sm text-danger">{error}</div>}
-        {success && <div className="rounded-lg border border-ok-edge bg-ok-wash px-4 py-3 text-sm text-ok">{success}</div>}
+        {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{error}</div>}
+        {success && <div className="rounded-lg border border-sage-500/30 bg-sage-500/10 px-4 py-3 text-sm text-sage-400">{success}</div>}
 
         <Field label="Scenario Title">
           <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Operation Nightfall" maxLength={120} required />
@@ -170,7 +170,7 @@ export function ScenarioForm() {
             rows={4}
             required
           />
-          <p className="text-[11px] text-ink-3">{briefing.length} chars (min 20)</p>
+          <p className="text-[11px] text-zinc-600">{briefing.length} chars (min 20)</p>
         </Field>
 
         {/* Difficulty + Duration */}
@@ -179,7 +179,7 @@ export function ScenarioForm() {
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value as typeof difficulty)}
-              className="w-full bg-surface-1 border border-edge rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
+              className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-sage-500/50"
             >
               {["EASY", "MEDIUM", "HARD", "INSANE"].map((d) => (
                 <option key={d} value={d}>{d}</option>
@@ -207,10 +207,10 @@ export function ScenarioForm() {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border text-left text-sm transition-colors ${
                   personaId === p.id
                     ? `${p.badge} border-opacity-60`
-                    : "border-edge text-ink-3 hover:border-edge-strong hover:text-ink-2"
+                    : "border-white/8 text-zinc-500 hover:border-white/15 hover:text-zinc-300"
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full ${personaId === p.id ? p.color.replace("text-", "bg-") : "bg-surface-3"}`} />
+                <span className={`w-2 h-2 rounded-full ${personaId === p.id ? p.color.replace("text-", "bg-") : "bg-zinc-700"}`} />
                 {p.label}
               </button>
             ))}
@@ -227,8 +227,8 @@ export function ScenarioForm() {
                 onClick={() => setArchetypeId(a.id)}
                 className={`px-3 py-2 rounded-lg border text-xs font-medium text-left transition-colors ${
                   archetypeId === a.id
-                    ? "border-ok-edge bg-ok-wash text-ok"
-                    : "border-edge text-ink-3 hover:border-edge-strong hover:text-ink-2"
+                    ? "border-sage-500/40 bg-sage-500/10 text-sage-400"
+                    : "border-white/8 text-zinc-500 hover:border-white/15 hover:text-zinc-300"
                 }`}
               >
                 {a.label}
@@ -239,7 +239,7 @@ export function ScenarioForm() {
 
         {/* Template */}
         <Field label="Simulation Engine Template">
-          <p className="text-xs text-ink-3 mb-2">The template drives the AI mechanics — your narrative wraps around it.</p>
+          <p className="text-xs text-zinc-600 mb-2">The template drives the AI mechanics — your narrative wraps around it.</p>
           <div className="space-y-2">
             {TEMPLATES.map((t) => (
               <button
@@ -248,8 +248,8 @@ export function ScenarioForm() {
                 onClick={() => setTemplateSlug(t.slug)}
                 className={`w-full text-left px-3 py-2.5 rounded-lg border text-sm transition-colors ${
                   templateSlug === t.slug
-                    ? "border-info-edge bg-info-wash text-info"
-                    : "border-edge text-ink-3 hover:border-edge-strong hover:text-ink-2"
+                    ? "border-blue-500/40 bg-blue-500/8 text-blue-300"
+                    : "border-white/8 text-zinc-500 hover:border-white/15 hover:text-zinc-300"
                 }`}
               >
                 <span className="font-medium">{t.label}</span>
@@ -273,7 +273,7 @@ export function ScenarioForm() {
                   <button
                     type="button"
                     onClick={() => removeObjective(i)}
-                    className="shrink-0 px-2 text-ink-3 hover:text-danger transition-colors"
+                    className="shrink-0 px-2 text-zinc-600 hover:text-red-400 transition-colors"
                     aria-label="Remove"
                   >
                     <Icon name="close" size={14} className="inline-block shrink-0" />
@@ -285,7 +285,7 @@ export function ScenarioForm() {
               <button
                 type="button"
                 onClick={addObjective}
-                className="text-xs text-ink-3 hover:text-ok transition-colors"
+                className="text-xs text-zinc-500 hover:text-sage-400 transition-colors"
               >
                 + Add objective
               </button>
@@ -297,9 +297,9 @@ export function ScenarioForm() {
         <Field label="Tags (optional)">
           <div className="flex gap-2 flex-wrap mb-2">
             {tags.map((t) => (
-              <span key={t} className="flex items-center gap-1 text-xs border border-edge rounded px-2 py-0.5 text-ink-2">
+              <span key={t} className="flex items-center gap-1 text-xs border border-white/10 rounded px-2 py-0.5 text-zinc-400">
                 {t}
-                <button type="button" onClick={() => removeTag(t)} className="text-ink-3 hover:text-danger"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
+                <button type="button" onClick={() => removeTag(t)} className="text-zinc-600 hover:text-red-400"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
               </span>
             ))}
           </div>
@@ -310,7 +310,7 @@ export function ScenarioForm() {
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(tagInput); } }}
               placeholder="phishing, healthcare…  (Enter to add)"
             />
-            <button type="button" onClick={() => addTag(tagInput)} className="shrink-0 px-3 py-2 text-xs border border-edge rounded-lg text-ink-2 hover:text-ink hover:border-edge-strong">
+            <button type="button" onClick={() => addTag(tagInput)} className="shrink-0 px-3 py-2 text-xs border border-white/10 rounded-lg text-zinc-400 hover:text-zinc-200 hover:border-white/20">
               Add
             </button>
           </div>
@@ -330,17 +330,17 @@ export function ScenarioForm() {
         <label className="flex items-center gap-3 cursor-pointer select-none">
           <div
             onClick={() => setPublishNow(!publishNow)}
-            className={`relative w-10 h-5 rounded-full transition-colors ${publishNow ? "bg-ok" : "bg-surface-3"}`}
+            className={`relative w-10 h-5 rounded-full transition-colors ${publishNow ? "bg-sage-500" : "bg-zinc-700"}`}
           >
             <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${publishNow ? "translate-x-5" : ""}`} />
           </div>
-          <span className="text-sm text-ink-2">Publish immediately (students can deploy it)</span>
+          <span className="text-sm text-zinc-300">Publish immediately (students can deploy it)</span>
         </label>
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full rounded-lg bg-accent-fill px-6 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          className="w-full rounded-lg bg-sage-500 px-6 py-3 text-sm font-bold text-black hover:bg-sage-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
           {saving ? "Saving…" : publishNow ? "Save & Publish Scenario" : "Save as Draft"}
         </button>
@@ -348,8 +348,8 @@ export function ScenarioForm() {
 
       {/* Right — live preview */}
       <div className="sticky top-6">
-        <p className="text-[10px] uppercase tracking-widest text-ink-3 font-semibold mb-3">Live Preview</p>
-        <div className="rounded-xl border border-edge bg-surface-1 p-5 space-y-3">
+        <p className="text-[10px] uppercase tracking-widest text-zinc-600 font-semibold mb-3">Live Preview</p>
+        <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-5 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`text-[10px] font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${selectedPersona.badge}`}>
               {selectedPersona.label}
@@ -357,22 +357,22 @@ export function ScenarioForm() {
             <span className={`text-xs font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${DIFFICULTY_STYLES[difficulty]}`}>
               {difficulty}
             </span>
-            <span className="text-xs text-ink-3">{estimatedMinutes} min</span>
+            <span className="text-xs text-zinc-600">{estimatedMinutes} min</span>
             {realWorldAnalogue && (
-              <span className="ml-auto text-[10px] text-ink-3 font-mono italic">↗ {realWorldAnalogue}</span>
+              <span className="ml-auto text-[10px] text-zinc-600 font-mono italic">↗ {realWorldAnalogue}</span>
             )}
           </div>
 
-          <h3 className="text-lg font-bold text-white">{title || <span className="text-ink-3 italic">Scenario Title</span>}</h3>
-          <p className={`text-xs font-medium ${selectedPersona.color}`}>{subtitle || <span className="text-ink-3 italic">Subtitle</span>}</p>
-          <p className="text-ink-2 text-sm leading-relaxed">{briefing || <span className="text-ink-3 italic">Briefing will appear here…</span>}</p>
+          <h3 className="text-lg font-bold text-white">{title || <span className="text-zinc-700 italic">Scenario Title</span>}</h3>
+          <p className={`text-xs font-medium ${selectedPersona.color}`}>{subtitle || <span className="text-zinc-700 italic">Subtitle</span>}</p>
+          <p className="text-zinc-400 text-sm leading-relaxed">{briefing || <span className="text-zinc-700 italic">Briefing will appear here…</span>}</p>
 
           {objectives.filter((o) => o.trim().length >= 5).length > 0 && (
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-1.5">Learning Objectives</p>
+              <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-1.5">Learning Objectives</p>
               <ul className="space-y-0.5">
                 {objectives.filter((o) => o.trim()).map((o, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-ink-2">
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-400">
                     <span className={`mt-0.5 shrink-0 w-1 h-1 rounded-full ${selectedPersona.color.replace("text-", "bg-")}`} />
                     {o}
                   </li>
@@ -381,9 +381,9 @@ export function ScenarioForm() {
             </div>
           )}
 
-          <div className="pt-2 border-t border-edge-subtle">
-            <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-1">Engine</p>
-            <p className="text-xs text-ink-3">
+          <div className="pt-2 border-t border-white/6">
+            <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-1">Engine</p>
+            <p className="text-xs text-zinc-500">
               {selectedTemplate.label} — {selectedTemplate.stages.join(" → ")}
             </p>
           </div>
@@ -391,7 +391,7 @@ export function ScenarioForm() {
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-1 pt-1">
               {tags.map((t) => (
-                <span key={t} className="text-[10px] border border-edge rounded px-1.5 py-0.5 text-ink-3">{t}</span>
+                <span key={t} className="text-[10px] border border-white/8 rounded px-1.5 py-0.5 text-zinc-600">{t}</span>
               ))}
             </div>
           )}

@@ -26,8 +26,8 @@ export function ModulePublishToggle({ moduleId, published }: Props) {
       disabled={loading}
       className={`rounded-lg border px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${
         published
-          ? "border-ok-edge text-ok hover:bg-danger-wash hover:border-danger-edge hover:text-danger"
-          : "border-edge text-ink-3 hover:border-ok-edge hover:text-ok"
+          ? "border-emerald-500/30 text-emerald-400 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
+          : "border-white/10 text-zinc-500 hover:border-emerald-500/30 hover:text-emerald-400"
       }`}
     >
       {loading ? "…" : published ? "Published" : "Publish"}

@@ -23,10 +23,10 @@ interface TicketQueueListProps {
 }
 
 const SEVERITY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  CRITICAL: { bg: 'bg-danger-wash', text: 'text-danger', border: 'border-danger-edge' },
-  HIGH: { bg: 'bg-sev-high-wash', text: 'text-sev-high', border: 'border-sev-high-edge' },
-  MEDIUM: { bg: 'bg-warn-wash', text: 'text-warn', border: 'border-warn-edge' },
-  LOW: { bg: 'bg-info-wash', text: 'text-info', border: 'border-info-edge' },
+  CRITICAL: { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/30' },
+  HIGH: { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/30' },
+  MEDIUM: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/30' },
+  LOW: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/30' },
 };
 
 export function TicketQueueList({
@@ -44,7 +44,7 @@ export function TicketQueueList({
         <CardContent>
           <div className="space-y-2 animate-pulse">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-16 bg-surface-2 rounded" />
+              <div key={i} className="h-16 bg-zinc-800 rounded" />
             ))}
           </div>
         </CardContent>
@@ -59,7 +59,7 @@ export function TicketQueueList({
           <CardTitle>Ticket Queue</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-ink-3 text-center py-8">
+          <p className="text-sm text-zinc-500 text-center py-8">
             No tickets in queue
           </p>
         </CardContent>
@@ -85,15 +85,15 @@ export function TicketQueueList({
                 key={ticket.id}
                 onClick={() => onSelect?.(ticket.id)}
                 className={cn(
-                  'w-full px-5 py-3.5 border-t border-edge-subtle text-left hover:bg-surface-1 transition-colors',
-                  isSelected && 'bg-ok-wash border-l-2 border-l-sage-500'
+                  'w-full px-5 py-3.5 border-t border-white/5 text-left hover:bg-zinc-900/50 transition-colors',
+                  isSelected && 'bg-sage-500/10 border-l-2 border-l-sage-500'
                 )}
               >
                 <div className="flex items-center gap-3">
                   {/* Position Circle */}
                   <div className={cn(
                     'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-xs font-bold',
-                    isSelected ? 'bg-accent-fill text-white' : 'bg-surface-2 text-ink-2'
+                    isSelected ? 'bg-sage-500 text-black' : 'bg-zinc-800 text-zinc-400'
                   )}>
                     {ticket.position}
                   </div>
@@ -109,7 +109,7 @@ export function TicketQueueList({
                         {ticket.severity}
                       </span>
                       {isOverSLA && (
-                        <span className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-danger-wash text-danger">
+                        <span className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-red-500/20 text-red-400">
                           OVER SLA
                         </span>
                       )}
@@ -117,7 +117,7 @@ export function TicketQueueList({
                     <p className="text-sm font-medium text-white truncate">
                       {ticket.title}
                     </p>
-                    <p className="text-xs text-ink-3 mt-0.5">
+                    <p className="text-xs text-zinc-500 mt-0.5">
                       {ticket.category}
                     </p>
                   </div>
@@ -126,7 +126,7 @@ export function TicketQueueList({
                   <Icon
                     name="chevronRight"
                     size={16}
-                    className="text-ink-3 flex-shrink-0"
+                    className="text-zinc-600 flex-shrink-0"
                   />
                 </div>
               </button>

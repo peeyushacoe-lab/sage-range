@@ -1,29 +1,9 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { SessionProvider } from "@/components/session-provider";
 import { CookieConsent } from "@/components/cookie-consent";
 import { SearchModal } from "@/components/search-modal";
 import { IconGradients } from "@/components/ui/icon-gradients";
 import "./globals.css";
-
-/**
- * Range type pairing. Plex Sans for prose, Plex Mono for anything a machine
- * produced — hashes, IOCs, CVEs, rule IDs, log lines, and every small label.
- * `display: swap` so text is never invisible while the font loads.
- */
-const plexSans = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-plex-sans",
-  display: "swap",
-});
-
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-plex-mono",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -46,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`}>
+    <html lang="en">
       <body className="antialiased">
         <IconGradients />
         <SessionProvider>

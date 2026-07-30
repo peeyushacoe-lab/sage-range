@@ -88,15 +88,15 @@ export function SigmaToSplunkClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Translate the Rule" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           You have a vendor-provided Sigma rule and need to run it as a search in Splunk.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SIGMA_RULE}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SIGMA_RULE}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Which SPL query correctly implements this Sigma rule?</p>
+            <p className="text-sm text-zinc-300 font-medium">Which SPL query correctly implements this Sigma rule?</p>
             <div className="space-y-2">
               {SPL_OPTIONS.map((opt) => (
                 <label key={opt} className="flex items-start gap-2 cursor-pointer">
@@ -106,45 +106,45 @@ export function SigmaToSplunkClient({
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — the SPL query maps TargetImage and GrantedAccess exactly, scoped to the Sysmon index and Event ID 10. Flag: SAGE&#123;spl_qu3ry_m4pp3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the SPL query maps TargetImage and GrantedAccess exactly, scoped to the Sysmon index and Event ID 10. Flag: SAGE&#123;spl_qu3ry_m4pp3d&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Identify the Underlying Event" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">
-          The logsource category is <code className="text-warn">process_access</code> — this maps to a specific
+        <p className="text-zinc-300 text-sm mb-3">
+          The logsource category is <code className="text-amber-300">process_access</code> — this maps to a specific
           Sysmon Event ID that must be present in your log pipeline for the rule to ever fire.
         </p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">Flag the Sysmon event ID and its name for process-access logging.</p>
+            <p className="text-sm text-zinc-300 font-medium">Flag the Sysmon event ID and its name for process-access logging.</p>
             <div className="flex gap-2 max-w-lg">
               <MonoInput value={t2Answer} onChange={setT2Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — Sysmon Event ID 10 (ProcessAccess) logs one process opening a handle to another, which is exactly what LSASS credential-dumping tools trigger. Flag: SAGE&#123;sysm0n_3v3nt_10_pr0c3ss_4cc3ss&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — Sysmon Event ID 10 (ProcessAccess) logs one process opening a handle to another, which is exactly what LSASS credential-dumping tools trigger. Flag: SAGE&#123;sysm0n_3v3nt_10_pr0c3ss_4cc3ss&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Understand Why Conversion Isn't Trivial" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">
+        <p className="text-zinc-300 text-sm mb-4">
           The exact same Sigma rule would need yet another rewrite to run in Microsoft Sentinel (KQL) instead of Splunk.
         </p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why can't Sigma rules just run everywhere unchanged?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why can't Sigma rules just run everywhere unchanged?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Sigma rules are proprietary and require a paid license per SIEM",
@@ -154,17 +154,17 @@ export function SigmaToSplunkClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — Sigma is a generic, vendor-neutral format precisely because every SIEM indexes and names fields
             differently; the actual value comes from the field mapping ("backend"), not the rule logic itself. Flag: SAGE&#123;s13m_f13ld_m4pp1ng_v4r13s&#125;
           </p>
@@ -172,12 +172,12 @@ export function SigmaToSplunkClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;spl_qu3ry_m4pp3d&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;sysm0n_3v3nt_10_pr0c3ss_4cc3ss&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;s13m_f13ld_m4pp1ng_v4r13s&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;spl_qu3ry_m4pp3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;sysm0n_3v3nt_10_pr0c3ss_4cc3ss&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;s13m_f13ld_m4pp1ng_v4r13s&#125;</span></li>
           </ul>
         </div>
       )}

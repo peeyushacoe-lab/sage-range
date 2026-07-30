@@ -11,7 +11,7 @@ export default async function WorkspacePage() {
   if (!user) redirect("/sign-in");
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface-0">
+    <div className="flex flex-col min-h-screen bg-zinc-950">
       <Navbar />
       <IrWorkspace />
     </div>

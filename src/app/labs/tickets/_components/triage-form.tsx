@@ -36,10 +36,10 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
 
   const confidenceColor =
     confidence >= 70
-      ? 'text-ok'
+      ? 'text-emerald-400'
       : confidence >= 50
-        ? 'text-warn'
-        : 'text-danger';
+        ? 'text-amber-400'
+        : 'text-red-400';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +98,7 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Action Selector */}
           <div>
-            <label className="text-xs uppercase tracking-widest text-ink-2 block mb-3">
+            <label className="text-xs uppercase tracking-widest text-zinc-400 block mb-3">
               Action
             </label>
             <div className="space-y-2">
@@ -121,7 +121,7 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
                   />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-white">{label}</p>
-                    <p className="text-xs text-ink-3">{description}</p>
+                    <p className="text-xs text-zinc-500">{description}</p>
                   </div>
                 </label>
               ))}
@@ -131,7 +131,7 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
           {/* Confidence Slider */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs uppercase tracking-widest text-ink-2">
+              <label className="text-xs uppercase tracking-widest text-zinc-400">
                 Confidence
               </label>
               <span className={cn('text-sm font-bold font-mono', confidenceColor)}>
@@ -144,7 +144,7 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
               max="100"
               value={confidence}
               onChange={(e) => setConfidence(parseInt(e.target.value))}
-              className="w-full h-2 rounded-lg bg-surface-2 appearance-none cursor-pointer"
+              className="w-full h-2 rounded-lg bg-zinc-800 appearance-none cursor-pointer"
               style={{
                 background: `linear-gradient(to right,
                   rgb(239, 68, 68) 0%,
@@ -153,7 +153,7 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
                   rgb(34, 197, 94) 100%)`
               }}
             />
-            <p className="text-xs text-ink-3 mt-2">
+            <p className="text-xs text-zinc-500 mt-2">
               {confidence < 50
                 ? 'Low confidence'
                 : confidence < 70
@@ -164,7 +164,7 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
 
           {/* Notes Textarea */}
           <div>
-            <label htmlFor="notes" className="text-xs uppercase tracking-widest text-ink-2 block mb-2">
+            <label htmlFor="notes" className="text-xs uppercase tracking-widest text-zinc-400 block mb-2">
               Notes (Optional)
             </label>
             <textarea
@@ -172,10 +172,10 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
               value={notes}
               onChange={(e) => setNotes(e.target.value.slice(0, 500))}
               placeholder="Add notes about your decision..."
-              className="w-full px-3 py-2 rounded-lg bg-surface-1 border border-edge text-white placeholder-ink-3 text-sm focus:outline-none focus:border-edge-strong"
+              className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-white/30"
               rows={3}
             />
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               {notes.length} / 500
             </p>
           </div>
@@ -187,8 +187,8 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
             className={cn(
               'w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition',
               action && !isSubmitting
-                ? 'bg-accent-fill text-white hover:bg-ok-wash'
-                : 'bg-surface-2 text-ink-3 cursor-not-allowed'
+                ? 'bg-sage-500 text-black hover:bg-sage-600'
+                : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
             )}
           >
             {isSubmitting ? (
@@ -206,8 +206,8 @@ export function TriageForm({ ticketId, shiftId, onSuccess, onSubmit }: TriageFor
             <div className={cn(
               'p-3 rounded-lg text-sm font-medium',
               toast.type === 'success'
-                ? 'bg-ok-wash text-ok'
-                : 'bg-danger-wash text-danger'
+                ? 'bg-emerald-500/20 text-emerald-400'
+                : 'bg-red-500/20 text-red-400'
             )}>
               {toast.message}
             </div>

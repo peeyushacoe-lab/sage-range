@@ -20,15 +20,15 @@ export type StageMarker = {
 };
 
 const STAGE_COLOR: Record<string, { dot: string; bg: string; text: string }> = {
-  NORMAL:               { dot: "bg-surface-3",   bg: "bg-surface-2/60",     text: "text-ink-2" },
-  INITIAL_ACCESS:       { dot: "bg-info",   bg: "bg-info-wash",     text: "text-info" },
-  EXECUTION:            { dot: "bg-sev-high", bg: "bg-sev-high-wash",   text: "text-sev-high" },
+  NORMAL:               { dot: "bg-zinc-500",   bg: "bg-zinc-800/60",     text: "text-zinc-300" },
+  INITIAL_ACCESS:       { dot: "bg-blue-500",   bg: "bg-blue-900/30",     text: "text-blue-300" },
+  EXECUTION:            { dot: "bg-orange-500", bg: "bg-orange-900/30",   text: "text-orange-300" },
   PERSISTENCE:          { dot: "bg-yellow-500", bg: "bg-yellow-900/30",   text: "text-yellow-300" },
-  PRIVILEGE_ESCALATION: { dot: "bg-warn",  bg: "bg-warn-wash",    text: "text-warn" },
+  PRIVILEGE_ESCALATION: { dot: "bg-amber-500",  bg: "bg-amber-900/30",    text: "text-amber-300" },
   LATERAL_MOVEMENT:     { dot: "bg-pink-500",   bg: "bg-pink-900/30",     text: "text-pink-300" },
-  CREDENTIAL_ACCESS:    { dot: "bg-accent", bg: "bg-accent-wash",   text: "text-accent" },
-  DATA_EXFILTRATION:    { dot: "bg-danger",    bg: "bg-danger-wash",      text: "text-danger" },
-  RANSOMWARE:           { dot: "bg-danger",    bg: "bg-danger-wash",      text: "text-danger" },
+  CREDENTIAL_ACCESS:    { dot: "bg-purple-500", bg: "bg-purple-900/30",   text: "text-purple-300" },
+  DATA_EXFILTRATION:    { dot: "bg-red-500",    bg: "bg-red-900/30",      text: "text-red-300" },
+  RANSOMWARE:           { dot: "bg-red-600",    bg: "bg-red-950/60",      text: "text-red-200" },
   IMPACT:               { dot: "bg-rose-600",   bg: "bg-rose-950/60",     text: "text-rose-200" },
 };
 
@@ -122,21 +122,21 @@ export function ReplayPlayer({
     <div className="space-y-4">
 
       {/* Stage indicator */}
-      <div className={`rounded-xl border border-edge px-5 py-3 flex items-center gap-3 transition-all ${stageColors.bg}`}>
+      <div className={`rounded-xl border border-white/8 px-5 py-3 flex items-center gap-3 transition-all ${stageColors.bg}`}>
         <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${stageColors.dot} ${playing ? "animate-pulse" : ""}`} />
         <span className={`text-sm font-bold tracking-wide ${stageColors.text}`}>
           {currentStage?.label ?? "Pre-Incident"}
         </span>
         {currentStage?.wasBlocked && (
-          <span className="text-[10px] font-bold text-ok border border-ok-edge bg-ok-wash rounded px-1.5">CONTAINED</span>
+          <span className="text-[10px] font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-500/8 rounded px-1.5">CONTAINED</span>
         )}
-        <span className="ml-auto text-xs text-ink-3 tabular-nums">{fmtMs(playheadMs)} / {fmtMs(totalMs)}</span>
+        <span className="ml-auto text-xs text-zinc-600 tabular-nums">{fmtMs(playheadMs)} / {fmtMs(totalMs)}</span>
       </div>
 
       {/* Progress / scrubber */}
-      <div className="rounded-xl border border-edge bg-surface-1 p-4 space-y-3">
+      <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-4 space-y-3">
         {/* Stage markers on track */}
-        <div className="relative h-2 rounded-full bg-surface-2">
+        <div className="relative h-2 rounded-full bg-zinc-800">
           {stages.map((s) => {
             const markerPct = totalMs > 0 ? (s.relativeMs / totalMs) * 100 : 0;
             const c = STAGE_COLOR[s.stage] ?? STAGE_COLOR.NORMAL;
@@ -151,7 +151,7 @@ export function ReplayPlayer({
           })}
           {/* Playhead fill */}
           <div
-            className="absolute inset-y-0 left-0 rounded-full bg-ok-wash transition-none"
+            className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/40 transition-none"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -171,13 +171,13 @@ export function ReplayPlayer({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setPlaying((p) => !p)}
-            className="px-4 py-1.5 rounded-lg bg-accent-fill text-white text-xs font-bold hover:bg-accent-hover transition min-w-[64px]"
+            className="px-4 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 transition min-w-[64px]"
           >
             {playing ? "⏸ Pause" : "▶ Play"}
           </button>
           <button
             onClick={reset}
-            className="px-3 py-1.5 rounded-lg border border-edge text-xs text-ink-2 hover:text-ink hover:border-edge-strong transition"
+            className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-zinc-400 hover:text-zinc-200 hover:border-white/20 transition"
           >
             ↺ Reset
           </button>
@@ -190,8 +190,8 @@ export function ReplayPlayer({
                 onClick={() => setSpeed(s)}
                 className={`px-2 py-1 rounded text-[11px] font-mono transition ${
                   speed === s
-                    ? "bg-surface-3 text-ink"
-                    : "text-ink-3 hover:text-ink-2"
+                    ? "bg-zinc-700 text-zinc-100"
+                    : "text-zinc-600 hover:text-zinc-400"
                 }`}
               >
                 {s}×
@@ -204,15 +204,15 @@ export function ReplayPlayer({
       {/* Event feed */}
       <div
         ref={feedRef}
-        className="rounded-xl border border-edge bg-surface-1 overflow-hidden"
+        className="rounded-xl border border-white/8 bg-zinc-900/50 overflow-hidden"
       >
-        <div className="px-4 py-3 border-b border-edge flex items-center justify-between">
-          <p className="text-xs uppercase tracking-widest text-ink-3">Event Log</p>
-          <span className="text-xs text-ink-3">{visibleEvents.length} / {events.length} events</span>
+        <div className="px-4 py-3 border-b border-white/8 flex items-center justify-between">
+          <p className="text-xs uppercase tracking-widest text-zinc-500">Event Log</p>
+          <span className="text-xs text-zinc-600">{visibleEvents.length} / {events.length} events</span>
         </div>
-        <div className="max-h-80 overflow-y-auto divide-y divide-edge-subtle">
+        <div className="max-h-80 overflow-y-auto divide-y divide-white/5">
           {visibleEvents.length === 0 && (
-            <p className="px-4 py-6 text-xs text-ink-3 text-center">Press play to begin the replay</p>
+            <p className="px-4 py-6 text-xs text-zinc-600 text-center">Press play to begin the replay</p>
           )}
           {visibleEvents.map((ev, i) => {
             const icon = EVENT_ICON[ev.type] ?? "·";
@@ -222,25 +222,25 @@ export function ReplayPlayer({
               <div
                 key={ev.id}
                 className={`px-4 py-2.5 flex gap-3 items-start text-xs transition-all
-                  ${i === visibleEvents.length - 1 ? "bg-surface-2" : ""}
-                  ${isStage ? "bg-sev-high-wash" : ""}
-                  ${isAction ? "bg-ok-wash" : ""}
+                  ${i === visibleEvents.length - 1 ? "bg-white/3" : ""}
+                  ${isStage ? "bg-orange-950/20" : ""}
+                  ${isAction ? "bg-emerald-950/20" : ""}
                 `}
               >
-                <span className="text-ink-3 tabular-nums shrink-0 w-10">{fmtMs(ev.relativeMs)}</span>
+                <span className="text-zinc-600 tabular-nums shrink-0 w-10">{fmtMs(ev.relativeMs)}</span>
                 <span className="shrink-0 w-4 text-center">{icon}</span>
                 <div className="min-w-0 flex-1">
-                  <p className={`font-medium truncate ${isAction ? "text-ok" : isStage ? "text-sev-high" : "text-ink-2"}`}>
+                  <p className={`font-medium truncate ${isAction ? "text-emerald-300" : isStage ? "text-orange-300" : "text-zinc-300"}`}>
                     {ev.type.replace(/_/g, " ")}
                     {isAction && typeof ev.payload.label === "string" && (
-                      <span className="text-ink-2 font-normal"> — {ev.payload.label}</span>
+                      <span className="text-zinc-400 font-normal"> — {ev.payload.label}</span>
                     )}
                     {isStage && typeof ev.payload.to === "string" && (
-                      <span className="text-ink-2 font-normal"> → {ev.payload.to.replace(/_/g, " ")}</span>
+                      <span className="text-zinc-400 font-normal"> → {ev.payload.to.replace(/_/g, " ")}</span>
                     )}
                   </p>
                   {ev.narrative && (
-                    <p className="text-ink-3 text-[11px] mt-0.5 line-clamp-2">{ev.narrative}</p>
+                    <p className="text-zinc-500 text-[11px] mt-0.5 line-clamp-2">{ev.narrative}</p>
                   )}
                 </div>
               </div>
@@ -253,13 +253,13 @@ export function ReplayPlayer({
       {playheadMs >= totalMs && totalMs > 0 && (
         <div className={`rounded-xl border p-5 text-center transition-all ${
           outcome === "CONTAINED"
-            ? "border-ok-edge bg-ok-wash"
-            : "border-danger-edge bg-danger-wash"
+            ? "border-emerald-500/30 bg-emerald-500/8"
+            : "border-red-500/30 bg-red-500/8"
         }`}>
-          <p className={`text-xl font-black ${outcome === "CONTAINED" ? "text-ok" : "text-danger"}`}>
+          <p className={`text-xl font-black ${outcome === "CONTAINED" ? "text-emerald-400" : "text-red-400"}`}>
             {outcome === "CONTAINED" ? <><Icon name="blueTeam" size={16} /> Threat Contained</> : <><Icon name="impact" size={16} /> Breach Occurred</>}
           </p>
-          <p className="text-sm text-ink-2 mt-1">Final score: <span className="font-bold text-ink">{score}</span></p>
+          <p className="text-sm text-zinc-400 mt-1">Final score: <span className="font-bold text-zinc-200">{score}</span></p>
         </div>
       )}
     </div>

@@ -77,31 +77,31 @@ export function ContainerEscapeTheoryClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Compare the Isolation Models" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">How VMs and containers differ in their isolation model:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{MODEL}</pre>
+        <p className="text-zinc-300 text-sm mb-3">How VMs and containers differ in their isolation model:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{MODEL}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What do all containers on a host share that VMs do not?</p>
+            <p className="text-sm text-zinc-300 font-medium">What do all containers on a host share that VMs do not?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — all containers on a host share that host's single kernel, unlike VMs which each get their own. Flag: SAGE&#123;sh4r3d_h0st_k3rn3l&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — all containers on a host share that host's single kernel, unlike VMs which each get their own. Flag: SAGE&#123;sh4r3d_h0st_k3rn3l&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Understand What an Escape Exploits" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-4">Given the shared kernel model, think about what a container escape actually has to break.</p>
+        <p className="text-zinc-300 text-sm mb-4">Given the shared kernel model, think about what a container escape actually has to break.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Given that shared kernel, what does a container escape fundamentally exploit?</p>
+            <p className="text-sm text-zinc-300 font-medium">Given that shared kernel, what does a container escape fundamentally exploit?</p>
             <div className="flex flex-col gap-2">
               {[
                 "A vulnerability in the shared kernel or container runtime that lets a process break out of its namespace/cgroup isolation",
@@ -111,25 +111,25 @@ export function ContainerEscapeTheoryClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — an escape exploits a kernel or runtime vulnerability to break out of namespace/cgroup isolation. Flag: SAGE&#123;3xpl01t_k3rn3l_0r_runt1m3_bug&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — an escape exploits a kernel or runtime vulnerability to break out of namespace/cgroup isolation. Flag: SAGE&#123;3xpl01t_k3rn3l_0r_runt1m3_bug&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Find the Real Boundary" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">Your team needs to run genuinely untrusted, potentially hostile third-party workloads.</p>
+        <p className="text-zinc-300 text-sm mb-4">Your team needs to run genuinely untrusted, potentially hostile third-party workloads.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Given this, what's the real practical security boundary for genuinely untrusted, hostile workloads?</p>
+            <p className="text-sm text-zinc-300 font-medium">Given this, what's the real practical security boundary for genuinely untrusted, hostile workloads?</p>
             <div className="flex flex-col gap-2">
               {[
                 "A separate VM (or gVisor/Kata-style sandboxed runtime) rather than a standard container, since containers share the kernel attack surface",
@@ -139,17 +139,17 @@ export function ContainerEscapeTheoryClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — a VM or a sandboxed runtime gives a real boundary that standard containers, sharing the kernel, can't provide.
             Flag: SAGE&#123;vm_b0und4ry_f0r_untrust3d_w0rkl04ds&#125;
           </p>
@@ -157,12 +157,12 @@ export function ContainerEscapeTheoryClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;sh4r3d_h0st_k3rn3l&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;3xpl01t_k3rn3l_0r_runt1m3_bug&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;vm_b0und4ry_f0r_untrust3d_w0rkl04ds&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;sh4r3d_h0st_k3rn3l&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;3xpl01t_k3rn3l_0r_runt1m3_bug&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;vm_b0und4ry_f0r_untrust3d_w0rkl04ds&#125;</span></li>
           </ul>
         </div>
       )}

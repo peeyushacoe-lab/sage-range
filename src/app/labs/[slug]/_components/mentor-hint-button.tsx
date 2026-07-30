@@ -124,14 +124,14 @@ export function MentorHintButton({
 
   return (
     <>
-      <div className="mt-4 border-t border-edge-subtle pt-3">
+      <div className="mt-4 border-t border-white/5 pt-3">
         <button
           onClick={requestHint}
           disabled={loading || isRateLimited}
           className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded transition-colors ${
             isRateLimited
-              ? "bg-surface-1 text-ink-3 cursor-not-allowed"
-              : "text-ink-2 hover:text-ink hover:bg-surface-1"
+              ? "bg-zinc-900 text-zinc-600 cursor-not-allowed"
+              : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50"
           }`}
         >
           {loading ? (
@@ -143,7 +143,7 @@ export function MentorHintButton({
         </button>
 
         {error && (
-          <p className="text-xs text-danger mt-2 font-mono">{error}</p>
+          <p className="text-xs text-red-400 mt-2 font-mono">{error}</p>
         )}
       </div>
 

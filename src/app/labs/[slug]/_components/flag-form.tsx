@@ -55,9 +55,9 @@ export function FlagForm({ labSlug, alreadySolved }: { labSlug: string; alreadyS
 
   if (alreadySolved && result.kind === "idle") {
     return (
-      <div className="rounded-lg border border-ok-edge bg-ok-wash p-4 text-sm">
-        <p className="text-ok font-medium"><Icon name="check" size={14} className="inline-block shrink-0" /> Solved</p>
-        <p className="text-ink-2 mt-1">You&apos;ve already captured this flag.</p>
+      <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
+        <p className="text-sage-500 font-medium"><Icon name="check" size={14} className="inline-block shrink-0" /> Solved</p>
+        <p className="text-zinc-400 mt-1">You&apos;ve already captured this flag.</p>
       </div>
     );
   }
@@ -70,29 +70,29 @@ export function FlagForm({ labSlug, alreadySolved }: { labSlug: string; alreadyS
           value={flag}
           onChange={(e) => setFlag(e.target.value)}
           placeholder="SAGE{...}"
-          className="flex-1 rounded bg-black/40 border border-edge px-3 py-2 text-sm font-mono focus:outline-none focus:border-ok-edge"
+          className="flex-1 rounded bg-black/40 border border-white/10 px-3 py-2 text-sm font-mono focus:outline-none focus:border-sage-500"
         />
         <button
           type="submit"
           disabled={isPending || !flag.trim()}
-          className="rounded bg-accent-fill px-4 py-2 text-sm font-medium text-white hover:bg-ok-wash hover:text-white disabled:opacity-50"
+          className="rounded bg-sage-500 px-4 py-2 text-sm font-medium text-black hover:bg-sage-700 hover:text-white disabled:opacity-50"
         >
           {isPending ? "Checking..." : "Submit"}
         </button>
       </div>
 
       {result.kind === "correct" && (
-        <p className="text-sm text-ok">
+        <p className="text-sm text-sage-500">
           {result.alreadySolved
             ? "Correct — already counted."
             : <><Icon name="check" size={13} className="inline-block" /> {`Correct! +${result.points} points.`}</>}
         </p>
       )}
       {result.kind === "wrong" && (
-        <p className="text-sm text-danger"><Icon name="cross" size={14} className="inline-block shrink-0" /> Not quite. Keep digging.</p>
+        <p className="text-sm text-red-400"><Icon name="cross" size={14} className="inline-block shrink-0" /> Not quite. Keep digging.</p>
       )}
       {result.kind === "error" && (
-        <p className="text-sm text-danger">{result.message}</p>
+        <p className="text-sm text-red-400">{result.message}</p>
       )}
     </form>
   );

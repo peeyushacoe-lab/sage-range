@@ -12,7 +12,7 @@ export default async function Dashboard() {
   if (!user) redirect("/sign-in");
 
   return (
-    <div className="min-h-screen bg-surface-0 text-ink">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <Navbar />
       {user.role === "RECRUITER"  && <RecruiterHome  user={user} />}
       {user.role === "INSTRUCTOR" && <InstructorHome user={user} />}

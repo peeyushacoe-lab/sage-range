@@ -55,7 +55,7 @@ export function CredentialsForm({ mode }: { mode: "signin" | "signup" }) {
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name"
           required
-          className="w-full rounded-lg border border-edge bg-surface-1 px-4 py-3 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+          className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60"
         />
       )}
       <input
@@ -64,7 +64,7 @@ export function CredentialsForm({ mode }: { mode: "signin" | "signup" }) {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email address"
         required
-        className="w-full rounded-lg border border-edge bg-surface-1 px-4 py-3 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+        className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60"
       />
       <input
         type="password"
@@ -73,19 +73,19 @@ export function CredentialsForm({ mode }: { mode: "signin" | "signup" }) {
         placeholder={mode === "signup" ? "Password (min 8 chars)" : "Password"}
         required
         minLength={mode === "signup" ? 8 : 1}
-        className="w-full rounded-lg border border-edge bg-surface-1 px-4 py-3 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+        className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/60"
       />
-      {error && error !== "__409__" && <p className="text-xs text-danger">{error}</p>}
+      {error && error !== "__409__" && <p className="text-xs text-red-400">{error}</p>}
       {error === "__409__" && (
-        <p className="text-xs text-warn">
+        <p className="text-xs text-amber-400">
           This email already has an account.{" "}
-          <Link href="/sign-in" className="underline hover:text-warn">Sign in instead →</Link>
+          <Link href="/sign-in" className="underline hover:text-amber-300">Sign in instead →</Link>
         </p>
       )}
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-accent-fill px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-50 transition-colors"
+        className="w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-bold text-black hover:bg-emerald-400 disabled:opacity-50 transition-colors"
       >
         {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
       </button>

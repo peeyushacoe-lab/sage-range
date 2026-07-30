@@ -57,31 +57,31 @@ export function SocTask2Containment({ labId, alreadyDone }: { labId: string; alr
 
   if (submitted) {
     return (
-      <div className="rounded-lg border border-ok-edge bg-ok-wash p-4 text-sm">
-        <p className="text-ok font-medium mb-2">Containment plan accepted <Icon name="check" size={14} className="inline-block shrink-0" /></p>
-        <p className="text-ink-2">Correct sequence: Preserve evidence → Block C2 + Isolate host → Reset credentials → Notify CISO/Legal</p>
-        <p className="text-ink-3 mt-2">Proceed to Task 3 — threat hunt for lateral movement.</p>
+      <div className="rounded-lg border border-sage-500/30 bg-sage-500/5 p-4 text-sm">
+        <p className="text-sage-500 font-medium mb-2">Containment plan accepted <Icon name="check" size={14} className="inline-block shrink-0" /></p>
+        <p className="text-zinc-400">Correct sequence: Preserve evidence → Block C2 + Isolate host → Reset credentials → Notify CISO/Legal</p>
+        <p className="text-zinc-500 mt-2">Proceed to Task 3 — threat hunt for lateral movement.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      <div className="rounded-lg border border-info-edge bg-info-wash p-4 text-sm">
-        <p className="text-info font-medium mb-1">New intelligence</p>
-        <p className="text-ink-2">The attacker is actively beaconing every 5 minutes. The compromised user&apos;s session is still active on the affected workstation. You have a 10-minute window before they escalate privileges further. Select all correct containment actions — avoid steps that would destroy evidence or cause unnecessary business disruption.</p>
+      <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 text-sm">
+        <p className="text-blue-400 font-medium mb-1">New intelligence</p>
+        <p className="text-zinc-300">The attacker is actively beaconing every 5 minutes. The compromised user&apos;s session is still active on the affected workstation. You have a 10-minute window before they escalate privileges further. Select all correct containment actions — avoid steps that would destroy evidence or cause unnecessary business disruption.</p>
       </div>
 
       <form onSubmit={submit} className="space-y-4">
-        <p className="text-sm font-medium text-ink-2">Select all appropriate containment steps:</p>
+        <p className="text-sm font-medium text-zinc-300">Select all appropriate containment steps:</p>
         <div className="space-y-2">
           {CONTAINMENT_STEPS.map((step) => (
             <label
               key={step.id}
               className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition ${
                 selected.has(step.id)
-                  ? "border-ok-edge bg-ok-wash"
-                  : "border-edge hover:border-edge-strong"
+                  ? "border-sage-500/40 bg-sage-500/5"
+                  : "border-white/8 hover:border-white/20"
               }`}
             >
               <input
@@ -90,13 +90,13 @@ export function SocTask2Containment({ labId, alreadyDone }: { labId: string; alr
                 onChange={() => toggle(step.id)}
                 className="mt-0.5 accent-emerald-500 shrink-0"
               />
-              <span className="text-sm text-ink-2">{step.label}</span>
+              <span className="text-sm text-zinc-300">{step.label}</span>
             </label>
           ))}
         </div>
 
         {wrong.length > 0 && (
-          <div className="rounded border border-danger-edge bg-danger-wash p-3 text-sm text-danger">
+          <div className="rounded border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-400">
             {wrong.map((w) => <p key={w} className="flex items-center gap-1"><Icon name="cross" size={12} /> {w}</p>)}
           </div>
         )}
@@ -106,7 +106,7 @@ export function SocTask2Containment({ labId, alreadyDone }: { labId: string; alr
         <button
           type="submit"
           disabled={pending || selected.size === 0}
-          className="rounded bg-accent-fill px-5 py-2.5 text-sm font-medium text-white hover:bg-ok-wash hover:text-white disabled:opacity-50"
+          className="rounded bg-sage-500 px-5 py-2.5 text-sm font-medium text-black hover:bg-sage-700 hover:text-white disabled:opacity-50"
         >
           {pending ? "Submitting…" : "Submit containment plan"}
         </button>

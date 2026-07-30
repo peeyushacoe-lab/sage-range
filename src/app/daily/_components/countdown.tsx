@@ -25,8 +25,8 @@ export function Countdown() {
 
   return (
     <div className="text-center">
-      <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-1">Next challenge in</p>
-      <p className="text-2xl font-black font-mono tabular-nums text-ink-2">{fmt(secs)}</p>
+      <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-1">Next challenge in</p>
+      <p className="text-2xl font-black font-mono tabular-nums text-zinc-300">{fmt(secs)}</p>
     </div>
   );
 }

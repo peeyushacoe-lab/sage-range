@@ -4,19 +4,19 @@ import { buildDebrief } from "@/lib/simulation/runtime/debrief";
 // ── Tactic definitions ────────────────────────────────────────────────────────
 
 export const ALL_TACTICS = [
-  { id: "recon",   name: "Reconnaissance",      color: { text: "text-ink-2",   bar: "bg-surface-3",   border: "border-edge-strong/40",   bg: "bg-surface-3/30"   } },
-  { id: "resdev",  name: "Resource Development", color: { text: "text-ink-2",   bar: "bg-surface-3",   border: "border-edge-strong/40",   bg: "bg-surface-3/30"   } },
-  { id: "ia",      name: "Initial Access",       color: { text: "text-info",   bar: "bg-info",   border: "border-info-edge",   bg: "bg-info-wash"   } },
-  { id: "exec",    name: "Execution",            color: { text: "text-sev-high", bar: "bg-sev-high", border: "border-sev-high-edge", bg: "bg-sev-high-wash" } },
+  { id: "recon",   name: "Reconnaissance",      color: { text: "text-zinc-300",   bar: "bg-zinc-500",   border: "border-zinc-600/40",   bg: "bg-zinc-700/30"   } },
+  { id: "resdev",  name: "Resource Development", color: { text: "text-zinc-300",   bar: "bg-zinc-500",   border: "border-zinc-600/40",   bg: "bg-zinc-700/30"   } },
+  { id: "ia",      name: "Initial Access",       color: { text: "text-blue-300",   bar: "bg-blue-500",   border: "border-blue-500/30",   bg: "bg-blue-900/20"   } },
+  { id: "exec",    name: "Execution",            color: { text: "text-orange-300", bar: "bg-orange-500", border: "border-orange-500/30", bg: "bg-orange-900/20" } },
   { id: "persist", name: "Persistence",          color: { text: "text-yellow-300", bar: "bg-yellow-500", border: "border-yellow-500/30", bg: "bg-yellow-900/20" } },
-  { id: "privesc", name: "Privilege Escalation", color: { text: "text-warn",  bar: "bg-warn",  border: "border-warn-edge",  bg: "bg-warn-wash"  } },
+  { id: "privesc", name: "Privilege Escalation", color: { text: "text-amber-300",  bar: "bg-amber-500",  border: "border-amber-500/30",  bg: "bg-amber-900/20"  } },
   { id: "defevas", name: "Defense Evasion",      color: { text: "text-cyan-300",   bar: "bg-cyan-500",   border: "border-cyan-500/30",   bg: "bg-cyan-900/20"   } },
-  { id: "credacc", name: "Credential Access",    color: { text: "text-accent", bar: "bg-accent", border: "border-accent-edge", bg: "bg-accent-wash" } },
-  { id: "disc",    name: "Discovery",            color: { text: "text-ok",   bar: "bg-ok",   border: "border-ok-edge",   bg: "bg-ok-wash"   } },
+  { id: "credacc", name: "Credential Access",    color: { text: "text-purple-300", bar: "bg-purple-500", border: "border-purple-500/30", bg: "bg-purple-900/20" } },
+  { id: "disc",    name: "Discovery",            color: { text: "text-teal-300",   bar: "bg-teal-500",   border: "border-teal-500/30",   bg: "bg-teal-900/20"   } },
   { id: "latmov",  name: "Lateral Movement",     color: { text: "text-pink-300",   bar: "bg-pink-500",   border: "border-pink-500/30",   bg: "bg-pink-900/20"   } },
   { id: "collect", name: "Collection",           color: { text: "text-indigo-300", bar: "bg-indigo-500", border: "border-indigo-500/30", bg: "bg-indigo-900/20" } },
   { id: "c2",      name: "Command and Control",  color: { text: "text-violet-300", bar: "bg-violet-500", border: "border-violet-500/30", bg: "bg-violet-900/20" } },
-  { id: "exfil",   name: "Exfiltration",         color: { text: "text-danger",    bar: "bg-danger",    border: "border-danger-edge",    bg: "bg-danger-wash"    } },
+  { id: "exfil",   name: "Exfiltration",         color: { text: "text-red-300",    bar: "bg-red-500",    border: "border-red-500/30",    bg: "bg-red-900/20"    } },
   { id: "impact",  name: "Impact",               color: { text: "text-rose-200",   bar: "bg-rose-600",   border: "border-rose-600/40",   bg: "bg-rose-950/40"   } },
 ] as const;
 

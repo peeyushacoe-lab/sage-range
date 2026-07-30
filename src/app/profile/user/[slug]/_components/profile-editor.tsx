@@ -76,12 +76,12 @@ export function ProfileEditor({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-1 border border-edge rounded-xl w-full max-w-md">
-        <div className="p-6 border-b border-edge-subtle flex items-center justify-between">
+      <div className="bg-zinc-900 border border-white/8 rounded-xl w-full max-w-md">
+        <div className="p-6 border-b border-white/5 flex items-center justify-between">
           <h2 className="text-lg font-bold">Edit Profile</h2>
           <button
             onClick={onClose}
-            className="text-ink-3 hover:text-ink-2 transition"
+            className="text-zinc-500 hover:text-zinc-300 transition"
             aria-label="Close"
           >
             <Icon name="close" size={20} variant="current" />
@@ -91,8 +91,8 @@ export function ProfileEditor({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Bio field */}
           <div>
-            <label className="block text-xs uppercase tracking-widest text-ink-3 mb-2">
-              Bio <span className="text-ink-3">(max 500 chars)</span>
+            <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-2">
+              Bio <span className="text-zinc-700">(max 500 chars)</span>
             </label>
             <textarea
               value={bio}
@@ -100,16 +100,16 @@ export function ProfileEditor({
               placeholder="Tell recruiters about yourself..."
               maxLength={500}
               rows={4}
-              className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-edge-strong resize-none transition"
+              className="w-full rounded-lg border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500 resize-none transition"
             />
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               {bio.length}/500 characters
             </p>
           </div>
 
           {/* Visibility section */}
           <div>
-            <label className="block text-xs uppercase tracking-widest text-ink-3 mb-3">
+            <label className="block text-xs uppercase tracking-widest text-zinc-500 mb-3">
               Portfolio Visibility
             </label>
             <div className="space-y-2">
@@ -130,7 +130,7 @@ export function ProfileEditor({
                   desc: "Only visible to verified recruiters",
                 },
               ].map((option) => (
-                <label key={option.value} className="flex items-center gap-3 p-3 rounded-lg border transition cursor-pointer hover:bg-surface-2/50"
+                <label key={option.value} className="flex items-center gap-3 p-3 rounded-lg border transition cursor-pointer hover:bg-zinc-800/50"
                   style={{
                     borderColor: visibility === option.value ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.08)",
                     backgroundColor: visibility === option.value ? "rgba(255, 255, 255, 0.04)" : "transparent",
@@ -145,8 +145,8 @@ export function ProfileEditor({
                     className="w-4 h-4"
                   />
                   <div>
-                    <p className="text-sm font-medium text-ink">{option.label}</p>
-                    <p className="text-xs text-ink-3">{option.desc}</p>
+                    <p className="text-sm font-medium text-zinc-100">{option.label}</p>
+                    <p className="text-xs text-zinc-500">{option.desc}</p>
                   </div>
                 </label>
               ))}
@@ -155,25 +155,25 @@ export function ProfileEditor({
 
           {/* Error message */}
           {error && (
-            <div className="rounded-lg border border-danger-edge bg-danger-wash p-3">
-              <p className="text-sm text-danger">{error}</p>
+            <div className="rounded-lg border border-red-500/30 bg-red-500/8 p-3">
+              <p className="text-sm text-red-400">{error}</p>
             </div>
           )}
 
           {/* Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-edge-subtle">
+          <div className="flex gap-3 pt-4 border-t border-white/5">
             <button
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="flex-1 px-4 py-2 rounded-lg border border-edge text-ink-2 hover:border-edge-strong disabled:opacity-50 transition"
+              className="flex-1 px-4 py-2 rounded-lg border border-white/10 text-zinc-300 hover:border-white/20 disabled:opacity-50 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 px-4 py-2 rounded-lg bg-ok text-white hover:bg-ok-wash disabled:opacity-50 transition font-medium"
+              className="flex-1 px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50 transition font-medium"
             >
               {isPending ? "Saving..." : "Save Changes"}
             </button>

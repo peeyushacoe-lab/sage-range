@@ -90,7 +90,7 @@ export function CyberAvatar({ initial, skillScore, avatarUrl, size = "md", roleB
       {/* Role badge overlay — md/lg only */}
       {roleBadgeIcon && size !== "sm" && (
         <div
-          className="absolute bottom-0 right-0 flex items-center justify-center rounded-full bg-surface-1 border border-edge-strong"
+          className="absolute bottom-0 right-0 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800"
           style={{ width: badgePx, height: badgePx, fontSize: Math.round(badgePx * 0.6) }}
         >
           <Icon name={roleBadgeIcon} size={Math.round(badgePx * 0.6)} />

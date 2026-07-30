@@ -17,10 +17,10 @@ const REACTIONS: { key: ReactionKey; emoji: string; label: string }[] = [
 ];
 
 const DIFF_STYLE: Record<string, string> = {
-  EASY:   "text-ok bg-ok-wash border-ok-edge",
-  MEDIUM: "text-warn bg-warn-wash border-warn-edge",
-  HARD:   "text-danger bg-danger-wash border-danger-edge",
-  INSANE: "text-accent bg-accent-wash border-accent-edge",
+  EASY:   "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+  MEDIUM: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+  HARD:   "text-red-400 bg-red-500/10 border-red-500/20",
+  INSANE: "text-purple-400 bg-purple-500/10 border-purple-500/20",
 };
 
 const TYPE_ICON: Record<string, IconName> = {
@@ -39,10 +39,10 @@ function formatTime(secs: number): string {
 }
 
 function simRating(score: number) {
-  if (score >= 88) return { label: "EXCEPTIONAL", color: "text-ok" };
-  if (score >= 68) return { label: "STRONG",      color: "text-info" };
-  if (score >= 48) return { label: "ADEQUATE",    color: "text-warn" };
-  return                  { label: "DEVELOPING",  color: "text-ink-3" };
+  if (score >= 88) return { label: "EXCEPTIONAL", color: "text-emerald-400" };
+  if (score >= 68) return { label: "STRONG",      color: "text-blue-400" };
+  if (score >= 48) return { label: "ADEQUATE",    color: "text-amber-400" };
+  return                  { label: "DEVELOPING",  color: "text-zinc-500" };
 }
 
 interface FeedCardProps {
@@ -129,7 +129,7 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
   }
 
   return (
-    <div className="rounded-xl border border-edge bg-surface-1 p-4 hover:bg-surface-1 transition-colors">
+    <div className="rounded-xl border border-white/8 bg-zinc-900/30 p-4 hover:bg-zinc-900/50 transition-colors">
       <div className="flex items-start gap-3">
         <Link href={`/profile/${entry.userId}`} className="shrink-0 hover:opacity-80 transition-opacity">
           <CyberAvatar initial={initial} skillScore={entry.skillScore} size="sm" />
@@ -137,45 +137,45 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm text-ink leading-snug">
+            <p className="text-sm text-zinc-200 leading-snug">
               <Link href={`/profile/${entry.userId}`} className="font-semibold hover:text-white transition-colors">
                 {name}
               </Link>
               {isLab ? (
                 <>
-                  <span className="text-ink-3"> solved </span>
-                  <span className="font-medium text-ink">{entry.labTitle}</span>
+                  <span className="text-zinc-500"> solved </span>
+                  <span className="font-medium text-zinc-100">{entry.labTitle}</span>
                 </>
               ) : (
                 <>
-                  <span className="text-ink-3"> completed </span>
-                  <span className="font-medium text-ink">{entry.scenarioName}</span>
+                  <span className="text-zinc-500"> completed </span>
+                  <span className="font-medium text-zinc-100">{entry.scenarioName}</span>
                 </>
               )}
             </p>
-            <span className="text-[11px] text-ink-3 shrink-0 mt-0.5">{timeAgo(date)}</span>
+            <span className="text-[11px] text-zinc-600 shrink-0 mt-0.5">{timeAgo(date)}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             {isLab ? (
               <>
                 <Icon name={TYPE_ICON[entry.labType] ?? "research"} size={15} />
-                <span className="text-xs text-ink-3">{entry.labType.replace("_", " ")}</span>
+                <span className="text-xs text-zinc-500">{entry.labType.replace("_", " ")}</span>
                 <span className={`text-[10px] font-bold uppercase border rounded px-1.5 py-0.5 ${DIFF_STYLE[entry.labDifficulty] ?? ""}`}>
                   {entry.labDifficulty}
                 </span>
                 {entry.score > 0 && (
-                  <span className="text-xs text-ok font-semibold">+{entry.score} XP</span>
+                  <span className="text-xs text-emerald-400 font-semibold">+{entry.score} XP</span>
                 )}
                 {entry.timeTakenSec != null && (
-                  <span className="text-xs text-ink-3">· {formatTime(entry.timeTakenSec)}</span>
+                  <span className="text-xs text-zinc-600">· {formatTime(entry.timeTakenSec)}</span>
                 )}
               </>
             ) : (
               <>
                 <Icon name="energy" size={15} />
-                <span className="text-xs text-ink-3">Simulation</span>
-                <span className="text-xs font-bold text-ink">{entry.simScore}/100</span>
+                <span className="text-xs text-zinc-500">Simulation</span>
+                <span className="text-xs font-bold text-zinc-200">{entry.simScore}/100</span>
                 {(() => {
                   const r = simRating(entry.simScore);
                   return <span className={`text-xs font-bold ${r.color}`}>{r.label}</span>;
@@ -185,7 +185,7 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
           </div>
 
           <div className="mt-2">
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-ok">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-500">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
@@ -204,8 +204,8 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
                   disabled={!!loading}
                   className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border transition-all ${
                     active
-                      ? "bg-ok-wash border-ok-edge text-ok"
-                      : "bg-surface-2 border-edge text-ink-3 hover:border-edge-strong hover:text-ink-2"
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                      : "bg-white/4 border-white/8 text-zinc-500 hover:border-white/20 hover:text-zinc-300"
                   } ${loading === key ? "opacity-60" : ""}`}
                 >
                   <span>{emoji}</span>
@@ -218,7 +218,7 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
             {comments.length > 0 && (
               <button
                 onClick={() => setShowComments((v) => !v)}
-                className="text-xs text-ink-3 hover:text-ink-2 transition-colors px-1"
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-1"
               >
                 {showComments ? "Hide" : `${comments.length} comment${comments.length === 1 ? "" : "s"}`}
               </button>
@@ -231,18 +231,18 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
                 const cName = c.displayName ?? c.email.split("@")[0];
                 return (
                   <div key={c.id} className="flex items-start justify-between gap-2 text-xs">
-                    <p className="text-ink-2 leading-snug">
+                    <p className="text-zinc-300 leading-snug">
                       <Link href={`/profile/${c.userId}`} className="font-semibold hover:text-white transition-colors">
                         {cName}
                       </Link>
-                      <span className="text-ink-3"> {c.body}</span>
+                      <span className="text-zinc-500"> {c.body}</span>
                     </p>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-ink-3">{timeAgo(c.createdAt)}</span>
+                      <span className="text-zinc-700">{timeAgo(c.createdAt)}</span>
                       {c.userId === meId && (
                         <button
                           onClick={() => deleteComment(c.id)}
-                          className="text-ink-3 hover:text-danger transition-colors"
+                          className="text-zinc-700 hover:text-red-400 transition-colors"
                         >
                           Remove
                         </button>
@@ -263,12 +263,12 @@ export function FeedCard({ entry, initialCounts, initialMine, initialComments, m
               }}
               maxLength={500}
               placeholder="Add a comment…"
-              className="flex-1 bg-surface-2 border border-edge rounded-full px-3 py-1.5 text-xs text-ink placeholder:text-ink-3 focus:outline-none focus:border-edge-strong"
+              className="flex-1 bg-white/4 border border-white/8 rounded-full px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-white/20"
             />
             <button
               onClick={submitComment}
               disabled={!draft.trim() || posting}
-              className="text-xs font-semibold text-ok hover:text-ok disabled:opacity-30 transition-colors shrink-0"
+              className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 disabled:opacity-30 transition-colors shrink-0"
             >
               Post
             </button>

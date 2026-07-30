@@ -25,7 +25,7 @@ export default async function AdminModulesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Modules</h1>
-          <p className="text-ink-3 text-sm mt-1">
+          <p className="text-zinc-500 text-sm mt-1">
             Manage structured learning modules for each path
           </p>
         </div>
@@ -37,7 +37,7 @@ export default async function AdminModulesPage() {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h2 className="text-base font-semibold text-white">{path.title}</h2>
-                <p className="text-xs text-ink-3">
+                <p className="text-xs text-zinc-500">
                   {path.modules.length} module{path.modules.length !== 1 ? "s" : ""} ·{" "}
                   {path.published ? "Published" : "Draft"}
                 </p>
@@ -45,49 +45,49 @@ export default async function AdminModulesPage() {
             </div>
 
             {path.modules.length > 0 && (
-              <div className="rounded-xl border border-edge overflow-hidden mb-4">
+              <div className="rounded-xl border border-white/8 overflow-hidden mb-4">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-edge bg-white/2">
-                      <th className="text-left px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">#</th>
-                      <th className="text-left px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Title</th>
-                      <th className="text-center px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Quiz</th>
-                      <th className="text-center px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Assessment</th>
-                      <th className="text-right px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Progress</th>
-                      <th className="text-right px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Published</th>
+                    <tr className="border-b border-white/8 bg-white/2">
+                      <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">#</th>
+                      <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Title</th>
+                      <th className="text-center px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Quiz</th>
+                      <th className="text-center px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Assessment</th>
+                      <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Progress</th>
+                      <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Published</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-edge-subtle">
+                  <tbody className="divide-y divide-white/4">
                     {path.modules.map((mod) => (
-                      <tr key={mod.id} className="hover:bg-surface-2 transition">
-                        <td className="px-4 py-3 text-ink-3 text-xs">{mod.order + 1}</td>
+                      <tr key={mod.id} className="hover:bg-white/2 transition">
+                        <td className="px-4 py-3 text-zinc-500 text-xs">{mod.order + 1}</td>
                         <td className="px-4 py-3">
                           <Link
                             href={`/admin/modules/${mod.id}`}
-                            className="text-ink hover:text-ok transition font-medium"
+                            className="text-zinc-200 hover:text-emerald-400 transition font-medium"
                           >
                             {mod.title}
                           </Link>
                         </td>
                         <td className="px-4 py-3 text-center">
                           {mod.quiz ? (
-                            <span className="text-ok text-xs"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
+                            <span className="text-emerald-400 text-xs"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                           ) : (
-                            <span className="text-ink-3 text-xs">—</span>
+                            <span className="text-zinc-600 text-xs">—</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-center">
                           {mod.assessment ? (
-                            <span className="text-ok text-xs"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
+                            <span className="text-emerald-400 text-xs"><Icon name="check" size={14} className="inline-block shrink-0" /></span>
                           ) : (
-                            <span className="text-ink-3 text-xs">—</span>
+                            <span className="text-zinc-600 text-xs">—</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right text-xs text-ink-3">
+                        <td className="px-4 py-3 text-right text-xs text-zinc-500">
                           {mod._count.progress}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <span className={`text-xs font-medium ${mod.published ? "text-ok" : "text-ink-3"}`}>
+                          <span className={`text-xs font-medium ${mod.published ? "text-emerald-400" : "text-zinc-600"}`}>
                             {mod.published ? "Yes" : "Draft"}
                           </span>
                         </td>

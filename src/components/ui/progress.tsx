@@ -1,47 +1,25 @@
 import { cn } from "@/lib/utils";
 
-// Range progress bar. `value` is 0-100.
-//
-// Completion is ACCENT, not a pass/fail gradient. The old bar auto-coloured by
-// value — red under 40%, amber under 70%, green above — which told a learner on
-// lesson two of ten that something was wrong when nothing was. Progress is
-// neutral information; only pass `tone` when the value genuinely encodes a
-// result (a grade, a coverage threshold, a failing health check).
+// Vault progress bar. `value` is 0-100. Colour shifts with completion unless a
+// fixed tone is forced.
 
 export function ProgressBar({
   value,
   className,
   barClassName,
   tone,
-  label,
 }: {
   value: number;
   className?: string;
   barClassName?: string;
-  tone?: "ok" | "warn" | "danger" | "emerald" | "amber" | "red";
-  /** Accessible name. Without it the bar is announced as an unlabelled progressbar. */
-  label?: string;
+  tone?: "emerald" | "amber" | "red";
 }) {
   const pct = Math.max(0, Math.min(100, Math.round(value)));
-
-  const TONES = {
-    ok: "bg-ok", warn: "bg-warn", danger: "bg-danger",
-    emerald: "bg-ok", amber: "bg-warn", red: "bg-danger",
-  } as const;
-
+  const auto = pct >= 70 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-red-500";
+  const color = tone ? { emerald: "bg-emerald-500", amber: "bg-amber-500", red: "bg-red-500" }[tone] : auto;
   return (
-    <div
-      role="progressbar"
-      aria-valuenow={pct}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-label={label}
-      className={cn("h-1.5 w-full overflow-hidden rounded-full bg-surface-inset", className)}
-    >
-      <div
-        className={cn("h-full rounded-full transition-[width] duration-slow ease-out", tone ? TONES[tone] : "bg-accent", barClassName)}
-        style={{ width: `${pct}%` }}
-      />
+    <div className={cn("h-2 w-full rounded-full bg-white/8 overflow-hidden", className)}>
+      <div className={cn("h-full rounded-full transition-all", color, barClassName)} style={{ width: `${pct}%` }} />
     </div>
   );
 }

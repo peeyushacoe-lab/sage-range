@@ -141,32 +141,32 @@ export default async function AdminCertificatesPage() {
     <div className="p-8 space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-white">Certificate Approvals</h1>
-        <p className="text-ink-3 text-sm mt-1">
+        <p className="text-zinc-500 text-sm mt-1">
           Everyone who has completed a path, an Academy course, or met IR Commander requirements appears here until you approve or reject their certificate.
         </p>
       </div>
 
       <section>
-        <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-3">
-          Pending {pending.length > 0 && <span className="text-warn">({pending.length})</span>}
+        <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">
+          Pending {pending.length > 0 && <span className="text-amber-400">({pending.length})</span>}
         </h2>
-        <div className="rounded-xl border border-edge overflow-hidden">
+        <div className="rounded-xl border border-white/8 overflow-hidden">
           {pending.length === 0 ? (
-            <p className="text-sm text-ink-3 p-5">No pending requests — everyone who&apos;s finished has been decided.</p>
+            <p className="text-sm text-zinc-600 p-5">No pending requests — everyone who&apos;s finished has been decided.</p>
           ) : (
-            <div className="divide-y divide-edge-subtle">
+            <div className="divide-y divide-white/5">
               {pending.map((item) => (
                 <div key={item.key} className="flex items-center justify-between gap-4 px-5 py-4">
                   <div className="min-w-0">
-                    <p className="font-semibold text-ink">
+                    <p className="font-semibold text-zinc-100">
                       {item.userName}
-                      <span className="text-ink-3 font-normal"> · {item.userEmail}</span>
+                      <span className="text-zinc-500 font-normal"> · {item.userEmail}</span>
                     </p>
-                    <p className="text-sm text-ink-2 mt-0.5">
-                      <span className="text-ink-3">{KIND_LABEL[item.kind]}:</span> {item.title}
+                    <p className="text-sm text-zinc-400 mt-0.5">
+                      <span className="text-zinc-500">{KIND_LABEL[item.kind]}:</span> {item.title}
                     </p>
                     {item.completedAt && (
-                      <p className="text-xs text-ink-3 mt-1 font-mono">completed {item.completedAt.toISOString().slice(0, 10)}</p>
+                      <p className="text-xs text-zinc-600 mt-1 font-mono">completed {item.completedAt.toISOString().slice(0, 10)}</p>
                     )}
                   </div>
                   <ApprovalRowActions userId={item.userId} kind={item.kind} targetId={item.targetId} title={item.title} />
@@ -178,28 +178,28 @@ export default async function AdminCertificatesPage() {
       </section>
 
       <section>
-        <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-3">Recent decisions</h2>
-        <div className="rounded-xl border border-edge overflow-hidden">
+        <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Recent decisions</h2>
+        <div className="rounded-xl border border-white/8 overflow-hidden">
           {decided.length === 0 ? (
-            <p className="text-sm text-ink-3 p-5">No decisions yet.</p>
+            <p className="text-sm text-zinc-600 p-5">No decisions yet.</p>
           ) : (
-            <div className="divide-y divide-edge-subtle">
+            <div className="divide-y divide-white/5">
               {decided.map((req) => (
                 <div key={req.id} className="flex items-center justify-between gap-4 px-5 py-3">
                   <div className="min-w-0">
-                    <p className="text-sm text-ink-2">
+                    <p className="text-sm text-zinc-300">
                       {req.user.displayName ?? req.user.email.split("@")[0]}
-                      <span className="text-ink-3"> · {KIND_LABEL[req.kind]}: {req.title}</span>
+                      <span className="text-zinc-600"> · {KIND_LABEL[req.kind]}: {req.title}</span>
                     </p>
-                    <p className="text-xs text-ink-3 mt-0.5 font-mono">
+                    <p className="text-xs text-zinc-600 mt-0.5 font-mono">
                       {req.decidedAt?.toISOString().slice(0, 10)} by {req.decidedBy?.displayName ?? req.decidedBy?.email ?? "—"}
                     </p>
                   </div>
                   <span
                     className={`shrink-0 text-xs font-semibold rounded-full px-3 py-1 border ${
                       req.status === "APPROVED"
-                        ? "text-ok border-ok-edge bg-ok-wash"
-                        : "text-danger border-danger-edge bg-danger-wash"
+                        ? "text-emerald-400 border-emerald-500/40 bg-emerald-500/10"
+                        : "text-red-400 border-red-500/40 bg-red-500/10"
                     }`}
                   >
                     {req.status}

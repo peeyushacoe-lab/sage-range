@@ -77,34 +77,34 @@ export function AzureLogsAnalysisClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Spot the Anomaly" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">Azure AD sign-in logs for a user account:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{SIGNIN}</pre>
+        <p className="text-zinc-300 text-sm mb-3">Azure AD sign-in logs for a user account:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{SIGNIN}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What does this sign-in pattern indicate?</p>
+            <p className="text-sm text-zinc-300 font-medium">What does this sign-in pattern indicate?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — Warsaw to Jakarta in 15 minutes is physically impossible: classic impossible travel. Flag: SAGE&#123;1mp0ss1bl3_tr4v3l_d3t3ct3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — Warsaw to Jakarta in 15 minutes is physically impossible: classic impossible travel. Flag: SAGE&#123;1mp0ss1bl3_tr4v3l_d3t3ct3d&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Prioritize the Response" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">The Azure Activity Log shows what the account did next:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-danger whitespace-pre-wrap overflow-x-auto">{ACTIVITY}</pre>
+        <p className="text-zinc-300 text-sm mb-3">The Azure Activity Log shows what the account did next:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-red-300 whitespace-pre-wrap overflow-x-auto">{ACTIVITY}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What should be prioritized in response?</p>
+            <p className="text-sm text-zinc-300 font-medium">What should be prioritized in response?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Immediately revoke the newly created admin role assignment and force session/token revocation for the account",
@@ -114,25 +114,25 @@ export function AzureLogsAnalysisClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — revoke the admin role and force token revocation immediately to cut off further access. Flag: SAGE&#123;r3v0k3_4dm1n_r0l3_4nd_t0k3ns&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — revoke the admin role and force token revocation immediately to cut off further access. Flag: SAGE&#123;r3v0k3_4dm1n_r0l3_4nd_t0k3ns&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Explain the Log Pairing" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">A teammate asks why you pulled both log types instead of just one.</p>
+        <p className="text-zinc-300 text-sm mb-4">A teammate asks why you pulled both log types instead of just one.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why check both sign-in logs AND activity logs together rather than just one?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why check both sign-in logs AND activity logs together rather than just one?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Sign-in logs show who authenticated when; activity logs show what actions were taken — together they reconstruct the full attack chain",
@@ -142,17 +142,17 @@ export function AzureLogsAnalysisClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — combining who-authenticated-when with what-actions-followed reconstructs the full attack chain.
             Flag: SAGE&#123;c0mb1n3_s1gn1n_4nd_4ct1v1ty_l0gs&#125;
           </p>
@@ -160,12 +160,12 @@ export function AzureLogsAnalysisClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;1mp0ss1bl3_tr4v3l_d3t3ct3d&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;r3v0k3_4dm1n_r0l3_4nd_t0k3ns&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;c0mb1n3_s1gn1n_4nd_4ct1v1ty_l0gs&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;1mp0ss1bl3_tr4v3l_d3t3ct3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;r3v0k3_4dm1n_r0l3_4nd_t0k3ns&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;c0mb1n3_s1gn1n_4nd_4ct1v1ty_l0gs&#125;</span></li>
           </ul>
         </div>
       )}

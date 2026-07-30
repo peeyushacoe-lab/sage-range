@@ -77,25 +77,25 @@ export function RubricBuilder({ assessmentId, rubricId, criteria: initial }: Pro
   return (
     <div className="space-y-4">
       {rubricId && criteria.length > 0 && (
-        <div className="rounded-xl border border-edge overflow-hidden">
+        <div className="rounded-xl border border-white/8 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-edge bg-white/2">
-                <th className="text-left px-4 py-2 text-xs text-ink-3 uppercase tracking-wider">Criterion</th>
-                <th className="text-center px-4 py-2 text-xs text-ink-3 uppercase tracking-wider">Max Score</th>
+              <tr className="border-b border-white/8 bg-white/2">
+                <th className="text-left px-4 py-2 text-xs text-zinc-500 uppercase tracking-wider">Criterion</th>
+                <th className="text-center px-4 py-2 text-xs text-zinc-500 uppercase tracking-wider">Max Score</th>
                 <th className="px-4 py-2" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-edge-subtle">
+            <tbody className="divide-y divide-white/4">
               {criteria.map((c) => (
-                <tr key={c.id} className="hover:bg-surface-2 transition">
-                  <td className="px-4 py-3 text-ink">{c.label}</td>
-                  <td className="px-4 py-3 text-center text-ink-2">{c.maxScore}</td>
+                <tr key={c.id} className="hover:bg-white/2 transition">
+                  <td className="px-4 py-3 text-zinc-200">{c.label}</td>
+                  <td className="px-4 py-3 text-center text-zinc-400">{c.maxScore}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => removeCriterion(c.id)}
                       disabled={removingId === c.id}
-                      className="text-xs text-danger hover:text-danger disabled:opacity-50 transition"
+                      className="text-xs text-red-400 hover:text-red-300 disabled:opacity-50 transition"
                     >
                       {removingId === c.id ? "Removing…" : "Remove"}
                     </button>
@@ -109,42 +109,42 @@ export function RubricBuilder({ assessmentId, rubricId, criteria: initial }: Pro
 
       <div className="flex gap-2 items-end">
         <div className="flex-1">
-          <label className="text-xs text-ink-3 block mb-1">New Criterion</label>
+          <label className="text-xs text-zinc-500 block mb-1">New Criterion</label>
           <input
             type="text"
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addCriterion()}
             placeholder="e.g. Technical Accuracy"
-            className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
           />
         </div>
         <div className="w-24">
-          <label className="text-xs text-ink-3 block mb-1">Max Score</label>
+          <label className="text-xs text-zinc-500 block mb-1">Max Score</label>
           <input
             type="number"
             value={newMax}
             min={1}
             max={100}
             onChange={(e) => setNewMax(Math.max(1, parseInt(e.target.value) || 10))}
-            className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50"
           />
         </div>
         <button
           onClick={addCriterion}
           disabled={adding || !newLabel.trim()}
-          className="rounded-lg border border-ok-edge bg-ok-wash px-4 py-2 text-sm text-ok hover:bg-ok-wash disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
+          className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition whitespace-nowrap"
         >
           {adding ? "Adding…" : "+ Add"}
         </button>
       </div>
 
       {error && (
-        <p className="text-xs text-danger rounded-lg border border-danger-edge bg-danger-wash px-3 py-2">{error}</p>
+        <p className="text-xs text-red-400 rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-2">{error}</p>
       )}
 
       {criteria.length === 0 && !rubricId && (
-        <p className="text-xs text-ink-3">Add at least one criterion to create the rubric.</p>
+        <p className="text-xs text-zinc-600">Add at least one criterion to create the rubric.</p>
       )}
     </div>
   );

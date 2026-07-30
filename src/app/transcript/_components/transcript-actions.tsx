@@ -16,13 +16,13 @@ export function TranscriptActions() {
     <div className="flex items-center gap-2 flex-wrap">
       <button
         onClick={copyLink}
-        className="rounded-lg border border-edge-strong px-4 py-2 text-sm font-semibold text-ink-2 hover:border-edge-strong hover:text-white transition"
+        className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-zinc-300 hover:border-white/30 hover:text-white transition"
       >
         {copied ? <><Icon name="check" size={12} /> Copied</> : "Copy link"}
       </button>
       <button
         onClick={() => window.print()}
-        className="rounded-lg bg-accent-fill text-white font-semibold px-5 py-2 text-sm hover:bg-accent-hover transition"
+        className="rounded-lg bg-sage-500 text-black font-semibold px-5 py-2 text-sm hover:bg-sage-400 transition"
       >
         Print / PDF
       </button>

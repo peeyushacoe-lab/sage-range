@@ -35,22 +35,22 @@ export function AnnouncementRowActions({ id, published }: { id: string; publishe
         disabled={pending}
         className={`text-xs font-semibold uppercase tracking-widest border rounded px-2.5 py-1 transition-colors disabled:opacity-60 ${
           active
-            ? "border-ok-edge bg-ok-wash text-ok"
-            : "border-edge text-ink-3 hover:border-edge-strong hover:text-ink-2"
+            ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+            : "border-white/10 text-zinc-600 hover:border-white/20 hover:text-zinc-400"
         }`}
       >
         {active ? "Published" : "Hidden"}
       </button>
       {!confirm ? (
-        <button onClick={() => setConfirm(true)} className="text-xs text-ink-3 hover:text-danger transition-colors">
+        <button onClick={() => setConfirm(true)} className="text-xs text-zinc-600 hover:text-red-400 transition-colors">
           Delete
         </button>
       ) : (
         <span className="flex items-center gap-2">
-          <button onClick={del} disabled={pending} className="text-xs text-danger hover:text-danger disabled:opacity-60">
+          <button onClick={del} disabled={pending} className="text-xs text-red-400 hover:text-red-300 disabled:opacity-60">
             {pending ? "…" : "Confirm"}
           </button>
-          <button onClick={() => setConfirm(false)} className="text-xs text-ink-3 hover:text-ink-2">
+          <button onClick={() => setConfirm(false)} className="text-xs text-zinc-600 hover:text-zinc-300">
             Cancel
           </button>
         </span>

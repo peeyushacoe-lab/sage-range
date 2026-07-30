@@ -75,7 +75,7 @@ export function HintFeedbackForm({
   if (submitted) {
     return (
       <div className="text-center py-6">
-        <p className="text-sm text-ok font-medium">
+        <p className="text-sm text-sage-400 font-medium">
           Thanks for the feedback!
         </p>
       </div>
@@ -87,7 +87,7 @@ export function HintFeedbackForm({
       {/* Score Slider */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-ink">
+          <label className="text-sm font-medium text-zinc-200">
             How helpful was this hint?
           </label>
           <span className="text-2xl">{scoreEmoji(score)}</span>
@@ -98,9 +98,9 @@ export function HintFeedbackForm({
           max="10"
           value={score}
           onChange={(e) => setScore(parseInt(e.target.value, 10))}
-          className="w-full h-2 bg-surface-3 rounded-lg appearance-none cursor-pointer"
+          className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
         />
-        <div className="flex justify-between text-xs text-ink-3 mt-1">
+        <div className="flex justify-between text-xs text-zinc-500 mt-1">
           <span>Not helpful</span>
           <span>Very helpful</span>
         </div>
@@ -108,7 +108,7 @@ export function HintFeedbackForm({
 
       {/* Helpful Toggle */}
       <div>
-        <p className="text-sm font-medium text-ink mb-2">
+        <p className="text-sm font-medium text-zinc-200 mb-2">
           Was this helpful?
         </p>
         <div className="flex gap-3">
@@ -117,8 +117,8 @@ export function HintFeedbackForm({
             onClick={() => setWasHelpful(true)}
             className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
               wasHelpful === true
-                ? "bg-ok-wash border border-ok-edge text-ok"
-                : "bg-surface-1 border border-edge-strong text-ink-2 hover:border-edge-strong"
+                ? "bg-sage-500/20 border border-sage-500/50 text-sage-300"
+                : "bg-zinc-900 border border-zinc-700 text-zinc-400 hover:border-zinc-600"
             }`}
           >
             <ThumbsUp size={16} />
@@ -129,8 +129,8 @@ export function HintFeedbackForm({
             onClick={() => setWasHelpful(false)}
             className={`flex items-center gap-2 px-4 py-2 rounded transition-colors ${
               wasHelpful === false
-                ? "bg-danger-wash border border-danger-edge text-danger"
-                : "bg-surface-1 border border-edge-strong text-ink-2 hover:border-edge-strong"
+                ? "bg-red-500/20 border border-red-500/50 text-red-300"
+                : "bg-zinc-900 border border-zinc-700 text-zinc-400 hover:border-zinc-600"
             }`}
           >
             <ThumbsDown size={16} />
@@ -141,7 +141,7 @@ export function HintFeedbackForm({
 
       {/* Optional Feedback */}
       <div>
-        <label className="text-sm font-medium text-ink block mb-2">
+        <label className="text-sm font-medium text-zinc-200 block mb-2">
           Additional feedback (optional)
         </label>
         <textarea
@@ -151,24 +151,24 @@ export function HintFeedbackForm({
           }
           placeholder="Tell us what could be improved..."
           maxLength={200}
-          className="w-full px-3 py-2 bg-surface-1 border border-edge-strong rounded text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge resize-none"
+          className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/50 resize-none"
           rows={3}
         />
-        <p className="text-xs text-ink-3 mt-1">
+        <p className="text-xs text-zinc-600 mt-1">
           {feedback.length}/200 characters
         </p>
       </div>
 
       {/* Error */}
       {error && (
-        <p className="text-xs text-danger">{error}</p>
+        <p className="text-xs text-red-400">{error}</p>
       )}
 
       {/* Submit */}
       <button
         type="submit"
         disabled={loading || wasHelpful === null}
-        className="w-full px-4 py-2 bg-accent-fill text-white text-sm font-medium rounded hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full px-4 py-2 bg-sage-500 text-black text-sm font-medium rounded hover:bg-sage-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? "Submitting..." : "Submit Feedback"}
       </button>

@@ -124,20 +124,20 @@ export function RuleEditorModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 overflow-y-auto">
-      <div className="w-full max-w-4xl my-8 rounded-xl border border-edge bg-surface-1 shadow-2xl">
+      <div className="w-full max-w-4xl my-8 rounded-xl border border-white/10 bg-zinc-900 shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 border-b border-edge bg-surface-1 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 border-b border-white/10 bg-zinc-900 px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-white">
               {submissionId ? 'Edit Rule' : 'Create Rule'}
             </h2>
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs text-zinc-500 mt-1">
               {submissionId ? 'Update your detection rule' : 'Create a new detection rule'}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-ink-3 hover:text-white transition"
+            className="text-zinc-500 hover:text-white transition"
           >
             <X size={20} />
           </button>
@@ -148,7 +148,7 @@ export function RuleEditorModal({
           {/* Rule Name */}
           <div>
             <label className="block text-sm font-semibold text-white mb-2">
-              Rule Name <span className="text-danger">*</span>
+              Rule Name <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
@@ -156,9 +156,9 @@ export function RuleEditorModal({
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Suspicious PowerShell Usage"
               maxLength={100}
-              className="w-full rounded-lg border border-edge bg-surface-0 px-3 py-2 text-sm text-white placeholder-ink-3 focus:border-ok-edge focus:outline-none focus:ring-1 focus:ring-ok"
+              className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
             />
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               {name.length} / 100 characters
             </p>
           </div>
@@ -173,9 +173,9 @@ export function RuleEditorModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe what this rule detects..."
               maxLength={500}
-              className="w-full h-20 rounded-lg border border-edge bg-surface-0 px-3 py-2 text-sm text-white placeholder-ink-3 focus:border-ok-edge focus:outline-none focus:ring-1 focus:ring-ok resize-none"
+              className="w-full h-20 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 resize-none"
             />
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               {description.length} / 500 characters
             </p>
           </div>
@@ -183,7 +183,7 @@ export function RuleEditorModal({
           {/* Language Selector */}
           <div>
             <label className="block text-sm font-semibold text-white mb-2">
-              Language <span className="text-danger">*</span>
+              Language <span className="text-red-400">*</span>
             </label>
             <div className="grid grid-cols-5 gap-2">
               {(['SIGMA', 'KQL', 'SPLUNK', 'ELASTIC', 'YARA'] as const).map((lang) => (
@@ -193,8 +193,8 @@ export function RuleEditorModal({
                   className={cn(
                     'rounded-lg border px-3 py-2 text-sm font-mono font-medium transition-all',
                     language === lang
-                      ? 'border-ok-edge bg-ok-wash text-ok'
-                      : 'border-edge bg-surface-2 text-ink-2 hover:bg-surface-2 hover:border-edge-strong'
+                      ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                      : 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-white/20'
                   )}
                 >
                   {lang}
@@ -206,13 +206,13 @@ export function RuleEditorModal({
           {/* Rule Content */}
           <div>
             <label className="block text-sm font-semibold text-white mb-2">
-              Rule Content <span className="text-danger">*</span>
+              Rule Content <span className="text-red-400">*</span>
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={`Paste your ${language} rule here...`}
-              className="w-full h-64 rounded-lg border border-edge bg-surface-0 px-3 py-2 text-xs font-mono text-white placeholder-ink-3 focus:border-ok-edge focus:outline-none focus:ring-1 focus:ring-ok resize-none"
+              className="w-full h-64 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs font-mono text-white placeholder-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 resize-none"
             />
           </div>
 
@@ -222,14 +222,14 @@ export function RuleEditorModal({
               {validationErrors.map((error, i) => (
                 <div
                   key={i}
-                  className="rounded-lg border border-danger-edge bg-danger-wash p-3 flex gap-3"
+                  className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 flex gap-3"
                 >
-                  <AlertCircle size={16} className="text-danger flex-none mt-0.5" />
+                  <AlertCircle size={16} className="text-red-400 flex-none mt-0.5" />
                   <div>
-                    <p className="text-xs font-semibold text-danger">
+                    <p className="text-xs font-semibold text-red-400">
                       {error.line ? `Line ${error.line}` : 'Validation Error'}
                     </p>
-                    <p className="text-xs text-danger mt-1">{error.message}</p>
+                    <p className="text-xs text-red-300 mt-1">{error.message}</p>
                   </div>
                 </div>
               ))}
@@ -242,19 +242,19 @@ export function RuleEditorModal({
               className={cn(
                 'rounded-lg p-3 flex gap-2',
                 message.type === 'success'
-                  ? 'border border-ok-edge bg-ok-wash'
-                  : 'border border-danger-edge bg-danger-wash'
+                  ? 'border border-emerald-500/30 bg-emerald-500/10'
+                  : 'border border-red-500/30 bg-red-500/10'
               )}
             >
               {message.type === 'success' ? (
-                <Check size={16} className="text-ok flex-none mt-0.5" />
+                <Check size={16} className="text-emerald-400 flex-none mt-0.5" />
               ) : (
-                <AlertCircle size={16} className="text-danger flex-none mt-0.5" />
+                <AlertCircle size={16} className="text-red-400 flex-none mt-0.5" />
               )}
               <p
                 className={cn(
                   'text-xs',
-                  message.type === 'success' ? 'text-ok' : 'text-danger'
+                  message.type === 'success' ? 'text-emerald-300' : 'text-red-300'
                 )}
               >
                 {message.text}
@@ -264,7 +264,7 @@ export function RuleEditorModal({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 border-t border-edge bg-surface-1 px-6 py-4 flex items-center justify-between gap-3">
+        <div className="sticky bottom-0 border-t border-white/10 bg-zinc-900 px-6 py-4 flex items-center justify-between gap-3">
           <Button
             variant="ghost"
             onClick={onClose}

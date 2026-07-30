@@ -76,18 +76,18 @@ export function TestRuleModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-edge bg-surface-1 shadow-2xl">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-white/10 bg-zinc-900 shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 border-b border-edge bg-surface-1 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 border-b border-white/10 bg-zinc-900 px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-white">Test Rule</h2>
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs text-zinc-500 mt-1">
               Execute your {ruleLanguage} rule against test data (max 10 lines)
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-ink-3 hover:text-white transition"
+            className="text-zinc-500 hover:text-white transition"
           >
             <X size={20} />
           </button>
@@ -104,20 +104,20 @@ export function TestRuleModal({
               value={testData}
               onChange={(e) => setTestData(e.target.value)}
               placeholder="Paste log lines here (one per line, max 10 lines)&#10;Example: [2024-07-30] Failed login attempt from 192.168.1.100"
-              className="w-full h-32 rounded-lg border border-edge bg-surface-0 px-3 py-2 text-sm font-mono text-ink-2 placeholder-ink-3 focus:border-ok-edge focus:outline-none focus:ring-1 focus:ring-ok resize-none"
+              className="w-full h-32 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm font-mono text-zinc-300 placeholder-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 resize-none"
             />
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               {testData.split('\n').filter(l => l.trim()).length} / 10 lines
             </p>
           </div>
 
           {/* Error Display */}
           {error && (
-            <div className="rounded-lg border border-danger-edge bg-danger-wash p-3 flex gap-3">
-              <AlertCircle size={16} className="text-danger flex-none mt-0.5" />
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 flex gap-3">
+              <AlertCircle size={16} className="text-red-400 flex-none mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-danger">Error</p>
-                <p className="text-xs text-danger mt-1">{error}</p>
+                <p className="text-sm font-semibold text-red-400">Error</p>
+                <p className="text-xs text-red-300 mt-1">{error}</p>
               </div>
             </div>
           )}
@@ -127,19 +127,19 @@ export function TestRuleModal({
             <div className="space-y-3">
               {/* Summary */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-lg border border-edge bg-surface-0 p-3">
-                  <p className="text-xs text-ink-3 mb-1">Execution Time</p>
+                <div className="rounded-lg border border-white/10 bg-zinc-950 p-3">
+                  <p className="text-xs text-zinc-500 mb-1">Execution Time</p>
                   <p className="text-lg font-bold text-white">{result.executionTimeMs}ms</p>
                 </div>
-                <div className="rounded-lg border border-edge bg-surface-0 p-3">
-                  <p className="text-xs text-ink-3 mb-1">Matches</p>
-                  <p className="text-lg font-bold text-ok">{result.matchCount}</p>
+                <div className="rounded-lg border border-white/10 bg-zinc-950 p-3">
+                  <p className="text-xs text-zinc-500 mb-1">Matches</p>
+                  <p className="text-lg font-bold text-emerald-400">{result.matchCount}</p>
                 </div>
-                <div className="rounded-lg border border-edge bg-surface-0 p-3">
-                  <p className="text-xs text-ink-3 mb-1">Errors</p>
+                <div className="rounded-lg border border-white/10 bg-zinc-950 p-3">
+                  <p className="text-xs text-zinc-500 mb-1">Errors</p>
                   <p className={cn(
                     'text-lg font-bold',
-                    result.errors.length > 0 ? 'text-danger' : 'text-ok'
+                    result.errors.length > 0 ? 'text-red-400' : 'text-emerald-400'
                   )}>
                     {result.errors.length}
                   </p>
@@ -150,19 +150,19 @@ export function TestRuleModal({
               {result.matchedLines.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                    <Check size={16} className="text-ok" />
+                    <Check size={16} className="text-emerald-400" />
                     Matched Lines
                   </p>
                   <div className="space-y-2">
                     {result.matchedLines.map((match) => (
                       <div
                         key={match.lineNumber}
-                        className="rounded-lg border border-ok-edge bg-ok-wash p-2"
+                        className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-2"
                       >
-                        <p className="text-xs font-mono text-ok mb-1">
+                        <p className="text-xs font-mono text-emerald-400 mb-1">
                           Line {match.lineNumber}
                         </p>
-                        <p className="text-xs text-ink-2 font-mono break-all">
+                        <p className="text-xs text-zinc-300 font-mono break-all">
                           {match.content}
                         </p>
                       </div>
@@ -175,16 +175,16 @@ export function TestRuleModal({
               {result.errors.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                    <AlertCircle size={16} className="text-danger" />
+                    <AlertCircle size={16} className="text-red-400" />
                     Errors ({result.errors.length})
                   </p>
                   <div className="space-y-2">
                     {result.errors.map((err, i) => (
                       <div
                         key={i}
-                        className="rounded-lg border border-danger-edge bg-danger-wash p-2"
+                        className="rounded-lg border border-red-500/30 bg-red-500/5 p-2"
                       >
-                        <p className="text-xs text-danger font-mono">{err}</p>
+                        <p className="text-xs text-red-300 font-mono">{err}</p>
                       </div>
                     ))}
                   </div>
@@ -195,7 +195,7 @@ export function TestRuleModal({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 border-t border-edge bg-surface-1 px-6 py-4 flex items-center justify-between gap-3">
+        <div className="sticky bottom-0 border-t border-white/10 bg-zinc-900 px-6 py-4 flex items-center justify-between gap-3">
           <Button
             variant="ghost"
             onClick={onClose}

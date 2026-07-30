@@ -25,14 +25,14 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
 
   if (achievements.length === 0) {
     return (
-      <div className="rounded-xl border border-edge bg-surface-1 p-6">
-        <p className="text-xs uppercase tracking-widest text-ink-3 mb-4">
+      <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-6">
+        <p className="text-xs uppercase tracking-widest text-zinc-500 mb-4">
           Achievements
         </p>
         <div className="text-center py-8">
           <Icon name="achievements" size={40} className="mx-auto mb-3 opacity-50" />
-          <p className="text-sm text-ink-3">No achievements yet</p>
-          <p className="text-xs text-ink-3 mt-1">
+          <p className="text-sm text-zinc-500">No achievements yet</p>
+          <p className="text-xs text-zinc-600 mt-1">
             Complete labs, incidents, and hunts to earn achievements
           </p>
         </div>
@@ -76,24 +76,24 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
   const getTypeColor = (type: string) => {
     switch (type) {
       case "LAB_SOLVED":
-        return "border-ok-edge bg-ok-wash text-ok";
+        return "border-teal-500/30 bg-teal-500/8 text-teal-400";
       case "INCIDENT_COMPLETED":
-        return "border-sev-high-edge bg-sev-high-wash text-sev-high";
+        return "border-orange-500/30 bg-orange-500/8 text-orange-400";
       case "WEEKLY_CERT":
-        return "border-warn-edge bg-warn-wash text-warn";
+        return "border-amber-500/30 bg-amber-500/8 text-amber-400";
       case "HUNT_COMPLETED":
-        return "border-accent-edge bg-accent-wash text-accent";
+        return "border-purple-500/30 bg-purple-500/8 text-purple-400";
       case "RULES_SHARED":
-        return "border-info-edge bg-info-wash text-info";
+        return "border-blue-500/30 bg-blue-500/8 text-blue-400";
       default:
-        return "border-edge-strong bg-surface-1 text-ink-2";
+        return "border-zinc-600 bg-zinc-900 text-zinc-400";
     }
   };
 
   return (
-    <div className="rounded-xl border border-edge bg-surface-1 p-6">
+    <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xs uppercase tracking-widest text-ink-3">
+        <h3 className="text-xs uppercase tracking-widest text-zinc-500">
           Achievements ({sorted.length})
         </h3>
         <div className="flex gap-2">
@@ -104,8 +104,8 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
             }}
             className={`text-xs px-2 py-1 rounded border transition ${
               sortBy === "date"
-                ? "border-edge-strong bg-surface-2 text-ink"
-                : "border-edge text-ink-3 hover:border-edge-strong"
+                ? "border-zinc-500 bg-zinc-800 text-zinc-100"
+                : "border-white/10 text-zinc-500 hover:border-white/20"
             }`}
           >
             Newest
@@ -117,8 +117,8 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
             }}
             className={`text-xs px-2 py-1 rounded border transition ${
               sortBy === "type"
-                ? "border-edge-strong bg-surface-2 text-ink"
-                : "border-edge text-ink-3 hover:border-edge-strong"
+                ? "border-zinc-500 bg-zinc-800 text-zinc-100"
+                : "border-white/10 text-zinc-500 hover:border-white/20"
             }`}
           >
             Type
@@ -131,7 +131,7 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
         {visible.map((achievement) => (
           <div
             key={achievement.id}
-            className={`rounded-lg border p-4 transition hover:bg-surface-2/50 ${getTypeColor(achievement.type)}`}
+            className={`rounded-lg border p-4 transition hover:bg-zinc-800/50 ${getTypeColor(achievement.type)}`}
           >
             <div className="flex items-start gap-3 mb-2">
               <Icon
@@ -140,7 +140,7 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
                 variant="current"
               />
               <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-semibold text-ink truncate">
+                <h4 className="text-sm font-semibold text-zinc-100 truncate">
                   {achievement.title}
                 </h4>
                 <p className="text-[10px] font-mono uppercase opacity-60 mt-0.5">
@@ -148,17 +148,17 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
                 </p>
               </div>
             </div>
-            <p className="text-xs text-ink-2 line-clamp-2 mb-3">
+            <p className="text-xs text-zinc-400 line-clamp-2 mb-3">
               {achievement.description}
             </p>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-ink-3">
+              <span className="text-[10px] text-zinc-600">
                 {new Date(achievement.earnedAt).toLocaleDateString()}
               </span>
               {achievement.relatedId && (
                 <Link
                   href={`/${achievement.type.toLowerCase().split("_")[0]}/${achievement.relatedId}`}
-                  className="text-[10px] text-info hover:underline"
+                  className="text-[10px] text-blue-400 hover:underline"
                 >
                   View →
                 </Link>
@@ -174,17 +174,17 @@ export function AchievementGrid({ achievements }: { achievements: Achievement[] 
           <button
             onClick={() => setPage(Math.max(0, page - 1))}
             disabled={page === 0}
-            className="text-xs px-3 py-1.5 rounded border border-edge text-ink-3 disabled:opacity-50 hover:border-edge-strong transition"
+            className="text-xs px-3 py-1.5 rounded border border-white/10 text-zinc-500 disabled:opacity-50 hover:border-white/20 transition"
           >
             ← Previous
           </button>
-          <span className="text-xs text-ink-3">
+          <span className="text-xs text-zinc-600">
             Page {page + 1} of {totalPages}
           </span>
           <button
             onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
             disabled={page === totalPages - 1}
-            className="text-xs px-3 py-1.5 rounded border border-edge text-ink-3 disabled:opacity-50 hover:border-edge-strong transition"
+            className="text-xs px-3 py-1.5 rounded border border-white/10 text-zinc-500 disabled:opacity-50 hover:border-white/20 transition"
           >
             Next →
           </button>

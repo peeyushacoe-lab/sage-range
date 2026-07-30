@@ -61,13 +61,13 @@ export function AvatarUpload({ currentUrl, initial }: AvatarUploadProps) {
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-dashed border-edge-strong hover:border-ok-edge transition-colors flex-shrink-0 group"
+        className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-dashed border-zinc-700 hover:border-emerald-500/60 transition-colors flex-shrink-0 group"
       >
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="Avatar" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-surface-1 text-ink-2 text-xl font-black">
+          <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-zinc-400 text-xl font-black">
             {initial}
           </div>
         )}
@@ -82,7 +82,7 @@ export function AvatarUpload({ currentUrl, initial }: AvatarUploadProps) {
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={status === "uploading"}
-            className="text-xs text-ok hover:text-ok border border-ok-edge rounded px-3 py-1.5 transition-colors disabled:opacity-50"
+            className="text-xs text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 rounded px-3 py-1.5 transition-colors disabled:opacity-50"
           >
             {status === "uploading" ? "Uploading…" : "Upload photo"}
           </button>
@@ -91,14 +91,14 @@ export function AvatarUpload({ currentUrl, initial }: AvatarUploadProps) {
               type="button"
               onClick={handleRemove}
               disabled={status === "uploading"}
-              className="text-xs text-ink-3 hover:text-danger border border-edge-strong rounded px-3 py-1.5 transition-colors disabled:opacity-50"
+              className="text-xs text-zinc-500 hover:text-red-400 border border-zinc-700 rounded px-3 py-1.5 transition-colors disabled:opacity-50"
             >
               Remove
             </button>
           )}
         </div>
-        <p className="text-[11px] text-ink-3">JPEG, PNG or WebP · max 3 MB</p>
-        {error && <p className="text-[11px] text-danger">{error}</p>}
+        <p className="text-[11px] text-zinc-600">JPEG, PNG or WebP · max 3 MB</p>
+        {error && <p className="text-[11px] text-red-400">{error}</p>}
       </div>
 
       <input

@@ -46,7 +46,7 @@ export function CreateModuleForm({ pathId, nextOrder }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-xs text-ink-3 hover:text-ok border border-dashed border-edge hover:border-ok-edge rounded-lg px-4 py-2.5 transition w-full text-left"
+        className="text-xs text-zinc-500 hover:text-emerald-400 border border-dashed border-white/10 hover:border-emerald-500/30 rounded-lg px-4 py-2.5 transition w-full text-left"
       >
         + Add module
       </button>
@@ -54,54 +54,54 @@ export function CreateModuleForm({ pathId, nextOrder }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-edge bg-white/2 p-5 space-y-4">
+    <div className="rounded-xl border border-white/10 bg-white/2 p-5 space-y-4">
       <p className="text-sm font-semibold text-white">New Module (order {nextOrder + 1})</p>
 
       <div>
-        <label className="text-xs text-ink-3 uppercase tracking-wider block mb-1">Title</label>
+        <label className="text-xs text-zinc-500 uppercase tracking-wider block mb-1">Title</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g. Introduction to SIEM"
-          className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge"
+          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50"
         />
       </div>
 
       <div>
-        <label className="text-xs text-ink-3 uppercase tracking-wider block mb-1">Overview</label>
+        <label className="text-xs text-zinc-500 uppercase tracking-wider block mb-1">Overview</label>
         <textarea
           value={overview}
           onChange={(e) => setOverview(e.target.value)}
           rows={3}
           placeholder="Brief summary of what this module covers..."
-          className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge resize-none"
+          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50 resize-none"
         />
       </div>
 
       <div>
-        <label className="text-xs text-ink-3 uppercase tracking-wider block mb-1">Reading Material</label>
+        <label className="text-xs text-zinc-500 uppercase tracking-wider block mb-1">Reading Material</label>
         <textarea
           value={readingMaterial}
           onChange={(e) => setReadingMaterial(e.target.value)}
           rows={6}
           placeholder="Main reading content (supports plain text or markdown)..."
-          className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge resize-none font-mono"
+          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50 resize-none font-mono"
         />
       </div>
 
-      {error && <p className="text-xs text-danger">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
 
       <div className="flex gap-2">
         <button
           onClick={submit}
           disabled={loading}
-          className="rounded-lg bg-ok-wash border border-ok-edge px-4 py-2 text-xs font-semibold text-ok hover:bg-ok-wash disabled:opacity-50 transition"
+          className="rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-4 py-2 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/25 disabled:opacity-50 transition"
         >
           {loading ? "Creating…" : "Create Module"}
         </button>
         <button
           onClick={() => { setOpen(false); setError(null); }}
-          className="rounded-lg border border-edge px-4 py-2 text-xs text-ink-3 hover:text-ink-2 transition"
+          className="rounded-lg border border-white/10 px-4 py-2 text-xs text-zinc-500 hover:text-zinc-300 transition"
         >
           Cancel
         </button>

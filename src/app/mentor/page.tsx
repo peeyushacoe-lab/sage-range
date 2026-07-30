@@ -7,10 +7,10 @@ import { Navbar } from "@/components/navbar";
 export const dynamic = "force-dynamic";
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "text-warn border-warn-edge bg-warn-wash",
-  APPROVED: "text-ok border-ok-edge bg-ok-wash",
-  REJECTED: "text-danger border-danger-edge bg-danger-wash",
-  CHANGES_REQUESTED: "text-sev-high border-sev-high-edge bg-sev-high-wash",
+  PENDING: "text-amber-400 border-amber-500/30 bg-amber-500/10",
+  APPROVED: "text-sage-400 border-sage-500/30 bg-sage-500/10",
+  REJECTED: "text-red-400 border-red-500/30 bg-red-500/10",
+  CHANGES_REQUESTED: "text-orange-400 border-orange-500/30 bg-orange-500/10",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -53,9 +53,9 @@ export default async function MentorQueue() {
     items: typeof submissions;
   }) => (
     <section className="mb-10">
-      <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-4">{title} — {items.length}</h2>
+      <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">{title} — {items.length}</h2>
       {items.length === 0 ? (
-        <p className="text-sm text-ink-3">None.</p>
+        <p className="text-sm text-zinc-600">None.</p>
       ) : (
         <div className="flex flex-col gap-3">
           {items.map((s) => {
@@ -67,14 +67,14 @@ export default async function MentorQueue() {
               <Link
                 key={s.id}
                 href={`/mentor/${s.id}`}
-                className="rounded-xl border border-edge p-4 hover:border-ok-edge hover:bg-ok-wash transition flex items-center justify-between gap-4"
+                className="rounded-xl border border-white/8 p-4 hover:border-sage-500/30 hover:bg-sage-500/5 transition flex items-center justify-between gap-4"
               >
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-sm truncate">{s.assessment.title}</p>
-                  <p className="text-xs text-ink-3 mt-0.5">
+                  <p className="text-xs text-zinc-500 mt-0.5">
                     {s.assessment.module.path.title} → {s.assessment.module.title}
                   </p>
-                  <p className="text-xs text-ink-3 mt-1">
+                  <p className="text-xs text-zinc-600 mt-1">
                     {s.user.displayName ?? s.user.email} · {s.type} ·{" "}
                     {new Date(s.submittedAt).toLocaleDateString()}
                   </p>
@@ -91,20 +91,20 @@ export default async function MentorQueue() {
   );
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar backHref="/dashboard" backLabel="Dashboard" />
 
       <div className="max-w-3xl mx-auto px-6 py-8">
         <header className="mb-8 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Assessment Review Queue</h1>
-            <p className="text-ink-2 text-sm mt-1">
+            <p className="text-zinc-400 text-sm mt-1">
               {pending.length} pending · {reviewed.length} reviewed
             </p>
           </div>
           <Link
             href="/mentor/analytics"
-            className="shrink-0 rounded-lg border border-edge px-4 py-2 text-xs font-semibold text-ink-2 hover:border-ok-edge hover:text-ok transition"
+            className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-zinc-400 hover:border-sage-500/40 hover:text-sage-400 transition"
           >
             Analytics →
           </Link>

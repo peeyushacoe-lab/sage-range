@@ -24,8 +24,8 @@ const LANGUAGE_KEYWORDS: Record<RuleLanguage, Record<string, string>> = {
     condition: 'text-cyan-400',
     timeframe: 'text-cyan-400',
     references: 'text-cyan-400',
-    tags: 'text-accent',
-    author: 'text-accent',
+    tags: 'text-purple-400',
+    author: 'text-purple-400',
   },
   KQL: {
     where: 'text-cyan-400',
@@ -66,7 +66,7 @@ function highlightLine(line: string, language: RuleLanguage): React.ReactNode[] 
   // Comment detection
   const commentMatch = line.match(/^\s*#/);
   if (commentMatch) {
-    return [<span key="0" className="text-ink-3">{line}</span>];
+    return [<span key="0" className="text-zinc-600">{line}</span>];
   }
 
   // String detection
@@ -151,7 +151,7 @@ export function SyntaxHighlighter({
     <div
       ref={containerRef}
       className={cn(
-        'relative rounded-lg border border-edge bg-surface-1 overflow-hidden',
+        'relative rounded-lg border border-white/10 bg-zinc-900 overflow-hidden',
         className
       )}
       style={{ height }}
@@ -160,11 +160,11 @@ export function SyntaxHighlighter({
       {copyable && (
         <button
           onClick={handleCopy}
-          className="absolute top-3 right-3 z-10 rounded-lg border border-edge bg-surface-2 p-2 text-ink-2 hover:text-white hover:bg-surface-3 transition-colors"
+          className="absolute top-3 right-3 z-10 rounded-lg border border-white/10 bg-zinc-800 p-2 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
           title="Copy to clipboard"
         >
           {copied ? (
-            <Check size={16} className="text-ok" />
+            <Check size={16} className="text-emerald-500" />
           ) : (
             <Copy size={16} />
           )}
@@ -175,7 +175,7 @@ export function SyntaxHighlighter({
       <div className="flex h-full overflow-hidden">
         {/* Line numbers */}
         {showLineNumbers && (
-          <div className="flex-none border-r border-edge-subtle bg-surface-0 px-3 py-3 text-right text-xs text-ink-3 font-mono select-none overflow-hidden">
+          <div className="flex-none border-r border-white/5 bg-zinc-950 px-3 py-3 text-right text-xs text-zinc-600 font-mono select-none overflow-hidden">
             {lines.map((_, i) => (
               <div key={i} className="h-6 leading-6">
                 {i + 1}
@@ -186,7 +186,7 @@ export function SyntaxHighlighter({
 
         {/* Code */}
         <pre
-          className="flex-1 overflow-auto p-3 text-xs leading-6 text-ink-2 font-mono"
+          className="flex-1 overflow-auto p-3 text-xs leading-6 text-zinc-300 font-mono"
           style={{
             WebkitTextFillColor: 'inherit',
           }}

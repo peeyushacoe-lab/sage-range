@@ -86,16 +86,16 @@ export function InsiderThreatInvestigationClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Establish Context" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">A DLP alert names an employee. HR context and their recent activity log:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-3">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{HR_CONTEXT}</pre>
+        <p className="text-zinc-300 text-sm mb-3">A DLP alert names an employee. HR context and their recent activity log:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-3">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{HR_CONTEXT}</pre>
         </div>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{ACTIVITY_LOG}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{ACTIVITY_LOG}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Which combination of factors is most concerning here?</p>
+            <p className="text-sm text-zinc-300 font-medium">Which combination of factors is most concerning here?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Normal working hours with high access levels",
@@ -105,50 +105,50 @@ export function InsiderThreatInvestigationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — a resigning employee accessing hundreds of files off-hours is a classic pre-departure data theft pattern. Flag: SAGE&#123;d3p4rt1ng_3mpl0y33_r1sk&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a resigning employee accessing hundreds of files off-hours is a classic pre-departure data theft pattern. Flag: SAGE&#123;d3p4rt1ng_3mpl0y33_r1sk&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Confirm the Exfiltration" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">DLP tooling corroborates what the activity log already suggests.</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{DLP_LOG}</pre>
+        <p className="text-zinc-300 text-sm mb-3">DLP tooling corroborates what the activity log already suggests.</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{DLP_LOG}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">Flag the USB device serial number and data volume together.</p>
+            <p className="text-sm text-zinc-300 font-medium">Flag the USB device serial number and data volume together.</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t2Answer} onChange={setT2Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — SN2291X received 3.1 GB of confidential contract and customer data. Flag: SAGE&#123;sn2291x_3_1gb_usb_exfil&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — SN2291X received 3.1 GB of confidential contract and customer data. Flag: SAGE&#123;sn2291x_3_1gb_usb_exfil&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Choose the Response" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">
+        <p className="text-zinc-300 text-sm mb-4">
           The employee still has 5 days of employment remaining and access to sensitive systems.
         </p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What is the correct next step?</p>
+            <p className="text-sm text-zinc-300 font-medium">What is the correct next step?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Wait until their last day to raise it, to avoid confrontation",
@@ -158,17 +158,17 @@ export function InsiderThreatInvestigationClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — insider cases need both immediate containment (revoke access) and a formal process (HR/Legal),
             since it may lead to termination for cause or legal action. Flag: SAGE&#123;c0nt41n_4nd_3sc4l4t3&#125;
           </p>
@@ -176,12 +176,12 @@ export function InsiderThreatInvestigationClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;d3p4rt1ng_3mpl0y33_r1sk&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;sn2291x_3_1gb_usb_exfil&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;c0nt41n_4nd_3sc4l4t3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d3p4rt1ng_3mpl0y33_r1sk&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;sn2291x_3_1gb_usb_exfil&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;c0nt41n_4nd_3sc4l4t3&#125;</span></li>
           </ul>
         </div>
       )}

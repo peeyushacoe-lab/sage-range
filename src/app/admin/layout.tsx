@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { LogOut } from "lucide-react";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { signOut } from "@/auth";
 import { AdminNav } from "./_components/admin-nav";
@@ -10,15 +9,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!me || me.role !== "ADMIN") redirect("/dashboard");
 
   return (
-    <div className="flex min-h-screen bg-surface-0 text-ink">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex">
       {/* Sidebar */}
-      <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-edge bg-surface-1">
+      <aside className="w-60 shrink-0 border-r border-white/8 flex flex-col sticky top-0 h-screen">
         {/* Brand */}
-        <div className="flex h-16 shrink-0 items-center gap-3 border-b border-edge px-5">
-          <Image src="/logo.png" alt="Sage Vault" width={28} height={28} className="rounded-md" unoptimized />
+        <div className="h-16 flex items-center gap-3 px-5 border-b border-white/8 shrink-0">
+          <Image src="/logo.png" alt="Sage Vault" width={36} height={36} className="rounded-md" unoptimized />
           <div>
-            <p className="font-mono text-xs font-medium tracking-[0.12em] text-ink">SAGE VAULT</p>
-            <p className="font-mono text-[10px] uppercase tracking-wider text-ink-3">Admin Panel</p>
+            <p className="text-xs font-black tracking-widest text-emerald-400">SAGE VAULT</p>
+            <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-wider">Admin Panel</p>
           </div>
         </div>
 
@@ -26,14 +25,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <AdminNav />
 
         {/* User + sign out */}
-        <div className="shrink-0 border-t border-edge p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-danger-edge bg-danger-wash text-xs font-medium text-danger">
+        <div className="p-4 border-t border-white/8 shrink-0">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-7 w-7 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center text-xs font-bold text-red-400">
               {(me.displayName ?? me.email)[0].toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-medium text-ink-2">{me.displayName ?? "Admin"}</p>
-              <p className="truncate text-[10px] text-ink-3">{me.email}</p>
+              <p className="text-xs font-semibold text-zinc-300 truncate">{me.displayName ?? "Admin"}</p>
+              <p className="text-[10px] text-zinc-600 truncate">{me.email}</p>
             </div>
           </div>
           <form
@@ -44,9 +43,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           >
             <button
               type="submit"
-              className="flex w-full cursor-pointer items-center gap-1.5 text-left text-xs text-ink-3 transition-colors duration-fast hover:text-ink-2"
+              className="w-full text-left text-xs text-zinc-600 hover:text-zinc-300 transition-colors flex items-center gap-1.5"
             >
-              <LogOut aria-hidden="true" className="h-3 w-3" />
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
               Sign out
             </button>
           </form>
@@ -54,7 +55,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       {/* Main content */}
-      <main className="min-w-0 flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto min-w-0">
         {children}
       </main>
     </div>

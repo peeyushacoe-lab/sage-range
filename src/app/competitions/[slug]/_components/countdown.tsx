@@ -38,12 +38,12 @@ export function Countdown({
     <div
       className={`inline-flex items-center gap-2.5 rounded-xl border px-4 py-2.5 ${
         urgent
-          ? "border-danger-edge bg-danger-wash"
-          : "border-edge bg-surface-1"
+          ? "border-red-500/30 bg-red-500/8"
+          : "border-white/10 bg-zinc-900/50"
       }`}
     >
-      <span className={`text-xs ${urgent ? "text-danger" : "text-ink-3"}`}>{label}</span>
-      <span className={`font-mono text-base font-bold tabular-nums ${urgent ? "text-danger" : "text-white"}`}>
+      <span className={`text-xs ${urgent ? "text-red-400" : "text-zinc-500"}`}>{label}</span>
+      <span className={`font-mono text-base font-bold tabular-nums ${urgent ? "text-red-300" : "text-white"}`}>
         {formatted}
       </span>
     </div>

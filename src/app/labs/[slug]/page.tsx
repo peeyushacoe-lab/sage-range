@@ -10,10 +10,10 @@ import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
-  EASY:   "text-ok border-ok-edge",
-  MEDIUM: "text-warn border-warn-edge",
-  HARD:   "text-sev-high border-sev-high-edge",
-  INSANE: "text-danger border-danger-edge",
+  EASY:   "text-sage-500 border-sage-500/40",
+  MEDIUM: "text-amber-400 border-amber-500/40",
+  HARD:   "text-orange-400 border-orange-500/40",
+  INSANE: "text-red-400 border-red-500/40",
 };
 
 export default async function LabDetail({ params }: { params: Promise<{ slug: string }> }) {
@@ -44,36 +44,36 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
   const hasTasks = taskStages.length > 0;
 
   const Content = getLabContent(slug);
-  const diffColor = DIFF_COLORS[lab.difficulty] ?? "text-ink-2 border-edge";
+  const diffColor = DIFF_COLORS[lab.difficulty] ?? "text-zinc-400 border-white/10";
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar backHref="/labs" backLabel="Labs" />
       {labUpdated && (
-        <div className="bg-warn-wash border-b border-warn-edge px-6 py-2.5 flex items-center gap-2">
-          <span className="text-warn text-sm"><Icon name="warning" size={14} className="inline-block shrink-0" /></span>
-          <p className="text-xs text-warn">
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-2.5 flex items-center gap-2">
+          <span className="text-amber-400 text-sm"><Icon name="warning" size={14} className="inline-block shrink-0" /></span>
+          <p className="text-xs text-amber-300">
             This lab has been updated (v{lab.version}) since you started (v{attempt!.labVersion}). Review the instructions for any changes.
           </p>
         </div>
       )}
       {/* Header bar */}
-      <div className="border-b border-edge px-6 py-3 flex items-center justify-between">
-        <Link href="/labs" className="text-xs text-ink-3 hover:text-ink-2 flex items-center gap-1.5">
+      <div className="border-b border-white/8 px-6 py-3 flex items-center justify-between">
+        <Link href="/labs" className="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1.5">
           ← All Labs
         </Link>
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-ink-3 uppercase tracking-wider">{lab.type.replace("_", " ")}</span>
-          <span className="text-ink-3">·</span>
-          <span className="text-ink-3">{lab.category}</span>
-          <span className="text-ink-3">·</span>
+          <span className="text-sage-500 uppercase tracking-wider">{lab.type.replace("_", " ")}</span>
+          <span className="text-zinc-600">·</span>
+          <span className="text-zinc-500">{lab.category}</span>
+          <span className="text-zinc-600">·</span>
           <span className={`border px-2 py-0.5 rounded-full font-medium ${diffColor}`}>{lab.difficulty}</span>
-          <span className="text-ink-3">·</span>
-          <span className="text-ink-2">{lab.points} pts</span>
+          <span className="text-zinc-600">·</span>
+          <span className="text-zinc-400">{lab.points} pts</span>
           {alreadySolved && (
             <>
-              <span className="text-ink-3">·</span>
-              <span className="text-ok font-semibold"><Icon name="check" size={14} className="inline-block shrink-0" /> SOLVED</span>
+              <span className="text-zinc-600">·</span>
+              <span className="text-sage-500 font-semibold"><Icon name="check" size={14} className="inline-block shrink-0" /> SOLVED</span>
             </>
           )}
         </div>
@@ -83,17 +83,17 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
         {/* Lab title */}
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">{lab.title}</h1>
-          <p className="text-ink-2 mt-2 leading-relaxed">{lab.description}</p>
+          <p className="text-zinc-400 mt-2 leading-relaxed">{lab.description}</p>
         </header>
 
         {/* Task progress bar */}
         {hasTasks && (
-          <div className="mb-8 rounded-xl border border-edge bg-surface-1 p-4">
+          <div className="mb-8 rounded-xl border border-white/8 bg-zinc-900/40 p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs uppercase tracking-wider text-ink-3">Room Progress</p>
-              <p className="text-xs text-ink-2">
+              <p className="text-xs uppercase tracking-wider text-zinc-500">Room Progress</p>
+              <p className="text-xs text-zinc-400">
                 {completedTaskCount} / {taskStages.length} tasks
-                {alreadySolved && <span className="ml-2 text-ok font-medium">· Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+                {alreadySolved && <span className="ml-2 text-sage-500 font-medium">· Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
               </p>
             </div>
             <div className="flex gap-2">
@@ -104,10 +104,10 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
                   <div key={stage} className="flex-1">
                     <div
                       className={`h-1.5 rounded-full transition-all ${
-                        done ? "bg-ok" : current ? "bg-warn animate-pulse" : "bg-surface-2"
+                        done ? "bg-sage-500" : current ? "bg-amber-400 animate-pulse" : "bg-zinc-800"
                       }`}
                     />
-                    <p className={`text-[10px] mt-1.5 font-medium ${done ? "text-ok" : current ? "text-warn" : "text-ink-3"}`}>
+                    <p className={`text-[10px] mt-1.5 font-medium ${done ? "text-sage-500" : current ? "text-amber-400" : "text-zinc-600"}`}>
                       Task {i + 1}
                       {done && <Icon name="check" size={12} className="inline-block ml-1" />}
                     </p>
@@ -123,7 +123,7 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
           {Content ? (
             await Content({ labId: lab.id, userId: user.id })
           ) : (
-            <p className="text-ink-3 text-sm italic">
+            <p className="text-zinc-500 text-sm italic">
               No challenge content registered for this lab yet.
             </p>
           )}
@@ -131,24 +131,24 @@ export default async function LabDetail({ params }: { params: Promise<{ slug: st
 
         {/* Flag submission — only for CTF labs without task stages */}
         {!hasTasks && (
-          <section className="border-t border-edge pt-6">
+          <section className="border-t border-white/8 pt-6">
             <FlagForm labSlug={lab.slug} alreadySolved={alreadySolved} />
           </section>
         )}
 
         {/* Community writeups — only shown after solving */}
         {alreadySolved && (
-          <section className="border-t border-edge pt-6 mt-2">
+          <section className="border-t border-white/8 pt-6 mt-2">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-ink-2">Community Writeups</p>
+              <p className="text-sm font-semibold text-zinc-300">Community Writeups</p>
               <Link
                 href={`/labs/${slug}/writeups`}
-                className="text-xs text-ok hover:text-ok transition"
+                className="text-xs text-emerald-400 hover:text-emerald-300 transition"
               >
                 View writeups →
               </Link>
             </div>
-            <p className="text-xs text-ink-3 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               Read how others solved this challenge, or share your own approach.
             </p>
           </section>

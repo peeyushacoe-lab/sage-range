@@ -9,9 +9,9 @@ type Attempt = { id: string; startedAt: string; completedAt: string | null; scor
 type Action = "ESCALATE" | "CLOSE" | "MONITOR";
 
 const ACTION_STYLE: Record<Action, string> = {
-  ESCALATE: "bg-danger-wash border-danger-edge text-danger hover:bg-danger-wash",
-  CLOSE: "bg-surface-3 border-edge-strong/40 text-ink-2 hover:bg-surface-3",
-  MONITOR: "bg-warn-wash border-warn-edge text-warn hover:bg-warn-wash",
+  ESCALATE: "bg-red-500/15 border-red-500/40 text-red-400 hover:bg-red-500/25",
+  CLOSE: "bg-zinc-500/15 border-zinc-500/40 text-zinc-300 hover:bg-zinc-500/25",
+  MONITOR: "bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/25",
 };
 
 function formatClock(sec: number) {
@@ -107,18 +107,18 @@ export function SocShiftClient({
     <div className="max-w-4xl mx-auto px-6 py-8">
       <header className="mb-6">
         <h1 className="text-2xl font-bold">{shift.title}</h1>
-        <p className="text-ink-2 mt-2 leading-relaxed max-w-2xl">{shift.briefing}</p>
+        <p className="text-zinc-400 mt-2 leading-relaxed max-w-2xl">{shift.briefing}</p>
       </header>
 
       {!attempt && (
-        <div className="rounded-xl border border-edge bg-surface-1 p-6 text-center">
-          <p className="text-sm text-ink-2 mb-4">
+        <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-6 text-center">
+          <p className="text-sm text-zinc-400 mb-4">
             {shift.alerts.length} alerts, {Math.round(shift.timeLimitSec / 60)} minutes. Escalate the real ones, close the noise.
           </p>
           <button
             onClick={startShift}
             disabled={starting}
-            className="rounded-lg bg-accent-fill px-6 py-2.5 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition disabled:opacity-50"
+            className="rounded-lg bg-sage-500 px-6 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition disabled:opacity-50"
           >
             {starting ? "Starting…" : "Start Shift"}
           </button>
@@ -127,11 +127,11 @@ export function SocShiftClient({
 
       {inProgress && (
         <>
-          <div className="flex items-center justify-between mb-4 rounded-lg border border-edge bg-surface-1 px-4 py-3">
-            <span className="text-sm text-ink-2">
+          <div className="flex items-center justify-between mb-4 rounded-lg border border-white/8 bg-zinc-900/40 px-4 py-3">
+            <span className="text-sm text-zinc-400">
               {Object.keys(triaged).length}/{shift.alerts.length} triaged
             </span>
-            <span className={`text-lg font-mono font-bold ${remainingSec !== null && remainingSec < 300 ? "text-danger" : "text-ink"}`}>
+            <span className={`text-lg font-mono font-bold ${remainingSec !== null && remainingSec < 300 ? "text-red-400" : "text-zinc-100"}`}>
               {remainingSec !== null ? formatClock(remainingSec) : "--:--"}
             </span>
           </div>
@@ -140,14 +140,14 @@ export function SocShiftClient({
             {shift.alerts.map((a) => {
               const done = triaged[a.id];
               return (
-                <div key={a.id} className={`rounded-xl border p-4 ${done ? "border-edge-subtle bg-surface-1 opacity-60" : "border-edge bg-surface-1"}`}>
+                <div key={a.id} className={`rounded-xl border p-4 ${done ? "border-white/5 bg-zinc-900/30 opacity-60" : "border-white/8 bg-zinc-900/50"}`}>
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div>
-                      <span className="text-[10px] uppercase tracking-widest text-ink-3 font-mono">{a.source}</span>
-                      <p className="text-sm font-medium text-ink mt-0.5">{a.summary}</p>
+                      <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-mono">{a.source}</span>
+                      <p className="text-sm font-medium text-zinc-200 mt-0.5">{a.summary}</p>
                     </div>
                   </div>
-                  <pre className="font-mono text-xs text-ink-3 whitespace-pre-wrap bg-surface-0 border border-edge-subtle rounded-lg p-3 mb-3">{a.rawLog}</pre>
+                  <pre className="font-mono text-xs text-zinc-500 whitespace-pre-wrap bg-zinc-950 border border-white/5 rounded-lg p-3 mb-3">{a.rawLog}</pre>
                   {!done ? (
                     <div className="flex gap-2">
                       {(["ESCALATE", "MONITOR", "CLOSE"] as Action[]).map((act) => (
@@ -161,7 +161,7 @@ export function SocShiftClient({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs font-mono text-ink-3">Triaged: {done.action}</p>
+                    <p className="text-xs font-mono text-zinc-500">Triaged: {done.action}</p>
                   )}
                 </div>
               );
@@ -172,7 +172,7 @@ export function SocShiftClient({
             <button
               onClick={finishShift}
               disabled={finishing}
-              className="rounded-lg bg-accent-fill px-6 py-2.5 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition disabled:opacity-50"
+              className="rounded-lg bg-sage-500 px-6 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition disabled:opacity-50"
             >
               {finishing ? "Finishing…" : allTriaged ? "Finish Shift" : "End Shift Early"}
             </button>
@@ -182,25 +182,25 @@ export function SocShiftClient({
 
       {isDone && attempt && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-ok-edge bg-ok-wash p-6 text-center">
-            <h3 className="font-bold text-ok text-lg mb-1">Shift Complete</h3>
-            <p className="text-3xl font-black text-ink">{attempt.score ?? 0} pts</p>
-            <p className="text-sm text-ink-2 mt-1">{attempt.accuracyPct ?? 0}% triage accuracy</p>
+          <div className="rounded-xl border border-sage-500/40 bg-sage-500/5 p-6 text-center">
+            <h3 className="font-bold text-sage-400 text-lg mb-1">Shift Complete</h3>
+            <p className="text-3xl font-black text-zinc-100">{attempt.score ?? 0} pts</p>
+            <p className="text-sm text-zinc-400 mt-1">{attempt.accuracyPct ?? 0}% triage accuracy</p>
           </div>
 
           {Object.keys(triaged).length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-widest text-ink-3">Breakdown</p>
+              <p className="text-xs uppercase tracking-widest text-zinc-500">Breakdown</p>
               {shift.alerts.map((a) => {
                 const t = triaged[a.id];
                 if (!t) return null;
                 return (
-                  <div key={a.id} className={`rounded-lg border p-3 text-sm ${t.correct ? "border-ok-edge bg-ok-wash" : "border-danger-edge bg-danger-wash"}`}>
-                    <p className="font-medium text-ink">{a.summary}</p>
-                    <p className="text-xs text-ink-3 mt-1">
+                  <div key={a.id} className={`rounded-lg border p-3 text-sm ${t.correct ? "border-emerald-500/30 bg-emerald-500/5" : "border-red-500/30 bg-red-500/5"}`}>
+                    <p className="font-medium text-zinc-200">{a.summary}</p>
+                    <p className="text-xs text-zinc-500 mt-1">
                       You: <span className="font-mono">{t.action}</span> — {t.correct ? "Correct" : "Incorrect"}
                     </p>
-                    <p className="text-xs text-ink-2 mt-1">{t.explanation}</p>
+                    <p className="text-xs text-zinc-400 mt-1">{t.explanation}</p>
                   </div>
                 );
               })}
@@ -210,17 +210,17 @@ export function SocShiftClient({
       )}
 
       {leaderboard && leaderboard.length > 0 && (
-        <div className="mt-8 rounded-xl border border-edge bg-surface-1 p-4">
-          <p className="text-xs uppercase tracking-widest text-ink-3 mb-3">Leaderboard</p>
+        <div className="mt-8 rounded-xl border border-white/8 bg-zinc-900/40 p-4">
+          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Leaderboard</p>
           <div className="space-y-1.5">
             {leaderboard.map((row, i) => (
               <div key={i} className="flex items-center justify-between text-sm">
-                <span className="text-ink-2">
-                  <span className="text-ink-3 font-mono mr-2 w-5 inline-block">{i + 1}.</span>
+                <span className="text-zinc-400">
+                  <span className="text-zinc-600 font-mono mr-2 w-5 inline-block">{i + 1}.</span>
                   {row.name}
                 </span>
-                <span className="font-mono text-ink-2">
-                  {row.score} pts <span className="text-ink-3">· {row.accuracyPct}%</span>
+                <span className="font-mono text-zinc-300">
+                  {row.score} pts <span className="text-zinc-600">· {row.accuracyPct}%</span>
                 </span>
               </div>
             ))}

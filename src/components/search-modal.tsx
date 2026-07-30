@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, LoaderCircle } from "lucide-react";
 
 import { Icon, type IconName } from "@/components/ui/icon";
 type SearchResult = {
@@ -101,29 +100,31 @@ export function SearchModal() {
 
   return (
     <div
-      className="fixed inset-0 z-modal flex items-start justify-center px-4 pt-[15vh]"
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4"
       onClick={() => setOpen(false)}
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       <div
-        className="relative w-full max-w-xl overflow-hidden rounded-lg border border-edge bg-surface-2 shadow-lg"
+        className="relative w-full max-w-xl bg-zinc-900 border border-white/12 rounded-2xl shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input */}
-        <div className="flex items-center gap-3 border-b border-edge-subtle px-4 py-3">
-          <Search aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-3" />
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-white/8">
+          <svg className="w-4 h-4 text-zinc-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKey}
             placeholder="Search labs, paths, scenarios, people…"
-            className="flex-1 bg-transparent text-sm text-ink placeholder-ink-3 outline-none"
+            className="flex-1 bg-transparent text-sm text-zinc-100 placeholder-zinc-600 outline-none"
           />
-          {loading && <LoaderCircle aria-hidden="true" className="h-3.5 w-3.5 shrink-0 animate-spin text-ink-3" />}
-          <kbd className="shrink-0 rounded-sm border border-edge-strong px-1.5 py-0.5 font-mono text-[10px] text-ink-3">ESC</kbd>
+          {loading && <div className="w-3 h-3 border border-zinc-600 border-t-zinc-300 rounded-full animate-spin shrink-0" />}
+          <kbd className="shrink-0 text-[10px] text-zinc-600 border border-zinc-700 rounded px-1.5 py-0.5">ESC</kbd>
         </div>
 
         {/* Results */}
@@ -135,7 +136,7 @@ export function SearchModal() {
               if (group.length === 0) return null;
               return (
                 <div key={type} className="mb-1">
-                  <p className="px-4 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-ink-3">
+                  <p className="px-4 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
                     {TYPE_LABEL[type]}
                   </p>
                   {group.map((result) => {
@@ -145,17 +146,17 @@ export function SearchModal() {
                         key={result.id}
                         onClick={() => navigate(result.href)}
                         onMouseEnter={() => setSelected(idx)}
-                        className={`flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left transition-colors duration-fast ${
-                          selected === idx ? "bg-surface-3" : "hover:bg-surface-3/60"
+                        className={`w-full text-left flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                          selected === idx ? "bg-white/6" : "hover:bg-white/3"
                         }`}
                       >
                         <Icon name={TYPE_ICON[type]} size={16} className="shrink-0" />
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-ink">{result.title}</p>
-                          <p className="truncate text-xs text-ink-3">{result.subtitle}</p>
+                          <p className="text-sm font-medium text-zinc-100 truncate">{result.title}</p>
+                          <p className="text-xs text-zinc-500 truncate">{result.subtitle}</p>
                         </div>
                         {selected === idx && (
-                          <kbd className="ml-auto shrink-0 rounded-sm border border-edge-strong px-1.5 py-0.5 font-mono text-[10px] text-ink-3">↵</kbd>
+                          <kbd className="ml-auto shrink-0 text-[10px] text-zinc-600 border border-zinc-700 rounded px-1.5 py-0.5">↵</kbd>
                         )}
                       </button>
                     );
@@ -166,10 +167,10 @@ export function SearchModal() {
           </div>
         ) : query.trim().length >= 2 && !loading ? (
           <div className="py-10 text-center">
-            <p className="text-sm text-ink-3">No results for &quot;{query}&quot;</p>
+            <p className="text-zinc-600 text-sm">No results for &quot;{query}&quot;</p>
           </div>
         ) : query.trim().length < 2 ? (
-          <div className="grid grid-cols-2 gap-2 px-4 py-6">
+          <div className="py-6 px-4 grid grid-cols-2 gap-2">
             {[
               { href: "/academy",        icon: "learning" as IconName, label: "Academy" },
               { href: "/labs",           icon: "labs" as IconName, label: "Browse Labs" },
@@ -179,7 +180,7 @@ export function SearchModal() {
               <button
                 key={s.href}
                 onClick={() => navigate(s.href)}
-                className="flex cursor-pointer items-center gap-2 rounded-md border border-edge px-3 py-2.5 text-left text-sm text-ink-2 transition-colors duration-fast hover:border-edge-strong hover:bg-surface-3/60 hover:text-ink"
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-white/8 hover:border-white/15 hover:bg-white/3 text-sm text-zinc-400 hover:text-zinc-200 transition-colors text-left"
               >
                 <Icon name={s.icon} size={16} />
                 {s.label}
@@ -188,10 +189,10 @@ export function SearchModal() {
           </div>
         ) : null}
 
-        <div className="flex items-center gap-3 border-t border-edge-subtle px-4 py-2 font-mono text-[10px] text-ink-3">
-          <span><kbd className="rounded-sm border border-edge-strong px-1">↑↓</kbd> navigate</span>
-          <span><kbd className="rounded-sm border border-edge-strong px-1">↵</kbd> open</span>
-          <span><kbd className="rounded-sm border border-edge-strong px-1">⌘K</kbd> toggle</span>
+        <div className="border-t border-white/6 px-4 py-2 flex items-center gap-3 text-[10px] text-zinc-700">
+          <span><kbd className="border border-zinc-700 rounded px-1">↑↓</kbd> navigate</span>
+          <span><kbd className="border border-zinc-700 rounded px-1">↵</kbd> open</span>
+          <span><kbd className="border border-zinc-700 rounded px-1">⌘K</kbd> toggle</span>
         </div>
       </div>
     </div>
@@ -203,10 +204,12 @@ export function SearchTrigger() {
     <button
       onClick={() => window.dispatchEvent(new Event("openSearch"))}
       aria-label="Search"
-      className="flex cursor-pointer items-center gap-1.5 rounded-md p-1.5 text-ink-3 transition-colors duration-fast hover:bg-surface-2 hover:text-ink-2"
+      className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-colors flex items-center gap-1.5"
     >
-      <Search aria-hidden="true" className="h-4 w-4" />
-      <kbd className="hidden rounded-sm border border-edge-strong px-1 py-0.5 font-mono text-[10px] lg:inline">⌘K</kbd>
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <kbd className="text-[10px] border border-zinc-700 rounded px-1 py-0.5 hidden lg:inline">⌘K</kbd>
     </button>
   );
 }

@@ -301,48 +301,48 @@ export function HintEditor({
         {hasDefaults && (
           <button
             onClick={loadDefaults}
-            className="rounded-lg border border-warn-edge bg-warn-wash px-4 py-2 text-sm font-semibold text-warn hover:bg-warn-wash transition"
+            className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition"
           >
             {loadedDefaults ? <><Icon name="check" size={12} /> Defaults loaded</> : "Load default hints"}
           </button>
         )}
         <button
           onClick={() => void saveAll()}
-          className="rounded-lg bg-ok px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash transition"
+          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 transition"
         >
           Save all
         </button>
         {!hasDefaults && (
-          <p className="text-xs text-ink-3 italic">No defaults configured for this lab — enter hints manually.</p>
+          <p className="text-xs text-zinc-600 italic">No defaults configured for this lab — enter hints manually.</p>
         )}
       </div>
 
       {/* Per-stage hint editors */}
       {stages.map((stage) => (
-        <div key={stage} className="rounded-xl border border-edge bg-surface-1 p-5 space-y-4">
-          <p className="text-xs uppercase tracking-widest text-ink-3 font-mono">{stage}</p>
+        <div key={stage} className="rounded-xl border border-white/8 bg-zinc-900/40 p-5 space-y-4">
+          <p className="text-xs uppercase tracking-widest text-zinc-500 font-mono">{stage}</p>
 
           {([1, 2, 3] as const).map((lvl) => {
             const entry = form[stage][lvl];
-            const statusColor = entry.status === "saved" ? "text-ok" : entry.status === "error" ? "text-danger" : "text-ink-3";
+            const statusColor = entry.status === "saved" ? "text-emerald-400" : entry.status === "error" ? "text-red-400" : "text-zinc-600";
             const statusLabel = entry.status === "saved" ? "Saved" : entry.status === "saving" ? "Saving…" : entry.status === "error" ? "Error" : "";
 
             return (
               <div key={lvl} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-medium text-ink-2">Hint {lvl}</span>
+                    <span className="text-xs font-medium text-zinc-400">Hint {lvl}</span>
                     <div className="flex items-center gap-1.5">
-                      <label className="text-[10px] text-ink-3">Cost:</label>
+                      <label className="text-[10px] text-zinc-600">Cost:</label>
                       <input
                         type="number"
                         min={0}
                         max={200}
                         value={entry.pointCost}
                         onChange={(e) => update(stage, lvl, { pointCost: Number(e.target.value) })}
-                        className="w-14 bg-surface-2 border border-edge rounded px-2 py-0.5 text-xs text-ink-2 text-center"
+                        className="w-14 bg-zinc-800 border border-white/8 rounded px-2 py-0.5 text-xs text-zinc-300 text-center"
                       />
-                      <span className="text-[10px] text-ink-3">pts</span>
+                      <span className="text-[10px] text-zinc-600">pts</span>
                     </div>
                     {statusLabel && <span className={`text-[10px] ${statusColor}`}>{statusLabel}</span>}
                   </div>
@@ -350,7 +350,7 @@ export function HintEditor({
                     {entry.text && (
                       <button
                         onClick={() => void del(stage, lvl)}
-                        className="text-[10px] text-danger/70 hover:text-danger transition"
+                        className="text-[10px] text-red-500/70 hover:text-red-400 transition"
                       >
                         Remove
                       </button>
@@ -358,7 +358,7 @@ export function HintEditor({
                     <button
                       onClick={() => void save(stage, lvl)}
                       disabled={!entry.text.trim() || entry.status === "saving"}
-                      className="text-[10px] border border-edge-strong rounded px-2 py-0.5 text-ink-2 hover:border-edge-strong hover:text-ink transition disabled:opacity-40"
+                      className="text-[10px] border border-zinc-700 rounded px-2 py-0.5 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition disabled:opacity-40"
                     >
                       Save
                     </button>
@@ -369,7 +369,7 @@ export function HintEditor({
                   onChange={(e) => update(stage, lvl, { text: e.target.value, status: "idle" })}
                   placeholder={`Hint level ${lvl} — subtle nudge, not the answer`}
                   rows={2}
-                  className="w-full bg-surface-2/60 border border-edge rounded-lg p-3 text-xs text-ink-2 placeholder-ink-3 resize-none focus:outline-none focus:border-ok-edge font-mono leading-relaxed"
+                  className="w-full bg-zinc-800/60 border border-white/8 rounded-lg p-3 text-xs text-zinc-300 placeholder-zinc-700 resize-none focus:outline-none focus:border-emerald-500/40 font-mono leading-relaxed"
                 />
               </div>
             );

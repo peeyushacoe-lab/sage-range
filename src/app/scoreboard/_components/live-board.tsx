@@ -16,10 +16,10 @@ type ScoreboardData = {
 };
 
 const DIFF_COLOR: Record<string, string> = {
-  "EASY easy":    "text-ok",
-  "MEDIUM medium":"text-warn",
-  "HARD hard":    "text-sev-high",
-  "INSANE insane":"text-danger",
+  "EASY easy":    "text-emerald-400",
+  "MEDIUM medium":"text-amber-400",
+  "HARD hard":    "text-orange-400",
+  "INSANE insane":"text-red-400",
 };
 
 function relativeTime(ts: number): string {
@@ -30,9 +30,9 @@ function relativeTime(ts: number): string {
 }
 
 function MovementArrow({ delta }: { delta: number }) {
-  if (delta === 0) return <span className="w-4 text-center text-ink-3 text-xs">—</span>;
-  if (delta > 0)   return <span className="w-4 text-center text-ok text-xs font-bold">↑{delta}</span>;
-  return               <span className="w-4 text-center text-danger text-xs font-bold">↓{Math.abs(delta)}</span>;
+  if (delta === 0) return <span className="w-4 text-center text-zinc-700 text-xs">—</span>;
+  if (delta > 0)   return <span className="w-4 text-center text-emerald-400 text-xs font-bold">↑{delta}</span>;
+  return               <span className="w-4 text-center text-red-400 text-xs font-bold">↓{Math.abs(delta)}</span>;
 }
 
 const MEDAL_TONE = ["gold", "slate", "amber"] as const;
@@ -83,18 +83,18 @@ export function LiveBoard({
       {/* Live header bar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <span className={`h-2 w-2 rounded-full bg-ok ${pulse ? "scale-150" : ""} transition-transform`} />
-          <span className="text-xs font-bold text-ink-3 uppercase tracking-widest">Live</span>
+          <span className={`h-2 w-2 rounded-full bg-emerald-500 ${pulse ? "scale-150" : ""} transition-transform`} />
+          <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Live</span>
         </div>
-        <span className="text-xs text-ink-3">
+        <span className="text-xs text-zinc-600">
           {staleSec < 3 ? "Just updated" : `Updated ${staleSec}s ago`}
         </span>
-        <span className="text-xs text-ink-3">·</span>
-        <span className="text-xs text-ink-3">{data.activeCount} active today</span>
+        <span className="text-xs text-zinc-600">·</span>
+        <span className="text-xs text-zinc-600">{data.activeCount} active today</span>
 
         {/* Me badge */}
         {meRow && (
-          <span className="ml-auto text-xs border border-ok-edge bg-ok-wash text-ok rounded-full px-3 py-0.5">
+          <span className="ml-auto text-xs border border-emerald-500/30 bg-emerald-500/8 text-emerald-400 rounded-full px-3 py-0.5">
             You are #{meRow.rank} · {meRow.skillScore} pts
           </span>
         )}
@@ -103,15 +103,15 @@ export function LiveBoard({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Scoreboard table */}
-        <div className="lg:col-span-2 rounded-xl border border-edge bg-surface-1 overflow-hidden">
-          <div className="px-4 py-3 border-b border-edge flex items-center justify-between">
-            <p className="text-xs uppercase tracking-widest text-ink-3">Global Rankings</p>
-            <p className="text-xs text-ink-3">{data.users.length} players</p>
+        <div className="lg:col-span-2 rounded-xl border border-white/8 bg-zinc-900/50 overflow-hidden">
+          <div className="px-4 py-3 border-b border-white/8 flex items-center justify-between">
+            <p className="text-xs uppercase tracking-widest text-zinc-500">Global Rankings</p>
+            <p className="text-xs text-zinc-600">{data.users.length} players</p>
           </div>
           <div className="overflow-y-auto" style={{ maxHeight: "62vh" }}>
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-surface-1 backdrop-blur z-10">
-                <tr className="text-left text-[10px] uppercase tracking-widest text-ink-3 border-b border-edge-subtle">
+              <thead className="sticky top-0 bg-zinc-900/90 backdrop-blur z-10">
+                <tr className="text-left text-[10px] uppercase tracking-widest text-zinc-600 border-b border-white/5">
                   <th className="px-4 py-2.5 w-10">#</th>
                   <th className="px-2 py-2.5 w-6" />
                   <th className="px-2 py-2.5">Player</th>
@@ -119,7 +119,7 @@ export function LiveBoard({
                   <th className="px-4 py-2.5">Rank</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-edge-subtle">
+              <tbody className="divide-y divide-white/4">
                 {data.users.map((u) => {
                   const prevRank  = prevRanks.current.get(u.id) ?? u.rank;
                   const delta     = prevRank - u.rank; // positive = moved up
@@ -127,9 +127,9 @@ export function LiveBoard({
                   return (
                     <tr
                       key={u.id}
-                      className={`transition-colors ${isMe ? "bg-ok-wash hover:bg-ok-wash" : "hover:bg-surface-2"}`}
+                      className={`transition-colors ${isMe ? "bg-emerald-500/6 hover:bg-emerald-500/10" : "hover:bg-white/3"}`}
                     >
-                      <td className="px-4 py-2.5 text-ink-3 tabular-nums font-mono text-xs w-10">
+                      <td className="px-4 py-2.5 text-zinc-500 tabular-nums font-mono text-xs w-10">
                         {u.rank <= 3 ? <Icon name="medal" tone={MEDAL_TONE[u.rank - 1]} size={14} /> : u.rank}
                       </td>
                       <td className="px-2 py-2.5 w-6">
@@ -138,13 +138,13 @@ export function LiveBoard({
                       <td className="px-2 py-2.5">
                         <Link
                           href={`/profile/${u.id}`}
-                          className={`font-medium hover:underline ${isMe ? "text-ok" : "text-ink"}`}
+                          className={`font-medium hover:underline ${isMe ? "text-emerald-300" : "text-zinc-200"}`}
                         >
                           {u.name}
-                          {isMe && <span className="text-ink-3 font-normal text-xs ml-1">(you)</span>}
+                          {isMe && <span className="text-zinc-600 font-normal text-xs ml-1">(you)</span>}
                         </Link>
                       </td>
-                      <td className="px-4 py-2.5 text-right tabular-nums font-bold text-ink">
+                      <td className="px-4 py-2.5 text-right tabular-nums font-bold text-zinc-200">
                         {u.skillScore.toLocaleString()}
                       </td>
                       <td className="px-4 py-2.5">
@@ -164,36 +164,36 @@ export function LiveBoard({
         </div>
 
         {/* Activity feed */}
-        <div className="rounded-xl border border-edge bg-surface-1 overflow-hidden flex flex-col">
-          <div className="px-4 py-3 border-b border-edge flex items-center justify-between shrink-0">
-            <p className="text-xs uppercase tracking-widest text-ink-3">Recent Activity</p>
-            <span className={`h-1.5 w-1.5 rounded-full bg-ok ${pulse ? "animate-ping" : ""}`} />
+        <div className="rounded-xl border border-white/8 bg-zinc-900/50 overflow-hidden flex flex-col">
+          <div className="px-4 py-3 border-b border-white/8 flex items-center justify-between shrink-0">
+            <p className="text-xs uppercase tracking-widest text-zinc-500">Recent Activity</p>
+            <span className={`h-1.5 w-1.5 rounded-full bg-emerald-500 ${pulse ? "animate-ping" : ""}`} />
           </div>
           <div className="overflow-y-auto flex-1" style={{ maxHeight: "62vh" }}>
             {data.activity.length === 0 ? (
-              <p className="px-4 py-8 text-xs text-ink-3 text-center">No activity in the last 30 minutes</p>
+              <p className="px-4 py-8 text-xs text-zinc-600 text-center">No activity in the last 30 minutes</p>
             ) : (
-              <div className="divide-y divide-edge-subtle">
+              <div className="divide-y divide-white/4">
                 {data.activity.map((ev) => (
                   <div key={ev.id} className="px-4 py-3 space-y-0.5">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <Icon name={ev.kind === "SIM" ? "energy" : "challenges"} size={14} className="shrink-0" />
                         <Link href={`/profile/${ev.userId}`}
-                          className="text-xs font-semibold text-ink-2 hover:text-white truncate">
+                          className="text-xs font-semibold text-zinc-300 hover:text-white truncate">
                           {ev.user}
                         </Link>
                       </div>
-                      <span className="text-[10px] text-ink-3 tabular-nums shrink-0">
+                      <span className="text-[10px] text-zinc-600 tabular-nums shrink-0">
                         {relativeTime(ev.ts)}
                       </span>
                     </div>
-                    <p className="text-xs text-ink-3 truncate pl-5">{ev.title}</p>
+                    <p className="text-xs text-zinc-500 truncate pl-5">{ev.title}</p>
                     <p className={`text-[10px] pl-5 ${
-                      ev.detail.includes("HARD") || ev.detail.includes("INSANE") ? "text-sev-high"
-                      : ev.detail === "contained" ? "text-ok"
-                      : ev.detail.includes("breached") ? "text-danger"
-                      : "text-ink-3"
+                      ev.detail.includes("HARD") || ev.detail.includes("INSANE") ? "text-orange-400"
+                      : ev.detail === "contained" ? "text-emerald-400"
+                      : ev.detail.includes("breached") ? "text-red-400"
+                      : "text-zinc-600"
                     }`}>
                       {ev.detail}
                     </p>

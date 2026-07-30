@@ -97,99 +97,99 @@ export function WebServerLogAnalysisClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Identify the Injection Attempt" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">
-          The Nginx access log for <code className="text-warn">shop.example.com</code> shows a burst of requests
-          to <code className="text-warn">/search</code> with unusual query strings.
+        <p className="text-zinc-300 text-sm mb-3">
+          The Nginx access log for <code className="text-amber-300">shop.example.com</code> shows a burst of requests
+          to <code className="text-amber-300">/search</code> with unusual query strings.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-3">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{ACCESS_LOG.split("\n").slice(0, 4).join("\n")}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-3">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{ACCESS_LOG.split("\n").slice(0, 4).join("\n")}</pre>
         </div>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1.5">User-Agent for 203.0.113.8</p>
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{UA_LOG}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">User-Agent for 203.0.113.8</p>
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{UA_LOG}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What is this activity?</p>
+            <p className="text-sm text-zinc-300 font-medium">What is this activity?</p>
             <div className="flex flex-wrap gap-3">
               {["Normal user search traffic", "Automated SQL Injection scan (sqlmap)", "DDoS attempt", "Credential stuffing"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — the sqlmap User-Agent plus classic UNION/SLEEP payloads confirm an automated SQLi scan. Flag: SAGE&#123;sqlm4p_sc4n_d3t3ct3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the sqlmap User-Agent plus classic UNION/SLEEP payloads confirm an automated SQLi scan. Flag: SAGE&#123;sqlm4p_sc4n_d3t3ct3d&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Trace the Path Traversal" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           A second source IP tried to read files outside the web root. The first attempt was blocked — the second wasn't.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{ACCESS_LOG.split("\n").slice(4).join("\n")}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{ACCESS_LOG.split("\n").slice(4).join("\n")}</pre>
         </div>
-        <p className="text-xs text-ink-3 mb-4">Notice the encoding difference between the 403 and the 200 responses.</p>
+        <p className="text-xs text-zinc-500 mb-4">Notice the encoding difference between the 403 and the 200 responses.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">Flag the technique used to bypass the block, and the sensitive file ultimately read.</p>
+            <p className="text-sm text-zinc-300 font-medium">Flag the technique used to bypass the block, and the sensitive file ultimately read.</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t2Answer} onChange={setT2Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — URL-encoding the slashes (%2f) bypassed the naive filter, exposing config.php. Flag: SAGE&#123;p4th_tr4v3rsal_c0nfig_php&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — URL-encoding the slashes (%2f) bypassed the naive filter, exposing config.php. Flag: SAGE&#123;p4th_tr4v3rsal_c0nfig_php&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Recognise the Web Shell" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           A third IP interacted with an upload feature, then immediately fetched what it uploaded.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{UPLOAD_LOG}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{UPLOAD_LOG}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What vulnerability class does this represent?</p>
+            <p className="text-sm text-zinc-300 font-medium">What vulnerability class does this represent?</p>
             <div className="flex flex-wrap gap-3">
               {["CSRF", "Unrestricted file upload (web shell)", "XXE", "Open redirect"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">Correct — the double extension (.php.jpg) tricked a weak filter; the server executed it as PHP. Flag: SAGE&#123;w3bsh3ll_upl04d3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the double extension (.php.jpg) tricked a weak filter; the server executed it as PHP. Flag: SAGE&#123;w3bsh3ll_upl04d3d&#125;</p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;sqlm4p_sc4n_d3t3ct3d&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;p4th_tr4v3rsal_c0nfig_php&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;w3bsh3ll_upl04d3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;sqlm4p_sc4n_d3t3ct3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;p4th_tr4v3rsal_c0nfig_php&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;w3bsh3ll_upl04d3d&#125;</span></li>
           </ul>
         </div>
       )}

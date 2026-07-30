@@ -27,18 +27,18 @@ const GENERATING_STEPS = [
 ];
 
 const DIFFICULTY_STYLES: Record<string, string> = {
-  EASY:   "border-ok-edge text-ok",
-  MEDIUM: "border-warn-edge text-warn",
-  HARD:   "border-sev-high-edge text-sev-high",
-  INSANE: "border-danger-edge text-danger",
+  EASY:   "border-sage-500/40 text-sage-400",
+  MEDIUM: "border-amber-400/40 text-amber-400",
+  HARD:   "border-orange-400/40 text-orange-400",
+  INSANE: "border-red-400/40 text-red-400",
 };
 
 const PERSONA_STYLES: Record<string, { label: string; color: string; badge: string }> = {
-  ransomware_gang:  { label: "RANSOMWARE GANG",  color: "text-danger",    badge: "border-danger-edge bg-danger-wash text-danger" },
-  nation_state_apt: { label: "NATION-STATE APT",  color: "text-accent", badge: "border-accent-edge bg-accent-wash text-accent" },
-  insider:          { label: "MALICIOUS INSIDER", color: "text-warn",  badge: "border-warn-edge bg-warn-wash text-warn" },
+  ransomware_gang:  { label: "RANSOMWARE GANG",  color: "text-red-400",    badge: "border-red-500/40 bg-red-500/8 text-red-400" },
+  nation_state_apt: { label: "NATION-STATE APT",  color: "text-purple-400", badge: "border-purple-500/40 bg-purple-500/8 text-purple-400" },
+  insider:          { label: "MALICIOUS INSIDER", color: "text-amber-400",  badge: "border-amber-500/40 bg-amber-500/8 text-amber-400" },
   hacktivist:       { label: "HACKTIVIST",        color: "text-cyan-400",   badge: "border-cyan-500/40 bg-cyan-500/8 text-cyan-400" },
-  cybercriminal:    { label: "CYBERCRIMINAL",     color: "text-sev-high", badge: "border-sev-high-edge bg-sev-high-wash text-sev-high" },
+  cybercriminal:    { label: "CYBERCRIMINAL",     color: "text-orange-400", badge: "border-orange-500/40 bg-orange-500/8 text-orange-400" },
 };
 
 const SCENARIOS = [
@@ -257,41 +257,41 @@ export default function NewSimulation() {
   }
 
   return (
-    <main className="min-h-screen bg-surface-0 px-6 py-10 max-w-5xl mx-auto">
-      <Link href="/dashboard" className="text-xs text-ink-3 hover:text-ink-2 transition tracking-wide">
+    <main className="min-h-screen bg-zinc-950 px-6 py-10 max-w-5xl mx-auto">
+      <Link href="/dashboard" className="text-xs text-zinc-500 hover:text-zinc-300 transition tracking-wide">
         ← Dashboard
       </Link>
 
       <div className="mt-8 mb-6">
-        <p className="text-xs uppercase tracking-widest text-ink-3 font-semibold mb-2">Mission Select</p>
+        <p className="text-xs uppercase tracking-widest text-sage-500 font-semibold mb-2">Mission Select</p>
         <h1 className="text-3xl font-bold tracking-tight text-white">Choose Your Simulation</h1>
-        <p className="text-ink-2 mt-2 text-sm max-w-2xl leading-relaxed">
+        <p className="text-zinc-400 mt-2 text-sm max-w-2xl leading-relaxed">
           AI generates a unique company, employees, and attack narrative for every run. No two incidents are identical.
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-8">
         {[
-          { label: "LIVE ORG SIMULATION",   color: "border-ok-edge text-ok" },
-          { label: "ADVERSARY PERSONAS",     color: "border-danger-edge text-danger" },
-          { label: "MITRE ATT&CK MAPPING",  color: "border-info-edge text-info" },
-          { label: "EXECUTIVE PRESSURE",     color: "border-warn-edge text-warn" },
+          { label: "LIVE ORG SIMULATION",   color: "border-sage-500/30 text-sage-400" },
+          { label: "ADVERSARY PERSONAS",     color: "border-red-500/30 text-red-400" },
+          { label: "MITRE ATT&CK MAPPING",  color: "border-blue-400/30 text-blue-400" },
+          { label: "EXECUTIVE PRESSURE",     color: "border-amber-400/30 text-amber-400" },
         ].map((b) => (
-          <span key={b.label} className={`text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded border ${b.color} bg-surface-2`}>
+          <span key={b.label} className={`text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded border ${b.color} bg-white/3`}>
             {b.label}
           </span>
         ))}
       </div>
 
       {error && (
-        <div className="mb-6 rounded border border-danger-edge bg-danger-wash p-3 text-sm text-danger">{error}</div>
+        <div className="mb-6 rounded border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">{error}</div>
       )}
 
       {/* REDai Scenario Marketplace */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-sm uppercase tracking-widest text-ink-2 font-semibold">REDai Scenario Marketplace</h2>
-          <span className="text-[10px] font-bold uppercase tracking-widest border border-danger-edge bg-danger-wash text-danger rounded px-2 py-0.5">AI-POWERED</span>
+          <h2 className="text-sm uppercase tracking-widest text-zinc-300 font-semibold">REDai Scenario Marketplace</h2>
+          <span className="text-[10px] font-bold uppercase tracking-widest border border-red-500/40 bg-red-500/8 text-red-400 rounded px-2 py-0.5">AI-POWERED</span>
         </div>
         <div className="grid grid-cols-1 gap-4">
           {SCENARIOS.map((s) => {
@@ -299,7 +299,7 @@ export default function NewSimulation() {
             const persona = PERSONA_STYLES[s.personaId];
             const diffStyle = DIFFICULTY_STYLES[s.difficulty];
             return (
-              <div key={s.id} className="rounded-xl border border-edge bg-surface-1 p-5 hover:border-edge-strong transition-colors">
+              <div key={s.id} className="rounded-xl border border-white/8 bg-zinc-900/40 p-5 hover:border-white/15 transition-colors">
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <span className={`text-[10px] font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${persona.badge}`}>
                     {persona.label}
@@ -307,22 +307,22 @@ export default function NewSimulation() {
                   <span className={`text-xs font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${diffStyle}`}>
                     {s.difficulty}
                   </span>
-                  <span className="text-xs text-ink-3">{s.estimatedMinutes} min</span>
+                  <span className="text-xs text-zinc-600">{s.estimatedMinutes} min</span>
                   {s.realWorldAnalogue && (
-                    <span className="ml-auto text-[10px] text-ink-3 font-mono italic">↗ {s.realWorldAnalogue}</span>
+                    <span className="ml-auto text-[10px] text-zinc-600 font-mono italic">↗ {s.realWorldAnalogue}</span>
                   )}
                 </div>
 
                 <h3 className="text-lg font-bold text-white mb-0.5">{s.title}</h3>
                 <p className={`text-xs font-medium mb-2 ${persona.color}`}>{s.subtitle}</p>
-                <p className="text-ink-2 text-sm leading-relaxed mb-4">{s.briefing}</p>
+                <p className="text-zinc-400 text-sm leading-relaxed mb-4">{s.briefing}</p>
 
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-1.5">Learning Objectives</p>
+                    <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-1.5">Learning Objectives</p>
                     <ul className="space-y-0.5">
                       {s.learningObjectives.map((o) => (
-                        <li key={o} className="flex items-start gap-1.5 text-xs text-ink-2">
+                        <li key={o} className="flex items-start gap-1.5 text-xs text-zinc-400">
                           <span className={`mt-0.5 shrink-0 w-1 h-1 rounded-full ${persona.color.replace("text-", "bg-")}`} />
                           {o}
                         </li>
@@ -332,7 +332,7 @@ export default function NewSimulation() {
                   <button
                     onClick={() => startScenario(s.id, s.templateSlug)}
                     disabled={!!starting}
-                    className="shrink-0 min-w-[180px] rounded-lg bg-surface-2 border border-edge px-5 py-2.5 text-sm font-bold text-white hover:border-edge-strong hover:bg-surface-3 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-center"
+                    className="shrink-0 min-w-[180px] rounded-lg bg-zinc-800 border border-white/10 px-5 py-2.5 text-sm font-bold text-white hover:border-white/30 hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-center"
                   >
                     {isStarting ? (
                       <span className="flex flex-col items-center gap-0.5">
@@ -352,8 +352,8 @@ export default function NewSimulation() {
       {customScenarios.length > 0 && (
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-5">
-            <h2 className="text-sm uppercase tracking-widest text-ink-2 font-semibold">Instructor Scenarios</h2>
-            <span className="text-[10px] font-bold uppercase tracking-widest border border-ok-edge bg-ok-wash text-ok rounded px-2 py-0.5">CUSTOM</span>
+            <h2 className="text-sm uppercase tracking-widest text-zinc-300 font-semibold">Instructor Scenarios</h2>
+            <span className="text-[10px] font-bold uppercase tracking-widest border border-sage-500/30 bg-sage-500/8 text-sage-400 rounded px-2 py-0.5">CUSTOM</span>
           </div>
           <div className="grid grid-cols-1 gap-4">
             {customScenarios.map((s) => {
@@ -362,7 +362,7 @@ export default function NewSimulation() {
               const persona = PERSONA_STYLES[s.personaId] ?? PERSONA_STYLES.cybercriminal;
               const diffStyle = DIFFICULTY_STYLES[s.difficulty];
               return (
-                <div key={s.id} className="rounded-xl border border-edge bg-surface-1 p-5 hover:border-edge-strong transition-colors">
+                <div key={s.id} className="rounded-xl border border-white/8 bg-zinc-900/40 p-5 hover:border-white/15 transition-colors">
                   <div className="flex flex-wrap items-center gap-2 mb-3">
                     <span className={`text-[10px] font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${persona.badge}`}>
                       {persona.label}
@@ -370,25 +370,25 @@ export default function NewSimulation() {
                     <span className={`text-xs font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${diffStyle}`}>
                       {s.difficulty}
                     </span>
-                    <span className="text-xs text-ink-3">{s.estimatedMinutes} min</span>
-                    <span className="text-[10px] text-ink-3 border border-edge-subtle rounded px-1.5 py-0.5">
+                    <span className="text-xs text-zinc-600">{s.estimatedMinutes} min</span>
+                    <span className="text-[10px] text-zinc-600 border border-white/6 rounded px-1.5 py-0.5">
                       by {s.createdBy.displayName ?? s.createdBy.email}
                     </span>
                     {s.realWorldAnalogue && (
-                      <span className="ml-auto text-[10px] text-ink-3 font-mono italic">↗ {s.realWorldAnalogue}</span>
+                      <span className="ml-auto text-[10px] text-zinc-600 font-mono italic">↗ {s.realWorldAnalogue}</span>
                     )}
                   </div>
 
                   <h3 className="text-lg font-bold text-white mb-0.5">{s.title}</h3>
                   <p className={`text-xs font-medium mb-2 ${persona.color}`}>{s.subtitle}</p>
-                  <p className="text-ink-2 text-sm leading-relaxed mb-4">{s.briefing}</p>
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-4">{s.briefing}</p>
 
                   <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
-                      <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-1.5">Learning Objectives</p>
+                      <p className="text-[10px] uppercase tracking-widest text-zinc-600 mb-1.5">Learning Objectives</p>
                       <ul className="space-y-0.5">
                         {s.learningObjectives.map((o) => (
-                          <li key={o} className="flex items-start gap-1.5 text-xs text-ink-2">
+                          <li key={o} className="flex items-start gap-1.5 text-xs text-zinc-400">
                             <span className={`mt-0.5 shrink-0 w-1 h-1 rounded-full ${persona.color.replace("text-", "bg-")}`} />
                             {o}
                           </li>
@@ -398,7 +398,7 @@ export default function NewSimulation() {
                     <button
                       onClick={() => startScenario(customId, s.templateSlug)}
                       disabled={!!starting}
-                      className="shrink-0 min-w-[180px] rounded-lg bg-surface-2 border border-edge px-5 py-2.5 text-sm font-bold text-white hover:border-edge-strong hover:bg-surface-3 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-center"
+                      className="shrink-0 min-w-[180px] rounded-lg bg-zinc-800 border border-white/10 px-5 py-2.5 text-sm font-bold text-white hover:border-white/30 hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-center"
                     >
                       {isStarting ? (
                         <span className="flex flex-col items-center gap-0.5">
@@ -418,38 +418,38 @@ export default function NewSimulation() {
       {/* Team Mode callout */}
       <Link
         href="/simulation/team"
-        className="flex items-center justify-between gap-4 rounded-xl border border-ok-edge bg-ok-wash px-6 py-4 mb-8 hover:border-ok-edge hover:bg-ok-wash transition-colors group"
+        className="flex items-center justify-between gap-4 rounded-xl border border-sage-500/20 bg-sage-500/5 px-6 py-4 mb-8 hover:border-sage-500/40 hover:bg-sage-500/8 transition-colors group"
       >
         <div className="flex items-center gap-4">
-          <span className="shrink-0 rounded border border-ok-edge bg-ok-wash px-2 py-1 text-xs font-bold uppercase tracking-widest text-ink-3">Team Mode</span>
+          <span className="shrink-0 rounded border border-sage-500/40 bg-sage-500/10 px-2 py-1 text-xs font-bold uppercase tracking-widest text-sage-400">Team Mode</span>
           <div>
             <p className="text-sm font-semibold text-white">Run a live IR exercise with your team.</p>
-            <p className="text-xs text-ink-3 mt-0.5">Each player takes a role: IR Lead, Forensics, Legal, Comms.</p>
+            <p className="text-xs text-zinc-500 mt-0.5">Each player takes a role: IR Lead, Forensics, Legal, Comms.</p>
           </div>
         </div>
-        <span className="text-ok text-sm font-semibold group-hover:translate-x-0.5 transition-transform">Start Team Room →</span>
+        <span className="text-sage-400 text-sm font-semibold group-hover:translate-x-0.5 transition-transform">Start Team Room →</span>
       </Link>
 
       {/* Classic Templates */}
       <div>
-        <h2 className="text-sm uppercase tracking-widest text-ink-3 font-semibold mb-5">Classic Simulations</h2>
+        <h2 className="text-sm uppercase tracking-widest text-zinc-500 font-semibold mb-5">Classic Simulations</h2>
         <div className="flex flex-col gap-4">
           {TEMPLATES.map((t) => {
             const isStarting = starting === t.slug;
             const diffStyle = DIFFICULTY_STYLES[t.difficulty] ?? DIFFICULTY_STYLES.MEDIUM;
             return (
-              <div key={t.slug} className="rounded-xl border border-edge-subtle bg-surface-1 p-5 hover:border-edge-strong transition-colors">
+              <div key={t.slug} className="rounded-xl border border-white/6 bg-zinc-900/30 p-5 hover:border-white/12 transition-colors">
                 <div className="flex flex-wrap items-center gap-3 mb-3">
-                  <span className="text-xs uppercase tracking-widest text-ink-3 font-semibold">{t.industry}</span>
+                  <span className="text-xs uppercase tracking-widest text-zinc-500 font-semibold">{t.industry}</span>
                   <span className={`text-xs font-bold uppercase tracking-widest border rounded px-2 py-0.5 ${diffStyle}`}>{t.difficulty}</span>
-                  <span className="text-xs text-ink-3">{t.duration}</span>
+                  <span className="text-xs text-zinc-600">{t.duration}</span>
                 </div>
                 <h3 className="text-lg font-bold text-white mb-1">{t.name}</h3>
-                <p className="text-ink-2 text-sm leading-relaxed mb-3">{t.description}</p>
+                <p className="text-zinc-400 text-sm leading-relaxed mb-3">{t.description}</p>
                 <div className="flex flex-wrap items-center gap-1.5 mb-4">
                   {t.stages.map((st, i) => (
-                    <span key={st} className="flex items-center gap-1.5 text-xs text-ink-3">
-                      {i > 0 && <span className="text-ink-3">→</span>}
+                    <span key={st} className="flex items-center gap-1.5 text-xs text-zinc-500">
+                      {i > 0 && <span className="text-zinc-700">→</span>}
                       <span>{st}</span>
                     </span>
                   ))}
@@ -457,7 +457,7 @@ export default function NewSimulation() {
                 <button
                   onClick={() => startTemplate(t.slug)}
                   disabled={!!starting}
-                  className="rounded-lg bg-accent-fill px-5 py-2.5 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  className="rounded-lg bg-sage-500 px-5 py-2.5 text-sm font-bold text-black hover:bg-sage-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                 >
                   {isStarting ? (
                     <span className="flex items-center gap-2">
@@ -472,7 +472,7 @@ export default function NewSimulation() {
         </div>
       </div>
 
-      <p className="mt-10 text-xs text-ink-3 text-center leading-relaxed">
+      <p className="mt-10 text-xs text-zinc-600 text-center leading-relaxed">
         Your performance, decisions, and leadership grade are visible to recruiters. Treat this as a live incident.
       </p>
     </main>

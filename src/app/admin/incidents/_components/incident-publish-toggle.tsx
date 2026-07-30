@@ -24,8 +24,8 @@ export function IncidentPublishToggle({ slug, published }: { slug: string; publi
       disabled={pending}
       className={`text-xs font-semibold uppercase tracking-widest border rounded px-2.5 py-1 transition-colors disabled:opacity-60 ${
         active
-          ? "border-ok-edge bg-ok-wash text-ok hover:bg-ok-wash"
-          : "border-edge text-ink-3 hover:border-edge-strong hover:text-ink-2"
+          ? "border-sage-500/40 bg-sage-500/10 text-sage-400 hover:bg-sage-500/5"
+          : "border-white/10 text-zinc-600 hover:border-white/20 hover:text-zinc-400"
       }`}
     >
       {active ? "Published" : "Draft"}

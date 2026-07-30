@@ -8,20 +8,20 @@ import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_STYLE: Record<string, string> = {
-  EASY:   "text-ok bg-ok-wash border-ok-edge",
-  MEDIUM: "text-warn bg-warn-wash border-warn-edge",
-  HARD:   "text-danger bg-danger-wash border-danger-edge",
-  INSANE: "text-accent bg-accent-wash border-accent-edge",
+  EASY:   "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+  MEDIUM: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+  HARD:   "text-red-400 bg-red-500/10 border-red-500/20",
+  INSANE: "text-purple-400 bg-purple-500/10 border-purple-500/20",
 };
 
 const CAT_COLOR: Record<string, string> = {
-  FUNDAMENTALS:         "text-ink-2",
-  BLUE_TEAM:            "text-info",
-  RED_TEAM:             "text-danger",
-  FORENSICS:            "text-warn",
-  SECURITY_ENGINEERING: "text-accent",
+  FUNDAMENTALS:         "text-zinc-400",
+  BLUE_TEAM:            "text-blue-400",
+  RED_TEAM:             "text-red-400",
+  FORENSICS:            "text-amber-400",
+  SECURITY_ENGINEERING: "text-purple-400",
   NETWORKING:           "text-cyan-400",
-  CLOUD:                "text-info",
+  CLOUD:                "text-sky-400",
 };
 
 const CAT_LABEL: Record<string, string> = {
@@ -111,18 +111,18 @@ export default async function AcademyPage() {
   const totalCompleted = completedLessonSet.size;
 
   return (
-    <div className="min-h-screen bg-surface-0 text-white">
+    <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <div className="max-w-6xl mx-auto px-6 py-10">
 
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <p className="text-[11px] uppercase tracking-widest text-ink-3 font-semibold mb-1.5">Sage Vault Academy</p>
+            <p className="text-[11px] uppercase tracking-widest text-emerald-500 font-semibold mb-1.5">Sage Vault Academy</p>
             <h1 className="text-2xl font-bold text-white mb-1">Learn &amp; Level Up</h1>
-            <p className="text-sm text-ink-3">Structured cybersecurity courses with hands-on challenges. Learn first, then apply in labs.</p>
+            <p className="text-sm text-zinc-500">Structured cybersecurity courses with hands-on challenges. Learn first, then apply in labs.</p>
           </div>
-          <Link href="/academy/cheatsheets" className="hidden sm:inline-flex text-xs text-ink-2 border border-edge rounded-lg px-4 py-2 hover:text-white hover:border-edge-strong transition">
+          <Link href="/academy/cheatsheets" className="hidden sm:inline-flex text-xs text-zinc-400 border border-white/10 rounded-lg px-4 py-2 hover:text-white hover:border-white/20 transition">
             Cheat Sheets →
           </Link>
         </div>
@@ -130,43 +130,43 @@ export default async function AcademyPage() {
         {/* User stats bar */}
         {user && userLevel && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-            <div className="rounded-xl bg-surface-1 border border-edge p-4">
-              <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1">Level</p>
+            <div className="rounded-xl bg-zinc-900/50 border border-white/8 p-4">
+              <p className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1">Level</p>
               <p className="text-2xl font-black text-white">{userLevel.level}</p>
-              <div className="mt-2 h-1 bg-surface-2 rounded-full overflow-hidden">
-                <div className="h-full bg-warn rounded-full" style={{ width: `${userLevel.progress}%` }} />
+              <div className="mt-2 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-full bg-amber-500 rounded-full" style={{ width: `${userLevel.progress}%` }} />
               </div>
-              <p className="text-[10px] text-ink-3 mt-1">{userLevel.progress}% to next</p>
+              <p className="text-[10px] text-zinc-600 mt-1">{userLevel.progress}% to next</p>
             </div>
-            <div className="rounded-xl bg-surface-1 border border-edge p-4">
-              <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1">XP Earned</p>
-              <p className="text-2xl font-black text-warn tabular-nums">{user.xp.toLocaleString()}</p>
-              <p className="text-[10px] text-ink-3 mt-2">+25 XP per lesson</p>
+            <div className="rounded-xl bg-zinc-900/50 border border-white/8 p-4">
+              <p className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1">XP Earned</p>
+              <p className="text-2xl font-black text-amber-400 tabular-nums">{user.xp.toLocaleString()}</p>
+              <p className="text-[10px] text-zinc-600 mt-2">+25 XP per lesson</p>
             </div>
-            <div className="rounded-xl bg-surface-1 border border-edge p-4">
-              <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1">Lessons Done</p>
-              <p className="text-2xl font-black text-ok tabular-nums">{totalCompleted}</p>
-              <p className="text-[10px] text-ink-3 mt-2">{enrollments.length} course{enrollments.length !== 1 ? "s" : ""} enrolled</p>
+            <div className="rounded-xl bg-zinc-900/50 border border-white/8 p-4">
+              <p className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1">Lessons Done</p>
+              <p className="text-2xl font-black text-emerald-400 tabular-nums">{totalCompleted}</p>
+              <p className="text-[10px] text-zinc-600 mt-2">{enrollments.length} course{enrollments.length !== 1 ? "s" : ""} enrolled</p>
             </div>
-            <div className="rounded-xl bg-surface-1 border border-edge p-4">
-              <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1">Certs</p>
-              <p className="text-2xl font-black text-accent tabular-nums">{enrollments.filter(e => e.completedAt).length}</p>
-              <p className="text-[10px] text-ink-3 mt-2">{enrollments.filter(e => !e.completedAt && enrolledIds.has(e.courseId)).length} in progress</p>
+            <div className="rounded-xl bg-zinc-900/50 border border-white/8 p-4">
+              <p className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1">Certs</p>
+              <p className="text-2xl font-black text-purple-400 tabular-nums">{enrollments.filter(e => e.completedAt).length}</p>
+              <p className="text-[10px] text-zinc-600 mt-2">{enrollments.filter(e => !e.completedAt && enrolledIds.has(e.courseId)).length} in progress</p>
             </div>
           </div>
         )}
 
         {/* Continue learning banner */}
         {continueLessonHref && (
-          <div className="mb-8 rounded-2xl border border-ok-edge bg-gradient-to-r from-ok to-surface-1/40 p-5 flex items-center justify-between gap-4">
+          <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-950/40 to-zinc-900/40 p-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-ink-3 font-semibold mb-1">Continue Learning</p>
+              <p className="text-[10px] uppercase tracking-wider text-emerald-500 font-semibold mb-1">Continue Learning</p>
               <p className="text-sm font-semibold text-white mb-0.5">{continueLessonTitle}</p>
-              <p className="text-xs text-ink-3">{continueCourseTitle}</p>
+              <p className="text-xs text-zinc-500">{continueCourseTitle}</p>
             </div>
             <Link
               href={continueLessonHref}
-              className="shrink-0 bg-ok hover:bg-ok-wash text-white text-sm font-bold px-5 py-2.5 rounded-xl transition"
+              className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition"
             >
               Resume →
             </Link>
@@ -175,11 +175,11 @@ export default async function AcademyPage() {
 
         {/* Course grid */}
         <div className="mb-6">
-          <h2 className="text-sm font-semibold text-ink-2 mb-4 uppercase tracking-wider">All Courses</h2>
+          <h2 className="text-sm font-semibold text-zinc-400 mb-4 uppercase tracking-wider">All Courses</h2>
         </div>
 
         {courses.length === 0 ? (
-          <div className="text-center py-24 text-ink-3">
+          <div className="text-center py-24 text-zinc-600">
             <p className="mb-4 flex justify-center"><Icon name="blueTeam" size={48} /></p>
             <p className="text-lg font-semibold mb-2">Courses coming soon</p>
             <p className="text-sm">The first courses are being prepared. Check back soon.</p>
@@ -201,32 +201,32 @@ export default async function AcademyPage() {
                 <Link
                   key={course.id}
                   href={`/academy/${course.slug}`}
-                  className="group block rounded-2xl border border-edge bg-surface-1 hover:bg-surface-1 hover:border-edge-strong transition-all p-5"
+                  className="group block rounded-2xl border border-white/8 bg-zinc-900/40 hover:bg-zinc-900/70 hover:border-white/15 transition-all p-5"
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <span className={`text-[10px] font-bold uppercase tracking-wider ${CAT_COLOR[course.category] ?? "text-ink-2"}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${CAT_COLOR[course.category] ?? "text-zinc-400"}`}>
                       {CAT_LABEL[course.category] ?? course.category}
                     </span>
                     {completed ? (
-                      <span className="text-[10px] font-bold text-ok bg-ok-wash px-2 py-0.5 rounded border border-ok-edge"><Icon name="check" size={14} className="inline-block shrink-0" /> Complete</span>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20"><Icon name="check" size={14} className="inline-block shrink-0" /> Complete</span>
                     ) : enrolled && doneCount > 0 ? (
-                      <span className="text-[10px] text-ink-3 border border-edge px-2 py-0.5 rounded">{pct}% done</span>
+                      <span className="text-[10px] text-zinc-500 border border-white/8 px-2 py-0.5 rounded">{pct}% done</span>
                     ) : enrolled ? (
-                      <span className="text-[10px] text-ink-3 border border-edge px-2 py-0.5 rounded">Enrolled</span>
+                      <span className="text-[10px] text-zinc-500 border border-white/8 px-2 py-0.5 rounded">Enrolled</span>
                     ) : null}
                   </div>
 
-                  <h2 className="text-base font-semibold text-ink group-hover:text-white transition mb-1 leading-snug">{course.title}</h2>
-                  {course.subtitle && <p className="text-xs text-ink-3 mb-2">{course.subtitle}</p>}
-                  <p className="text-xs text-ink-3 leading-relaxed line-clamp-2 mb-4">{course.description}</p>
+                  <h2 className="text-base font-semibold text-zinc-200 group-hover:text-white transition mb-1 leading-snug">{course.title}</h2>
+                  {course.subtitle && <p className="text-xs text-zinc-500 mb-2">{course.subtitle}</p>}
+                  <p className="text-xs text-zinc-500 leading-relaxed line-clamp-2 mb-4">{course.description}</p>
 
                   {/* Progress bar for enrolled */}
                   {enrolled && !completed && (
                     <div className="mb-4">
-                      <div className="h-1 bg-surface-2 rounded-full overflow-hidden">
-                        <div className="h-full bg-ok rounded-full transition-all" style={{ width: `${pct}%` }} />
+                      <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
                       </div>
-                      <p className="text-[10px] text-ink-3 mt-1">{doneCount} / {allCourseLessons.length} lessons</p>
+                      <p className="text-[10px] text-zinc-600 mt-1">{doneCount} / {allCourseLessons.length} lessons</p>
                     </div>
                   )}
 
@@ -234,10 +234,10 @@ export default async function AcademyPage() {
                     <span className={`text-[10px] font-bold uppercase tracking-wider border rounded px-2 py-0.5 ${DIFF_STYLE[course.difficulty]}`}>
                       {course.difficulty}
                     </span>
-                    <span className="text-[10px] text-ink-3">{course._count.modules} modules</span>
-                    <span className="text-[10px] text-ink-3">{lessons} lessons</span>
-                    {totalMinutes > 0 && <span className="text-[10px] text-ink-3">{formatDuration(totalMinutes)}</span>}
-                    <span className="ml-auto text-[10px] text-ink-3">{lessons * 25} XP total</span>
+                    <span className="text-[10px] text-zinc-600">{course._count.modules} modules</span>
+                    <span className="text-[10px] text-zinc-600">{lessons} lessons</span>
+                    {totalMinutes > 0 && <span className="text-[10px] text-zinc-600">{formatDuration(totalMinutes)}</span>}
+                    <span className="ml-auto text-[10px] text-zinc-600">{lessons * 25} XP total</span>
                   </div>
                 </Link>
               );

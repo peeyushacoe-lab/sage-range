@@ -137,20 +137,20 @@ export function WindowsLogAnalysisClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Detect Failed Logins" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           Windows Security event logs show a pattern of authentication activity from a single source IP.
           Click any row to inspect the full event detail — then identify the attack technique.
         </p>
 
-        <div className="rounded-lg border border-edge mb-2 overflow-hidden">
+        <div className="rounded-lg border border-white/8 mb-2 overflow-hidden">
           <table className="w-full text-xs font-mono">
             <thead>
-              <tr className="border-b border-edge bg-surface-1">
-                <th className="px-3 py-2 text-left text-ink-3">Event ID</th>
-                <th className="px-3 py-2 text-left text-ink-3">Type</th>
-                <th className="px-3 py-2 text-left text-ink-3">User</th>
-                <th className="px-3 py-2 text-left text-ink-3">Source IP</th>
-                <th className="px-3 py-2 text-right text-ink-3">Count</th>
+              <tr className="border-b border-white/8 bg-zinc-900">
+                <th className="px-3 py-2 text-left text-zinc-500">Event ID</th>
+                <th className="px-3 py-2 text-left text-zinc-500">Type</th>
+                <th className="px-3 py-2 text-left text-zinc-500">User</th>
+                <th className="px-3 py-2 text-left text-zinc-500">Source IP</th>
+                <th className="px-3 py-2 text-right text-zinc-500">Count</th>
               </tr>
             </thead>
             <tbody>
@@ -159,11 +159,11 @@ export function WindowsLogAnalysisClient({
                   <tr
                     key={i}
                     onClick={() => setExpandedEvent(expandedEvent === i ? null : i)}
-                    className={`border-b border-edge-subtle cursor-pointer transition-colors ${
+                    className={`border-b border-white/5 cursor-pointer transition-colors ${
                       ev.id === "4624"
                         ? "bg-green-950/30 text-green-300 hover:bg-green-950/50"
-                        : "text-danger hover:bg-danger-wash"
-                    } ${expandedEvent === i ? "bg-surface-2" : ""}`}
+                        : "text-red-300 hover:bg-red-950/20"
+                    } ${expandedEvent === i ? "bg-white/5" : ""}`}
                   >
                     <td className="px-3 py-2">{ev.id}</td>
                     <td className="px-3 py-2">{ev.type}</td>
@@ -171,20 +171,20 @@ export function WindowsLogAnalysisClient({
                     <td className="px-3 py-2">{ev.ip}</td>
                     <td className="px-3 py-2 text-right font-bold">
                       {ev.count}
-                      <span className="ml-2 text-ink-3">{expandedEvent === i ? "▲" : "▼"}</span>
+                      <span className="ml-2 text-zinc-600">{expandedEvent === i ? "▲" : "▼"}</span>
                     </td>
                   </tr>
                   {expandedEvent === i && (
-                    <tr key={`${i}-detail`} className="border-b border-edge-subtle">
-                      <td colSpan={5} className="px-4 py-3 bg-surface-0">
+                    <tr key={`${i}-detail`} className="border-b border-white/5">
+                      <td colSpan={5} className="px-4 py-3 bg-zinc-950">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1.5">Event Detail</p>
-                            <pre className="text-xs text-warn whitespace-pre-wrap leading-relaxed">{ev.detail}</pre>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Event Detail</p>
+                            <pre className="text-xs text-amber-300 whitespace-pre-wrap leading-relaxed">{ev.detail}</pre>
                           </div>
                           <div>
-                            <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-1.5">MITRE ATT&CK</p>
-                            <span className="inline-block rounded border border-warn-edge bg-warn-wash px-2 py-1 text-xs text-warn font-mono">
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">MITRE ATT&CK</p>
+                            <span className="inline-block rounded border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs text-amber-400 font-mono">
                               {ev.mitre}
                             </span>
                           </div>
@@ -197,13 +197,13 @@ export function WindowsLogAnalysisClient({
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-ink-3 mb-4">
+        <p className="text-xs text-zinc-500 mb-4">
           Click any row to expand the full event detail. Event 4624 = successful logon. Event 4625 = failed logon.
         </p>
 
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What attack technique does this pattern indicate?</p>
+            <p className="text-sm text-zinc-300 font-medium">What attack technique does this pattern indicate?</p>
             <div className="flex flex-wrap gap-3">
               {["Pass-the-Hash", "Password Spraying", "Brute Force", "Kerberoasting"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -215,16 +215,16 @@ export function WindowsLogAnalysisClient({
                     onChange={() => setT1Choice(opt)}
                     className="accent-emerald-500"
                   />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — 847+ failures against one account = brute force. Flag: SAGE&#123;brut3_f0rc3_d3t3ct3d&#125;
           </p>
         )}
@@ -232,27 +232,27 @@ export function WindowsLogAnalysisClient({
 
       {/* Task 2 */}
       <TaskShell number={2} title="Trace Lateral Movement" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           After gaining access, the attacker moved laterally. Sysmon Event ID 3 (network connection)
           logs reveal the protocol used.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <p className="font-mono text-xs text-ink-3 mb-2">[Sysmon Event 3 — NetworkConnect]</p>
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SYSMON_NET}</pre>
-          <div className="mt-3 pt-3 border-t border-edge-subtle grid grid-cols-2 gap-3 text-xs">
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <p className="font-mono text-xs text-zinc-500 mb-2">[Sysmon Event 3 — NetworkConnect]</p>
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SYSMON_NET}</pre>
+          <div className="mt-3 pt-3 border-t border-white/5 grid grid-cols-2 gap-3 text-xs">
             <div>
-              <p className="text-ink-3 mb-1">Process</p>
-              <p className="text-warn font-mono">WmiPrvSE.exe = WMI Provider Host</p>
+              <p className="text-zinc-500 mb-1">Process</p>
+              <p className="text-amber-300 font-mono">WmiPrvSE.exe = WMI Provider Host</p>
             </div>
             <div>
-              <p className="text-ink-3 mb-1">Port 135</p>
-              <p className="text-warn font-mono">DCOM/RPC endpoint for remote WMI</p>
+              <p className="text-zinc-500 mb-1">Port 135</p>
+              <p className="text-amber-300 font-mono">DCOM/RPC endpoint for remote WMI</p>
             </div>
           </div>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What protocol was used for lateral movement?</p>
+            <p className="text-sm text-zinc-300 font-medium">What protocol was used for lateral movement?</p>
             <div className="flex flex-wrap gap-3">
               {["SMB", "RDP", "WMI", "SSH"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
@@ -264,16 +264,16 @@ export function WindowsLogAnalysisClient({
                     onChange={() => setT2Choice(opt)}
                     className="accent-emerald-500"
                   />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — WMI lateral movement via WmiPrvSE.exe on port 135. Flag: SAGE&#123;wm1_l4t3r4l_m0v3m3nt&#125;
           </p>
         )}
@@ -281,19 +281,19 @@ export function WindowsLogAnalysisClient({
 
       {/* Task 3 */}
       <TaskShell number={3} title="Find Data Exfiltration" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           The attacker staged and exfiltrated data. Correlate the Sysmon file creation and
           network connection events to identify the exfiltration destination.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{EXFIL_LOGS}</pre>
-          <div className="mt-3 pt-3 border-t border-edge-subtle text-xs text-ink-3">
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{EXFIL_LOGS}</pre>
+          <div className="mt-3 pt-3 border-t border-white/5 text-xs text-zinc-500">
             Correlation: 2.3 GB staged → 2.4 GB sent (overhead from TLS). Same session, 6-minute window.
           </div>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What destination was used for exfiltration?</p>
+            <p className="text-sm text-zinc-300 font-medium">What destination was used for exfiltration?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput
                 value={t3Answer}
@@ -303,23 +303,23 @@ export function WindowsLogAnalysisClient({
               />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — 2.4 GB exfiltrated to the C2. Flag: SAGE&#123;185.220.101.47&#125;
           </p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;brut3_f0rc3_d3t3ct3d&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;wm1_l4t3r4l_m0v3m3nt&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;185.220.101.47&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;brut3_f0rc3_d3t3ct3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;wm1_l4t3r4l_m0v3m3nt&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;185.220.101.47&#125;</span></li>
           </ul>
         </div>
       )}

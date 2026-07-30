@@ -38,7 +38,7 @@ export function RuleBuilderClient() {
   };
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <PageHeader
@@ -50,7 +50,7 @@ export function RuleBuilderClient() {
               {submittedRuleId && (
                 <Link
                   href={`/labs/rules/${submittedRuleId}`}
-                  className="inline-flex items-center gap-2 rounded-lg border border-ok-edge bg-ok-wash px-4 py-2 text-sm font-semibold text-ok hover:bg-ok-wash transition"
+                  className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 transition"
                 >
                   <Eye size={16} />
                   View Submitted Rule
@@ -58,7 +58,7 @@ export function RuleBuilderClient() {
               )}
               <Link
                 href="/labs/rules/community"
-                className="rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
+                className="rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
               >
                 Community Rules →
               </Link>
@@ -82,8 +82,8 @@ export function RuleBuilderClient() {
                     className={cn(
                       'rounded-lg border px-3 py-2 text-xs font-mono font-medium transition-all',
                       language === lang
-                        ? 'border-ok-edge bg-ok-wash text-ok'
-                        : 'border-edge bg-surface-2 text-ink-2 hover:bg-surface-2 hover:border-edge-strong'
+                        ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                        : 'border-white/10 bg-white/5 text-zinc-400 hover:bg-white/10 hover:border-white/20'
                     )}
                   >
                     {lang}
@@ -95,7 +95,7 @@ export function RuleBuilderClient() {
             {/* Rule Name */}
             <div>
               <label className="block text-sm font-semibold text-white mb-2">
-                Rule Name <span className="text-danger">*</span>
+                Rule Name <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -103,9 +103,9 @@ export function RuleBuilderClient() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Suspicious PowerShell Usage"
                 maxLength={100}
-                className="w-full rounded-lg border border-edge bg-surface-0 px-3 py-2 text-sm text-white placeholder-ink-3 focus:border-ok-edge focus:outline-none focus:ring-1 focus:ring-ok"
+                className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
               />
-              <p className="text-xs text-ink-3 mt-1">
+              <p className="text-xs text-zinc-600 mt-1">
                 {name.length} / 100 characters
               </p>
             </div>
@@ -120,9 +120,9 @@ export function RuleBuilderClient() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe what this rule detects..."
                 maxLength={500}
-                className="w-full h-20 rounded-lg border border-edge bg-surface-0 px-3 py-2 text-sm text-white placeholder-ink-3 focus:border-ok-edge focus:outline-none focus:ring-1 focus:ring-ok resize-none"
+                className="w-full h-20 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white placeholder-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 resize-none"
               />
-              <p className="text-xs text-ink-3 mt-1">
+              <p className="text-xs text-zinc-600 mt-1">
                 {description.length} / 500 characters
               </p>
             </div>
@@ -130,13 +130,13 @@ export function RuleBuilderClient() {
             {/* Rule Content Editor */}
             <div>
               <label className="block text-sm font-semibold text-white mb-2">
-                Rule Content <span className="text-danger">*</span>
+                Rule Content <span className="text-red-400">*</span>
               </label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={`Paste your ${language} rule here...`}
-                className="w-full h-64 rounded-lg border border-edge bg-surface-0 px-3 py-2 text-xs font-mono text-white placeholder-ink-3 focus:border-ok-edge focus:outline-none focus:ring-1 focus:ring-ok resize-none"
+                className="w-full h-64 rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-xs font-mono text-white placeholder-zinc-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 resize-none"
               />
             </div>
 
@@ -156,20 +156,20 @@ export function RuleBuilderClient() {
           <div className="space-y-4">
             {/* F1 Score Display */}
             {f1Score !== null && (
-              <div className="rounded-lg border border-ok-edge bg-ok-wash p-4">
-                <p className="text-xs text-ink-3 mb-2">Last F1 Score</p>
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
+                <p className="text-xs text-zinc-500 mb-2">Last F1 Score</p>
                 <div className="flex items-center gap-3">
-                  <div className="text-3xl font-bold text-ok">
+                  <div className="text-3xl font-bold text-emerald-400">
                     {f1Score.toFixed(2)}
                   </div>
                   <div className="flex-1">
-                    <div className="w-full h-2 bg-surface-2 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-ok transition-all"
+                        className="h-full bg-emerald-500 transition-all"
                         style={{ width: `${f1Score * 100}%` }}
                       />
                     </div>
-                    <p className="text-xs text-ink-3 mt-1">
+                    <p className="text-xs text-zinc-600 mt-1">
                       {f1Score >= 0.8 ? 'Excellent' : f1Score >= 0.6 ? 'Good' : 'Needs improvement'}
                     </p>
                   </div>
@@ -178,37 +178,37 @@ export function RuleBuilderClient() {
             )}
 
             {/* Validation Status */}
-            <div className="rounded-lg border border-edge bg-surface-1 p-4">
+            <div className="rounded-lg border border-white/10 bg-zinc-900/60 p-4">
               <p className="text-sm font-semibold text-white mb-3">Validation Status</p>
               {validationErrors.length === 0 && name && content ? (
                 <div className="flex items-start gap-3">
-                  <CheckCircle size={20} className="text-ok flex-none mt-0.5" />
+                  <CheckCircle size={20} className="text-emerald-400 flex-none mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium text-ok">Valid</p>
-                    <p className="text-xs text-ink-3 mt-1">Your rule syntax is valid</p>
+                    <p className="text-sm font-medium text-emerald-400">Valid</p>
+                    <p className="text-xs text-zinc-500 mt-1">Your rule syntax is valid</p>
                   </div>
                 </div>
               ) : validationErrors.length > 0 ? (
                 <div className="space-y-2">
                   <div className="flex items-start gap-3">
-                    <AlertCircle size={20} className="text-danger flex-none mt-0.5" />
+                    <AlertCircle size={20} className="text-red-400 flex-none mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium text-danger">
+                      <p className="text-sm font-medium text-red-400">
                         {validationErrors.length} error{validationErrors.length !== 1 ? 's' : ''}
                       </p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     {validationErrors.map((error, i) => (
-                      <div key={i} className="ml-7 text-xs text-ink-2">
-                        {error.line && <span className="text-danger">Line {error.line}: </span>}
+                      <div key={i} className="ml-7 text-xs text-zinc-400">
+                        {error.line && <span className="text-red-400">Line {error.line}: </span>}
                         {error.message}
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <div className="text-xs text-ink-3">
+                <div className="text-xs text-zinc-500">
                   Fill in the rule name and content to validate
                 </div>
               )}
@@ -244,7 +244,7 @@ export function RuleBuilderClient() {
             {submittedRuleId && (
               <Link
                 href={`/labs/rules/${submittedRuleId}/versions`}
-                className="inline-flex items-center gap-2 text-sm text-ink-2 hover:text-white transition"
+                className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition"
               >
                 <Code size={14} />
                 View Version History →

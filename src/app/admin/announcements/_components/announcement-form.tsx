@@ -28,14 +28,14 @@ export function AnnouncementForm() {
   }
 
   return (
-    <div className="rounded-xl border border-edge bg-surface-1 p-5 space-y-3">
-      <p className="text-xs text-ink-3 uppercase tracking-widest">New announcement</p>
+    <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-5 space-y-3">
+      <p className="text-xs text-zinc-500 uppercase tracking-widest">New announcement</p>
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Title — e.g. New Blue Team Simulation Added"
         maxLength={160}
-        className="w-full rounded-lg border border-edge bg-surface-0 px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+        className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/40"
       />
       <textarea
         value={body}
@@ -43,19 +43,19 @@ export function AnnouncementForm() {
         placeholder="Body"
         maxLength={2000}
         rows={3}
-        className="w-full rounded-lg border border-edge bg-surface-0 px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge resize-none"
+        className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/40 resize-none"
       />
       <input
         value={href}
         onChange={(e) => setHref(e.target.value)}
         placeholder="Link (optional) — e.g. /competitions"
         maxLength={500}
-        className="w-full rounded-lg border border-edge bg-surface-0 px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+        className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/40"
       />
       <button
         onClick={submit}
         disabled={pending || !title.trim() || !body.trim()}
-        className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-50 transition"
+        className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50 transition"
       >
         {pending ? "Posting…" : "Post announcement"}
       </button>

@@ -105,24 +105,24 @@ export function RdpAttackInvestigationClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Detect the Brute Force" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           Windows Security event logs on an internet-facing RDP jump box show repeated authentication attempts
           against different accounts from one source.
         </p>
-        <div className="rounded-lg border border-edge mb-4 overflow-hidden">
+        <div className="rounded-lg border border-white/8 mb-4 overflow-hidden">
           <table className="w-full text-xs font-mono">
             <thead>
-              <tr className="border-b border-edge bg-surface-1">
-                <th className="px-3 py-2 text-left text-ink-3">Time</th>
-                <th className="px-3 py-2 text-left text-ink-3">User</th>
-                <th className="px-3 py-2 text-left text-ink-3">Source IP</th>
-                <th className="px-3 py-2 text-left text-ink-3">Event</th>
-                <th className="px-3 py-2 text-left text-ink-3">Result</th>
+              <tr className="border-b border-white/8 bg-zinc-900">
+                <th className="px-3 py-2 text-left text-zinc-500">Time</th>
+                <th className="px-3 py-2 text-left text-zinc-500">User</th>
+                <th className="px-3 py-2 text-left text-zinc-500">Source IP</th>
+                <th className="px-3 py-2 text-left text-zinc-500">Event</th>
+                <th className="px-3 py-2 text-left text-zinc-500">Result</th>
               </tr>
             </thead>
             <tbody>
               {RDP_LOG.map((row) => (
-                <tr key={row.id} className={`border-b border-edge-subtle ${row.result === "Success" ? "bg-green-950/30 text-green-300" : "text-danger"}`}>
+                <tr key={row.id} className={`border-b border-white/5 ${row.result === "Success" ? "bg-green-950/30 text-green-300" : "text-red-300"}`}>
                   <td className="px-3 py-2">{row.time}</td>
                   <td className="px-3 py-2">{row.user}</td>
                   <td className="px-3 py-2">{row.ip}</td>
@@ -133,89 +133,89 @@ export function RdpAttackInvestigationClient({
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-ink-3 mb-4">1,204 total failed attempts (truncated above) across 6 accounts before the successful logon as helpdesk.</p>
+        <p className="text-xs text-zinc-500 mb-4">1,204 total failed attempts (truncated above) across 6 accounts before the successful logon as helpdesk.</p>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What does this pattern represent?</p>
+            <p className="text-sm text-zinc-300 font-medium">What does this pattern represent?</p>
             <div className="flex flex-wrap gap-3">
               {["Normal remote work", "RDP brute force", "A licensing check", "Load balancer health check"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — 1,204 failures across multiple accounts from one IP, ending in success, is textbook RDP brute force. Flag: SAGE&#123;rdp_brut3_f0rc3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 1,204 failures across multiple accounts from one IP, ending in success, is textbook RDP brute force. Flag: SAGE&#123;rdp_brut3_f0rc3&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Identify the Attacker's Action" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">
-          Once inside as <code className="text-warn">helpdesk</code>, the attacker ran a command from within
+        <p className="text-zinc-300 text-sm mb-3">
+          Once inside as <code className="text-amber-300">helpdesk</code>, the attacker ran a command from within
           the RDP session.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{CONNECTION_LOG}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{CONNECTION_LOG}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What did the attacker do?</p>
+            <p className="text-sm text-zinc-300 font-medium">What did the attacker do?</p>
             <div className="flex flex-wrap gap-3">
               {["Deleted system logs", "Created a new local account", "Encrypted the disk", "Disabled the firewall"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — `net user backup_svc ... /add` creates a new local account for later use. Flag: SAGE&#123;n3w_acc0unt_cr3at3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — `net user backup_svc ... /add` creates a new local account for later use. Flag: SAGE&#123;n3w_acc0unt_cr3at3d&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Confirm the Persistence" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           The new account wasn&apos;t left as a standard user — it was granted elevated rights immediately after creation.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{GROUP_LOG}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{GROUP_LOG}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">Flag the account name and the group it was added to.</p>
+            <p className="text-sm text-zinc-300 font-medium">Flag the account name and the group it was added to.</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t3Answer} onChange={setT3Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">Correct — backup_svc was added to the local Administrators group, giving the attacker durable admin-level persistence. Flag: SAGE&#123;b4ckup_svc_4dmin_p3rsist3nce&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — backup_svc was added to the local Administrators group, giving the attacker durable admin-level persistence. Flag: SAGE&#123;b4ckup_svc_4dmin_p3rsist3nce&#125;</p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;rdp_brut3_f0rc3&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;n3w_acc0unt_cr3at3d&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;b4ckup_svc_4dmin_p3rsist3nce&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;rdp_brut3_f0rc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;n3w_acc0unt_cr3at3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;b4ckup_svc_4dmin_p3rsist3nce&#125;</span></li>
           </ul>
         </div>
       )}

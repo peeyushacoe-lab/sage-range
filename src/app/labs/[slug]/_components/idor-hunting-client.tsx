@@ -85,38 +85,38 @@ export function IdorHuntingClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Spot the Leak" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">
-          You&apos;re logged in as <code className="text-warn">you@corp.com</code> and view your own invoice at
-          <code className="text-warn"> /api/invoices/1001</code>. Out of curiosity, you increment the ID.
+        <p className="text-zinc-300 text-sm mb-3">
+          You&apos;re logged in as <code className="text-amber-300">you@corp.com</code> and view your own invoice at
+          <code className="text-amber-300"> /api/invoices/1001</code>. Out of curiosity, you increment the ID.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{REQUESTS}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{REQUESTS}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">Flag the leaked user's email and invoice total.</p>
+            <p className="text-sm text-zinc-300 font-medium">Flag the leaked user's email and invoice total.</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — invoice 1002 belongs to priya@otherco.com, totalling $18,400, fully exposed by changing the ID. Flag: SAGE&#123;pr1y4_18400_1nv0ic3_l34k&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — invoice 1002 belongs to priya@otherco.com, totalling $18,400, fully exposed by changing the ID. Flag: SAGE&#123;pr1y4_18400_1nv0ic3_l34k&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Find the Root Cause" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">The invoice API's server-side code:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{API_CODE}</pre>
+        <p className="text-zinc-300 text-sm mb-3">The invoice API's server-side code:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{API_CODE}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What's the exact bug?</p>
+            <p className="text-sm text-zinc-300 font-medium">What's the exact bug?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The database query is vulnerable to SQL injection",
@@ -126,31 +126,31 @@ export function IdorHuntingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — requireLogin only checks that SOMEONE is logged in, not that THIS invoice belongs to them. That missing ownership check is the entire bug. Flag: SAGE&#123;m1ss1ng_0wn3rsh1p_ch3ck&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — requireLogin only checks that SOMEONE is logged in, not that THIS invoice belongs to them. That missing ownership check is the entire bug. Flag: SAGE&#123;m1ss1ng_0wn3rsh1p_ch3ck&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Assess a Second Endpoint" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           While testing, you also find a user profile endpoint with a similar flaw — but the impact here is worse.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{SECOND_ENDPOINT}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{SECOND_ENDPOINT}</pre>
         </div>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What class of vulnerability does this represent?</p>
+            <p className="text-sm text-zinc-300 font-medium">What class of vulnerability does this represent?</p>
             <div className="flex flex-col gap-2">
               {[
                 "SSRF — the server is making an unintended request",
@@ -160,17 +160,17 @@ export function IdorHuntingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — the endpoint let user 482 modify their own "role" field with no server-side check on which
             fields are safe to self-edit, letting any student self-promote to admin. Flag: SAGE&#123;s3lf_pr0m0t3_4dm1n_r0l3&#125;
           </p>
@@ -178,12 +178,12 @@ export function IdorHuntingClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;pr1y4_18400_1nv0ic3_l34k&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;m1ss1ng_0wn3rsh1p_ch3ck&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;s3lf_pr0m0t3_4dm1n_r0l3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;pr1y4_18400_1nv0ic3_l34k&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;m1ss1ng_0wn3rsh1p_ch3ck&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;s3lf_pr0m0t3_4dm1n_r0l3&#125;</span></li>
           </ul>
         </div>
       )}

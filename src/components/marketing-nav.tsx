@@ -7,17 +7,17 @@ export async function MarketingNav() {
   const isSignedIn = !!session;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-edge bg-surface-0/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-white/8 bg-zinc-950/90 backdrop-blur">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <Image src="/logo.png" alt="Sage Vault" width={42} height={42} className="rounded-md" unoptimized />
           <div className="flex flex-col leading-none">
             <span className="font-bold tracking-tight text-white text-sm">Sage Vault</span>
-            <span className="text-[9px] text-ink-3 tracking-wide">by CyberSage</span>
+            <span className="text-[9px] text-zinc-500 tracking-wide">by CyberSage</span>
           </div>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm text-ink-2">
+        <nav className="hidden md:flex items-center gap-6 text-sm text-zinc-400">
           <Link href="/about"   className="hover:text-white transition-colors">About</Link>
           <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
           <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
@@ -26,12 +26,12 @@ export async function MarketingNav() {
         <div className="flex items-center gap-3 text-sm shrink-0">
           {!isSignedIn && (
             <>
-              <Link href="/sign-in" className="text-ink-2 hover:text-white transition-colors">
+              <Link href="/sign-in" className="text-zinc-400 hover:text-white transition-colors">
                 Sign in
               </Link>
               <Link
                 href="/sign-in"
-                className="rounded-lg bg-accent-fill px-4 py-2 font-semibold text-white hover:bg-accent-hover transition-colors"
+                className="rounded-lg bg-sage-500 px-4 py-2 font-semibold text-black hover:bg-sage-400 transition-colors"
               >
                 Get started
               </Link>
@@ -40,7 +40,7 @@ export async function MarketingNav() {
           {isSignedIn && (
             <Link
               href="/dashboard"
-              className="rounded-lg bg-accent-fill px-4 py-2 font-semibold text-white hover:bg-accent-hover transition-colors"
+              className="rounded-lg bg-sage-500 px-4 py-2 font-semibold text-black hover:bg-sage-400 transition-colors"
             >
               Dashboard
             </Link>

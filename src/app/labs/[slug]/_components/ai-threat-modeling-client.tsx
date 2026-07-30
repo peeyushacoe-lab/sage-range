@@ -74,31 +74,31 @@ export function AiThreatModelingClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Identify the Top Threat" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">A new feature is about to ship. Its design:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{FEATURE}</pre>
+        <p className="text-zinc-300 text-sm mb-3">A new feature is about to ship. Its design:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{FEATURE}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What's the single biggest threat category here, given the chatbot can invoke database functions on the user's behalf?</p>
+            <p className="text-sm text-zinc-300 font-medium">What's the single biggest threat category here, given the chatbot can invoke database functions on the user's behalf?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — prompt injection could trick the model into abusing its own function-calling access. Flag: SAGE&#123;prompt_1nject10n_4bus1ng_funct10ns&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — prompt injection could trick the model into abusing its own function-calling access. Flag: SAGE&#123;prompt_1nject10n_4bus1ng_funct10ns&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Choose the Mitigation" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-4">You need to write the mitigation for this before launch.</p>
+        <p className="text-zinc-300 text-sm mb-4">You need to write the mitigation for this before launch.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Which mitigation matters most for function-calling abuse via prompt injection?</p>
+            <p className="text-sm text-zinc-300 font-medium">Which mitigation matters most for function-calling abuse via prompt injection?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Enforce strict server-side authorization checks on every function call, never trusting the model's decision alone",
@@ -108,25 +108,25 @@ export function AiThreatModelingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — every function call needs independent server-side authorization, regardless of what the model decided. Flag: SAGE&#123;s3rv3r_s1d3_4uth_0n_funct10n_c4ll&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — every function call needs independent server-side authorization, regardless of what the model decided. Flag: SAGE&#123;s3rv3r_s1d3_4uth_0n_funct10n_c4ll&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Push Back on a Bad Assumption" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">A teammate argues the system prompt instructions are mitigation enough.</p>
+        <p className="text-zinc-300 text-sm mb-4">A teammate argues the system prompt instructions are mitigation enough.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why is "the model would never do that" not a valid threat mitigation?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why is "the model would never do that" not a valid threat mitigation?</p>
             <div className="flex flex-col gap-2">
               {[
                 "LLM behavior is probabilistic and can be manipulated via prompt injection, so you can't rely on the model's judgment as a security boundary",
@@ -136,17 +136,17 @@ export function AiThreatModelingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — probabilistic, manipulable model behavior can never serve as a hard security boundary on its own.
             Flag: SAGE&#123;m0d3l_judgm3nt_n0t_4_s3cur1ty_b0und4ry&#125;
           </p>
@@ -154,12 +154,12 @@ export function AiThreatModelingClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;prompt_1nject10n_4bus1ng_funct10ns&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;s3rv3r_s1d3_4uth_0n_funct10n_c4ll&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;m0d3l_judgm3nt_n0t_4_s3cur1ty_b0und4ry&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;prompt_1nject10n_4bus1ng_funct10ns&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;s3rv3r_s1d3_4uth_0n_funct10n_c4ll&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;m0d3l_judgm3nt_n0t_4_s3cur1ty_b0und4ry&#125;</span></li>
           </ul>
         </div>
       )}

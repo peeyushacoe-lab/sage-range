@@ -87,15 +87,15 @@ export function MitreAttackMappingClient({
   return (
     <div className="space-y-6">
       {/* Reference panel */}
-      <div className="rounded-lg border border-edge bg-surface-1 p-4">
-        <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-2">Incident Narrative</p>
-        <pre className="text-xs text-ink-2 whitespace-pre-wrap leading-relaxed">{INCIDENT_NARRATIVE}</pre>
+      <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-4">
+        <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Incident Narrative</p>
+        <pre className="text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">{INCIDENT_NARRATIVE}</pre>
       </div>
-      <div className="rounded-lg border border-edge bg-surface-1 p-4">
-        <p className="text-[10px] text-ink-3 uppercase tracking-wider mb-2">MITRE ATT&amp;CK Tactics Reference</p>
+      <div className="rounded-lg border border-white/8 bg-zinc-900/40 p-4">
+        <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">MITRE ATT&amp;CK Tactics Reference</p>
         <div className="flex flex-wrap gap-2">
           {TACTICS.map((t) => (
-            <span key={t.id} className="text-[11px] font-mono text-ink-2 border border-edge rounded px-2 py-1">
+            <span key={t.id} className="text-[11px] font-mono text-zinc-400 border border-white/8 rounded px-2 py-1">
               {t.id} — {t.name}
             </span>
           ))}
@@ -104,8 +104,8 @@ export function MitreAttackMappingClient({
 
       {/* Task 1 */}
       <TaskShell number={1} title="Map the Opening Move" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-4">
-          At <span className="text-warn font-mono">09:12</span>, the employee opened a malicious email attachment
+        <p className="text-zinc-300 text-sm mb-4">
+          At <span className="text-amber-300 font-mono">09:12</span>, the employee opened a malicious email attachment
           that ran a macro. Which tactic does this belong to?
         </p>
         {!done("task_1") && (
@@ -114,24 +114,24 @@ export function MitreAttackMappingClient({
               {["Execution", "Initial Access", "Persistence", "Exfiltration"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t1" value={opt} checked={t1Choice === opt} onChange={() => setT1Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — a spearphishing attachment is how the attacker first got in (TA0001). Flag: SAGE&#123;initial_acc3ss_ta0001&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a spearphishing attachment is how the attacker first got in (TA0001). Flag: SAGE&#123;initial_acc3ss_ta0001&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Identify the Credential Access Technique" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-4">
-          At <span className="text-warn font-mono">09:35</span>, the malware dumped credentials from a specific
+        <p className="text-zinc-300 text-sm mb-4">
+          At <span className="text-amber-300 font-mono">09:35</span>, the malware dumped credentials from a specific
           Windows process. Which MITRE technique does this match?
         </p>
         {!done("task_2") && (
@@ -140,24 +140,24 @@ export function MitreAttackMappingClient({
               {["T1110 — Brute Force", "T1003.001 — LSASS Memory", "T1552 — Unsecured Credentials", "T1558 — Kerberoasting"].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — dumping credentials from LSASS memory is T1003.001, under the Credential Access tactic (TA0006). Flag: SAGE&#123;lsass_dump_t1003&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — dumping credentials from LSASS memory is T1003.001, under the Credential Access tactic (TA0006). Flag: SAGE&#123;lsass_dump_t1003&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Map the Persistence Mechanism" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">
-          At <span className="text-warn font-mono">09:20</span>, the malware created something to survive
+        <p className="text-zinc-300 text-sm mb-4">
+          At <span className="text-amber-300 font-mono">09:20</span>, the malware created something to survive
           a reboot. Name the technique and its ID as a flag (format: SAGE&#123;technique_name_t&#8230;&#125;).
         </p>
         {!done("task_3") && (
@@ -166,23 +166,23 @@ export function MitreAttackMappingClient({
               <MonoInput value={t3Answer} onChange={setT3Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">Correct — a scheduled task set to run at logon is T1053 (Scheduled Task/Job), under Persistence (TA0003). Flag: SAGE&#123;scheduled_task_persistence_t1053&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a scheduled task set to run at logon is T1053 (Scheduled Task/Job), under Persistence (TA0003). Flag: SAGE&#123;scheduled_task_persistence_t1053&#125;</p>
         )}
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
-          <p className="text-xs text-ink-2 mb-2">Full attack chain, mapped to MITRE ATT&amp;CK:</p>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
+          <p className="text-xs text-zinc-400 mb-2">Full attack chain, mapped to MITRE ATT&amp;CK:</p>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Initial Access —</span> <span className="text-ok">SAGE&#123;initial_acc3ss_ta0001&#125;</span></li>
-            <li><span className="text-ink-3">Credential Access —</span> <span className="text-ok">SAGE&#123;lsass_dump_t1003&#125;</span></li>
-            <li><span className="text-ink-3">Persistence —</span> <span className="text-ok">SAGE&#123;scheduled_task_persistence_t1053&#125;</span></li>
+            <li><span className="text-zinc-500">Initial Access —</span> <span className="text-sage-400">SAGE&#123;initial_acc3ss_ta0001&#125;</span></li>
+            <li><span className="text-zinc-500">Credential Access —</span> <span className="text-sage-400">SAGE&#123;lsass_dump_t1003&#125;</span></li>
+            <li><span className="text-zinc-500">Persistence —</span> <span className="text-sage-400">SAGE&#123;scheduled_task_persistence_t1053&#125;</span></li>
           </ul>
         </div>
       )}

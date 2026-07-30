@@ -26,8 +26,8 @@ export function TemplateToggle({ id, published }: { id: string; published: boole
       disabled={loading}
       className={`text-xs px-3 py-1 rounded-full font-semibold transition disabled:opacity-50 ${
         active
-          ? "bg-ok-wash text-ok hover:bg-ok-wash"
-          : "bg-surface-3 text-ink-2 hover:bg-surface-3"
+          ? "bg-sage-500/20 text-sage-500 hover:bg-sage-500/30"
+          : "bg-zinc-500/20 text-zinc-400 hover:bg-zinc-500/30"
       }`}
     >
       {loading ? "…" : active ? "Published" : "Unpublished"}

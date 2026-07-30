@@ -82,19 +82,19 @@ export function TeamHubClient({ templates }: Props) {
   return (
     <div className="grid sm:grid-cols-2 gap-6">
       {/* Create Team Room */}
-      <div className="rounded-xl border border-edge bg-surface-1 p-6">
+      <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-6">
         <h2 className="text-lg font-bold text-white mb-1">Create Team Room</h2>
-        <p className="text-xs text-ink-3 mb-4 leading-relaxed">
+        <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
           Select a scenario, create a room, and share the code with your team.
         </p>
 
-        <label className="block mb-1 text-xs uppercase tracking-wider text-ink-3">
+        <label className="block mb-1 text-xs uppercase tracking-wider text-zinc-500">
           Scenario
         </label>
         <select
           value={selectedSlug}
           onChange={(e) => setSelectedSlug(e.target.value)}
-          className="w-full mb-4 rounded border border-edge bg-surface-2 px-3 py-2 text-sm text-white focus:outline-none focus:border-ok-edge"
+          className="w-full mb-4 rounded border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white focus:outline-none focus:border-sage-500/60"
         >
           {templates.map((t) => (
             <option key={t.slug} value={t.slug}>{t.name}</option>
@@ -102,7 +102,7 @@ export function TeamHubClient({ templates }: Props) {
         </select>
 
         {createError && (
-          <p className="mb-3 text-xs text-danger border border-danger-edge bg-danger-wash rounded px-3 py-2">
+          <p className="mb-3 text-xs text-red-400 border border-red-500/30 bg-red-500/10 rounded px-3 py-2">
             {createError}
           </p>
         )}
@@ -110,20 +110,20 @@ export function TeamHubClient({ templates }: Props) {
         <button
           onClick={handleCreate}
           disabled={creating}
-          className="w-full rounded-lg bg-accent-fill px-4 py-2.5 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          className="w-full rounded-lg bg-sage-500 px-4 py-2.5 text-sm font-bold text-black hover:bg-sage-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
           {creating ? "Creating room..." : "Create Room →"}
         </button>
       </div>
 
       {/* Join a Room */}
-      <div className="rounded-xl border border-edge bg-surface-1 p-6">
+      <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-6">
         <h2 className="text-lg font-bold text-white mb-1">Join a Room</h2>
-        <p className="text-xs text-ink-3 mb-4 leading-relaxed">
+        <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
           Enter the 6-character code shared by your IR Lead.
         </p>
 
-        <label className="block mb-1 text-xs uppercase tracking-wider text-ink-3">
+        <label className="block mb-1 text-xs uppercase tracking-wider text-zinc-500">
           Room Code
         </label>
         <input
@@ -132,11 +132,11 @@ export function TeamHubClient({ templates }: Props) {
           onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
           maxLength={6}
           placeholder="e.g. AB12CD"
-          className="w-full mb-4 rounded border border-edge bg-surface-2 px-3 py-2 text-sm text-white font-mono uppercase tracking-widest placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+          className="w-full mb-4 rounded border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white font-mono uppercase tracking-widest placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60"
         />
 
         {joinError && (
-          <p className="mb-3 text-xs text-danger border border-danger-edge bg-danger-wash rounded px-3 py-2">
+          <p className="mb-3 text-xs text-red-400 border border-red-500/30 bg-red-500/10 rounded px-3 py-2">
             {joinError}
           </p>
         )}
@@ -144,21 +144,21 @@ export function TeamHubClient({ templates }: Props) {
         <button
           onClick={handleJoin}
           disabled={joining || joinCode.trim().length !== 6}
-          className="w-full rounded-lg border border-ok-edge px-4 py-2.5 text-sm font-bold text-ok hover:bg-ok-wash disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="w-full rounded-lg border border-sage-500/40 px-4 py-2.5 text-sm font-bold text-sage-400 hover:bg-sage-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {joining ? "Joining..." : "Join Room →"}
         </button>
       </div>
 
       {/* Role overview */}
-      <div className="sm:col-span-2 rounded-xl border border-edge bg-surface-1 p-5">
-        <p className="text-xs uppercase tracking-widest text-ink-3 font-semibold mb-3">Team Roles</p>
+      <div className="sm:col-span-2 rounded-xl border border-white/8 bg-zinc-900/20 p-5">
+        <p className="text-xs uppercase tracking-widest text-zinc-600 font-semibold mb-3">Team Roles</p>
         <div className="grid sm:grid-cols-4 gap-3">
           {([
-            { role: "IR_LEAD", label: "IR Lead", icon: "simulations", desc: "Command decisions", color: "bg-ok-wash text-ok border-ok-edge" },
-            { role: "FORENSICS", label: "Forensics", icon: "forensics", desc: "Collect evidence", color: "bg-info-wash text-info border-info-edge" },
-            { role: "LEGAL", label: "Legal", icon: "balance", desc: "Manage disclosure", color: "bg-accent-wash text-accent border-accent-edge" },
-            { role: "COMMS", label: "Comms", icon: "announce", desc: "Handle communications", color: "bg-warn-wash text-warn border-warn-edge" },
+            { role: "IR_LEAD", label: "IR Lead", icon: "simulations", desc: "Command decisions", color: "bg-sage-500/10 text-sage-400 border-sage-500/30" },
+            { role: "FORENSICS", label: "Forensics", icon: "forensics", desc: "Collect evidence", color: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
+            { role: "LEGAL", label: "Legal", icon: "balance", desc: "Manage disclosure", color: "bg-purple-500/10 text-purple-400 border-purple-500/30" },
+            { role: "COMMS", label: "Comms", icon: "announce", desc: "Handle communications", color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
           ] as const).map((r) => (
             <div key={r.role} className={`rounded-lg border px-3 py-2.5 ${r.color}`}>
               <p className="mb-0.5 flex items-center gap-1.5"><Icon name={r.icon} size={16} /><span className="text-xs font-bold tracking-wider">{r.label}</span></p>

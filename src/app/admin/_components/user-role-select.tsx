@@ -40,13 +40,13 @@ export function UserRoleSelect({ userId, currentRole, isSelf }: {
     }
   }
 
-  if (deleted) return <span className="text-xs text-ink-3 italic">deleted</span>;
+  if (deleted) return <span className="text-xs text-zinc-600 italic">deleted</span>;
 
   const color =
-    role === "ADMIN" ? "text-danger" :
-    role === "INSTRUCTOR" ? "text-ok" :
-    role === "RECRUITER" ? "text-warn" :
-    "text-ink-2";
+    role === "ADMIN" ? "text-red-400" :
+    role === "INSTRUCTOR" ? "text-sage-400" :
+    role === "RECRUITER" ? "text-amber-400" :
+    "text-zinc-400";
 
   return (
     <div className="flex items-center gap-2">
@@ -54,7 +54,7 @@ export function UserRoleSelect({ userId, currentRole, isSelf }: {
         value={role}
         onChange={handleChange}
         disabled={saving || isSelf}
-        className={`bg-surface-1 border border-edge rounded px-2 py-0.5 text-xs font-semibold focus:outline-none disabled:opacity-40 ${color}`}
+        className={`bg-zinc-900 border border-white/10 rounded px-2 py-0.5 text-xs font-semibold focus:outline-none disabled:opacity-40 ${color}`}
       >
         {ROLES.map((r) => (
           <option key={r} value={r}>{r}</option>
@@ -64,7 +64,7 @@ export function UserRoleSelect({ userId, currentRole, isSelf }: {
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="text-xs text-danger hover:text-danger disabled:opacity-40 transition-colors"
+          className="text-xs text-red-500 hover:text-red-400 disabled:opacity-40 transition-colors"
         >
           {deleting ? "…" : "Delete"}
         </button>

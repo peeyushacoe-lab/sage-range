@@ -115,46 +115,46 @@ export function IrWorkspace() {
   const score = results ? Object.values(results).filter(Boolean).length : 0;
 
   return (
-    <div className="min-h-screen bg-surface-0 text-white flex flex-col">
+    <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
 
       {/* Case header bar */}
-      <div className="border-b border-edge bg-surface-1 px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="border-b border-white/8 bg-zinc-900/70 px-6 py-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
-          <span className="font-mono text-xs text-ink-3">{CASE.ref}</span>
-          <span className="text-ink-3">|</span>
-          <span className="text-sm font-semibold text-ink">{CASE.title}</span>
+          <span className="font-mono text-xs text-zinc-500">{CASE.ref}</span>
+          <span className="text-zinc-700">|</span>
+          <span className="text-sm font-semibold text-zinc-200">{CASE.title}</span>
         </div>
-        <div className="flex items-center gap-4 text-xs text-ink-3">
+        <div className="flex items-center gap-4 text-xs text-zinc-500">
           <span>Opened: {CASE.opened}</span>
-          <span className="text-warn font-medium animate-pulse">● ACTIVE INCIDENT</span>
+          <span className="text-amber-400 font-medium animate-pulse">● ACTIVE INCIDENT</span>
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden" style={{ minHeight: "calc(100vh - 57px)" }}>
 
         {/* LEFT — logs + brief */}
-        <div className="flex flex-col w-full lg:w-[58%] border-r border-edge overflow-y-auto">
+        <div className="flex flex-col w-full lg:w-[58%] border-r border-white/8 overflow-y-auto">
 
           {/* Case brief */}
-          <div className="border-b border-edge px-5 py-4 bg-surface-1">
-            <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-2">Case Briefing</p>
-            <p className="text-xs text-ink-2 leading-relaxed whitespace-pre-line">{CASE.brief}</p>
+          <div className="border-b border-white/8 px-5 py-4 bg-zinc-900/30">
+            <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Case Briefing</p>
+            <p className="text-xs text-zinc-400 leading-relaxed whitespace-pre-line">{CASE.brief}</p>
           </div>
 
           {/* Log tabs */}
-          <div className="border-b border-edge flex overflow-x-auto">
+          <div className="border-b border-white/8 flex overflow-x-auto">
             {Object.keys(LOGS).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2.5 text-xs font-medium whitespace-nowrap border-b-2 transition-colors ${
                   activeTab === tab
-                    ? "border-ok-edge text-ok"
-                    : "border-transparent text-ink-3 hover:text-ink-2"
+                    ? "border-emerald-500 text-emerald-400"
+                    : "border-transparent text-zinc-500 hover:text-zinc-300"
                 }`}
               >
                 {tab}
-                <span className="ml-1.5 text-[10px] text-ink-3">
+                <span className="ml-1.5 text-[10px] text-zinc-600">
                   ({LOGS[tab].filter(l => pinned.has(l.key)).length > 0
                     ? `${LOGS[tab].filter(l => pinned.has(l.key)).length} pinned`
                     : LOGS[tab].length})
@@ -165,7 +165,7 @@ export function IrWorkspace() {
 
           {/* Log lines */}
           <div className="flex-1 overflow-y-auto p-4 space-y-1 font-mono text-xs">
-            <p className="text-[10px] text-ink-3 mb-3 non-mono font-sans">
+            <p className="text-[10px] text-zinc-600 mb-3 non-mono font-sans">
               Click any log line to pin it as evidence →
             </p>
             {LOGS[activeTab].map((line) => {
@@ -176,14 +176,14 @@ export function IrWorkspace() {
                   onClick={() => togglePin(line.key)}
                   className={`w-full text-left rounded px-3 py-2 transition-all leading-relaxed ${
                     isPinned
-                      ? "bg-ok-wash border border-ok-edge text-ok"
-                      : "hover:bg-surface-2/60 text-ink-2 border border-transparent"
+                      ? "bg-emerald-500/12 border border-emerald-500/30 text-emerald-200"
+                      : "hover:bg-zinc-800/60 text-zinc-300 border border-transparent"
                   }`}
                 >
-                  <span className="text-ink-3 select-none mr-3">{line.ts}</span>
-                  <span className="text-ink-3 mr-3">[{line.src}]</span>
+                  <span className="text-zinc-600 select-none mr-3">{line.ts}</span>
+                  <span className="text-zinc-500 mr-3">[{line.src}]</span>
                   <span>{line.text}</span>
-                  {isPinned && <span className="ml-2 text-ok text-[10px]">● pinned</span>}
+                  {isPinned && <span className="ml-2 text-emerald-500 text-[10px]">● pinned</span>}
                 </button>
               );
             })}
@@ -194,20 +194,20 @@ export function IrWorkspace() {
         <div className="hidden lg:flex flex-col w-[42%] overflow-y-auto">
 
           {/* Evidence board */}
-          <div className="border-b border-edge p-4">
+          <div className="border-b border-white/8 p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] uppercase tracking-widest text-ink-3">Evidence Board</p>
-              <span className="text-[10px] text-ink-3">{pinnedLines.length} item{pinnedLines.length !== 1 ? "s" : ""}</span>
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500">Evidence Board</p>
+              <span className="text-[10px] text-zinc-600">{pinnedLines.length} item{pinnedLines.length !== 1 ? "s" : ""}</span>
             </div>
             {pinnedLines.length === 0 ? (
-              <p className="text-xs text-ink-3 italic">Click log lines on the left to pin evidence here.</p>
+              <p className="text-xs text-zinc-700 italic">Click log lines on the left to pin evidence here.</p>
             ) : (
               <div className="space-y-1 max-h-48 overflow-y-auto">
                 {pinnedLines.map((l) => (
-                  <div key={l.key} className="flex items-start gap-2 text-xs bg-ok-wash border border-ok-edge rounded px-2 py-1.5">
-                    <span className="text-ink-3 shrink-0 font-mono">{l.ts}</span>
-                    <span className="text-ink-2 leading-relaxed">{l.text}</span>
-                    <button onClick={() => togglePin(l.key)} className="shrink-0 text-ink-3 hover:text-danger ml-auto"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
+                  <div key={l.key} className="flex items-start gap-2 text-xs bg-emerald-500/8 border border-emerald-500/20 rounded px-2 py-1.5">
+                    <span className="text-zinc-600 shrink-0 font-mono">{l.ts}</span>
+                    <span className="text-zinc-300 leading-relaxed">{l.text}</span>
+                    <button onClick={() => togglePin(l.key)} className="shrink-0 text-zinc-600 hover:text-red-400 ml-auto"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
                   </div>
                 ))}
               </div>
@@ -215,14 +215,14 @@ export function IrWorkspace() {
           </div>
 
           {/* Investigation notes */}
-          <div className="border-b border-edge p-4 flex flex-col gap-2">
-            <p className="text-[10px] uppercase tracking-widest text-ink-3">Investigation Notes</p>
+          <div className="border-b border-white/8 p-4 flex flex-col gap-2">
+            <p className="text-[10px] uppercase tracking-widest text-zinc-500">Investigation Notes</p>
             <textarea
               ref={notesRef}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Type your running notes here — attack timeline, suspicious patterns, open questions…"
-              className="w-full bg-surface-1 border border-edge rounded-lg p-3 text-xs text-ink-2 placeholder-ink-3 resize-none focus:outline-none focus:border-ok-edge h-32 font-mono leading-relaxed"
+              className="w-full bg-zinc-900/60 border border-white/8 rounded-lg p-3 text-xs text-zinc-300 placeholder-zinc-700 resize-none focus:outline-none focus:border-emerald-500/40 h-32 font-mono leading-relaxed"
             />
           </div>
 
@@ -230,13 +230,13 @@ export function IrWorkspace() {
           <div className="flex-1 p-4 overflow-y-auto">
             {phase === "work" && (
               <>
-                <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-3">Analyst Report</p>
-                <p className="text-xs text-ink-3 mb-4">
+                <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-3">Analyst Report</p>
+                <p className="text-xs text-zinc-600 mb-4">
                   Collect evidence and review all log sources, then submit your findings below. Aim to answer every question correctly.
                 </p>
                 <button
                   onClick={() => setPhase("report")}
-                  className="w-full rounded-lg border border-ok-edge bg-ok-wash px-4 py-2.5 text-sm font-semibold text-ok hover:bg-ok-wash transition"
+                  className="w-full rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 transition"
                 >
                   Open Report Form →
                 </button>
@@ -245,10 +245,10 @@ export function IrWorkspace() {
 
             {phase === "report" && (
               <form onSubmit={submitReport} className="space-y-4">
-                <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-1">Analyst Report — {CASE.ref}</p>
+                <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Analyst Report — {CASE.ref}</p>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-ink-2">Initial access vector</label>
+                  <label className="text-xs font-medium text-zinc-300">Initial access vector</label>
                   <select value={vector} onChange={(e) => setVector(e.target.value)} className="input-field text-xs" required>
                     <option value="">Select…</option>
                     <option value="spearphishing_xlsm">Spearphishing email with macro-enabled Excel attachment</option>
@@ -260,7 +260,7 @@ export function IrWorkspace() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-ink-2">C2 server IP address</label>
+                  <label className="text-xs font-medium text-zinc-300">C2 server IP address</label>
                   <input
                     value={c2ip} onChange={(e) => setC2ip(e.target.value)}
                     placeholder="x.x.x.x" className="input-field text-xs font-mono" required
@@ -268,7 +268,7 @@ export function IrWorkspace() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-ink-2">Patient zero — compromised username</label>
+                  <label className="text-xs font-medium text-zinc-300">Patient zero — compromised username</label>
                   <input
                     value={patient0} onChange={(e) => setPatient0(e.target.value)}
                     placeholder="username or email" className="input-field text-xs font-mono" required
@@ -276,7 +276,7 @@ export function IrWorkspace() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-ink-2">Lateral movement technique</label>
+                  <label className="text-xs font-medium text-zinc-300">Lateral movement technique</label>
                   <select value={lateral} onChange={(e) => setLateral(e.target.value)} className="input-field text-xs" required>
                     <option value="">Select…</option>
                     <option value="psexec">PsExec (SMB remote service)</option>
@@ -287,7 +287,7 @@ export function IrWorkspace() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-ink-2">Data targeted by the threat actor</label>
+                  <label className="text-xs font-medium text-zinc-300">Data targeted by the threat actor</label>
                   <select value={data} onChange={(e) => setData(e.target.value)} className="input-field text-xs" required>
                     <option value="">Select…</option>
                     <option value="finance_reports">Finance department reports (\\FinanceReports\\)</option>
@@ -298,7 +298,7 @@ export function IrWorkspace() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-ink-2">Executive summary <span className="text-ink-3 font-normal">(min 60 chars)</span></label>
+                  <label className="text-xs font-medium text-zinc-300">Executive summary <span className="text-zinc-600 font-normal">(min 60 chars)</span></label>
                   <textarea
                     value={summary} onChange={(e) => setSummary(e.target.value)}
                     placeholder="Describe the attack chain, scope, and immediate recommendations…"
@@ -309,11 +309,11 @@ export function IrWorkspace() {
 
                 <div className="flex gap-2">
                   <button type="button" onClick={() => setPhase("work")}
-                    className="flex-1 rounded-lg border border-edge px-4 py-2 text-xs text-ink-2 hover:border-edge-strong transition">
+                    className="flex-1 rounded-lg border border-white/10 px-4 py-2 text-xs text-zinc-400 hover:border-white/20 transition">
                     ← Back to logs
                   </button>
                   <button type="submit"
-                    className="flex-1 rounded-lg bg-ok px-4 py-2 text-xs font-semibold text-white hover:bg-ok-wash transition">
+                    className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500 transition">
                     Submit Report
                   </button>
                 </div>
@@ -322,11 +322,11 @@ export function IrWorkspace() {
 
             {phase === "result" && results && (
               <div className="space-y-4">
-                <div className={`rounded-xl border p-4 ${score === 5 ? "border-ok-edge bg-ok-wash" : score >= 3 ? "border-warn-edge bg-warn-wash" : "border-danger-edge bg-danger-wash"}`}>
-                  <p className={`font-bold text-lg ${score === 5 ? "text-ok" : score >= 3 ? "text-warn" : "text-danger"}`}>
+                <div className={`rounded-xl border p-4 ${score === 5 ? "border-emerald-500/40 bg-emerald-500/8" : score >= 3 ? "border-amber-500/40 bg-amber-500/8" : "border-red-500/40 bg-red-500/8"}`}>
+                  <p className={`font-bold text-lg ${score === 5 ? "text-emerald-400" : score >= 3 ? "text-amber-400" : "text-red-400"}`}>
                     {score}/5 correct
                   </p>
-                  <p className="text-xs text-ink-3 mt-1">
+                  <p className="text-xs text-zinc-500 mt-1">
                     {score === 5 ? "Perfect analysis — all five findings correct." : score >= 3 ? "Good work — review the missed findings below." : "Review the logs again — key clues are in the EDR and Proxy sources."}
                   </p>
                 </div>
@@ -341,20 +341,20 @@ export function IrWorkspace() {
                   ].map(({ key, label, answer, hint }) => {
                     const correct = results[key];
                     return (
-                      <div key={key} className={`rounded-lg border px-3 py-2.5 text-xs ${correct ? "border-ok-edge bg-ok-wash" : "border-danger-edge bg-danger-wash"}`}>
+                      <div key={key} className={`rounded-lg border px-3 py-2.5 text-xs ${correct ? "border-emerald-500/30 bg-emerald-500/5" : "border-red-500/30 bg-red-500/5"}`}>
                         <div className="flex items-center gap-2 mb-1">
                           <span>{correct ? <Icon name="check" size={13} /> : <Icon name="cross" size={13} />}</span>
-                          <span className="font-medium text-ink-2">{label}</span>
+                          <span className="font-medium text-zinc-300">{label}</span>
                         </div>
-                        <p className="text-ink-2">{answer}</p>
-                        {!correct && <p className="text-ink-3 mt-1 italic">{hint}</p>}
+                        <p className="text-zinc-400">{answer}</p>
+                        {!correct && <p className="text-zinc-500 mt-1 italic">{hint}</p>}
                       </div>
                     );
                   })}
                 </div>
 
                 <button onClick={() => { setPhase("work"); setResults(null); setVector(""); setC2ip(""); setPatient0(""); setLateral(""); setData(""); setSummary(""); }}
-                  className="w-full rounded-lg border border-edge px-4 py-2 text-xs text-ink-2 hover:border-edge-strong transition">
+                  className="w-full rounded-lg border border-white/10 px-4 py-2 text-xs text-zinc-400 hover:border-white/20 transition">
                   Reset and try again
                 </button>
               </div>
@@ -364,16 +364,16 @@ export function IrWorkspace() {
       </div>
 
       {/* Mobile-only: report panel below logs */}
-      <div className="lg:hidden border-t border-edge p-4 space-y-4">
+      <div className="lg:hidden border-t border-white/8 p-4 space-y-4">
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-ink-3 mb-2">Evidence Board</p>
+          <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Evidence Board</p>
           {pinnedLines.length === 0 ? (
-            <p className="text-xs text-ink-3 italic">Tap log lines above to pin evidence.</p>
+            <p className="text-xs text-zinc-700 italic">Tap log lines above to pin evidence.</p>
           ) : (
             <div className="space-y-1">
               {pinnedLines.map((l) => (
-                <div key={l.key} className="text-xs bg-ok-wash border border-ok-edge rounded px-2 py-1.5 text-ink-2 font-mono">
-                  <span className="text-ink-3 mr-2">{l.ts}</span>{l.text}
+                <div key={l.key} className="text-xs bg-emerald-500/8 border border-emerald-500/20 rounded px-2 py-1.5 text-zinc-300 font-mono">
+                  <span className="text-zinc-600 mr-2">{l.ts}</span>{l.text}
                 </div>
               ))}
             </div>
@@ -381,7 +381,7 @@ export function IrWorkspace() {
         </div>
 
         {phase === "work" && (
-          <button onClick={() => setPhase("report")} className="w-full rounded-lg border border-ok-edge bg-ok-wash px-4 py-2.5 text-sm font-semibold text-ok hover:bg-ok-wash transition">
+          <button onClick={() => setPhase("report")} className="w-full rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 transition">
             Open Report Form →
           </button>
         )}

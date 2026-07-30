@@ -92,38 +92,38 @@ export function DetectionTuningClient({
     <div className="space-y-6">
       {/* Task 1 */}
       <TaskShell number={1} title="Measure the Noise" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">A brute-force detection rule fires constantly. You sample 50 alerts to review.</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{ALERT_STATS}</pre>
+        <p className="text-zinc-300 text-sm mb-3">A brute-force detection rule fires constantly. You sample 50 alerts to review.</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{ALERT_STATS}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">Flag the true-positive rate from this sample, as a percentage.</p>
+            <p className="text-sm text-zinc-300 font-medium">Flag the true-positive rate from this sample, as a percentage.</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — 4 of 50 (8%) were real attacks; the other 92% is noise drowning out the signal and causing alert fatigue. Flag: SAGE&#123;8_p3rc3nt_tru3_p0s1t1v3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 4 of 50 (8%) were real attacks; the other 92% is noise drowning out the signal and causing alert fatigue. Flag: SAGE&#123;8_p3rc3nt_tru3_p0s1t1v3&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 2 */}
       <TaskShell number={2} title="Find the Root Cause of the Noise" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">The current rule and IT helpdesk context:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-3">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{CURRENT_RULE}</pre>
+        <p className="text-zinc-300 text-sm mb-3">The current rule and IT helpdesk context:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-3">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{CURRENT_RULE}</pre>
         </div>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap">{HELPDESK_CONTEXT}</pre>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap">{HELPDESK_CONTEXT}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why does this rule generate so many false positives?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why does this rule generate so many false positives?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The threshold of 3 failed logins is too low for any environment",
@@ -133,28 +133,28 @@ export function DetectionTuningClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — a routine, entirely benign IT process (password resets) produces logs that are structurally identical to a real brute-force success, without any context to distinguish them. Flag: SAGE&#123;p4ssw0rd_r3s3t_n0is3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a routine, entirely benign IT process (password resets) produces logs that are structurally identical to a real brute-force success, without any context to distinguish them. Flag: SAGE&#123;p4ssw0rd_r3s3t_n0is3&#125;</p>
         )}
       </TaskShell>
 
       {/* Task 3 */}
       <TaskShell number={3} title="Tune the Rule" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">
+        <p className="text-zinc-300 text-sm mb-4">
           You need to cut the noise without missing the 3 real attacks that were correctly caught.
         </p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What's the best tuning approach?</p>
+            <p className="text-sm text-zinc-300 font-medium">What's the best tuning approach?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Raise the failed-login threshold to 20 to reduce volume",
@@ -164,17 +164,17 @@ export function DetectionTuningClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — correlating against the password-reset event log (a piece of context the original rule ignored)
             filters out the known-benign pattern while leaving genuine brute-force detection fully intact. Flag: SAGE&#123;c0nt3xt_4w4r3_suppr3ss10n&#125;
           </p>
@@ -182,12 +182,12 @@ export function DetectionTuningClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;8_p3rc3nt_tru3_p0s1t1v3&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;p4ssw0rd_r3s3t_n0is3&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;c0nt3xt_4w4r3_suppr3ss10n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;8_p3rc3nt_tru3_p0s1t1v3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;p4ssw0rd_r3s3t_n0is3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;c0nt3xt_4w4r3_suppr3ss10n&#125;</span></li>
           </ul>
         </div>
       )}

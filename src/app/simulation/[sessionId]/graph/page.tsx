@@ -140,7 +140,7 @@ export default async function GraphPage({ params }: { params: Promise<{ sessionI
   }
 
   return (
-    <div className="min-h-screen bg-surface-0 text-white">
+    <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
 
@@ -148,48 +148,48 @@ export default async function GraphPage({ params }: { params: Promise<{ sessionI
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Link href={`/simulation/${sessionId}/debrief`}
-              className="text-xs text-ink-3 hover:text-ink-2 transition-colors mb-2 inline-block">
+              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors mb-2 inline-block">
               ← Back to debrief
             </Link>
             <h1 className="text-2xl font-bold">Attack Graph</h1>
-            <p className="text-sm text-ink-3 mt-0.5">{session.template.name} · {company.name}</p>
+            <p className="text-sm text-zinc-500 mt-0.5">{session.template.name} · {company.name}</p>
           </div>
           <div className="text-right text-sm space-y-1">
-            <p className={`font-bold ${outcome === "CONTAINED" ? "text-ok" : "text-danger"}`}>
+            <p className={`font-bold ${outcome === "CONTAINED" ? "text-emerald-400" : "text-red-400"}`}>
               {outcome}
             </p>
-            <p className="text-xs text-ink-3">
+            <p className="text-xs text-zinc-500">
               {fmtDuration(totalMs)} · {sharedNodes.length} systems · score {finalScore}
             </p>
             <Link href={`/simulation/${sessionId}/replay`}
-              className="text-xs px-3 py-1.5 rounded-lg border border-edge text-ink-2 hover:text-ink hover:border-edge-strong transition inline-block">
+              className="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20 transition inline-block">
               ▶ Timeline Replay
             </Link>
           </div>
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-4 text-xs text-ink-3">
+        <div className="flex flex-wrap gap-4 text-xs text-zinc-500">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-ok inline-block" /> Online
+            <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" /> Online
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-sev-high inline-block" /> Degraded
+            <span className="h-2 w-2 rounded-full bg-orange-500 inline-block" /> Degraded
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-danger inline-block" /> Offline
+            <span className="h-2 w-2 rounded-full bg-red-500 inline-block" /> Offline
           </div>
           <div className="flex items-center gap-2 ml-4">
-            <span className="h-px w-6 border-t border-dashed border-edge-strong inline-block" /> Normal edge
+            <span className="h-px w-6 border-t border-dashed border-zinc-600 inline-block" /> Normal edge
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-px w-6 border-t-2 border-danger-edge inline-block" /> Attack path
+            <span className="h-px w-6 border-t-2 border-red-500 inline-block" /> Attack path
           </div>
           <div className="ml-auto flex items-center gap-3">
-            <span className="border border-danger-edge rounded px-1.5 py-0.5 text-[10px] text-danger">CRITICAL</span>
-            <span className="border border-sev-high-edge rounded px-1.5 py-0.5 text-[10px] text-sev-high">HIGH</span>
-            <span className="border border-warn-edge rounded px-1.5 py-0.5 text-[10px] text-warn">MEDIUM</span>
-            <span className="border border-edge-strong/50 rounded px-1.5 py-0.5 text-[10px] text-ink-3">LOW</span>
+            <span className="border border-red-500/50 rounded px-1.5 py-0.5 text-[10px] text-red-400">CRITICAL</span>
+            <span className="border border-orange-500/50 rounded px-1.5 py-0.5 text-[10px] text-orange-400">HIGH</span>
+            <span className="border border-amber-500/50 rounded px-1.5 py-0.5 text-[10px] text-amber-400">MEDIUM</span>
+            <span className="border border-zinc-600/50 rounded px-1.5 py-0.5 text-[10px] text-zinc-500">LOW</span>
           </div>
         </div>
 

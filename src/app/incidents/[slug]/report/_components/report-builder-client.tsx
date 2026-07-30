@@ -130,12 +130,12 @@ export function ReportBuilderClient({
     <div className="max-w-4xl mx-auto px-6 py-8 print:max-w-none">
       <header className="mb-6 print:mb-4">
         <h1 className="text-2xl font-bold">Executive Report Builder</h1>
-        <p className="text-ink-3 text-sm mt-1">{title}</p>
-        <p className="text-ink-2 text-xs mt-2">
+        <p className="text-zinc-500 text-sm mt-1">{title}</p>
+        <p className="text-zinc-400 text-xs mt-2">
           {company.name} · {company.industry.toLowerCase()} · {company.employeeCount.toLocaleString()} employees
         </p>
         {submitted && (
-          <span className="inline-block mt-3 rounded-full bg-ok-wash border border-ok-edge text-ok text-xs font-medium px-3 py-1">
+          <span className="inline-block mt-3 rounded-full bg-sage-500/15 border border-sage-500/30 text-sage-400 text-xs font-medium px-3 py-1">
             Submitted
           </span>
         )}
@@ -145,12 +145,12 @@ export function ReportBuilderClient({
         <div className="mb-6 print:hidden">
           <button
             onClick={() => setShowHint((v) => !v)}
-            className="text-xs text-ink-2 hover:text-ink underline decoration-dotted"
+            className="text-xs text-zinc-400 hover:text-zinc-200 underline decoration-dotted"
           >
             {showHint ? "Hide" : "Show"} raw timeline artifact for reference
           </button>
           {showHint && (
-            <pre className="mt-2 rounded-lg border border-edge bg-surface-1 p-4 text-[11px] text-ink-2 whitespace-pre-wrap max-h-64 overflow-y-auto">
+            <pre className="mt-2 rounded-lg border border-white/8 bg-zinc-900/50 p-4 text-[11px] text-zinc-400 whitespace-pre-wrap max-h-64 overflow-y-auto">
               {timelineHint}
             </pre>
           )}
@@ -160,28 +160,28 @@ export function ReportBuilderClient({
       <div className="space-y-5">
         {SECTIONS.map((s) => (
           <div key={s.key}>
-            <label className="block text-sm font-semibold text-ink mb-1">{s.label}</label>
-            <p className="text-xs text-ink-3 mb-2">{s.help}</p>
+            <label className="block text-sm font-semibold text-zinc-200 mb-1">{s.label}</label>
+            <p className="text-xs text-zinc-500 mb-2">{s.help}</p>
             <textarea
               value={form[s.key]}
               onChange={(e) => update(s.key, e.target.value)}
               rows={s.rows}
               disabled={submitted}
-              className="w-full rounded-lg border border-edge bg-surface-1 px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge disabled:opacity-70 print:border-none print:bg-transparent print:px-0"
+              className="w-full rounded-lg border border-white/10 bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/50 disabled:opacity-70 print:border-none print:bg-transparent print:px-0"
               placeholder={`Write your ${s.label.toLowerCase()}…`}
             />
           </div>
         ))}
       </div>
 
-      {error && <p className="mt-4 text-sm text-danger">{error}</p>}
+      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
       {!submitted ? (
         <div className="mt-8 flex items-center gap-3 print:hidden">
           <button
             onClick={() => save("draft")}
             disabled={saving !== null}
-            className="rounded-lg border border-edge-strong px-5 py-2.5 text-sm font-medium text-ink hover:border-edge-strong transition disabled:opacity-50"
+            className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-medium text-zinc-200 hover:border-white/30 transition disabled:opacity-50"
           >
             {saving === "draft" ? "Saving…" : "Save Draft"}
           </button>
@@ -189,25 +189,25 @@ export function ReportBuilderClient({
             onClick={() => save("final")}
             disabled={saving !== null || !complete}
             title={!complete ? "Fill in every section first" : undefined}
-            className="rounded-lg bg-accent-fill px-6 py-2.5 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition disabled:opacity-40"
+            className="rounded-lg bg-sage-500 px-6 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition disabled:opacity-40"
           >
             {saving === "final" ? "Submitting…" : `Submit Final Report (${filledCount}/${SECTIONS.length})`}
           </button>
           {savedAt && !submitted && (
-            <span className="text-xs text-ink-3">Draft saved {savedAt.toLocaleTimeString()}</span>
+            <span className="text-xs text-zinc-500">Draft saved {savedAt.toLocaleTimeString()}</span>
           )}
         </div>
       ) : (
         <div className="mt-8 flex items-center gap-3 print:hidden">
           <button
             onClick={() => window.print()}
-            className="rounded-lg border border-edge-strong px-5 py-2.5 text-sm font-medium text-ink hover:border-edge-strong transition"
+            className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-medium text-zinc-200 hover:border-white/30 transition"
           >
             Print / Save as PDF
           </button>
           <Link
             href="/incidents"
-            className="rounded-lg bg-accent-fill px-6 py-2.5 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition"
+            className="rounded-lg bg-sage-500 px-6 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition"
           >
             Back to Incident Simulations
           </Link>

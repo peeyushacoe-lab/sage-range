@@ -78,34 +78,34 @@ export function InsiderDataTheftClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Confirm the Exfiltration" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">A DLP alert fires for an employee who just announced their resignation:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{DLP_ALERT}</pre>
+        <p className="text-zinc-300 text-sm mb-3">A DLP alert fires for an employee who just announced their resignation:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{DLP_ALERT}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What single DLP alert makes this exfiltration suspicion concrete?</p>
+            <p className="text-sm text-zinc-300 font-medium">What single DLP alert makes this exfiltration suspicion concrete?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — a 15GB upload to personal Google Drive, 2 days before resignation, is a clear red flag. Flag: SAGE&#123;15gb_p3rs0n4l_dr1v3_upl04d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a 15GB upload to personal Google Drive, 2 days before resignation, is a clear red flag. Flag: SAGE&#123;15gb_p3rs0n4l_dr1v3_upl04d&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Look for Staging Behavior" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">Access logs for this employee in the days leading up to the upload:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-danger whitespace-pre-wrap overflow-x-auto">{ACCESS_LOG}</pre>
+        <p className="text-zinc-300 text-sm mb-3">Access logs for this employee in the days leading up to the upload:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-red-300 whitespace-pre-wrap overflow-x-auto">{ACCESS_LOG}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What does this access pattern indicate?</p>
+            <p className="text-sm text-zinc-300 font-medium">What does this access pattern indicate?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The employee likely staged the data by first locating and gathering files they didn't normally need, ahead of the exfiltration",
@@ -115,25 +115,25 @@ export function InsiderDataTheftClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — accessing an untouched folder just before the upload suggests deliberate staging of the data. Flag: SAGE&#123;st4g1ng_4cc3ss_b3f0r3_3xf1l&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — accessing an untouched folder just before the upload suggests deliberate staging of the data. Flag: SAGE&#123;st4g1ng_4cc3ss_b3f0r3_3xf1l&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Act Before the Last Day" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">The employee's last day is still a week away.</p>
+        <p className="text-zinc-300 text-sm mb-4">The employee's last day is still a week away.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What should happen to the employee's access before their last day, given this evidence?</p>
+            <p className="text-sm text-zinc-300 font-medium">What should happen to the employee's access before their last day, given this evidence?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Immediately restrict/revoke access to sensitive systems and preserve their account and device for forensic imaging",
@@ -143,17 +143,17 @@ export function InsiderDataTheftClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — restrict access now and preserve the account/device for forensics rather than waiting or destroying evidence.
             Flag: SAGE&#123;r3v0k3_4cc3ss_pr3s3rv3_f0r3ns1cs&#125;
           </p>
@@ -161,12 +161,12 @@ export function InsiderDataTheftClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;15gb_p3rs0n4l_dr1v3_upl04d&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;st4g1ng_4cc3ss_b3f0r3_3xf1l&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;r3v0k3_4cc3ss_pr3s3rv3_f0r3ns1cs&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;15gb_p3rs0n4l_dr1v3_upl04d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;st4g1ng_4cc3ss_b3f0r3_3xf1l&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;r3v0k3_4cc3ss_pr3s3rv3_f0r3ns1cs&#125;</span></li>
           </ul>
         </div>
       )}

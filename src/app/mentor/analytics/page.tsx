@@ -67,25 +67,25 @@ export default async function MentorAnalytics() {
   const approvedAssessments = await db.mentorReview.count({ where: { status: "APPROVED" } });
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar backHref="/mentor" backLabel="Review Queue" />
 
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-10">
         <header>
           <h1 className="text-2xl font-bold tracking-tight">Mentor Analytics</h1>
-          <p className="text-ink-2 text-sm mt-1">Track student engagement and identify who needs support</p>
+          <p className="text-zinc-400 text-sm mt-1">Track student engagement and identify who needs support</p>
         </header>
 
         {/* KPI row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Pending Reviews", value: pendingReviews, color: pendingReviews > 0 ? "text-warn" : "text-ok", alert: pendingReviews > 5 },
-            { label: "At Risk Students", value: atRiskStudents.length, color: atRiskStudents.length > 0 ? "text-sev-high" : "text-ok", alert: atRiskStudents.length > 0 },
-            { label: "Paths Completed", value: completedPathsCount, color: "text-ok", alert: false },
-            { label: "Approvals / Submissions", value: `${approvedAssessments}/${submittedAssessments}`, color: "text-info", alert: false },
+            { label: "Pending Reviews", value: pendingReviews, color: pendingReviews > 0 ? "text-amber-400" : "text-sage-400", alert: pendingReviews > 5 },
+            { label: "At Risk Students", value: atRiskStudents.length, color: atRiskStudents.length > 0 ? "text-orange-400" : "text-sage-400", alert: atRiskStudents.length > 0 },
+            { label: "Paths Completed", value: completedPathsCount, color: "text-sage-400", alert: false },
+            { label: "Approvals / Submissions", value: `${approvedAssessments}/${submittedAssessments}`, color: "text-blue-400", alert: false },
           ].map((kpi) => (
-            <div key={kpi.label} className={`rounded-xl border p-5 ${kpi.alert ? "border-warn-edge bg-warn-wash" : "border-edge"}`}>
-              <p className="text-xs text-ink-3 uppercase tracking-wider mb-1">{kpi.label}</p>
+            <div key={kpi.label} className={`rounded-xl border p-5 ${kpi.alert ? "border-amber-500/30 bg-amber-500/5" : "border-white/8"}`}>
+              <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">{kpi.label}</p>
               <p className={`text-3xl font-bold ${kpi.color}`}>{kpi.value}</p>
             </div>
           ))}
@@ -93,39 +93,39 @@ export default async function MentorAnalytics() {
 
         {/* At risk students */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-4">
+          <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">
             Students At Risk — Inactive 7+ Days ({atRiskStudents.length})
           </h2>
           {atRiskStudents.length === 0 ? (
-            <p className="text-sm text-ink-3 rounded-xl border border-edge p-6 text-center">
+            <p className="text-sm text-zinc-600 rounded-xl border border-white/8 p-6 text-center">
               No at-risk students. All students engaged in the last 7 days.
             </p>
           ) : (
-            <div className="rounded-xl border border-edge overflow-hidden">
+            <div className="rounded-xl border border-white/8 overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-edge bg-white/2">
-                    <th className="text-left px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Student</th>
-                    <th className="text-left px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Stuck On</th>
-                    <th className="text-right px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Days Inactive</th>
+                  <tr className="border-b border-white/8 bg-white/2">
+                    <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Student</th>
+                    <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Stuck On</th>
+                    <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Days Inactive</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-edge-subtle">
+                <tbody className="divide-y divide-white/4">
                   {atRiskStudents.map((p) => {
                     const days = Math.floor((Date.now() - p.startedAt.getTime()) / 86400000);
                     return (
-                      <tr key={p.userId} className="hover:bg-surface-2 transition">
+                      <tr key={p.userId} className="hover:bg-white/2 transition">
                         <td className="px-4 py-3">
-                          <Link href={`/profile/${p.userId}`} className="text-ink hover:text-ok transition font-medium">
+                          <Link href={`/profile/${p.userId}`} className="text-zinc-200 hover:text-sage-400 transition font-medium">
                             {p.user.displayName ?? p.user.email.split("@")[0]}
                           </Link>
-                          <p className="text-xs text-ink-3">{p.user.email}</p>
+                          <p className="text-xs text-zinc-600">{p.user.email}</p>
                         </td>
-                        <td className="px-4 py-3 text-xs text-ink-2">
+                        <td className="px-4 py-3 text-xs text-zinc-400">
                           {p.module.path.title} → {p.module.title}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <span className={`text-xs font-semibold ${days >= 14 ? "text-danger" : "text-warn"}`}>
+                          <span className={`text-xs font-semibold ${days >= 14 ? "text-red-400" : "text-amber-400"}`}>
                             {days}d
                           </span>
                         </td>
@@ -141,37 +141,37 @@ export default async function MentorAnalytics() {
         {/* Quiz scores by module */}
         {moduleQuizStats.length > 0 && (
           <section>
-            <h2 className="text-xs uppercase tracking-widest text-ink-3 mb-4">Average Quiz Scores by Module</h2>
-            <div className="rounded-xl border border-edge overflow-hidden">
+            <h2 className="text-xs uppercase tracking-widest text-zinc-500 mb-4">Average Quiz Scores by Module</h2>
+            <div className="rounded-xl border border-white/8 overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-edge bg-white/2">
-                    <th className="text-left px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Module</th>
-                    <th className="text-center px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Avg Score</th>
-                    <th className="text-right px-4 py-3 text-xs text-ink-3 uppercase tracking-wider">Attempts</th>
+                  <tr className="border-b border-white/8 bg-white/2">
+                    <th className="text-left px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Module</th>
+                    <th className="text-center px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Avg Score</th>
+                    <th className="text-right px-4 py-3 text-xs text-zinc-500 uppercase tracking-wider">Attempts</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-edge-subtle">
+                <tbody className="divide-y divide-white/4">
                   {moduleQuizStats.map(({ quiz, avg, attempts }) => (
-                    <tr key={quiz!.id} className="hover:bg-surface-2 transition">
+                    <tr key={quiz!.id} className="hover:bg-white/2 transition">
                       <td className="px-4 py-3">
-                        <p className="text-ink text-sm">{quiz!.module.title}</p>
-                        <p className="text-xs text-ink-3">{quiz!.module.path.title}</p>
+                        <p className="text-zinc-200 text-sm">{quiz!.module.title}</p>
+                        <p className="text-xs text-zinc-600">{quiz!.module.path.title}</p>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-2">
-                          <div className="h-1.5 w-20 bg-surface-2 rounded-full overflow-hidden">
+                          <div className="h-1.5 w-20 bg-white/10 rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full ${avg >= 70 ? "bg-ok" : avg >= 50 ? "bg-warn" : "bg-danger"}`}
+                              className={`h-full rounded-full ${avg >= 70 ? "bg-sage-500" : avg >= 50 ? "bg-amber-500" : "bg-red-500"}`}
                               style={{ width: `${avg}%` }}
                             />
                           </div>
-                          <span className={`text-xs font-semibold w-9 text-right ${avg >= 70 ? "text-ok" : avg >= 50 ? "text-warn" : "text-danger"}`}>
+                          <span className={`text-xs font-semibold w-9 text-right ${avg >= 70 ? "text-sage-400" : avg >= 50 ? "text-amber-400" : "text-red-400"}`}>
                             {avg}%
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right text-xs text-ink-3">{attempts}</td>
+                      <td className="px-4 py-3 text-right text-xs text-zinc-500">{attempts}</td>
                     </tr>
                   ))}
                 </tbody>

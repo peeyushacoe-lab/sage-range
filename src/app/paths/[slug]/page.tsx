@@ -11,10 +11,10 @@ import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
 
 const DIFF_COLORS: Record<string, string> = {
-  EASY:   "text-ok border-ok-edge",
-  MEDIUM: "text-warn border-warn-edge",
-  HARD:   "text-sev-high border-sev-high-edge",
-  INSANE: "text-danger border-danger-edge",
+  EASY:   "text-sage-500 border-sage-500/40",
+  MEDIUM: "text-amber-400 border-amber-500/40",
+  HARD:   "text-orange-400 border-orange-500/40",
+  INSANE: "text-red-400 border-red-500/40",
 };
 
 export default async function PathDetail({
@@ -132,28 +132,28 @@ export default async function PathDetail({
   };
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar backHref="/paths" backLabel="Paths" />
 
       <div className="max-w-3xl mx-auto px-6 py-8">
         <header className="mb-8 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{path.title}</h1>
-            <p className="text-ink-2 mt-2 leading-relaxed">{path.description}</p>
+            <p className="text-zinc-400 mt-2 leading-relaxed">{path.description}</p>
           </div>
           {isCompleted && (
-            <span className="shrink-0 text-xs font-semibold text-warn border border-warn-edge rounded-full px-3 py-1">
+            <span className="shrink-0 text-xs font-semibold text-amber-400 border border-amber-500/40 rounded-full px-3 py-1">
               Certificate Earned
             </span>
           )}
         </header>
 
         {!isEnrolled && (
-          <div className="mb-8 rounded-xl border border-ok-edge bg-ok-wash p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="mb-8 rounded-xl border border-sage-500/30 bg-sage-500/5 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Ready to start?</p>
+              <p className="text-xs uppercase tracking-widest text-sage-500 mb-1">Ready to start?</p>
               <p className="font-semibold">Enroll to track your progress</p>
-              <p className="text-sm text-ink-2 mt-1">
+              <p className="text-sm text-zinc-400 mt-1">
                 Complete all {hasModules ? path.modules.length : path.labs.length}{" "}
                 {hasModules ? "module" : "lab"}
                 {(hasModules ? path.modules.length : path.labs.length) !== 1 ? "s" : ""} to earn a certificate.
@@ -164,9 +164,9 @@ export default async function PathDetail({
         )}
 
         {((allModulesDone && hasModules) || (!hasModules && allLabsDone)) && isEnrolled && (
-          <div className="mb-8 rounded-xl border border-warn-edge bg-warn-wash p-5 flex items-center justify-between gap-4">
+          <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Path Complete</p>
+              <p className="text-xs uppercase tracking-widest text-amber-400 mb-1">Path Complete</p>
               <p className="font-semibold">
                 {certApproved
                   ? `All ${hasModules ? "modules" : "labs"} finished — your certificate is ready.`
@@ -178,12 +178,12 @@ export default async function PathDetail({
             {certApproved ? (
               <Link
                 href={`/paths/${slug}/certificate`}
-                className="shrink-0 rounded-lg border border-warn-edge bg-warn-wash px-5 py-2.5 text-sm font-semibold text-warn hover:bg-warn-wash transition whitespace-nowrap"
+                className="shrink-0 rounded-lg border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-400 hover:bg-amber-500/20 transition whitespace-nowrap"
               >
                 View Certificate →
               </Link>
             ) : (
-              <span className="shrink-0 rounded-lg border border-edge px-5 py-2.5 text-sm font-semibold text-ink-3 whitespace-nowrap">
+              <span className="shrink-0 rounded-lg border border-white/10 px-5 py-2.5 text-sm font-semibold text-zinc-500 whitespace-nowrap">
                 {certApproval?.status === "REJECTED" ? "Not Approved" : "Pending Approval"}
               </span>
             )}
@@ -191,14 +191,14 @@ export default async function PathDetail({
         )}
 
         {capstoneReady && (
-          <div className="mb-8 rounded-xl border border-ok-edge bg-ok-wash p-5 flex items-center justify-between gap-4">
+          <div className="mb-8 rounded-xl border border-sage-500/40 bg-sage-500/5 p-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Capstone Unlocked</p>
+              <p className="text-xs uppercase tracking-widest text-sage-500 mb-1">Capstone Unlocked</p>
               <p className="font-semibold">Put it all together in a full Incident Simulation.</p>
             </div>
             <Link
               href={`/incidents/${capstoneSlug}`}
-              className="shrink-0 rounded-lg bg-accent-fill px-5 py-2.5 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white transition whitespace-nowrap"
+              className="shrink-0 rounded-lg bg-sage-500 px-5 py-2.5 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white transition whitespace-nowrap"
             >
               Start Capstone →
             </Link>
@@ -208,18 +208,18 @@ export default async function PathDetail({
         {hasModules ? (
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs uppercase tracking-widest text-ink-3">
+              <h2 className="text-xs uppercase tracking-widest text-zinc-500">
                 Modules — {completedModules}/{path.modules.length} complete
               </h2>
               {isEnrolled && path.modules.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-32 bg-surface-2 rounded-full overflow-hidden">
+                  <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-ok rounded-full transition-all"
+                      className="h-full bg-sage-500 rounded-full transition-all"
                       style={{ width: `${Math.round((completedModules / path.modules.length) * 100)}%` }}
                     />
                   </div>
-                  <span className="text-xs text-ink-3">
+                  <span className="text-xs text-zinc-500">
                     {Math.round((completedModules / path.modules.length) * 100)}%
                   </span>
                 </div>
@@ -239,35 +239,35 @@ export default async function PathDetail({
                     key={mod.id}
                     className={`rounded-xl border p-4 flex items-center justify-between gap-4 transition ${
                       isDone
-                        ? "border-ok-edge bg-ok-wash"
+                        ? "border-sage-500/40 bg-sage-500/5"
                         : locked
-                        ? "border-edge-subtle opacity-60"
-                        : "border-edge"
+                        ? "border-white/5 opacity-60"
+                        : "border-white/8"
                     }`}
                   >
                     <div className="flex items-center gap-4 min-w-0">
                       <div className={`shrink-0 h-7 w-7 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
                         isDone
-                          ? "border-ok-edge bg-ok text-surface-0"
+                          ? "border-sage-500 bg-sage-500 text-zinc-950"
                           : locked
-                          ? "border-edge-strong text-ink-3"
-                          : "border-edge-strong text-ink-3"
+                          ? "border-zinc-700 text-zinc-600"
+                          : "border-zinc-700 text-zinc-500"
                       }`}>
                         {isDone ? <Icon name="check" size={13} /> : locked ? <Icon name="lock" size={13} /> : idx + 1}
                       </div>
                       <div className="min-w-0">
-                        <p className={`font-medium truncate ${locked ? "text-ink-3" : ""}`}>{mod.title}</p>
-                        <div className="flex items-center gap-2 text-xs text-ink-3 mt-0.5 flex-wrap">
+                        <p className={`font-medium truncate ${locked ? "text-zinc-500" : ""}`}>{mod.title}</p>
+                        <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5 flex-wrap">
                           {mod.isRequired && !isDone && (
-                            <span className="border border-edge px-1.5 py-0.5 rounded-full text-ink-3 text-[10px]">Required</span>
+                            <span className="border border-white/10 px-1.5 py-0.5 rounded-full text-zinc-600 text-[10px]">Required</span>
                           )}
                           {hasQuiz && (
-                            <span className={`border px-1.5 py-0.5 rounded-full ${prog?.quizPassed ? "border-ok-edge text-ok" : "border-edge"}`}>
+                            <span className={`border px-1.5 py-0.5 rounded-full ${prog?.quizPassed ? "border-sage-500/40 text-sage-500" : "border-white/10"}`}>
                               Quiz{prog?.quizPassed && <Icon name="check" size={11} className="inline-block ml-1" />}
                             </span>
                           )}
                           {hasAssessment && (
-                            <span className={`border px-1.5 py-0.5 rounded-full ${prog?.assessmentDone ? "border-ok-edge text-ok" : "border-edge"}`}>
+                            <span className={`border px-1.5 py-0.5 rounded-full ${prog?.assessmentDone ? "border-sage-500/40 text-sage-500" : "border-white/10"}`}>
                               Assessment{prog?.assessmentDone && <Icon name="check" size={11} className="inline-block ml-1" />}
                             </span>
                           )}
@@ -278,11 +278,11 @@ export default async function PathDetail({
                       </div>
                     </div>
                     {locked ? (
-                      <span className="shrink-0 text-xs text-ink-3 px-4 py-2">Locked</span>
+                      <span className="shrink-0 text-xs text-zinc-600 px-4 py-2">Locked</span>
                     ) : (
                       <Link
                         href={`/paths/${slug}/modules/${mod.id}`}
-                        className="shrink-0 rounded-lg border border-edge px-4 py-2 text-xs font-semibold text-ink-2 hover:border-ok-edge hover:text-ok transition"
+                        className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-zinc-300 hover:border-sage-500/40 hover:text-sage-500 transition"
                       >
                         {isDone ? "Review" : prog ? "Continue" : "Start"} →
                       </Link>
@@ -295,37 +295,37 @@ export default async function PathDetail({
         ) : (
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs uppercase tracking-widest text-ink-3">
+              <h2 className="text-xs uppercase tracking-widest text-zinc-500">
                 Labs in this path — {labsDone}/{path.labs.length} complete
               </h2>
               {isEnrolled && path.labs.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-32 bg-surface-2 rounded-full overflow-hidden">
+                  <div className="h-1.5 w-32 bg-white/10 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-ok rounded-full transition-all"
+                      className="h-full bg-sage-500 rounded-full transition-all"
                       style={{ width: `${Math.round((labsDone / path.labs.length) * 100)}%` }}
                     />
                   </div>
-                  <span className="text-xs text-ink-3">{Math.round((labsDone / path.labs.length) * 100)}%</span>
+                  <span className="text-xs text-zinc-500">{Math.round((labsDone / path.labs.length) * 100)}%</span>
                 </div>
               )}
             </div>
             <div className="flex flex-col gap-3">
               {path.labs.map((pl, idx) => {
                 const lab = pl.lab;
-                const diffColor = DIFF_COLORS[lab.difficulty as string] ?? "text-ink-2 border-edge";
+                const diffColor = DIFF_COLORS[lab.difficulty as string] ?? "text-zinc-400 border-white/10";
                 const isDone = labDoneFlags[idx] ?? false;
                 return (
                   <div
                     key={pl.id}
                     className={`rounded-xl border p-4 flex items-center justify-between gap-4 transition ${
-                      isDone ? "border-ok-edge bg-ok-wash" : "border-edge"
+                      isDone ? "border-sage-500/40 bg-sage-500/5" : "border-white/8"
                     }`}
                   >
                     <div className="flex items-center gap-4 min-w-0">
                       <div
                         className={`shrink-0 h-7 w-7 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
-                          isDone ? "border-ok-edge bg-ok text-surface-0" : "border-edge-strong text-ink-3"
+                          isDone ? "border-sage-500 bg-sage-500 text-zinc-950" : "border-zinc-700 text-zinc-500"
                         }`}
                       >
                         {isDone ? <Icon name="check" size={13} /> : idx + 1}
@@ -337,7 +337,7 @@ export default async function PathDetail({
                     </div>
                     <Link
                       href={`/labs/${lab.slug}`}
-                      className="shrink-0 rounded-lg border border-edge px-4 py-2 text-xs font-semibold text-ink-2 hover:border-ok-edge hover:text-ok transition"
+                      className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-zinc-300 hover:border-sage-500/40 hover:text-sage-500 transition"
                     >
                       {isDone ? "Review" : "Start"} →
                     </Link>

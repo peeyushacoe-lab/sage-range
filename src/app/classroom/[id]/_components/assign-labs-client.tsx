@@ -39,7 +39,7 @@ export function AssignLabsClient({
   }
 
   return (
-    <div className="rounded-xl border border-edge divide-y divide-edge-subtle">
+    <div className="rounded-xl border border-white/8 divide-y divide-white/8">
       {allLabs.map((lab) => {
         const assigned = assignedIds.includes(lab.id);
         const loading = pending === lab.id;
@@ -48,10 +48,10 @@ export function AssignLabsClient({
           <div key={lab.id} className="flex items-center justify-between px-4 py-3 gap-4">
             <div className="min-w-0">
               <p className="text-sm font-medium">{lab.title}</p>
-              <p className="text-xs text-ink-3 font-mono">{lab.slug} · {lab.difficulty}</p>
+              <p className="text-xs text-zinc-500 font-mono">{lab.slug} · {lab.difficulty}</p>
               {assigned && existingDue && (
-                <p className="text-xs text-ink-3 mt-0.5">
-                  Due: <span className={new Date(existingDue) < new Date() ? "text-danger" : "text-ink-2"}>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  Due: <span className={new Date(existingDue) < new Date() ? "text-red-400" : "text-zinc-400"}>
                     {new Date(existingDue) < new Date()
                       ? "Past due"
                       : new Date(existingDue).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
@@ -65,7 +65,7 @@ export function AssignLabsClient({
                   type="date"
                   value={dueDateInputs[lab.id] ?? ""}
                   onChange={(e) => setDueDateInputs((prev) => ({ ...prev, [lab.id]: e.target.value }))}
-                  className="rounded-lg bg-surface-1 border border-edge px-2 py-1 text-xs text-white focus:outline-none focus:border-ok-edge"
+                  className="rounded-lg bg-zinc-900 border border-white/10 px-2 py-1 text-xs text-white focus:outline-none focus:border-sage-500/60"
                   title="Optional due date"
                 />
               )}
@@ -74,8 +74,8 @@ export function AssignLabsClient({
                 disabled={loading}
                 className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition disabled:opacity-40 ${
                   assigned
-                    ? "bg-ok-wash text-ok hover:bg-danger-wash hover:text-danger border border-ok-edge hover:border-danger-edge"
-                    : "bg-surface-2 text-ink-2 hover:bg-ok-wash hover:text-ok border border-edge hover:border-ok-edge"
+                    ? "bg-sage-500/10 text-sage-400 hover:bg-red-500/10 hover:text-red-400 border border-sage-500/30 hover:border-red-500/30"
+                    : "bg-zinc-800 text-zinc-400 hover:bg-sage-500/10 hover:text-sage-400 border border-white/8 hover:border-sage-500/30"
                 }`}
               >
                 {loading ? "…" : assigned ? <><Icon name="check" size={12} /> Assigned</> : "Assign"}

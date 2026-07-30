@@ -85,12 +85,12 @@ export default async function CertificatePage({
     return (
       <>
         <div className="no-print"><Navbar backHref={`/paths/${slug}`} backLabel="Path" /></div>
-        <div className="min-h-screen bg-surface-0 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
+        <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
           <p className="text-5xl flex justify-center">{approval?.status === "REJECTED" ? <Icon name="cross" size={48} /> : "⏳"}</p>
           <h1 className="text-2xl font-bold">
             {approval?.status === "REJECTED" ? "Certificate request not approved" : "Certificate pending admin approval"}
           </h1>
-          <p className="text-ink-2 max-w-md">
+          <p className="text-zinc-400 max-w-md">
             {approval?.status === "REJECTED"
               ? "An admin reviewed your completed path and did not approve the certificate. Contact your instructor for details."
               : "You've completed every requirement for this path — an admin needs to approve your certificate before you can view it. You'll get a notification the moment it's approved."}
@@ -143,7 +143,7 @@ export default async function CertificatePage({
       <style>{`@media print { .no-print { display: none } }`}</style>
       <div className="no-print"><Navbar backHref={`/paths/${slug}`} backLabel="Path" /></div>
 
-      <div className="min-h-screen bg-surface-0 text-white flex flex-col items-center justify-center px-4 sm:px-6 py-12">
+      <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-4 sm:px-6 py-12">
         <div className="no-print flex items-center gap-4 mb-8 w-full max-w-5xl">
           <div className="flex-1" />
           <PrintBtn />
@@ -163,12 +163,12 @@ export default async function CertificatePage({
           />
         </div>
 
-        <div className="no-print w-full max-w-5xl mt-6 rounded-xl border border-edge bg-surface-1 p-6 flex flex-col items-center gap-4">
-          <p className="text-xs text-ink-3 uppercase tracking-widest">IR Commander Certification</p>
+        <div className="no-print w-full max-w-5xl mt-6 rounded-xl border border-white/8 bg-zinc-900/50 p-6 flex flex-col items-center gap-4">
+          <p className="text-xs text-zinc-500 uppercase tracking-widest">IR Commander Certification</p>
           {irCert ? (
             <div className="flex flex-col items-center gap-3">
-              <p className="text-ok font-semibold text-sm">IR Commander Certificate earned</p>
-              <p className="font-mono text-xs text-ink-3">{irCert.certId}</p>
+              <p className="text-emerald-400 font-semibold text-sm">IR Commander Certificate earned</p>
+              <p className="font-mono text-xs text-zinc-500">{irCert.certId}</p>
               <LinkedInShareBtn
                 certId={irCert.certId}
                 issueYear={irCert.unlockedAt.getFullYear()}
@@ -176,7 +176,7 @@ export default async function CertificatePage({
               />
             </div>
           ) : (
-            <p className="text-sm text-ink-2 text-center">
+            <p className="text-sm text-zinc-400 text-center">
               Complete 3 B+ simulations and 2 paths to earn the IR Commander Certificate.
             </p>
           )}

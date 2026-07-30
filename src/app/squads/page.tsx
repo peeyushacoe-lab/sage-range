@@ -23,7 +23,7 @@ export default async function SquadsPage() {
   ]);
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
 
       <div className="mx-auto max-w-6xl px-6 py-8">
@@ -44,11 +44,11 @@ export default async function SquadsPage() {
         />
 
         {pendingInvites > 0 && (
-          <Card className="mb-6 border-ok-edge bg-ok-wash p-4">
+          <Card className="mb-6 border-emerald-500/30 bg-emerald-500/5 p-4">
             <div className="flex items-center gap-3">
               <Icon name="bell" size={20} />
               <p className="text-sm">
-                You have <span className="font-bold text-ok">{pendingInvites}</span>{" "}
+                You have <span className="font-bold text-emerald-400">{pendingInvites}</span>{" "}
                 pending squad {pendingInvites === 1 ? "invite" : "invites"}.
               </p>
             </div>
@@ -57,15 +57,15 @@ export default async function SquadsPage() {
 
         {membership && (
           <Card className="mb-8 p-5">
-            <p className="mb-1 text-[10px] uppercase tracking-widest text-ink-3">
+            <p className="mb-1 text-[10px] uppercase tracking-widest text-zinc-500">
               Your squad
             </p>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Link
                 href={`/squads/${membership.squad.slug}`}
-                className="text-lg font-bold hover:text-ok"
+                className="text-lg font-bold hover:text-emerald-400"
               >
-                <span className="text-ink-3">[{membership.squad.tag}]</span>{" "}
+                <span className="text-zinc-500">[{membership.squad.tag}]</span>{" "}
                 {membership.squad.name}
               </Link>
               <Badge tone={membership.role === "OWNER" ? "amber" : "zinc"}>
@@ -88,9 +88,9 @@ export default async function SquadsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <Link
                     href={`/squads/${squad.slug}`}
-                    className="text-base font-semibold hover:text-ok"
+                    className="text-base font-semibold hover:text-emerald-400"
                   >
-                    <span className="text-ink-3">[{squad.tag}]</span> {squad.name}
+                    <span className="text-zinc-500">[{squad.tag}]</span> {squad.name}
                   </Link>
                   <Badge tone={squad.joinPolicy === "OPEN" ? "emerald" : "zinc"}>
                     {squad.joinPolicy === "OPEN" ? "Open" : "Invite"}
@@ -98,10 +98,10 @@ export default async function SquadsPage() {
                 </div>
 
                 {squad.description && (
-                  <p className="line-clamp-2 text-sm text-ink-2">{squad.description}</p>
+                  <p className="line-clamp-2 text-sm text-zinc-400">{squad.description}</p>
                 )}
 
-                <div className="mt-auto flex items-center gap-2 text-xs text-ink-3">
+                <div className="mt-auto flex items-center gap-2 text-xs text-zinc-500">
                   <Icon name="users" size={14} />
                   {squad._count.members} / {squad.maxMembers} members
                 </div>

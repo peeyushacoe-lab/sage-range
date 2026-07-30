@@ -147,11 +147,11 @@ export function CertificateFrame({
                 <span className="h-px w-24" style={{ background: GOLD_SOFT }} />
               </div>
 
-              <p className="text-sm text-ink-3 mb-2">{intro}</p>
+              <p className="text-sm text-zinc-600 mb-2">{intro}</p>
               <p className="text-xl sm:text-2xl font-bold uppercase tracking-[0.05em] mb-2" style={{ color: NAVY }}>
                 {title}
               </p>
-              {detail && <p className="text-sm text-ink-3 max-w-xl mx-auto leading-relaxed">{detail}</p>}
+              {detail && <p className="text-sm text-zinc-600 max-w-xl mx-auto leading-relaxed">{detail}</p>}
 
               {capstone && (
                 <div className="inline-flex items-center gap-3 border rounded-lg px-5 py-3 mt-6 text-left" style={{ borderColor: GOLD }}>
@@ -174,14 +174,14 @@ export function CertificateFrame({
                   <img src={CEO_SIGNATURE_DATA_URI} alt="CEO signature" width={190} height={32} className="mx-auto" />
                   <p className="w-48 border-b mb-2" style={{ borderColor: GOLD_SOFT }} />
                   <p className="text-xs font-bold tracking-[0.15em]" style={{ color: NAVY }}>KHURRAM QAMAR</p>
-                  <p className="text-[10px] tracking-[0.12em] text-ink-3">CHIEF EXECUTIVE OFFICER</p>
-                  <p className="text-[10px] tracking-[0.12em] text-ink-3">CYBERSAGE UK</p>
+                  <p className="text-[10px] tracking-[0.12em] text-zinc-500">CHIEF EXECUTIVE OFFICER</p>
+                  <p className="text-[10px] tracking-[0.12em] text-zinc-500">CYBERSAGE UK</p>
                 </div>
                 <GoldSeal />
                 <div className="text-center">
                   <p className="text-lg font-bold pb-1" style={{ color: NAVY }}>{issued}</p>
                   <p className="w-40 border-b mb-2 mx-auto" style={{ borderColor: GOLD_SOFT }} />
-                  <p className="text-[10px] tracking-[0.3em] text-ink-3">ISSUED ON</p>
+                  <p className="text-[10px] tracking-[0.3em] text-zinc-500">ISSUED ON</p>
                 </div>
               </div>
             </div>
@@ -192,7 +192,7 @@ export function CertificateFrame({
                 <div key={s.label} className="flex items-start gap-3 pb-5 border-b last:border-b-0" style={{ borderColor: GOLD_SOFT }}>
                   <span className="shrink-0 mt-0.5">{ICONS[s.icon]}</span>
                   <span>
-                    <span className="block text-[10px] font-bold tracking-[0.18em] text-ink-3 uppercase">{s.label}</span>
+                    <span className="block text-[10px] font-bold tracking-[0.18em] text-zinc-500 uppercase">{s.label}</span>
                     <span className="block text-base font-semibold mt-0.5" style={{ color: NAVY }}>{s.value}</span>
                   </span>
                 </div>
@@ -202,7 +202,7 @@ export function CertificateFrame({
                 <div key={l.label} className="flex items-start gap-3 pb-5 border-b" style={{ borderColor: GOLD_SOFT }}>
                   <span className="shrink-0 mt-0.5">{ICONS[l.icon]}</span>
                   <span>
-                    <span className="block text-[10px] font-bold tracking-[0.18em] text-ink-3 uppercase mb-1.5">{l.label}</span>
+                    <span className="block text-[10px] font-bold tracking-[0.18em] text-zinc-500 uppercase mb-1.5">{l.label}</span>
                     {l.items.map((item) => (
                       <span key={item} className="flex items-center gap-1.5 text-[13px] leading-6" style={{ color: NAVY }}>
                         <span style={{ color: GOLD }}><Icon name="check" size={14} className="inline-block shrink-0" /></span> {item}
@@ -223,7 +223,7 @@ export function CertificateFrame({
                     <span className="block text-[10px] font-bold tracking-[0.18em] uppercase" style={{ color: NAVY }}>
                       Verify Certificate
                     </span>
-                    <span className="block text-[11px] text-ink-3 mt-1">Scan QR code or visit</span>
+                    <span className="block text-[11px] text-zinc-500 mt-1">Scan QR code or visit</span>
                     <span className="block text-[11px] font-semibold break-all" style={{ color: "#2456a6" }}>{verify.display}</span>
                   </span>
                 </div>

@@ -49,22 +49,22 @@ export default async function SubmitWriteupPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div className="min-h-screen bg-surface-0 text-white">
+    <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <main className="max-w-2xl mx-auto px-6 py-8 space-y-6">
         <div>
-          <Link href={`/labs/${slug}/writeups`} className="text-xs text-ink-3 hover:text-ink-2 transition mb-2 inline-block">
+          <Link href={`/labs/${slug}/writeups`} className="text-xs text-zinc-500 hover:text-zinc-300 transition mb-2 inline-block">
             ← Back to writeups
           </Link>
           <h1 className="text-2xl font-bold">Submit Writeup</h1>
-          <p className="text-sm text-ink-3 mt-1">{lab.title}</p>
+          <p className="text-sm text-zinc-500 mt-1">{lab.title}</p>
         </div>
 
         {existing && (
           <div className={`rounded-xl border px-4 py-3 text-sm ${
-            existing.status === "APPROVED" ? "border-ok-edge bg-ok-wash text-ok"
-            : existing.status === "REJECTED" ? "border-danger-edge bg-danger-wash text-danger"
-            : "border-warn-edge bg-warn-wash text-warn"
+            existing.status === "APPROVED" ? "border-emerald-500/30 bg-emerald-500/8 text-emerald-400"
+            : existing.status === "REJECTED" ? "border-red-500/30 bg-red-500/8 text-red-400"
+            : "border-amber-500/30 bg-amber-500/8 text-amber-400"
           }`}>
             {existing.status === "APPROVED" && <><Icon name="check" size={13} className="inline-block" /> Your writeup is approved and visible to others.</>}
             {existing.status === "PENDING"  && "⏳ Your writeup is under review. You can update and resubmit below."}
@@ -74,26 +74,26 @@ export default async function SubmitWriteupPage({ params }: { params: Promise<{ 
           </div>
         )}
 
-        <div className="rounded-xl border border-edge bg-surface-1 p-6 space-y-4">
-          <div className="text-xs text-ink-3 space-y-1">
+        <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-6 space-y-4">
+          <div className="text-xs text-zinc-600 space-y-1">
             <p>• Writeups are reviewed before becoming public</p>
             <p>• No flags, answers, or exploit payloads — explain your <em>approach</em></p>
             <p>• Minimum 100 characters. Use ## for section headings</p>
           </div>
           <form action={submit} className="space-y-4">
             <div>
-              <label className="text-xs uppercase tracking-widest text-ink-3 mb-1.5 block">Title</label>
+              <label className="text-xs uppercase tracking-widest text-zinc-500 mb-1.5 block">Title</label>
               <input
                 name="title"
                 required
                 defaultValue={existing?.title ?? ""}
                 placeholder="How I solved this challenge…"
                 maxLength={120}
-                className="w-full bg-surface-2 border border-edge rounded-lg px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+                className="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
               />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-widest text-ink-3 mb-1.5 block">Writeup</label>
+              <label className="text-xs uppercase tracking-widest text-zinc-500 mb-1.5 block">Writeup</label>
               <textarea
                 name="body"
                 required
@@ -101,12 +101,12 @@ export default async function SubmitWriteupPage({ params }: { params: Promise<{ 
                 defaultValue={existing?.body ?? ""}
                 rows={18}
                 placeholder={"## My Approach\n\nDescribe your methodology here…\n\n## Key Insight\n\nWhat made this click?"}
-                className="w-full bg-surface-2 border border-edge rounded-lg px-3 py-2 text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:border-ok-edge font-mono resize-y"
+                className="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50 font-mono resize-y"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-2.5 rounded-lg bg-ok text-white text-sm font-bold hover:bg-ok-wash transition"
+              className="w-full py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-500 transition"
             >
               {existing ? "Resubmit for Review" : "Submit for Review"}
             </button>

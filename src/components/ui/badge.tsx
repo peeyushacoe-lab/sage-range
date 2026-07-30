@@ -1,52 +1,30 @@
 import { cn } from "@/lib/utils";
 
-// Range badge / pill. STATUS ONLY — what happened to a thing.
-//
-// For how bad a finding is, use <Severity> instead. Keeping them separate is
-// what lets a "high severity, resolved" incident render truthfully; the old
-// single-ramp badge made "Active" and "Resolved" visually identical.
-//
-// The colour-named tones are retained as deprecated aliases so existing call
-// sites keep working. New code should use the semantic names.
+// Vault badge / pill. Tone-based so status colouring is consistent everywhere
+// (emerald=success/active, blue=info, amber=pending/warn, red=error, zinc=neutral).
 
-type Tone =
-  | "ok" | "info" | "warn" | "danger" | "neutral"
-  /** @deprecated colour-named tones — use the semantic name instead */
-  | "emerald" | "blue" | "amber" | "red" | "zinc" | "purple";
+type Tone = "emerald" | "blue" | "amber" | "red" | "zinc" | "purple";
 
 const TONES: Record<Tone, string> = {
-  ok:      "text-ok border-ok-edge bg-ok-wash",
-  info:    "text-info border-info-edge bg-info-wash",
-  warn:    "text-warn border-warn-edge bg-warn-wash",
-  danger:  "text-danger border-danger-edge bg-danger-wash",
-  neutral: "text-ink-2 border-edge-strong bg-surface-2",
-
-  emerald: "text-ok border-ok-edge bg-ok-wash",
-  blue:    "text-info border-info-edge bg-info-wash",
-  amber:   "text-warn border-warn-edge bg-warn-wash",
-  red:     "text-danger border-danger-edge bg-danger-wash",
-  zinc:    "text-ink-2 border-edge-strong bg-surface-2",
-  purple:  "text-accent border-accent-edge bg-accent-wash",
+  emerald: "text-emerald-400 border-emerald-500/40 bg-emerald-500/10",
+  blue:    "text-blue-400 border-blue-500/40 bg-blue-500/10",
+  amber:   "text-amber-400 border-amber-500/40 bg-amber-500/10",
+  red:     "text-red-400 border-red-500/40 bg-red-500/10",
+  zinc:    "text-zinc-400 border-white/15 bg-white/5",
+  purple:  "text-purple-400 border-purple-500/40 bg-purple-500/10",
 };
 
 export function Badge({
-  tone = "neutral", dot = true, className, children, ...props
-}: React.HTMLAttributes<HTMLSpanElement> & {
-  tone?: Tone;
-  /** The leading dot. Keep it on — it distinguishes a status pill from a severity tag at a glance. */
-  dot?: boolean;
-}) {
+  tone = "zinc", className, ...props
+}: React.HTMLAttributes<HTMLSpanElement> & { tone?: Tone }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium leading-5",
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold",
         TONES[tone],
         className
       )}
       {...props}
-    >
-      {dot && <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-current" />}
-      {children}
-    </span>
+    />
   );
 }

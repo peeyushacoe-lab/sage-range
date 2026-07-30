@@ -47,13 +47,13 @@ export function WelcomeCtfClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Source Code Recon" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           Every CTF starts with reading what&apos;s in front of you. This page
           contains a hidden flag — not in the visible text, but in the HTML source.
         </p>
-        <p className="text-sm text-ink-2 mb-4">
+        <p className="text-sm text-zinc-400 mb-4">
           Scan the source code carefully. Flags follow the format{" "}
-          <code className="text-ok font-mono">SAGE&#123;...&#125;</code>
+          <code className="text-sage-500 font-mono">SAGE&#123;...&#125;</code>
         </p>
         {/* Real HTML comment rendered into the DOM — visible in DevTools / page source */}
         <div dangerouslySetInnerHTML={{ __html: "<!-- SAGE{w3lc0me_t0_th3_r4nge} -->" }} />
@@ -69,16 +69,16 @@ export function WelcomeCtfClient({
       </TaskShell>
 
       <TaskShell number={2} title="Not Encryption" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           A developer claims this is &quot;encrypted.&quot; Base64 is encoding,
           not encryption. Decode to find the flag.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-3">
-          <code className="font-mono text-sm text-warn break-all">
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-3">
+          <code className="font-mono text-sm text-amber-300 break-all">
             U0FHRXtiNHNlNjRfaXNfbjB0X2VuY3J5cHRpMG59
           </code>
         </div>
-        <p className="text-xs text-warn mb-4">
+        <p className="text-xs text-amber-500 mb-4">
           Hint: use <code className="font-mono">atob(&quot;...&quot;)</code> in the
           browser console or any base64 decoder.
         </p>
@@ -94,18 +94,18 @@ export function WelcomeCtfClient({
       </TaskShell>
 
       <TaskShell number={3} title="Secret in the Code" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-3">
+        <p className="text-zinc-300 text-sm mb-3">
           A junior developer pushed credentials to production. Scan this commit
           diff for the hardcoded token.
         </p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4 overflow-x-auto">
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4 overflow-x-auto">
           <pre className="font-mono text-xs leading-relaxed">
-            <span className="text-ink-3">diff --git a/config/auth.js b/config/auth.js{"\n"}</span>
-            <span className="text-ok">+const API_ENDPOINT = &apos;https://api.sageforge.local/v1&apos;;{"\n"}</span>
-            <span className="text-ok">+const SECRET_TOKEN = &apos;SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;&apos;;{"\n"}</span>
-            <span className="text-ok">+const TIMEOUT_MS = 30000;{"\n"}</span>
-            <span className="text-ink-3">{"\n"}</span>
-            <span className="text-ink-2">{" // TODO: move to environment variables\n"}</span>
+            <span className="text-zinc-500">diff --git a/config/auth.js b/config/auth.js{"\n"}</span>
+            <span className="text-emerald-400">+const API_ENDPOINT = &apos;https://api.sageforge.local/v1&apos;;{"\n"}</span>
+            <span className="text-emerald-400">+const SECRET_TOKEN = &apos;SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;&apos;;{"\n"}</span>
+            <span className="text-emerald-400">+const TIMEOUT_MS = 30000;{"\n"}</span>
+            <span className="text-zinc-500">{"\n"}</span>
+            <span className="text-zinc-400">{" // TODO: move to environment variables\n"}</span>
           </pre>
         </div>
         {!done("task_3") && (
@@ -120,16 +120,16 @@ export function WelcomeCtfClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete <Icon name="check" size={14} className="inline-block shrink-0" /></h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;w3lc0me_t0_th3_r4nge&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;b4se64_is_n0t_encrypti0n&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;w3lc0me_t0_th3_r4nge&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;b4se64_is_n0t_encrypti0n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;</span></li>
           </ul>
           {!alreadySolved && (
-            <p className="text-xs text-ink-2 border-t border-edge pt-3">
-              One last step: submit <code className="text-ok font-mono">SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;</code> in the flag box below to earn your XP.
+            <p className="text-xs text-zinc-400 border-t border-white/8 pt-3">
+              One last step: submit <code className="text-sage-400 font-mono">SAGE&#123;h4rdc0d3d_s3cr3ts_l34k&#125;</code> in the flag box below to earn your XP.
             </p>
           )}
         </div>
@@ -157,7 +157,7 @@ function AnswerRow({
         />
         <SubmitBtn label="Submit" />
       </div>
-      {error && <p className="text-xs text-danger font-mono">{error}</p>}
+      {error && <p className="text-xs text-red-400 font-mono">{error}</p>}
     </form>
   );
 }

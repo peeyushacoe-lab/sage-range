@@ -41,10 +41,10 @@ export default async function AdminGradingPage({
 
   if (!shift) {
     return (
-      <main className="min-h-screen bg-surface-0 text-white">
+      <main className="min-h-screen bg-zinc-950 text-white">
         <Navbar />
         <div className="max-w-5xl mx-auto px-6 py-8">
-          <p className="text-ink-2">Shift not found</p>
+          <p className="text-zinc-400">Shift not found</p>
         </div>
       </main>
     );
@@ -81,7 +81,7 @@ export default async function AdminGradingPage({
   const totalPending = gradingEntries.length;
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 py-8">
@@ -92,7 +92,7 @@ export default async function AdminGradingPage({
           actions={
             <Link
               href="/labs/tickets"
-              className="shrink-0 rounded-lg border border-edge px-4 py-2 text-sm text-ink-2 hover:text-white hover:border-edge-strong transition"
+              className="shrink-0 rounded-lg border border-white/10 px-4 py-2 text-sm text-zinc-400 hover:text-white hover:border-white/30 transition"
             >
               Back →
             </Link>
@@ -102,25 +102,25 @@ export default async function AdminGradingPage({
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <Card className="p-4">
-            <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Pending</p>
-            <p className="text-2xl font-bold text-warn">{totalPending}</p>
+            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Pending</p>
+            <p className="text-2xl font-bold text-amber-400">{totalPending}</p>
           </Card>
           <Card className="p-4">
-            <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Graded</p>
-            <p className="text-2xl font-bold text-ok">{alreadyGraded}</p>
+            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Graded</p>
+            <p className="text-2xl font-bold text-emerald-400">{alreadyGraded}</p>
           </Card>
           <Card className="p-4">
-            <p className="text-xs uppercase tracking-widest text-ink-3 mb-1">Total Triages</p>
-            <p className="text-2xl font-bold text-ink-2">{totalPending + alreadyGraded}</p>
+            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Total Triages</p>
+            <p className="text-2xl font-bold text-zinc-300">{totalPending + alreadyGraded}</p>
           </Card>
         </div>
 
         {/* Grading Form */}
         {gradingEntries.length === 0 ? (
           <Card className="p-8 text-center">
-            <Icon name="checkCircle" size={32} className="text-ok mx-auto mb-4" />
+            <Icon name="checkCircle" size={32} className="text-emerald-400 mx-auto mb-4" />
             <p className="text-lg font-semibold mb-2">All triages graded!</p>
-            <p className="text-ink-2">There are no pending triages for this shift.</p>
+            <p className="text-zinc-400">There are no pending triages for this shift.</p>
           </Card>
         ) : (
           <form>
@@ -128,42 +128,42 @@ export default async function AdminGradingPage({
               {gradingEntries.map((entry, idx) => (
                 <Card key={entry.triageId} className="p-5 space-y-4">
                   {/* Header */}
-                  <div className="flex items-start justify-between pb-4 border-b border-edge-subtle">
+                  <div className="flex items-start justify-between pb-4 border-b border-white/5">
                     <div>
-                      <p className="text-sm font-mono text-ink-3">
+                      <p className="text-sm font-mono text-zinc-500">
                         Entry {idx + 1} of {gradingEntries.length}
                       </p>
                       <h3 className="text-base font-semibold mt-1">{entry.ticketTitle}</h3>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs uppercase tracking-widest text-ink-3">User</p>
-                      <p className="text-sm font-mono text-ink-2">{entry.username}</p>
+                      <p className="text-xs uppercase tracking-widest text-zinc-500">User</p>
+                      <p className="text-sm font-mono text-zinc-300">{entry.username}</p>
                     </div>
                   </div>
 
                   {/* User Decision */}
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">Category</p>
-                      <p className="text-sm font-mono text-ink-2">{entry.ticketCategory}</p>
+                      <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">Category</p>
+                      <p className="text-sm font-mono text-zinc-300">{entry.ticketCategory}</p>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">Action Taken</p>
-                      <span className="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-info-wash text-info">
+                      <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">Action Taken</p>
+                      <span className="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-blue-500/20 text-blue-400">
                         {entry.action}
                       </span>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-widest text-ink-3 mb-2">Confidence</p>
-                      <p className="text-sm font-mono text-ink-2">{entry.confidence}%</p>
+                      <p className="text-xs uppercase tracking-widest text-zinc-500 mb-2">Confidence</p>
+                      <p className="text-sm font-mono text-zinc-300">{entry.confidence}%</p>
                     </div>
                   </div>
 
                   {/* Grading Fields */}
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-edge-subtle">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
                     {/* Is Correct? */}
                     <div>
-                      <label className="text-xs uppercase tracking-widest text-ink-3 block mb-2">
+                      <label className="text-xs uppercase tracking-widest text-zinc-500 block mb-2">
                         Correct?
                       </label>
                       <div className="flex gap-2">
@@ -175,7 +175,7 @@ export default async function AdminGradingPage({
                             defaultChecked={entry.isCorrect === true}
                             className="w-4 h-4"
                           />
-                          <span className="text-sm text-ok">Correct</span>
+                          <span className="text-sm text-emerald-400">Correct</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
@@ -185,14 +185,14 @@ export default async function AdminGradingPage({
                             defaultChecked={entry.isCorrect === false}
                             className="w-4 h-4"
                           />
-                          <span className="text-sm text-danger">Incorrect</span>
+                          <span className="text-sm text-red-400">Incorrect</span>
                         </label>
                       </div>
                     </div>
 
                     {/* Points */}
                     <div>
-                      <label htmlFor={`points-${entry.triageId}`} className="text-xs uppercase tracking-widest text-ink-3 block mb-2">
+                      <label htmlFor={`points-${entry.triageId}`} className="text-xs uppercase tracking-widest text-zinc-500 block mb-2">
                         Points (0-500)
                       </label>
                       <input
@@ -204,7 +204,7 @@ export default async function AdminGradingPage({
                         defaultValue={entry.score || 250}
                         className="w-full"
                       />
-                      <p className="text-xs text-ink-3 mt-1">
+                      <p className="text-xs text-zinc-600 mt-1">
                         Points: <span className="font-mono">{entry.score || 250}</span>
                       </p>
                     </div>
@@ -212,7 +212,7 @@ export default async function AdminGradingPage({
 
                   {/* Feedback */}
                   <div>
-                    <label htmlFor={`feedback-${entry.triageId}`} className="text-xs uppercase tracking-widest text-ink-3 block mb-2">
+                    <label htmlFor={`feedback-${entry.triageId}`} className="text-xs uppercase tracking-widest text-zinc-500 block mb-2">
                       Feedback (Optional)
                     </label>
                     <textarea
@@ -220,7 +220,7 @@ export default async function AdminGradingPage({
                       name={`feedback-${entry.triageId}`}
                       defaultValue={entry.feedback || ''}
                       placeholder="Provide constructive feedback..."
-                      className="w-full px-3 py-2 rounded-lg bg-surface-1 border border-edge text-white placeholder-ink-3 text-sm focus:outline-none focus:border-edge-strong"
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-white/30"
                       rows={2}
                     />
                   </div>
@@ -237,13 +237,13 @@ export default async function AdminGradingPage({
                     (el as HTMLInputElement).checked = true;
                   });
                 }}
-                className="px-4 py-2 rounded-lg border border-edge text-white font-semibold hover:border-edge-strong transition text-sm"
+                className="px-4 py-2 rounded-lg border border-white/10 text-white font-semibold hover:border-white/30 transition text-sm"
               >
                 Mark All Correct
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 rounded-lg bg-accent-fill text-white font-semibold hover:bg-ok-wash transition text-sm ml-auto"
+                className="px-6 py-2 rounded-lg bg-sage-500 text-black font-semibold hover:bg-sage-600 transition text-sm ml-auto"
               >
                 Save Grades
               </button>

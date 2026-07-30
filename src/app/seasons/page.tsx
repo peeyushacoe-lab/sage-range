@@ -34,7 +34,7 @@ export default async function SeasonsPage({
 
   if (!season) {
     return (
-      <main className="min-h-screen bg-surface-0 text-white">
+      <main className="min-h-screen bg-zinc-950 text-white">
         <Navbar />
         <div className="mx-auto max-w-5xl px-6 py-8">
           <PageHeader
@@ -64,7 +64,7 @@ export default async function SeasonsPage({
   );
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
 
       <div className="mx-auto max-w-5xl px-6 py-8">
@@ -101,8 +101,8 @@ export default async function SeasonsPage({
               className={cn(
                 "rounded-full px-4 py-1.5 text-sm font-medium transition",
                 scope === s
-                  ? "bg-accent-fill text-white"
-                  : "border border-edge text-ink-2 hover:border-edge-strong hover:text-white",
+                  ? "bg-emerald-500 text-black"
+                  : "border border-white/10 text-zinc-400 hover:border-white/30 hover:text-white",
               )}
             >
               {s === "solo" ? "Players" : "Squads"}
@@ -122,7 +122,7 @@ export default async function SeasonsPage({
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-edge text-left text-xs uppercase tracking-widest text-ink-3">
+                    <tr className="border-b border-white/10 text-left text-xs uppercase tracking-widest text-zinc-500">
                       <th className="px-5 py-3 font-semibold">Rank</th>
                       <th className="px-5 py-3 font-semibold">Player</th>
                       <th className="px-5 py-3 font-semibold">Tier</th>
@@ -137,24 +137,24 @@ export default async function SeasonsPage({
                         <tr
                           key={entry.userId}
                           className={cn(
-                            "border-t border-edge-subtle transition hover:bg-surface-1",
-                            isMe && "bg-ok-wash",
+                            "border-t border-white/5 transition hover:bg-zinc-900/50",
+                            isMe && "bg-emerald-500/10",
                           )}
                         >
-                          <td className="px-5 py-4 font-mono font-bold text-ink-2">
+                          <td className="px-5 py-4 font-mono font-bold text-zinc-400">
                             #{entry.rank}
                           </td>
                           <td className="px-5 py-4 font-medium">
                             {entry.displayName}
-                            {isMe && <span className="ml-2 text-xs text-ink-3">(you)</span>}
+                            {isMe && <span className="ml-2 text-xs text-zinc-500">(you)</span>}
                           </td>
                           <td className="px-5 py-4">
                             <Badge tone={TIER_TONE[entry.tier]}>{entry.tier}</Badge>
                           </td>
-                          <td className="px-5 py-4 text-right font-mono font-bold text-ok">
+                          <td className="px-5 py-4 text-right font-mono font-bold text-emerald-400">
                             {entry.rating}
                           </td>
-                          <td className="px-5 py-4 text-right font-mono text-ink-2">
+                          <td className="px-5 py-4 text-right font-mono text-zinc-300">
                             {entry.wins}–{entry.losses}
                           </td>
                         </tr>
@@ -177,7 +177,7 @@ export default async function SeasonsPage({
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-edge text-left text-xs uppercase tracking-widest text-ink-3">
+                  <tr className="border-b border-white/10 text-left text-xs uppercase tracking-widest text-zinc-500">
                     <th className="px-5 py-3 font-semibold">Rank</th>
                     <th className="px-5 py-3 font-semibold">Squad</th>
                     <th className="px-5 py-3 text-right font-semibold">Points</th>
@@ -188,23 +188,23 @@ export default async function SeasonsPage({
                   {squadEntries.map((entry) => (
                     <tr
                       key={entry.squadId}
-                      className="border-t border-edge-subtle transition hover:bg-surface-1"
+                      className="border-t border-white/5 transition hover:bg-zinc-900/50"
                     >
-                      <td className="px-5 py-4 font-mono font-bold text-ink-2">
+                      <td className="px-5 py-4 font-mono font-bold text-zinc-400">
                         #{entry.rank}
                       </td>
                       <td className="px-5 py-4">
                         <Link
                           href={`/squads/${entry.slug}`}
-                          className="font-medium hover:text-ok"
+                          className="font-medium hover:text-emerald-400"
                         >
-                          <span className="text-ink-3">[{entry.tag}]</span> {entry.name}
+                          <span className="text-zinc-500">[{entry.tag}]</span> {entry.name}
                         </Link>
                       </td>
-                      <td className="px-5 py-4 text-right font-mono font-bold text-ok">
+                      <td className="px-5 py-4 text-right font-mono font-bold text-emerald-400">
                         {entry.points}
                       </td>
-                      <td className="px-5 py-4 text-right font-mono text-ink-2">
+                      <td className="px-5 py-4 text-right font-mono text-zinc-300">
                         {entry.wins}–{entry.losses}
                       </td>
                     </tr>

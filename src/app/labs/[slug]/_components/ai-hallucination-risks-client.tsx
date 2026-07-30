@@ -76,31 +76,31 @@ export function AiHallucinationRisksClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Name the Phenomenon" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">An AI-generated incident report excerpt, and a fact-check:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{REPORT_EXCERPT}</pre>
+        <p className="text-zinc-300 text-sm mb-3">An AI-generated incident report excerpt, and a fact-check:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{REPORT_EXCERPT}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What is this phenomenon called when an AI generates plausible-sounding but false information?</p>
+            <p className="text-sm text-zinc-300 font-medium">What is this phenomenon called when an AI generates plausible-sounding but false information?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — this is an AI hallucination: confident, detailed, and entirely fabricated. Flag: SAGE&#123;4i_h4llucin4t10n&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — this is an AI hallucination: confident, detailed, and entirely fabricated. Flag: SAGE&#123;4i_h4llucin4t10n&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Assess the Real Impact" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-4">This report was about to trigger an emergency patch cycle.</p>
+        <p className="text-zinc-300 text-sm mb-4">This report was about to trigger an emergency patch cycle.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why is hallucination especially dangerous in a security report used to justify an emergency patch?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why is hallucination especially dangerous in a security report used to justify an emergency patch?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Decisions based on it could waste critical incident response time chasing a vulnerability that doesn't exist",
@@ -110,25 +110,25 @@ export function AiHallucinationRisksClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — chasing a fabricated CVE wastes real incident response time and attention. Flag: SAGE&#123;w4st3d_1r_t1m3_0n_f4k3_cv3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — chasing a fabricated CVE wastes real incident response time and attention. Flag: SAGE&#123;w4st3d_1r_t1m3_0n_f4k3_cv3&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Recommend the Safeguard" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">You need a standing process to prevent this from happening again.</p>
+        <p className="text-zinc-300 text-sm mb-4">You need a standing process to prevent this from happening again.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What's the best safeguard against acting on a hallucinated AI claim in a high-stakes report?</p>
+            <p className="text-sm text-zinc-300 font-medium">What's the best safeguard against acting on a hallucinated AI claim in a high-stakes report?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Require human verification of any critical AI-generated claim against an authoritative source before acting on it",
@@ -138,17 +138,17 @@ export function AiHallucinationRisksClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — critical AI claims should always be verified against an authoritative source before anyone acts on them.
             Flag: SAGE&#123;v3r1fy_4g41nst_4uth0r1t4t1v3_s0urc3&#125;
           </p>
@@ -156,12 +156,12 @@ export function AiHallucinationRisksClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;4i_h4llucin4t10n&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;w4st3d_1r_t1m3_0n_f4k3_cv3&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;v3r1fy_4g41nst_4uth0r1t4t1v3_s0urc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;4i_h4llucin4t10n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;w4st3d_1r_t1m3_0n_f4k3_cv3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;v3r1fy_4g41nst_4uth0r1t4t1v3_s0urc3&#125;</span></li>
           </ul>
         </div>
       )}

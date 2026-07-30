@@ -75,31 +75,31 @@ export function ThreatActorProfilingClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Classify the Activity" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">Observed TTPs from a recent intrusion:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{TTPS}</pre>
+        <p className="text-zinc-300 text-sm mb-3">Observed TTPs from a recent intrusion:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{TTPS}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What class of activity does this TTP combination represent — commodity crimeware or a targeted APT-style intrusion?</p>
+            <p className="text-sm text-zinc-300 font-medium">What class of activity does this TTP combination represent — commodity crimeware or a targeted APT-style intrusion?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — tailored targeting, patient dwell time, and sector focus point to a targeted APT-style intrusion. Flag: SAGE&#123;t4rg3t3d_4pt_styl3_1ntrus10n&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — tailored targeting, patient dwell time, and sector focus point to a targeted APT-style intrusion. Flag: SAGE&#123;t4rg3t3d_4pt_styl3_1ntrus10n&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Explain the Value of Profiling" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-4">You've matched these TTPs to a known reported threat actor profile, though not with certainty.</p>
+        <p className="text-zinc-300 text-sm mb-4">You've matched these TTPs to a known reported threat actor profile, though not with certainty.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why is matching TTPs to a known actor profile useful even without 100% certainty?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why is matching TTPs to a known actor profile useful even without 100% certainty?</p>
             <div className="flex flex-col gap-2">
               {[
                 "It lets defenders anticipate likely next moves and apply relevant known mitigations, even under attribution uncertainty",
@@ -109,25 +109,25 @@ export function ThreatActorProfilingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — profile matching helps anticipate next moves and apply known mitigations, even under uncertainty. Flag: SAGE&#123;4nt1c1p4t3_n3xt_m0v3s_fr0m_pr0f1l3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — profile matching helps anticipate next moves and apply known mitigations, even under uncertainty. Flag: SAGE&#123;4nt1c1p4t3_n3xt_m0v3s_fr0m_pr0f1l3&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Apply a Healthy Caution" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">A colleague wants to name a specific actor group in the final report based on the TTP match alone.</p>
+        <p className="text-zinc-300 text-sm mb-4">A colleague wants to name a specific actor group in the final report based on the TTP match alone.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What's a caution when attributing this intrusion to a specific named actor?</p>
+            <p className="text-sm text-zinc-300 font-medium">What's a caution when attributing this intrusion to a specific named actor?</p>
             <div className="flex flex-col gap-2">
               {[
                 "TTPs can be copied or shared between groups, so overlap alone isn't proof of the same actor",
@@ -137,17 +137,17 @@ export function ThreatActorProfilingClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — TTP overlap alone isn't proof, since techniques and tools can be shared or copied between groups.
             Flag: SAGE&#123;ttp_0v3rl4p_n0t_pr00f&#125;
           </p>
@@ -155,12 +155,12 @@ export function ThreatActorProfilingClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;t4rg3t3d_4pt_styl3_1ntrus10n&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;4nt1c1p4t3_n3xt_m0v3s_fr0m_pr0f1l3&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;ttp_0v3rl4p_n0t_pr00f&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;t4rg3t3d_4pt_styl3_1ntrus10n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;4nt1c1p4t3_n3xt_m0v3s_fr0m_pr0f1l3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;ttp_0v3rl4p_n0t_pr00f&#125;</span></li>
           </ul>
         </div>
       )}

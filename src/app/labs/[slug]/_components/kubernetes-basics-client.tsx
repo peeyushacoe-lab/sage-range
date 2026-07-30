@@ -87,31 +87,31 @@ export function KubernetesBasicsClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Find the Dangerous Setting" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">A pod spec headed for production review:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{POD_SPEC}</pre>
+        <p className="text-zinc-300 text-sm mb-3">A pod spec headed for production review:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{POD_SPEC}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What single setting gives this pod essentially root access to the underlying host node?</p>
+            <p className="text-sm text-zinc-300 font-medium">What single setting gives this pod essentially root access to the underlying host node?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — privileged: true gives this pod essentially root-level access to the host node. Flag: SAGE&#123;pr1v1l3g3d_tru3_h0st_4cc3ss&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — privileged: true gives this pod essentially root-level access to the host node. Flag: SAGE&#123;pr1v1l3g3d_tru3_h0st_4cc3ss&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Explain the hostPath Risk" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-4">The pod also mounts the host's root filesystem ("/") into the container.</p>
+        <p className="text-zinc-300 text-sm mb-4">The pod also mounts the host's root filesystem ("/") into the container.</p>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why is mounting the host's root filesystem into a container especially dangerous?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why is mounting the host's root filesystem into a container especially dangerous?</p>
             <div className="flex flex-col gap-2">
               {[
                 "A compromised container could read/write anything on the host, effectively escaping container isolation",
@@ -121,25 +121,25 @@ export function KubernetesBasicsClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — a compromised container with this mount can read/write anything on the host, breaking isolation entirely. Flag: SAGE&#123;h0stp4th_bre4ks_1s0l4t10n&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a compromised container with this mount can read/write anything on the host, breaking isolation entirely. Flag: SAGE&#123;h0stp4th_bre4ks_1s0l4t10n&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Fix the Spec" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">Time to write the remediation for this pod spec.</p>
+        <p className="text-zinc-300 text-sm mb-4">Time to write the remediation for this pod spec.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What's the right fix for this pod spec?</p>
+            <p className="text-sm text-zinc-300 font-medium">What's the right fix for this pod spec?</p>
             <div className="flex flex-col gap-2">
               {[
                 "Remove privileged mode and the hostPath mount; grant only the specific, minimal permissions the workload actually needs",
@@ -149,17 +149,17 @@ export function KubernetesBasicsClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — removing privileged mode and the hostPath mount, and granting only least-privilege access, fixes this spec.
             Flag: SAGE&#123;l34st_pr1v_p0d_sp3c&#125;
           </p>
@@ -167,12 +167,12 @@ export function KubernetesBasicsClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;pr1v1l3g3d_tru3_h0st_4cc3ss&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;h0stp4th_bre4ks_1s0l4t10n&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;l34st_pr1v_p0d_sp3c&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;pr1v1l3g3d_tru3_h0st_4cc3ss&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;h0stp4th_bre4ks_1s0l4t10n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;l34st_pr1v_p0d_sp3c&#125;</span></li>
           </ul>
         </div>
       )}

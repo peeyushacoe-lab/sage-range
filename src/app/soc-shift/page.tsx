@@ -28,7 +28,7 @@ export default async function SocShiftIndex() {
   }
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
       <div className="max-w-4xl mx-auto px-6 py-8">
         <PageHeader
@@ -48,18 +48,18 @@ export default async function SocShiftIndex() {
                   key={s.id}
                   href={`/soc-shift/${s.slug}`}
                   className={`rounded-xl border p-5 flex flex-col gap-3 transition ${
-                    best ? "border-ok-edge bg-ok-wash" : "border-edge bg-surface-1 hover:border-ok-edge"
+                    best ? "border-sage-500/40 bg-sage-500/5" : "border-white/8 bg-zinc-900/60 hover:border-sage-500/30"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-widest text-ink-3 font-mono">
+                    <span className="text-xs uppercase tracking-widest text-zinc-500 font-mono">
                       {s.alerts.length} alerts · {Math.round(s.timeLimitSec / 60)} min
                     </span>
-                    {best && <span className="text-ok text-xs font-bold flex items-center gap-1"><Icon name="check" size={12} /> {best.score} pts</span>}
+                    {best && <span className="text-sage-500 text-xs font-bold flex items-center gap-1"><Icon name="check" size={12} /> {best.score} pts</span>}
                   </div>
                   <div>
                     <h3 className="font-semibold">{s.title}</h3>
-                    <p className="text-sm text-ink-2 mt-2 line-clamp-2 leading-relaxed">{s.briefing}</p>
+                    <p className="text-sm text-zinc-400 mt-2 line-clamp-2 leading-relaxed">{s.briefing}</p>
                   </div>
                 </Link>
               );

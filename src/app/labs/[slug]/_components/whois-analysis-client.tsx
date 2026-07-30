@@ -80,34 +80,34 @@ export function WhoisAnalysisClient({
   return (
     <div className="space-y-6">
       <TaskShell number={1} title="Read the WHOIS Record" unlocked completed={done("task_1")}>
-        <p className="text-ink-2 text-sm mb-3">A suspected phishing domain impersonating a bank:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-warn whitespace-pre-wrap overflow-x-auto">{WHOIS}</pre>
+        <p className="text-zinc-300 text-sm mb-3">A suspected phishing domain impersonating a bank:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-amber-300 whitespace-pre-wrap overflow-x-auto">{WHOIS}</pre>
         </div>
         {!done("task_1") && (
           <form onSubmit={submitT1} className="space-y-2">
-            <p className="text-sm text-ink-2 font-medium">What single WHOIS signal is the strongest indicator of malicious intent for a domain claiming to be a bank's login portal?</p>
+            <p className="text-sm text-zinc-300 font-medium">What single WHOIS signal is the strongest indicator of malicious intent for a domain claiming to be a bank's login portal?</p>
             <div className="flex gap-2 max-w-md">
               <MonoInput value={t1Answer} onChange={setT1Answer} placeholder="SAGE{...}" className="flex-1" />
               <SubmitBtn label="Submit" />
             </div>
-            {t1Error && <p className="text-xs text-danger font-mono">{t1Error}</p>}
+            {t1Error && <p className="text-xs text-red-400 font-mono">{t1Error}</p>}
             <HintPanel labId={labId} stage="task_1" />
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-ok">Correct — a domain registered only 3 days ago claiming to be an established bank portal is highly suspicious. Flag: SAGE&#123;d0m41n_r3g1st3r3d_3_d4ys_4g0&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a domain registered only 3 days ago claiming to be an established bank portal is highly suspicious. Flag: SAGE&#123;d0m41n_r3g1st3r3d_3_d4ys_4g0&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={2} title="Pivot on Shared Infrastructure" unlocked={done("task_1")} completed={done("task_2")}>
-        <p className="text-ink-2 text-sm mb-3">A search on the nameservers turns up more domains:</p>
-        <div className="rounded-lg bg-surface-0 border border-edge p-4 mb-4">
-          <pre className="font-mono text-xs text-danger whitespace-pre-wrap overflow-x-auto">{PIVOT}</pre>
+        <p className="text-zinc-300 text-sm mb-3">A search on the nameservers turns up more domains:</p>
+        <div className="rounded-lg bg-zinc-950 border border-white/8 p-4 mb-4">
+          <pre className="font-mono text-xs text-red-300 whitespace-pre-wrap overflow-x-auto">{PIVOT}</pre>
         </div>
         {!done("task_2") && (
           <form onSubmit={submitT2} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">What does shared infrastructure across multiple domains suggest?</p>
+            <p className="text-sm text-zinc-300 font-medium">What does shared infrastructure across multiple domains suggest?</p>
             <div className="flex flex-col gap-2">
               {[
                 "The domains likely belong to the same actor or campaign, letting you pivot from one IOC to find more",
@@ -117,25 +117,25 @@ export function WhoisAnalysisClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t2" value={opt} checked={t2Choice === opt} onChange={() => setT2Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t2Error && <p className="text-xs text-danger font-mono">{t2Error}</p>}
+            {t2Error && <p className="text-xs text-red-400 font-mono">{t2Error}</p>}
             <HintPanel labId={labId} stage="task_2" />
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-ok">Correct — shared nameservers and a tight registration window let you pivot from one domain to the whole campaign. Flag: SAGE&#123;sh4r3d_1nfr4_p1v0t_c4mp41gn&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — shared nameservers and a tight registration window let you pivot from one domain to the whole campaign. Flag: SAGE&#123;sh4r3d_1nfr4_p1v0t_c4mp41gn&#125;</p>
         )}
       </TaskShell>
 
       <TaskShell number={3} title="Know the Limits of WHOIS" unlocked={done("task_2")} completed={done("task_3")}>
-        <p className="text-ink-2 text-sm mb-4">A manager wants to name the responsible actor in the report based on WHOIS alone.</p>
+        <p className="text-zinc-300 text-sm mb-4">A manager wants to name the responsible actor in the report based on WHOIS alone.</p>
         {!done("task_3") && (
           <form onSubmit={submitT3} className="space-y-3">
-            <p className="text-sm text-ink-2 font-medium">Why should WHOIS data alone never be the sole basis for attribution?</p>
+            <p className="text-sm text-zinc-300 font-medium">Why should WHOIS data alone never be the sole basis for attribution?</p>
             <div className="flex flex-col gap-2">
               {[
                 "WHOIS privacy services and spoofed registration details are trivial to use, so WHOIS alone is weak evidence without corroboration",
@@ -145,17 +145,17 @@ export function WhoisAnalysisClient({
               ].map((opt) => (
                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="t3" value={opt} checked={t3Choice === opt} onChange={() => setT3Choice(opt)} className="accent-emerald-500" />
-                  <span className="text-sm font-mono text-ink">{opt}</span>
+                  <span className="text-sm font-mono text-zinc-200">{opt}</span>
                 </label>
               ))}
             </div>
             <SubmitBtn label="Submit" />
-            {t3Error && <p className="text-xs text-danger font-mono">{t3Error}</p>}
+            {t3Error && <p className="text-xs text-red-400 font-mono">{t3Error}</p>}
             <HintPanel labId={labId} stage="task_3" />
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-ok">
+          <p className="text-sm font-mono text-sage-400">
             Correct — spoofable, privacy-protected WHOIS data is weak evidence on its own and needs corroboration.
             Flag: SAGE&#123;wh01s_4l0n3_w34k_3v1d3nc3&#125;
           </p>
@@ -163,12 +163,12 @@ export function WhoisAnalysisClient({
       </TaskShell>
 
       {allDone && (
-        <div className="rounded-lg border border-ok-edge bg-ok-wash p-5 space-y-3">
-          <h3 className="font-bold text-ok text-base">Room Complete</h3>
+        <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
+          <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-ink-3">Task 1 —</span> <span className="text-ok">SAGE&#123;d0m41n_r3g1st3r3d_3_d4ys_4g0&#125;</span></li>
-            <li><span className="text-ink-3">Task 2 —</span> <span className="text-ok">SAGE&#123;sh4r3d_1nfr4_p1v0t_c4mp41gn&#125;</span></li>
-            <li><span className="text-ink-3">Task 3 —</span> <span className="text-ok">SAGE&#123;wh01s_4l0n3_w34k_3v1d3nc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d0m41n_r3g1st3r3d_3_d4ys_4g0&#125;</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;sh4r3d_1nfr4_p1v0t_c4mp41gn&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;wh01s_4l0n3_w34k_3v1d3nc3&#125;</span></li>
           </ul>
         </div>
       )}

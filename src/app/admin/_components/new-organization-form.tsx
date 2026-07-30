@@ -52,7 +52,7 @@ export function NewOrganizationForm() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-xs px-3 py-1.5 rounded-lg bg-accent-fill text-white font-semibold hover:bg-ok-wash hover:text-white transition"
+        className="text-xs px-3 py-1.5 rounded-lg bg-sage-500 text-black font-semibold hover:bg-sage-700 hover:text-white transition"
       >
         + New Organization
       </button>
@@ -60,44 +60,44 @@ export function NewOrganizationForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-edge bg-surface-0 w-full max-w-lg">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 rounded-xl border border-white/10 bg-zinc-950 w-full max-w-lg">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold">New Organization</p>
-        <button type="button" onClick={() => setOpen(false)} className="text-ink-3 hover:text-white text-xs"><Icon name="close" size={14} className="inline-block shrink-0" /> Cancel</button>
+        <button type="button" onClick={() => setOpen(false)} className="text-zinc-500 hover:text-white text-xs"><Icon name="close" size={14} className="inline-block shrink-0" /> Cancel</button>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Organization name"
-          className="col-span-2 rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge" />
+          className="col-span-2 rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60" />
         <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required type="email" placeholder="Contact email"
-          className="col-span-2 rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge" />
+          className="col-span-2 rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60" />
         <div className="flex flex-col gap-1 col-span-2">
-          <label className="text-xs text-ink-3">Email domain (optional — auto-joins matching signups)</label>
+          <label className="text-xs text-zinc-500">Email domain (optional — auto-joins matching signups)</label>
           <input value={domain} onChange={(e) => setDomain(e.target.value.toLowerCase())} type="text" placeholder="e.g. cybersage.uk"
-            className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge" />
+            className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60" />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-ink-3">Plan</label>
+          <label className="text-xs text-zinc-500">Plan</label>
           <select value={plan} onChange={(e) => { const p = e.target.value as typeof PLANS[number]; setPlan(p); setSeats(DEFAULT_SEATS[p]); }}
-            className="rounded-lg bg-surface-1 border border-edge px-2 py-2 text-sm text-white focus:outline-none">
+            className="rounded-lg bg-zinc-900 border border-white/10 px-2 py-2 text-sm text-white focus:outline-none">
             {PLANS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-ink-3">Seats</label>
+          <label className="text-xs text-zinc-500">Seats</label>
           <input type="number" min={1} value={seats} onChange={(e) => setSeats(Number(e.target.value))}
-            className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white focus:outline-none" />
+            className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none" />
         </div>
         <div className="flex flex-col gap-1 col-span-2">
-          <label className="text-xs text-ink-3">Expires (optional)</label>
+          <label className="text-xs text-zinc-500">Expires (optional)</label>
           <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)}
-            className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white focus:outline-none focus:border-ok-edge" />
+            className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:border-sage-500/60" />
         </div>
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Internal notes (optional)" rows={2}
-          className="col-span-2 rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge resize-none" />
+          className="col-span-2 rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60 resize-none" />
       </div>
-      {error && <p className="text-xs text-danger">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
       <button type="submit" disabled={loading || !name.trim() || !contactEmail.trim()}
-        className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white disabled:opacity-40 transition">
+        className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white disabled:opacity-40 transition">
         {loading ? "Creating…" : "Create Organization"}
       </button>
     </form>

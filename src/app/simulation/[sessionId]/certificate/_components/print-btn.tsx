@@ -23,19 +23,19 @@ export function CertActions({ sessionId }: { sessionId: string }) {
     <div className="flex items-center gap-2 print:hidden flex-wrap">
       <button
         onClick={copyLink}
-        className="rounded-lg border border-edge-strong px-4 py-2 text-sm font-semibold text-ink-2 hover:border-edge-strong hover:text-white transition"
+        className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-zinc-300 hover:border-white/30 hover:text-white transition"
       >
         {copied ? <><Icon name="check" size={12} /> Copied</> : "Copy Link"}
       </button>
       <button
         onClick={openLinkedIn}
-        className="rounded-lg border border-info-edge bg-info-wash px-4 py-2 text-sm font-semibold text-info hover:bg-info-wash transition"
+        className="rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm font-semibold text-blue-400 hover:bg-blue-500/20 transition"
       >
         Share on LinkedIn
       </button>
       <button
         onClick={() => window.print()}
-        className="rounded-lg bg-accent-fill text-white font-semibold px-5 py-2 text-sm hover:bg-accent-hover transition"
+        className="rounded-lg bg-sage-500 text-black font-semibold px-5 py-2 text-sm hover:bg-sage-400 transition"
       >
         Print / PDF
       </button>

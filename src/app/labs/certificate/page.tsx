@@ -45,12 +45,12 @@ export default async function LabsCertificatePage() {
     return (
       <>
         <div className="no-print"><Navbar backHref="/labs" backLabel="Labs" /></div>
-        <div className="min-h-screen bg-surface-0 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
+        <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6 text-center gap-4">
           <p className="text-5xl flex justify-center">{approval?.status === "REJECTED" ? <Icon name="cross" size={48} /> : "⏳"}</p>
           <h1 className="text-2xl font-bold">
             {approval?.status === "REJECTED" ? "Certificate request not approved" : "Certificate pending admin approval"}
           </h1>
-          <p className="text-ink-2 max-w-md">
+          <p className="text-zinc-400 max-w-md">
             {approval?.status === "REJECTED"
               ? "An admin reviewed your completed labs and did not approve the certificate. Contact your instructor for details."
               : "You've solved every lab on the platform — an admin needs to approve your certificate before you can view it. You'll get a notification the moment it's approved."}
@@ -76,7 +76,7 @@ export default async function LabsCertificatePage() {
       <style>{`@media print { .no-print { display: none } }`}</style>
       <div className="no-print"><Navbar backHref="/labs" backLabel="Labs" /></div>
 
-      <div className="min-h-screen bg-surface-0 text-white flex flex-col items-center justify-center px-4 sm:px-6 py-12">
+      <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-4 sm:px-6 py-12">
         <div className="w-full max-w-5xl">
           <CertificateFrame
             recipientName={candidateName}

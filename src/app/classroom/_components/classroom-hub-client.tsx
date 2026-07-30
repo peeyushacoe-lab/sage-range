@@ -36,12 +36,12 @@ export function CreateClassroomClient() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Class name (e.g. CS401 Fall 2026)"
-          className="flex-1 rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+          className="flex-1 rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60"
         />
         <button
           type="submit"
           disabled={loading || !name.trim()}
-          className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white disabled:opacity-40 transition"
+          className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white disabled:opacity-40 transition"
         >
           {loading ? "Creating…" : "Create"}
         </button>
@@ -50,9 +50,9 @@ export function CreateClassroomClient() {
         value={webhookUrl}
         onChange={(e) => setWebhookUrl(e.target.value)}
         placeholder="https://canvas.youruniversity.edu/api/v1/... (optional)"
-        className="rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge"
+        className="rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60"
       />
-      {error && <p className="text-xs text-danger mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
     </form>
   );
 }
@@ -94,16 +94,16 @@ export function JoinClassroomClient() {
         onChange={(e) => setCode(e.target.value.toUpperCase())}
         placeholder="Enter join code (e.g. XK92A1)"
         maxLength={6}
-        className="flex-1 rounded-lg bg-surface-1 border border-edge px-3 py-2 text-sm font-mono text-white placeholder:text-ink-3 focus:outline-none focus:border-ok-edge uppercase tracking-widest"
+        className="flex-1 rounded-lg bg-zinc-900 border border-white/10 px-3 py-2 text-sm font-mono text-white placeholder:text-zinc-600 focus:outline-none focus:border-sage-500/60 uppercase tracking-widest"
       />
       <button
         type="submit"
         disabled={loading || code.length < 4}
-        className="rounded-lg bg-accent-fill px-4 py-2 text-sm font-semibold text-white hover:bg-ok-wash hover:text-white disabled:opacity-40 transition"
+        className="rounded-lg bg-sage-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sage-700 hover:text-white disabled:opacity-40 transition"
       >
         {loading ? "Joining…" : "Join"}
       </button>
-      {error && <p className="text-xs text-danger mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
     </form>
   );
 }

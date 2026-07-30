@@ -139,24 +139,24 @@ export function EditLabClient({
     <div className="p-8 space-y-10 max-w-3xl">
       {/* Header */}
       <div>
-        <Link href="/admin/labs" className="text-xs text-ink-3 hover:text-ink-2 transition mb-3 block">
+        <Link href="/admin/labs" className="text-xs text-zinc-600 hover:text-zinc-400 transition mb-3 block">
           ← All Labs
         </Link>
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">{meta.title || "Untitled Lab"}</h1>
-            <p className="text-ink-3 text-sm font-mono mt-0.5">{lab.slug}</p>
+            <p className="text-zinc-600 text-sm font-mono mt-0.5">{lab.slug}</p>
           </div>
           <div className="flex gap-2">
             <Link
               href={`/admin/labs/${lab.slug}`}
-              className="text-xs text-ink-3 border border-edge rounded-lg px-3 py-1.5 hover:text-ink-2 transition"
+              className="text-xs text-zinc-500 border border-white/8 rounded-lg px-3 py-1.5 hover:text-zinc-300 transition"
             >
               Version history
             </Link>
             <button
               onClick={() => void deleteLab()}
-              className="text-xs text-danger/70 hover:text-danger border border-danger-edge rounded-lg px-3 py-1.5 transition"
+              className="text-xs text-red-500/70 hover:text-red-400 border border-red-500/20 rounded-lg px-3 py-1.5 transition"
             >
               Delete
             </button>
@@ -207,12 +207,12 @@ export function EditLabClient({
             <button
               onClick={() => void saveMeta()}
               disabled={metaStatus === "saving"}
-              className="bg-ok hover:bg-ok-wash disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-lg transition"
+              className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-lg transition"
             >
               {metaStatus === "saving" ? "Saving…" : "Save changes"}
             </button>
-            {metaStatus === "saved" && <span className="text-xs text-ok">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
-            {metaStatus === "error" && <span className="text-xs text-danger">Save failed</span>}
+            {metaStatus === "saved" && <span className="text-xs text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+            {metaStatus === "error" && <span className="text-xs text-red-400">Save failed</span>}
           </div>
         </div>
       </Section>
@@ -220,20 +220,20 @@ export function EditLabClient({
       {/* Flags */}
       <Section title="Flags">
         <div className="space-y-2 mb-4">
-          {flags.length === 0 && <p className="text-sm text-ink-3 italic">No flags yet.</p>}
+          {flags.length === 0 && <p className="text-sm text-zinc-600 italic">No flags yet.</p>}
           {flags.map(flag => (
-            <div key={flag.id} className="flex items-center gap-3 bg-surface-1 rounded-lg px-4 py-2.5 border border-edge-subtle">
-              <span className="flex-1 font-mono text-sm text-ink truncate">{flag.value}</span>
-              <span className="text-xs text-ink-3 tabular-nums shrink-0">{flag.points} pts</span>
-              {!flag.caseSensitive && <span className="text-[10px] text-ink-3 shrink-0">case-insensitive</span>}
-              <button onClick={() => void removeFlag(flag.id)} className="text-[10px] text-danger/70 hover:text-danger transition shrink-0">
+            <div key={flag.id} className="flex items-center gap-3 bg-zinc-900/60 rounded-lg px-4 py-2.5 border border-white/6">
+              <span className="flex-1 font-mono text-sm text-zinc-200 truncate">{flag.value}</span>
+              <span className="text-xs text-zinc-500 tabular-nums shrink-0">{flag.points} pts</span>
+              {!flag.caseSensitive && <span className="text-[10px] text-zinc-600 shrink-0">case-insensitive</span>}
+              <button onClick={() => void removeFlag(flag.id)} className="text-[10px] text-red-500/70 hover:text-red-400 transition shrink-0">
                 Remove
               </button>
             </div>
           ))}
         </div>
-        <div className="rounded-xl border border-edge bg-surface-1 p-4 space-y-3">
-          <p className="text-xs text-ink-3 font-semibold uppercase tracking-wider">Add Flag</p>
+        <div className="rounded-xl border border-white/8 bg-zinc-900/30 p-4 space-y-3">
+          <p className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Add Flag</p>
           <div className="flex gap-3">
             <input
               value={newFlag.value}
@@ -252,19 +252,19 @@ export function EditLabClient({
             />
           </div>
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 text-xs text-ink-2 cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={newFlag.caseSensitive}
                 onChange={e => setNewFlag(f => ({ ...f, caseSensitive: e.target.checked }))}
-                className="rounded border-edge-strong"
+                className="rounded border-zinc-700"
               />
               Case sensitive
             </label>
             <button
               onClick={() => void addFlag()}
               disabled={flagAdding || !newFlag.value.trim()}
-              className="bg-surface-3 hover:bg-surface-3 disabled:opacity-40 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition"
+              className="bg-zinc-700 hover:bg-zinc-600 disabled:opacity-40 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition"
             >
               {flagAdding ? "Adding…" : "Add flag"}
             </button>
@@ -276,41 +276,41 @@ export function EditLabClient({
       <Section title="Hints">
         <div className="space-y-6">
           {stages.map(stage => (
-            <div key={stage} className="rounded-xl border border-edge bg-surface-1 p-5 space-y-4">
-              <p className="text-xs uppercase tracking-widest text-ink-3 font-mono">{stage}</p>
+            <div key={stage} className="rounded-xl border border-white/8 bg-zinc-900/40 p-5 space-y-4">
+              <p className="text-xs uppercase tracking-widest text-zinc-500 font-mono">{stage}</p>
               {([1, 2, 3] as const).map(lvl => {
                 const entry = hintForm[stage]?.[lvl] ?? { text: "", pointCost: lvl * 10, status: "idle" };
                 return (
                   <div key={lvl} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-ink-2">Hint {lvl}</span>
+                        <span className="text-xs text-zinc-400">Hint {lvl}</span>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-ink-3">Cost:</span>
+                          <span className="text-[10px] text-zinc-600">Cost:</span>
                           <input
                             type="number"
                             min={0}
                             max={200}
                             value={entry.pointCost}
                             onChange={e => updateHint(stage, lvl, { pointCost: Number(e.target.value) })}
-                            className="w-14 bg-surface-2 border border-edge rounded px-2 py-0.5 text-xs text-ink-2 text-center"
+                            className="w-14 bg-zinc-800 border border-white/8 rounded px-2 py-0.5 text-xs text-zinc-300 text-center"
                           />
-                          <span className="text-[10px] text-ink-3">pts</span>
+                          <span className="text-[10px] text-zinc-600">pts</span>
                         </div>
-                        {entry.status === "saved" && <span className="text-[10px] text-ok">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
-                        {entry.status === "error"  && <span className="text-[10px] text-danger">Error</span>}
-                        {entry.status === "saving" && <span className="text-[10px] text-ink-3">Saving…</span>}
+                        {entry.status === "saved" && <span className="text-[10px] text-emerald-400">Saved <Icon name="check" size={14} className="inline-block shrink-0" /></span>}
+                        {entry.status === "error"  && <span className="text-[10px] text-red-400">Error</span>}
+                        {entry.status === "saving" && <span className="text-[10px] text-zinc-500">Saving…</span>}
                       </div>
                       <div className="flex gap-2">
                         {entry.text && (
-                          <button onClick={() => void deleteHint(stage, lvl)} className="text-[10px] text-danger/70 hover:text-danger transition">
+                          <button onClick={() => void deleteHint(stage, lvl)} className="text-[10px] text-red-500/70 hover:text-red-400 transition">
                             Remove
                           </button>
                         )}
                         <button
                           onClick={() => void saveHint(stage, lvl)}
                           disabled={!entry.text.trim() || entry.status === "saving"}
-                          className="text-[10px] border border-edge-strong rounded px-2 py-0.5 text-ink-2 hover:border-edge-strong hover:text-ink transition disabled:opacity-40"
+                          className="text-[10px] border border-zinc-700 rounded px-2 py-0.5 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition disabled:opacity-40"
                         >
                           Save
                         </button>
@@ -321,7 +321,7 @@ export function EditLabClient({
                       onChange={e => updateHint(stage, lvl, { text: e.target.value, status: "idle" })}
                       placeholder={`Hint level ${lvl} — nudge toward the answer, not the answer itself`}
                       rows={2}
-                      className="w-full bg-surface-2/60 border border-edge rounded-lg p-3 text-xs text-ink-2 placeholder-ink-3 resize-none focus:outline-none focus:border-ok-edge font-mono leading-relaxed"
+                      className="w-full bg-zinc-800/60 border border-white/8 rounded-lg p-3 text-xs text-zinc-300 placeholder-zinc-700 resize-none focus:outline-none focus:border-emerald-500/40 font-mono leading-relaxed"
                     />
                   </div>
                 );
@@ -340,7 +340,7 @@ export function EditLabClient({
             <button
               onClick={addStage}
               disabled={!newStage.trim()}
-              className="bg-surface-3 hover:bg-surface-3 disabled:opacity-40 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0"
+              className="bg-zinc-700 hover:bg-zinc-600 disabled:opacity-40 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shrink-0"
             >
               Add stage
             </button>
@@ -351,12 +351,12 @@ export function EditLabClient({
   );
 }
 
-const INPUT = "w-full bg-surface-1 border border-edge rounded-lg px-4 py-2.5 text-sm text-ink focus:outline-none focus:border-ok-edge placeholder-ink-3";
+const INPUT = "w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50 placeholder-zinc-700";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="text-xs uppercase tracking-widest text-ink-3 font-mono mb-4 pb-2 border-b border-edge-subtle">{title}</h2>
+      <h2 className="text-xs uppercase tracking-widest text-zinc-500 font-mono mb-4 pb-2 border-b border-white/6">{title}</h2>
       {children}
     </div>
   );
@@ -365,7 +365,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs text-ink-2 mb-1.5 font-medium uppercase tracking-wider">{label}</label>
+      <label className="block text-xs text-zinc-400 mb-1.5 font-medium uppercase tracking-wider">{label}</label>
       {children}
     </div>
   );

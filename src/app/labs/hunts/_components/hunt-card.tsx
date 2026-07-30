@@ -49,7 +49,7 @@ export function HuntCard({ hunt }: { hunt: Dataset }) {
   };
 
   return (
-    <Card className="flex flex-col overflow-hidden hover:border-edge-strong transition-colors">
+    <Card className="flex flex-col overflow-hidden hover:border-white/20 transition-colors">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3 mb-2">
           <div className="flex-1 min-w-0">
@@ -58,15 +58,15 @@ export function HuntCard({ hunt }: { hunt: Dataset }) {
           <Badge tone={DIFFICULTY_TONE[hunt.difficulty]}>{hunt.difficulty}</Badge>
         </div>
         <div className="flex items-center gap-2">
-          <Icon name={CATEGORY_ICONS[hunt.category] as any} size={16} className="text-ink-3" />
-          <span className="text-xs text-ink-2">{hunt.category}</span>
+          <Icon name={CATEGORY_ICONS[hunt.category] as any} size={16} className="text-zinc-500" />
+          <span className="text-xs text-zinc-400">{hunt.category}</span>
         </div>
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col gap-4 pb-4">
-        <p className="text-sm text-ink-2 line-clamp-2">{hunt.description}</p>
+        <p className="text-sm text-zinc-300 line-clamp-2">{hunt.description}</p>
 
-        <div className="space-y-2 text-xs text-ink-2">
+        <div className="space-y-2 text-xs text-zinc-400">
           <div className="flex justify-between">
             <span>Log entries:</span>
             <span className="text-white font-semibold">{hunt.logCount.toLocaleString()}</span>

@@ -40,13 +40,13 @@ export function QueryHistory({
           <button
             key={idx}
             onClick={() => onSelectQuery(item.query)}
-            className="w-full text-left px-2 py-2 rounded text-xs text-ink-2 hover:bg-surface-2 hover:text-white transition truncate group"
+            className="w-full text-left px-2 py-2 rounded text-xs text-zinc-400 hover:bg-white/10 hover:text-white transition truncate group"
             title={item.query}
           >
-            <div className="truncate font-mono text-ink-2 group-hover:text-ok">
+            <div className="truncate font-mono text-zinc-300 group-hover:text-emerald-400">
               {item.query}
             </div>
-            <div className="text-ink-3 text-xs">
+            <div className="text-zinc-600 text-xs">
               {formatTime(item.time)}
             </div>
           </button>

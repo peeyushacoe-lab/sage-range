@@ -97,48 +97,48 @@ export function QuizBuilder({ moduleId, existingQuiz }: Props) {
   };
 
   return (
-    <div className="rounded-xl border border-edge p-5 space-y-6">
+    <div className="rounded-xl border border-white/8 p-5 space-y-6">
       {/* Quiz meta */}
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
-          <label className="text-xs text-ink-3 uppercase tracking-wider block mb-1">Quiz Title</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Module 1 Knowledge Check" className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge" />
+          <label className="text-xs text-zinc-500 uppercase tracking-wider block mb-1">Quiz Title</label>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Module 1 Knowledge Check" className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
         </div>
         <div className="col-span-2">
-          <label className="text-xs text-ink-3 uppercase tracking-wider block mb-1">Description (optional)</label>
-          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Brief description..." className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge" />
+          <label className="text-xs text-zinc-500 uppercase tracking-wider block mb-1">Description (optional)</label>
+          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Brief description..." className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
         </div>
         <div>
-          <label className="text-xs text-ink-3 uppercase tracking-wider block mb-1">Pass Mark (%)</label>
-          <input type="number" min={0} max={100} value={passMark} onChange={(e) => setPassMark(Number(e.target.value))} className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge" />
+          <label className="text-xs text-zinc-500 uppercase tracking-wider block mb-1">Pass Mark (%)</label>
+          <input type="number" min={0} max={100} value={passMark} onChange={(e) => setPassMark(Number(e.target.value))} className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
         </div>
       </div>
 
       {/* Questions */}
       <div className="space-y-5">
         {questions.map((q, idx) => (
-          <div key={idx} className="rounded-lg border border-edge p-4 space-y-3">
+          <div key={idx} className="rounded-lg border border-white/8 p-4 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs text-ink-3 font-mono">Q{idx + 1}</span>
+              <span className="text-xs text-zinc-500 font-mono">Q{idx + 1}</span>
               <div className="flex gap-1 flex-wrap">
                 {(["MULTIPLE_CHOICE", "TRUE_FALSE", "MULTIPLE_SELECT", "SHORT_ANSWER"] as QuestionType[]).map((t) => (
-                  <button key={t} onClick={() => updateQuestion(idx, { type: t, correctAnswer: t === "MULTIPLE_SELECT" ? [] : "", options: t === "TRUE_FALSE" ? ["true", "false"] : t === "SHORT_ANSWER" ? null : ["", "", "", ""] })} className={`rounded px-2 py-0.5 text-xs transition ${q.type === t ? "bg-ok-wash border border-ok-edge text-ok" : "border border-edge text-ink-3 hover:text-ink-2"}`}>
+                  <button key={t} onClick={() => updateQuestion(idx, { type: t, correctAnswer: t === "MULTIPLE_SELECT" ? [] : "", options: t === "TRUE_FALSE" ? ["true", "false"] : t === "SHORT_ANSWER" ? null : ["", "", "", ""] })} className={`rounded px-2 py-0.5 text-xs transition ${q.type === t ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-400" : "border border-white/8 text-zinc-600 hover:text-zinc-300"}`}>
                     {t.replace("_", " ")}
                   </button>
                 ))}
               </div>
-              <button onClick={() => removeQuestion(idx)} className="text-xs text-ink-3 hover:text-danger transition ml-auto shrink-0"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
+              <button onClick={() => removeQuestion(idx)} className="text-xs text-zinc-600 hover:text-red-400 transition ml-auto shrink-0"><Icon name="close" size={14} className="inline-block shrink-0" /></button>
             </div>
 
-            <textarea value={q.question} onChange={(e) => updateQuestion(idx, { question: e.target.value })} rows={2} placeholder="Question text..." className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:border-ok-edge resize-none" />
+            <textarea value={q.question} onChange={(e) => updateQuestion(idx, { question: e.target.value })} rows={2} placeholder="Question text..." className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50 resize-none" />
 
             {q.type === "MULTIPLE_CHOICE" && (
               <div className="space-y-2">
-                <p className="text-xs text-ink-3">Options (mark correct with radio)</p>
+                <p className="text-xs text-zinc-600">Options (mark correct with radio)</p>
                 {(q.options ?? ["", "", "", ""]).map((opt, oIdx) => (
                   <div key={oIdx} className="flex items-center gap-2">
                     <input type="radio" name={`correct-${idx}`} checked={q.correctAnswer === opt && opt !== ""} onChange={() => updateQuestion(idx, { correctAnswer: opt })} className="accent-emerald-500 shrink-0" />
-                    <input value={opt} onChange={(e) => setOption(idx, oIdx, e.target.value)} placeholder={`Option ${oIdx + 1}`} className="flex-1 rounded-lg border border-edge bg-surface-2 px-2 py-1.5 text-sm text-ink focus:outline-none focus:border-ok-edge" />
+                    <input value={opt} onChange={(e) => setOption(idx, oIdx, e.target.value)} placeholder={`Option ${oIdx + 1}`} className="flex-1 rounded-lg border border-white/8 bg-white/5 px-2 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
                   </div>
                 ))}
               </div>
@@ -149,7 +149,7 @@ export function QuizBuilder({ moduleId, existingQuiz }: Props) {
                 {["true", "false"].map((opt) => (
                   <label key={opt} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name={`correct-${idx}`} checked={q.correctAnswer === opt} onChange={() => updateQuestion(idx, { correctAnswer: opt })} className="accent-emerald-500" />
-                    <span className="text-sm text-ink-2 capitalize">{opt}</span>
+                    <span className="text-sm text-zinc-300 capitalize">{opt}</span>
                   </label>
                 ))}
               </div>
@@ -157,7 +157,7 @@ export function QuizBuilder({ moduleId, existingQuiz }: Props) {
 
             {q.type === "MULTIPLE_SELECT" && (
               <div className="space-y-2">
-                <p className="text-xs text-ink-3">Options (check all correct)</p>
+                <p className="text-xs text-zinc-600">Options (check all correct)</p>
                 {(q.options ?? ["", "", "", ""]).map((opt, oIdx) => {
                   const selected = ((q.correctAnswer as string[]) ?? []).includes(opt);
                   return (
@@ -167,7 +167,7 @@ export function QuizBuilder({ moduleId, existingQuiz }: Props) {
                         const next = selected ? curr.filter((c) => c !== opt) : [...curr, opt];
                         updateQuestion(idx, { correctAnswer: next });
                       }} className="accent-emerald-500 shrink-0" />
-                      <input value={opt} onChange={(e) => setOption(idx, oIdx, e.target.value)} placeholder={`Option ${oIdx + 1}`} className="flex-1 rounded-lg border border-edge bg-surface-2 px-2 py-1.5 text-sm text-ink focus:outline-none focus:border-ok-edge" />
+                      <input value={opt} onChange={(e) => setOption(idx, oIdx, e.target.value)} placeholder={`Option ${oIdx + 1}`} className="flex-1 rounded-lg border border-white/8 bg-white/5 px-2 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
                     </div>
                   );
                 })}
@@ -175,24 +175,24 @@ export function QuizBuilder({ moduleId, existingQuiz }: Props) {
             )}
 
             {q.type === "SHORT_ANSWER" && (
-              <p className="text-xs text-ink-3 italic">Short answer questions are manually reviewed by mentors.</p>
+              <p className="text-xs text-zinc-500 italic">Short answer questions are manually reviewed by mentors.</p>
             )}
 
             <div>
-              <label className="text-xs text-ink-3 block mb-1">Explanation (shown after answer)</label>
-              <input value={q.explanation ?? ""} onChange={(e) => updateQuestion(idx, { explanation: e.target.value || null })} placeholder="Why is this the correct answer?" className="w-full rounded-lg border border-edge bg-surface-2 px-3 py-1.5 text-sm text-ink focus:outline-none focus:border-ok-edge" />
+              <label className="text-xs text-zinc-600 block mb-1">Explanation (shown after answer)</label>
+              <input value={q.explanation ?? ""} onChange={(e) => updateQuestion(idx, { explanation: e.target.value || null })} placeholder="Why is this the correct answer?" className="w-full rounded-lg border border-white/8 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/50" />
             </div>
           </div>
         ))}
       </div>
 
-      <button onClick={addQuestion} className="text-xs text-ink-3 hover:text-ok border border-dashed border-edge hover:border-ok-edge rounded-lg px-4 py-2.5 transition w-full text-left">
+      <button onClick={addQuestion} className="text-xs text-zinc-500 hover:text-emerald-400 border border-dashed border-white/10 hover:border-emerald-500/30 rounded-lg px-4 py-2.5 transition w-full text-left">
         + Add question
       </button>
 
-      {error && <p className="text-xs text-danger">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
 
-      <button onClick={save} disabled={loading} className={`rounded-lg px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${saved ? "bg-ok-wash border border-ok-edge text-ok" : "bg-ok-wash border border-ok-edge text-ok hover:bg-ok-wash"}`}>
+      <button onClick={save} disabled={loading} className={`rounded-lg px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${saved ? "bg-emerald-500/25 border border-emerald-500/40 text-emerald-400" : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25"}`}>
         {loading ? "Saving…" : saved ? <><Icon name="check" size={12} /> Saved</> : existingQuiz ? "Update Quiz" : "Create Quiz"}
       </button>
     </div>

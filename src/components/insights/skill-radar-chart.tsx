@@ -109,20 +109,20 @@ export function SkillBreakdownCards({ skills }: { skills: SkillDimension[] }) {
   return (
     <div className="space-y-3">
       {skills.map((skill) => (
-        <div key={skill.label} className="rounded-xl border border-edge bg-surface-1 p-4">
+        <div key={skill.label} className="rounded-xl border border-white/8 bg-zinc-900/50 p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-ink">{skill.label}</p>
+            <p className="text-sm font-semibold text-zinc-200">{skill.label}</p>
             <span className="text-lg font-black tabular-nums" style={{ color: skill.color }}>
               {skill.score}
             </span>
           </div>
-          <div className="h-1.5 rounded-full bg-surface-2 mb-1.5">
+          <div className="h-1.5 rounded-full bg-zinc-800 mb-1.5">
             <div
               className="h-full rounded-full transition-all"
               style={{ width: `${skill.score}%`, backgroundColor: skill.color }}
             />
           </div>
-          <p className="text-[10px] text-ink-3">{skill.note}</p>
+          <p className="text-[10px] text-zinc-600">{skill.note}</p>
         </div>
       ))}
     </div>

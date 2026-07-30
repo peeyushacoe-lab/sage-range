@@ -32,7 +32,7 @@ export default async function EvidenceBoardPage({ params }: { params: Promise<{ 
   });
 
   return (
-    <main className="min-h-screen bg-surface-0 text-white">
+    <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar backHref={`/incidents/${slug}`} backLabel={sim.codename} />
       <EvidenceBoardClient
         simulationId={sim.id}
