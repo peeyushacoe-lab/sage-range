@@ -57,6 +57,14 @@ const STUDENT_MORE: NavGroup[] = [
     ],
   },
   {
+    label: "Career",
+    links: [
+      { href: "/career",           label: "Role Readiness" },
+      { href: "/jobs",             label: "Job Board"      },
+      { href: "/resume",           label: "Resume"         },
+    ],
+  },
+  {
     label: "Progress",
     links: [
       { href: "/achievements",     label: "Achievements"   },
@@ -73,7 +81,6 @@ const STUDENT_MORE: NavGroup[] = [
       { href: "/organization",       label: "Team"           },
       { href: "/profile",            label: "Portfolio"      },
       { href: "/labs/mentor/quality",label: "Hint Quality"   },
-      { href: "/resume",             label: "Resume"         },
     ],
   },
 ];

@@ -24,7 +24,8 @@
     "seed:phase2": "npm run seed:incidents && npm run seed:weekly-incidents && npm run seed:hunt-datasets && npm run seed:tickets && npm run seed:detection-rules && npm run seed:ai-mentor",
     "seed:companies": "tsx scripts/seed-companies.ts",
     "seed:incidents": "npm run seed:companies && tsx scripts/seed-incident-bec-2026-002.ts && tsx scripts/seed-incident-cloud-2026-001.ts && tsx scripts/seed-incident-edu-2026-002.ts && tsx scripts/seed-incident-fin-2026-004.ts && tsx scripts/seed-incident-gov-2026-003.ts && tsx scripts/seed-incident-hosp-2026-001.ts && tsx scripts/seed-incident-identity-2026-001.ts && tsx scripts/seed-incident-mfg-2026-004.ts && tsx scripts/seed-incident-ret-2026-005.ts && tsx scripts/seed-incident-supply-2026-001.ts",
-    "seed:phase3": "tsx scripts/seed-phase3.ts"
+    "seed:phase3": "tsx scripts/seed-phase3.ts",
+    "seed:phase4": "tsx scripts/seed-phase4.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

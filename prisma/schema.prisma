@@ -145,6 +145,14 @@ model User {
   mentorshipsAsMentor       MentorshipPair[]          @relation("MentorshipMentor")
   mentorshipsAsMentee       MentorshipPair[]          @relation("MentorshipMentee")
 
+  // ── Phase 4: professional development ──
+  jobApplications           JobApplication[]
+  jobApplicationEvents      JobApplicationEvent[]
+  skillGapSnapshots         SkillGapSnapshot[]
+  interviewSessions         InterviewSession[]
+  skillAssessmentAttempts   SkillAssessmentAttempt[]
+  verifiedCredentials       VerifiedCredential[]
+
   @@index([skillScore])
   @@index([coins])
 }
@@ -559,11 +567,25 @@ model JobPosting {
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
 
+  // ── Phase 4 job board fields ──
+  slug           String?         @unique
+  location       String?
+  remote         Boolean         @default(false)
+  employmentType EmploymentType  @default(FULL_TIME)
+  seniority      SeniorityLevel  @default(JUNIOR)
+  salaryMin      Int?
+  salaryMax      Int?
+  salaryCurrency String?         @default("GBP")
+  closesAt       DateTime?
+
   recruiter User                @relation("RecruiterPostings", fields: [recruiterId], references: [id], onDelete: Cascade)
   bookmarks CandidateBookmark[]
 
+  applications JobApplication[]
+
   @@index([recruiterId])
   @@index([active])
+  @@index([active, seniority])
 }
 
 model CandidateBookmark {
@@ -2703,4 +2725,256 @@ model MentorshipPair {
   @@unique([mentorId, menteeId])
   @@index([menteeId, status])
   @@index([mentorId, status])
+}
+
+// â”€â”€ PHASE 4: PROFESSIONAL DEVELOPMENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Extends the existing JobPosting and academy Assessment models rather than
+// replacing them: JobPosting gains applications, and skill assessments are a
+// separate standalone credential track from module-bound academy work.
+
+enum ApplicationStatus {
+  SUBMITTED
+  SCREENING
+  INTERVIEW
+  OFFER
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum SeniorityLevel {
+  INTERN
+  JUNIOR
+  MID
+  SENIOR
+  LEAD
+}
+
+enum InterviewStatus {
+  IN_PROGRESS
+  SUBMITTED
+  SCORED
+  ABANDONED
+}
+
+enum CredentialStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+// â”€â”€ Job applications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+model JobApplication {
+  id          String            @id @default(cuid())
+  jobId       String
+  applicantId String
+  status      ApplicationStatus @default(SUBMITTED)
+  coverNote   String?           @db.Text
+  // Snapshot of the portfolio slug at apply time, so a later rename does not
+  // break the recruiter's link back to what they actually reviewed.
+  portfolioSlug String?
+  appliedAt   DateTime          @default(now())
+  decidedAt   DateTime?
+  updatedAt   DateTime          @updatedAt
+
+  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicant User       @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  events JobApplicationEvent[]
+
+  // One live application per candidate per role.
+  @@unique([jobId, applicantId])
+  @@index([jobId, status])
+  @@index([applicantId, appliedAt])
+}
+
+model JobApplicationEvent {
+  id            String            @id @default(cuid())
+  applicationId String
+  fromStatus    ApplicationStatus?
+  toStatus      ApplicationStatus
+  note          String?           @db.Text
+  actorId       String?
+  createdAt     DateTime          @default(now())
+
+  application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  actor       User?          @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([applicationId, createdAt])
+}
+
+// â”€â”€ Skill gap analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+model RoleProfile {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String   @db.Text
+  seniority   SeniorityLevel @default(JUNIOR)
+  // MITRE tactics this role is expected to cover, and the minimum number of
+  // solved items per tactic to count as covered.
+  requiredTactics Json  @default("{}")
+  // Learning paths recommended to close a gap, referenced by slug so path
+  // content can be reorganised without breaking role definitions.
+  recommendedPathSlugs String[]
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  snapshots SkillGapSnapshot[]
+
+  @@index([published, seniority])
+}
+
+model SkillGapSnapshot {
+  id            String   @id @default(cuid())
+  userId        String
+  roleProfileId String
+  // 0-100 overall readiness for the role.
+  readiness     Int      @default(0)
+  // { TACTIC: { have: n, need: n } } for every required tactic.
+  coverage      Json     @default("{}")
+  // Ordered tactic names the user is short on, worst first.
+  gaps          String[]
+  generatedAt   DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleProfile RoleProfile @relation(fields: [roleProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleProfileId])
+  @@index([userId, generatedAt])
+}
+
+// â”€â”€ Interview preparation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+model InterviewKit {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  title       String
+  description String         @db.Text
+  seniority   SeniorityLevel @default(JUNIOR)
+  difficulty  Difficulty     @default(MEDIUM)
+  timeLimitSec Int           @default(2700)
+  // [{ id, prompt, idealPoints: string[], weight }]
+  questions   Json
+  published   Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  sessions InterviewSession[]
+
+  @@index([published, seniority])
+}
+
+model InterviewSession {
+  id          String          @id @default(cuid())
+  userId      String
+  kitId       String
+  status      InterviewStatus @default(IN_PROGRESS)
+  startedAt   DateTime        @default(now())
+  submittedAt DateTime?
+  // 0-100, set once every answer has been scored.
+  score       Int?
+  // Free-text summary produced at scoring time.
+  feedback    String?         @db.Text
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kit     InterviewKit     @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  answers InterviewAnswer[]
+
+  @@index([userId, startedAt])
+  @@index([kitId, status])
+}
+
+model InterviewAnswer {
+  id         String   @id @default(cuid())
+  sessionId  String
+  // Matches an id inside InterviewKit.questions.
+  questionId String
+  answer     String   @db.Text
+  // 0-100 for this answer; null until scored.
+  score      Int?
+  feedback   String?  @db.Text
+  answeredAt DateTime @default(now())
+
+  session InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, questionId])
+  @@index([sessionId])
+}
+
+// â”€â”€ Verified skill assessments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+model SkillAssessment {
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  title        String
+  description  String     @db.Text
+  domain       String     // e.g. DETECTION, FORENSICS, CLOUD
+  difficulty   Difficulty @default(MEDIUM)
+  timeLimitSec Int        @default(3600)
+  // Percentage required to earn the credential.
+  passingScore Int        @default(70)
+  // How long an earned credential stays valid, in days. Null never expires.
+  validityDays Int?
+  // [{ id, prompt, type, options, answer, points }]
+  questions    Json
+  published    Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  attempts    SkillAssessmentAttempt[]
+  credentials VerifiedCredential[]
+
+  @@index([published, domain])
+}
+
+model SkillAssessmentAttempt {
+  id           String    @id @default(cuid())
+  userId       String
+  assessmentId String
+  startedAt    DateTime  @default(now())
+  submittedAt  DateTime?
+  // Null until submitted or auto-expired.
+  score        Int?
+  passed       Boolean   @default(false)
+  // Integrity signals gathered during the attempt, e.g. tab-blur counts.
+  proctorFlags Json      @default("{}")
+  // Answers keyed by question id.
+  responses    Json      @default("{}")
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessment SkillAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([userId, assessmentId])
+  @@index([assessmentId, passed])
+}
+
+model VerifiedCredential {
+  id           String           @id @default(cuid())
+  userId       String
+  assessmentId String
+  // Public, shareable verification code.
+  code         String           @unique
+  score        Int
+  status       CredentialStatus @default(ACTIVE)
+  issuedAt     DateTime         @default(now())
+  expiresAt    DateTime?
+  revokedAt    DateTime?
+  revokedReason String?
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessment SkillAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  // Re-passing refreshes the existing credential rather than issuing a second.
+  @@unique([userId, assessmentId])
+  @@index([status, expiresAt])
 }
