@@ -10,7 +10,8 @@ export const metadata = { title: "Scenario Builder — Sage Vault" };
 export default async function ScenarioBuilderPage() {
   const user = await getOrCreateAppUser();
   if (!user) redirect("/sign-in");
-  if (user.role !== "ADMIN" && user.role !== "INSTRUCTOR") redirect("/dashboard");
+  // Open to everyone: community-generated content is the point. Anything
+  // authored here starts private and is only listed once its author says so.
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrCreateAppUser } from "@/lib/current-user";
+import { rateLimit } from "@/lib/rate-limit";
 import { db } from "@/lib/db";
 import { listScenarios } from "@/lib/simulation/runtime/scenarios/manifest";
 
@@ -56,15 +57,41 @@ const CreateBody = z.object({
   published:          z.boolean().optional(),
 });
 
+/**
+ * Author a scenario.
+ *
+ * Open to any signed-in user, not just instructors: community-generated
+ * content is the point. The safety comes from where it lands rather than who
+ * may write it — everything starts PRIVATE and reaches the public gallery only
+ * when its author explicitly sets it to COMMUNITY.
+ */
 export async function POST(req: Request) {
-  const user = await requireInstructor();
-  if (!user) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  const user = await getOrCreateAppUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  // Authoring writes a row per call, so it needs a ceiling.
+  const rl = await rateLimit(`scenario-create:${user.id}`, { max: 20, windowSec: 3600 });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many scenarios created. Try again later." },
+      { status: 429, headers: { "Retry-After": "3600" } },
+    );
+  }
 
   const parsed = CreateBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "bad_request", issues: parsed.error.issues }, { status: 400 });
 
+  // `published` is ignored on create: publishing is a separate, deliberate
+  // step through the visibility endpoint.
+  const { published: _ignored, ...fields } = parsed.data;
+
   const scenario = await db.customScenario.create({
-    data: { ...parsed.data, createdById: user.id, published: parsed.data.published ?? false },
+    data: {
+      ...fields,
+      createdById: user.id,
+      visibility: "PRIVATE",
+      published: false,
+    },
   });
 
   return NextResponse.json({ ok: true, id: scenario.id }, { status: 201 });

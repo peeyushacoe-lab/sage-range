@@ -155,6 +155,7 @@ model User {
   skillAssessmentAttempts SkillAssessmentAttempt[]
   verifiedCredentials     VerifiedCredential[]
   CrisisRun               CrisisRun[]
+  ScenarioRating          ScenarioRating[]
 
   @@index([skillScore])
   @@index([coins])
@@ -344,10 +345,49 @@ model CustomScenario {
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 
-  createdBy User @relation("CreatedCustomScenarios", fields: [createdById], references: [id], onDelete: Cascade)
+  // Community sharing. PRIVATE is the safe default for anything newly
+  // authored; COMMUNITY is the only value that appears in the gallery.
+  visibility   ScenarioVisibility @default(PRIVATE)
+  // Set when this scenario was cloned from another. SetNull rather than
+  // Cascade: deleting an original must not delete everyone's forks.
+  clonedFromId String?
+
+  createdBy  User             @relation("CreatedCustomScenarios", fields: [createdById], references: [id], onDelete: Cascade)
+  clonedFrom CustomScenario?  @relation("ScenarioClones", fields: [clonedFromId], references: [id], onDelete: SetNull)
+  clones     CustomScenario[] @relation("ScenarioClones")
+  ratings    ScenarioRating[]
 
   @@index([createdById])
   @@index([published])
+  @@index([visibility, createdAt])
+  @@index([clonedFromId])
+}
+
+model ScenarioRating {
+  id         String   @id @default(cuid())
+  scenarioId String
+  userId     String
+  // Whole stars, 1-5.
+  stars      Int
+  review     String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  scenario CustomScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // One rating per person per scenario; re-rating updates rather than stacks.
+  @@unique([scenarioId, userId])
+  @@index([scenarioId])
+}
+
+enum ScenarioVisibility {
+  // Only the author (and admins, for moderation).
+  PRIVATE
+  // Anyone with the link, but never listed in the gallery.
+  UNLISTED
+  // Listed publicly in the community gallery.
+  COMMUNITY
 }
 
 model ScenarioTemplate {

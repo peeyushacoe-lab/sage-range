@@ -82,6 +82,7 @@ const STUDENT_MORE: NavGroup[] = [
     label: "Community",
     links: [
       { href: "/squads",             label: "Squads"         },
+      { href: "/scenarios",          label: "Community Labs" },
       { href: "/organization",       label: "Team"           },
       { href: "/profile",            label: "Portfolio"      },
       { href: "/labs/mentor/quality",label: "Hint Quality"   },
