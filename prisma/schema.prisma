@@ -154,6 +154,7 @@ model User {
   interviewSessions       InterviewSession[]
   skillAssessmentAttempts SkillAssessmentAttempt[]
   verifiedCredentials     VerifiedCredential[]
+  CrisisRun               CrisisRun[]
 
   @@index([skillScore])
   @@index([coins])
@@ -3093,4 +3094,61 @@ enum ChampionshipTier {
   MEDALLIST
   FINALIST
   COMPETITOR
+}
+
+// ── Cyber Crisis Command Center ─────────────────────────────────────────────
+// Scenario content is authored in src/content/crisis-scenarios.ts rather than
+// stored, so scenarioSlug is a soft reference. Only the player's run is
+// persisted, which keeps a scenario editable without migrating live runs.
+
+model CrisisRun {
+  id           String @id @default(cuid())
+  userId       String
+  scenarioSlug String
+
+  status CrisisRunStatus @default(IN_PROGRESS)
+
+  // Simulation clock, in sim-minutes since the incident opened.
+  minute        Int @default(0)
+  containment   Int @default(0)
+  reputation    Int @default(0)
+  morale        Int @default(0)
+  // Accumulated loss in whole currency units; monotonic.
+  financialLoss Int @default(0)
+
+  // Written at completion.
+  score Int?
+  band  String?
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  decisions CrisisDecision[]
+
+  @@index([userId, startedAt])
+  @@index([scenarioSlug, status])
+  @@index([scenarioSlug, score])
+}
+
+model CrisisDecision {
+  id        String   @id @default(cuid())
+  runId     String
+  injectId  String
+  optionId  String
+  // Sim-minute at which the decision was taken.
+  atMinute  Int
+  createdAt DateTime @default(now())
+
+  run CrisisRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  // One answer per inject per run — replaying an inject must not double-score.
+  @@unique([runId, injectId])
+  @@index([runId])
+}
+
+enum CrisisRunStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
 }

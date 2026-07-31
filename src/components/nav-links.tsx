@@ -54,6 +54,7 @@ const STUDENT_MORE: NavGroup[] = [
       { href: "/labs/rules/builder",   label: "Rule Builder"   },
       { href: "/labs/rules/community", label: "Community Rules"},
       { href: "/purple-team",      label: "Purple Team"    },
+      { href: "/crisis",           label: "Crisis Command" },
       { href: "/workspace",        label: "IR Workspace"   },
     ],
   },
