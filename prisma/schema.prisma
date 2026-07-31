@@ -35,86 +35,88 @@ enum AttemptStatus {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  clerkId     String?  @unique
+  id                   String    @id @default(cuid())
+  clerkId              String?   @unique
   // Opaque foreign-system user id (e.g. a future Nexus-provisioned account).
   // Not used yet — reserved so account linking doesn't require a schema change later.
-  externalId  String?  @unique
-  email       String   @unique
-  password    String?
-  displayName  String?
-  role         Role     @default(STUDENT)
+  externalId           String?   @unique
+  email                String    @unique
+  password             String?
+  displayName          String?
+  role                 Role      @default(STUDENT)
   // QA/internal accounts: excluded from every leaderboard, scoreboard, and the
   // public activity feed. Profile, certificates, and other self/direct-view
   // pages are unaffected — this only hides the account from discovery surfaces.
-  hidden       Boolean  @default(false)
-  university   String?
-  linkedIn     String?
-  github       String?
-  skillScore   Int      @default(0)
-  xp           Int      @default(0)
+  hidden               Boolean   @default(false)
+  university           String?
+  linkedIn             String?
+  github               String?
+  skillScore           Int       @default(0)
+  xp                   Int       @default(0)
   // SOC League currency — separate from skillScore/xp. Earned on lab solves
   // (see coinsForPoints in src/lib/soc-league.ts) and Daily Hunt bonuses.
   // Rank tier (Recruit -> CyberSage Champion) is derived from this, not skillScore.
-  coins        Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  coins                Int       @default(0)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
   // Extended profile fields
-  bio          String?
-  avatarUrl    String?
-  skills       String[]
-  cvUrl        String?
-  company      String?
-  jobTitle     String?
-  website      String?
-  profileExtra Json?
+  bio                  String?
+  avatarUrl            String?
+  skills               String[]
+  cvUrl                String?
+  company              String?
+  jobTitle             String?
+  website              String?
+  profileExtra         Json?
   // Stripe billing
-  stripeCustomerId     String?  @unique
-  stripeSubscriptionId String?  @unique
-  subscriptionStatus   String?  // active | trialing | canceled | past_due
-  subscriptionPlan     String?  // classroom | enterprise
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  subscriptionStatus   String? // active | trialing | canceled | past_due
+  subscriptionPlan     String? // classroom | enterprise
   trialEndsAt          DateTime?
 
-  attempts               Attempt[]
-  writeups               Writeup[]
-  labResponses           LabResponse[]
-  aiEvaluations          AIEvaluation[]
-  simSessions            SimulationSession[]
-  instructorClassrooms   Classroom[]           @relation("InstructorClassrooms")
-  enrollments            ClassroomEnrollment[]
-  pathProgress           UserPathProgress[]
-  usedHints              UsedHint[]
-  jobPostings            JobPosting[]          @relation("RecruiterPostings")
-  recruiterBookmarks     CandidateBookmark[]   @relation("RecruiterBookmarks")
-  candidateBookmarks     CandidateBookmark[]   @relation("CandidateBookmarks")
-  ledTeams               TeamSession[]         @relation("TeamLead")
-  teamMemberships        TeamMember[]
-  teamNotes              TeamNote[]
-  teamEvidence           TeamEvidence[]
-  teamTasks              TeamTask[]
-  labChangelogs          LabChangelog[]
-  auditLogs              AuditLog[]
-  customScenarios        CustomScenario[]      @relation("CreatedCustomScenarios")
-  notifications          Notification[]
-  certification            IRCertification?
-  competitionEntries       CompetitionEntry[]
-  organizationMemberships  OrganizationMember[]
-  feedReactions            FeedReaction[]
-  feedComments             FeedComment[]
-  quizAttempts             QuizAttempt[]
-  assessmentSubmissions    AssessmentSubmission[]
-  mentorReviews            MentorReview[]         @relation("MentorReviews")
-  portfolioItems           PortfolioItem[]
-  moduleProgress           UserModuleProgress[]
-  cohortMemberships        CohortMember[]
-  academyEnrollments       AcademyEnrollment[]
-  academyLessonProgress    AcademyLessonProgress[]
-  academyNotes             AcademyUserNote[]
-  academyQuizAttempts      AcademyQuizAttempt[]
-  academyCertificates      AcademyCertificate[]
-  dailyHuntAttempts        DailyHuntAttempt[]
-  incidentSimProgress      IncidentSimProgress[]
-  socShiftAttempts         SocShiftAttempt[]
+  attempts                  Attempt[]
+  writeups                  Writeup[]
+  labResponses              LabResponse[]
+  aiEvaluations             AIEvaluation[]
+  simSessions               SimulationSession[]
+  instructorClassrooms      Classroom[]                 @relation("InstructorClassrooms")
+  enrollments               ClassroomEnrollment[]
+  pathProgress              UserPathProgress[]
+  usedHints                 UsedHint[]
+  jobPostings               JobPosting[]                @relation("RecruiterPostings")
+  recruiterBookmarks        CandidateBookmark[]         @relation("RecruiterBookmarks")
+  candidateBookmarks        CandidateBookmark[]         @relation("CandidateBookmarks")
+  ledTeams                  TeamSession[]               @relation("TeamLead")
+  teamMemberships           TeamMember[]
+  teamNotes                 TeamNote[]
+  teamEvidence              TeamEvidence[]
+  teamTasks                 TeamTask[]
+  labChangelogs             LabChangelog[]
+  auditLogs                 AuditLog[]
+  customScenarios           CustomScenario[]            @relation("CreatedCustomScenarios")
+  notifications             Notification[]
+  certification             IRCertification?
+  competitionEntries        CompetitionEntry[]
+  championshipEntries       ChampionshipEntry[]
+  championshipAwards        ChampionshipAward[]
+  organizationMemberships   OrganizationMember[]
+  feedReactions             FeedReaction[]
+  feedComments              FeedComment[]
+  quizAttempts              QuizAttempt[]
+  assessmentSubmissions     AssessmentSubmission[]
+  mentorReviews             MentorReview[]              @relation("MentorReviews")
+  portfolioItems            PortfolioItem[]
+  moduleProgress            UserModuleProgress[]
+  cohortMemberships         CohortMember[]
+  academyEnrollments        AcademyEnrollment[]
+  academyLessonProgress     AcademyLessonProgress[]
+  academyNotes              AcademyUserNote[]
+  academyQuizAttempts       AcademyQuizAttempt[]
+  academyCertificates       AcademyCertificate[]
+  dailyHuntAttempts         DailyHuntAttempt[]
+  incidentSimProgress       IncidentSimProgress[]
+  socShiftAttempts          SocShiftAttempt[]
   incidentSimEvidenceBoards IncidentSimEvidenceBoard[]
   incidentSimReports        IncidentSimReport[]
   detectionSubmissions      DetectionSubmission[]
@@ -122,9 +124,9 @@ model User {
   incidentHintViews         IncidentHintView[]
   announcementsCreated      Announcement[]
   certificateApprovals      CertificateApproval[]
-  certApprovalDecisions     CertificateApproval[]     @relation("CertApprovalDecisions")
+  certApprovalDecisions     CertificateApproval[]       @relation("CertApprovalDecisions")
   careerPortfolio           CareerPortfolio?
-  portfolioVisits           PortfolioVisitorLog[]     @relation("PortfolioVisitors")
+  portfolioVisits           PortfolioVisitorLog[]       @relation("PortfolioVisitors")
   sharedRules               DetectionRuleShareAcl[]
   mentorHintSequences       MentorHintSequence[]
   huntInvestigationSessions HuntInvestigationSession[]
@@ -132,26 +134,26 @@ model User {
   ticketQueueLeaderboard    TicketQueueLeaderboard[]
 
   // ── Phase 3: competition & community ──
-  seasonRatings             SeasonRating[]
-  ownedSquads               Squad[]                   @relation("SquadOwner")
-  squadMemberships          SquadMember[]
-  squadInvitesReceived      SquadInvite[]             @relation("SquadInviteRecipient")
-  squadInvitesSent          SquadInvite[]             @relation("SquadInviteSender")
-  tournamentEntries         TournamentEntrant[]
-  following                 Follow[]                  @relation("FollowFollower")
-  followers                 Follow[]                  @relation("FollowTarget")
-  writeupVotes              WriteupVote[]
-  peerReviews               PeerReview[]
-  mentorshipsAsMentor       MentorshipPair[]          @relation("MentorshipMentor")
-  mentorshipsAsMentee       MentorshipPair[]          @relation("MentorshipMentee")
+  seasonRatings        SeasonRating[]
+  ownedSquads          Squad[]             @relation("SquadOwner")
+  squadMemberships     SquadMember[]
+  squadInvitesReceived SquadInvite[]       @relation("SquadInviteRecipient")
+  squadInvitesSent     SquadInvite[]       @relation("SquadInviteSender")
+  tournamentEntries    TournamentEntrant[]
+  following            Follow[]            @relation("FollowFollower")
+  followers            Follow[]            @relation("FollowTarget")
+  writeupVotes         WriteupVote[]
+  peerReviews          PeerReview[]
+  mentorshipsAsMentor  MentorshipPair[]    @relation("MentorshipMentor")
+  mentorshipsAsMentee  MentorshipPair[]    @relation("MentorshipMentee")
 
   // ── Phase 4: professional development ──
-  jobApplications           JobApplication[]
-  jobApplicationEvents      JobApplicationEvent[]
-  skillGapSnapshots         SkillGapSnapshot[]
-  interviewSessions         InterviewSession[]
-  skillAssessmentAttempts   SkillAssessmentAttempt[]
-  verifiedCredentials       VerifiedCredential[]
+  jobApplications         JobApplication[]
+  jobApplicationEvents    JobApplicationEvent[]
+  skillGapSnapshots       SkillGapSnapshot[]
+  interviewSessions       InterviewSession[]
+  skillAssessmentAttempts SkillAssessmentAttempt[]
+  verifiedCredentials     VerifiedCredential[]
 
   @@index([skillScore])
   @@index([coins])
@@ -287,9 +289,9 @@ model LabResponse {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lab           Lab            @relation(fields: [labId], references: [id], onDelete: Cascade)
-  aiEvaluation  AIEvaluation?
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lab          Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+  aiEvaluation AIEvaluation?
 
   @@unique([userId, labId, stage])
   @@index([userId])
@@ -297,16 +299,16 @@ model LabResponse {
 }
 
 model AIEvaluation {
-  id               String   @id @default(cuid())
-  userId           String
-  labId            String?
-  labResponseId    String?  @unique
-  accuracyScore    Int
-  clarityScore     Int
+  id                String   @id @default(cuid())
+  userId            String
+  labId             String?
+  labResponseId     String?  @unique
+  accuracyScore     Int
+  clarityScore      Int
   completenessScore Int
-  recommendation   String
-  feedback         String   @db.Text
-  createdAt        DateTime @default(now())
+  recommendation    String
+  feedback          String   @db.Text
+  createdAt         DateTime @default(now())
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   labResponse LabResponse? @relation(fields: [labResponseId], references: [id])
@@ -409,11 +411,11 @@ model Classroom {
   webhookUrl   String?
   createdAt    DateTime @default(now())
 
-  instructor      User                     @relation("InstructorClassrooms", fields: [instructorId], references: [id], onDelete: Cascade)
-  enrollments     ClassroomEnrollment[]
-  assignments     ClassroomLabAssignment[]
-  announcements   ClassroomAnnouncement[]
-  simAssignments  ClassroomSimAssignment[]
+  instructor     User                     @relation("InstructorClassrooms", fields: [instructorId], references: [id], onDelete: Cascade)
+  enrollments    ClassroomEnrollment[]
+  assignments    ClassroomLabAssignment[]
+  announcements  ClassroomAnnouncement[]
+  simAssignments ClassroomSimAssignment[]
 
   @@index([instructorId])
 }
@@ -472,17 +474,17 @@ model ClassroomLabAssignment {
 // ── Learning Paths ────────────────────────────────────────────────────────────
 
 model LearningPath {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  description String
-  order       Int      @default(0)
-  published   Boolean  @default(false)
+  id                     String   @id @default(cuid())
+  slug                   String   @unique
+  title                  String
+  description            String
+  order                  Int      @default(0)
+  published              Boolean  @default(false)
   // Soft reference (by slug) to an IncidentSimulation that unlocks once every
   // PathLab step below is completed. Not a hard FK — capstones live in a
   // separate content model (Incident Simulations) from PathLab's Lab steps.
   capstoneSimulationSlug String?
-  createdAt   DateTime @default(now())
+  createdAt              DateTime @default(now())
 
   labs        PathLab[]
   modules     Module[]
@@ -535,16 +537,16 @@ model LabHint {
 }
 
 model UsedHint {
-  id     String   @id @default(cuid())
-  userId String
-  hintId String
-  usedAt DateTime @default(now())
+  id                String   @id @default(cuid())
+  userId            String
+  hintId            String
+  usedAt            DateTime @default(now())
   // Phase 2: AI Mentor tracking
-  qualityScore      Int?     // 0-10: how much it helped (user feedback)
+  qualityScore      Int? // 0-10: how much it helped (user feedback)
   wasHelpful        Boolean? // Thumbs up/down
-  contextDifficulty String?  // EASY, MEDIUM, HARD, INSANE when hint viewed
-  submissionLater   Boolean @default(false) // Did they solve after viewing?
-  timeThenSolvedSec Int?     // Time from hint to solution
+  contextDifficulty String? // EASY, MEDIUM, HARD, INSANE when hint viewed
+  submissionLater   Boolean  @default(false) // Did they solve after viewing?
+  timeThenSolvedSec Int? // Time from hint to solution
 
   user User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   hint LabHint @relation(fields: [hintId], references: [id])
@@ -568,14 +570,14 @@ model JobPosting {
   createdAt    DateTime @default(now())
 
   // ── Phase 4 job board fields ──
-  slug           String?         @unique
+  slug           String?        @unique
   location       String?
-  remote         Boolean         @default(false)
-  employmentType EmploymentType  @default(FULL_TIME)
-  seniority      SeniorityLevel  @default(JUNIOR)
+  remote         Boolean        @default(false)
+  employmentType EmploymentType @default(FULL_TIME)
+  seniority      SeniorityLevel @default(JUNIOR)
   salaryMin      Int?
   salaryMax      Int?
-  salaryCurrency String?         @default("GBP")
+  salaryCurrency String?        @default("GBP")
   closesAt       DateTime?
 
   recruiter User                @relation("RecruiterPostings", fields: [recruiterId], references: [id], onDelete: Cascade)
@@ -628,8 +630,8 @@ model TeamSession {
   status       TeamStatus @default(LOBBY)
   createdAt    DateTime   @default(now())
 
-  lead    User               @relation("TeamLead", fields: [leadId], references: [id], onDelete: Cascade)
-  session SimulationSession? @relation(fields: [sessionId], references: [id])
+  lead     User               @relation("TeamLead", fields: [leadId], references: [id], onDelete: Cascade)
+  session  SimulationSession? @relation(fields: [sessionId], references: [id])
   members  TeamMember[]
   notes    TeamNote[]
   evidence TeamEvidence[]
@@ -654,11 +656,11 @@ model TeamMember {
 }
 
 model TeamNote {
-  id            String      @id @default(cuid())
+  id            String   @id @default(cuid())
   teamSessionId String
   authorId      String
   content       String
-  createdAt     DateTime    @default(now())
+  createdAt     DateTime @default(now())
 
   teamSession TeamSession @relation(fields: [teamSessionId], references: [id], onDelete: Cascade)
   author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -783,14 +785,14 @@ model Competition {
 
   // Who may see and enter. PUBLIC is the historical behaviour and stays the
   // default so existing rows keep working after this migration.
-  visibility CompetitionVisibility @default(PUBLIC)
+  visibility     CompetitionVisibility @default(PUBLIC)
   // Set for ORGANIZATION events. SetNull rather than Cascade: losing an org
   // should not silently delete its competition history.
   organizationId String?
   // Set for COHORT events, narrowing an org event to one classroom.
   cohortId       String?
   // Required for INVITE_ONLY. Unique so a code identifies one competition.
-  inviteCode     String? @unique
+  inviteCode     String?               @unique
 
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   cohort       Cohort?       @relation(fields: [cohortId], references: [id], onDelete: SetNull)
@@ -912,9 +914,9 @@ model RateLimitEvent {
 
 model PlanPricing {
   id        String   @id @default(cuid())
-  role      String   @unique  // STUDENT | INSTRUCTOR | RECRUITER
+  role      String   @unique // STUDENT | INSTRUCTOR | RECRUITER
   label     String
-  priceAmt  Int      @default(0)  // cents per month; 0 = free
+  priceAmt  Int      @default(0) // cents per month; 0 = free
   updatedAt DateTime @updatedAt
 
   @@index([role])
@@ -925,9 +927,9 @@ model PlanPricing {
 model Voucher {
   id          String    @id @default(cuid())
   code        String    @unique
-  discountPct Int       @default(0)  // 0-100 percentage off
-  discountAmt Int       @default(0)  // fixed discount in cents (applied after pct)
-  maxUses     Int?                   // null = unlimited
+  discountPct Int       @default(0) // 0-100 percentage off
+  discountAmt Int       @default(0) // fixed discount in cents (applied after pct)
+  maxUses     Int? // null = unlimited
   usedCount   Int       @default(0)
   expiresAt   DateTime?
   active      Boolean   @default(true)
@@ -1002,7 +1004,7 @@ model Module {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  path       LearningPath       @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  path       LearningPath         @relation(fields: [pathId], references: [id], onDelete: Cascade)
   resources  ModuleResource[]
   quiz       Quiz?
   assessment Assessment?
@@ -1062,8 +1064,8 @@ model QuizAttempt {
   passed      Boolean
   completedAt DateTime @default(now())
 
-  quiz    Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz    Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   answers QuizAnswer[]
 
   @@index([quizId, userId])
@@ -1104,8 +1106,8 @@ model AssessmentSubmission {
   submittedAt  DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  assessment Assessment   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessment Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   review     MentorReview?
   portfolio  PortfolioItem?
 
@@ -1165,19 +1167,19 @@ model UserModuleProgress {
 // ── Cohorts ───────────────────────────────────────────────────────────────────
 
 model Cohort {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  startDate   DateTime?
-  endDate     DateTime?
-  joinCode    String    @unique
-  published   Boolean   @default(true)
-  createdAt   DateTime  @default(now())
+  id             String    @id @default(cuid())
+  name           String
+  description    String?
+  startDate      DateTime?
+  endDate        DateTime?
+  joinCode       String    @unique
+  published      Boolean   @default(true)
+  createdAt      DateTime  @default(now())
   // Optional: set when a cohort belongs to an Organization (e.g. auto-provisioned
   // via Nexus SSO). Null for standalone instructor-created cohorts.
   organizationId String?
 
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organization Organization?  @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   members      CohortMember[]
   paths        CohortPath[]
   competitions Competition[]
@@ -1218,7 +1220,7 @@ model AssessmentRubric {
   assessmentId String   @unique
   createdAt    DateTime @default(now())
 
-  assessment Assessment       @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  assessment Assessment        @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   criteria   RubricCriterion[]
 }
 
@@ -1253,7 +1255,7 @@ model RubricScore {
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // lab_assigned | sim_complete | badge_earned | writeup_approved | scenario_published | announcement
+  type      String // lab_assigned | sim_complete | badge_earned | writeup_approved | scenario_published | announcement
   title     String
   body      String?
   href      String?
@@ -1348,10 +1350,10 @@ enum AuditAction {
 
 model AuditLog {
   id        String      @id @default(cuid())
-  actorId   String?     // null for unauthenticated events (failed logins)
+  actorId   String? // null for unauthenticated events (failed logins)
   action    AuditAction
-  target    String?     // what was acted upon (userId, labSlug, fileUrl, etc.)
-  meta      Json?       // additional context (IP, user-agent, old/new values)
+  target    String? // what was acted upon (userId, labSlug, fileUrl, etc.)
+  meta      Json? // additional context (IP, user-agent, old/new values)
   ip        String?
   createdAt DateTime    @default(now())
 
@@ -1391,21 +1393,21 @@ enum AcademyQuestionType {
 }
 
 model AcademyCourse {
-  id           String          @id @default(cuid())
-  slug         String          @unique
-  title        String
-  subtitle     String?
-  description  String          @db.Text
-  category     AcademyCategory
-  difficulty   Difficulty
-  estimatedHrs Int             @default(0)
-  thumbnail    String?
-  published    Boolean         @default(false)
-  order        Int             @default(0)
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  title         String
+  subtitle      String?
+  description   String          @db.Text
+  category      AcademyCategory
+  difficulty    Difficulty
+  estimatedHrs  Int             @default(0)
+  thumbnail     String?
+  published     Boolean         @default(false)
+  order         Int             @default(0)
   prerequisites String[]
-  objectives   String[]
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  objectives    String[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   modules      AcademyModule[]
   enrollments  AcademyEnrollment[]
@@ -1423,7 +1425,7 @@ model AcademyModule {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  course  AcademyCourse  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course  AcademyCourse   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessons AcademyLesson[]
   quiz    AcademyQuiz?
 
@@ -1472,7 +1474,7 @@ model AcademyQuiz {
   passMark    Int      @default(70)
   createdAt   DateTime @default(now())
 
-  module    AcademyModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  module    AcademyModule        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   questions AcademyQuestion[]
   attempts  AcademyQuizAttempt[]
 }
@@ -1501,8 +1503,8 @@ model AcademyQuizAttempt {
   passed      Boolean
   completedAt DateTime @default(now())
 
-  quiz    AcademyQuiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz    AcademyQuiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   answers AcademyQuizAnswer[]
 
   @@index([quizId, userId])
@@ -1594,15 +1596,15 @@ model AcademyCertificate {
 }
 
 model AcademyCheatSheet {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   courseId    String?
   title       String
   description String?
-  content     String    @db.Text
-  order       Int       @default(0)
-  published   Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  content     String   @db.Text
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   course AcademyCourse? @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
@@ -1686,7 +1688,7 @@ model IncidentSimulation {
   isCapstone       Boolean    @default(false)
   createdAt        DateTime   @default(now())
 
-  company        CompanyEnvironment      @relation(fields: [companyId], references: [id])
+  company        CompanyEnvironment         @relation(fields: [companyId], references: [id])
   artifacts      IncidentSimArtifact[]
   tasks          IncidentSimTask[]
   progress       IncidentSimProgress[]
@@ -1733,7 +1735,7 @@ model IncidentSimTask {
   options       String[]
   points        Int               @default(100)
 
-  simulation IncidentSimulation   @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  simulation IncidentSimulation    @relation(fields: [simulationId], references: [id], onDelete: Cascade)
   hints      IncidentSimHint[]
   progress   IncidentSimProgress[]
 
@@ -1747,7 +1749,7 @@ model IncidentSimHint {
   pointCost Int
   text      String @db.Text
 
-  task  IncidentSimTask  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task  IncidentSimTask    @relation(fields: [taskId], references: [id], onDelete: Cascade)
   views IncidentHintView[]
 
   @@index([taskId])
@@ -1816,20 +1818,20 @@ model IncidentSimEvidenceBoard {
 // ── Executive Report Builder ──────────────────────────────────────────────────
 
 model IncidentSimReport {
-  id                  String    @id @default(cuid())
-  userId              String
-  simulationId        String
-  executiveSummary    String    @db.Text
-  incidentTimeline    String    @db.Text
-  technicalFindings   String    @db.Text
-  mitreMapping        String    @db.Text
-  indicatorsOfCompromise String @db.Text
-  businessImpact       String  @db.Text
-  containmentActions    String @db.Text
-  recommendations       String @db.Text
-  submittedAt         DateTime?
-  updatedAt           DateTime  @updatedAt
-  createdAt           DateTime  @default(now())
+  id                     String    @id @default(cuid())
+  userId                 String
+  simulationId           String
+  executiveSummary       String    @db.Text
+  incidentTimeline       String    @db.Text
+  technicalFindings      String    @db.Text
+  mitreMapping           String    @db.Text
+  indicatorsOfCompromise String    @db.Text
+  businessImpact         String    @db.Text
+  containmentActions     String    @db.Text
+  recommendations        String    @db.Text
+  submittedAt            DateTime?
+  updatedAt              DateTime  @updatedAt
+  createdAt              DateTime  @default(now())
 
   user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   simulation IncidentSimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
@@ -1881,8 +1883,8 @@ model DetectionSubmission {
   isPublic       Boolean  @default(false) // Community sharing flag
   updatedAt      DateTime @updatedAt // Last modified
 
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challenge DetectionChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge DetectionChallenge     @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   versions  DetectionRuleVersion[] // Phase 2: Version history
   shareAcl  DetectionRuleShareAcl?
 
@@ -1949,33 +1951,33 @@ enum ShiftAlertAction {
 }
 
 model SocShift {
-  id            String   @id @default(cuid())
-  slug          String   @unique
-  title         String
-  briefing      String   @db.Text
-  timeLimitSec  Int      @default(2700)
-  published     Boolean  @default(true)
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  briefing     String   @db.Text
+  timeLimitSec Int      @default(2700)
+  published    Boolean  @default(true)
+  createdAt    DateTime @default(now())
 
-  alerts                ShiftAlert[]
-  attempts              SocShiftAttempt[]
-  tickets               ShiftTicket[]
+  alerts                 ShiftAlert[]
+  attempts               SocShiftAttempt[]
+  tickets                ShiftTicket[]
   ticketQueueLeaderboard TicketQueueLeaderboard[]
 }
 
 model ShiftAlert {
-  id           String            @id @default(cuid())
-  shiftId      String
-  order        Int
-  source       String
-  summary      String            @db.Text
-  rawLog       String            @db.Text
-  verdict      ShiftAlertVerdict
+  id            String            @id @default(cuid())
+  shiftId       String
+  order         Int
+  source        String
+  summary       String            @db.Text
+  rawLog        String            @db.Text
+  verdict       ShiftAlertVerdict
   correctAction ShiftAlertAction
-  explanation  String            @db.Text
+  explanation   String            @db.Text
 
-  shift    SocShift              @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-  triages  ShiftAlertTriage[]
+  shift   SocShift           @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  triages ShiftAlertTriage[]
 
   @@index([shiftId])
 }
@@ -1989,9 +1991,9 @@ model SocShiftAttempt {
   score       Int?
   accuracyPct Int?
 
-  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  shift   SocShift           @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-  triages ShiftAlertTriage[]
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shift         SocShift            @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  triages       ShiftAlertTriage[]
   ticketTriages ShiftTicketTriage[]
 
   @@index([userId])
@@ -2016,17 +2018,17 @@ model ShiftAlertTriage {
 // ── Weekly Threat Bulletin ────────────────────────────────────────────────────
 
 model ThreatBulletin {
-  id           String   @id @default(cuid())
-  slug         String   @unique
-  weekOf       DateTime
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  weekOf        DateTime
   actorOrFamily String
-  headline     String
-  summary      String   @db.Text
-  newCves      String[]
-  newIocs      String[]
-  ttps         String[]
-  published    Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  headline      String
+  summary       String   @db.Text
+  newCves       String[]
+  newIocs       String[]
+  ttps          String[]
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
 
   @@index([weekOf])
 }
@@ -2039,22 +2041,22 @@ model ThreatBulletin {
 // Season/week model prevents year-boundary collisions.
 
 model WeeklyIncidentCase {
-  id             String   @id @default(cuid())
-  weekStartUTC   DateTime // Monday 00:00 UTC — e.g., 2026-01-05
-  weekNumber     Int      // 1-52 for current season
-  season         Int      // e.g., 2026
-  incidentSlug   String   // Soft reference to IncidentSimulation.slug (not FK)
-  difficulty     Difficulty // Progression: EASY (W1-2) -> INSANE (W7-8)
-  points         Int      @default(1000)
-  releaseTime    DateTime // When case goes live (should match weekStartUTC)
-  deadlineTime   DateTime // Sunday 23:59 UTC of that week
-  certificateId  String?  @unique // Weekly completion cert ID
-  published      Boolean  @default(false)
-  archivedAt     DateTime? // Soft delete at +8 weeks (null = active)
-  createdAt      DateTime @default(now())
+  id            String     @id @default(cuid())
+  weekStartUTC  DateTime // Monday 00:00 UTC — e.g., 2026-01-05
+  weekNumber    Int // 1-52 for current season
+  season        Int // e.g., 2026
+  incidentSlug  String // Soft reference to IncidentSimulation.slug (not FK)
+  difficulty    Difficulty // Progression: EASY (W1-2) -> INSANE (W7-8)
+  points        Int        @default(1000)
+  releaseTime   DateTime // When case goes live (should match weekStartUTC)
+  deadlineTime  DateTime // Sunday 23:59 UTC of that week
+  certificateId String?    @unique // Weekly completion cert ID
+  published     Boolean    @default(false)
+  archivedAt    DateTime? // Soft delete at +8 weeks (null = active)
+  createdAt     DateTime   @default(now())
 
-  leaderboard    WeeklyIncidentLeaderboard[]
-  certificate    WeeklyIncidentCertificate?
+  leaderboard WeeklyIncidentLeaderboard[]
+  certificate WeeklyIncidentCertificate?
 
   @@unique([season, weekNumber])
   @@index([weekStartUTC])
@@ -2063,18 +2065,18 @@ model WeeklyIncidentCase {
 }
 
 model WeeklyIncidentLeaderboard {
-  id               String   @id @default(cuid())
-  caseId           String
-  userId           String
-  completedAt      DateTime? // Null if not completed by deadline
-  timeTakenMin     Int?      // Minutes from release to completion (for tiebreaker)
-  score            Int       @default(0) // Derived from evidence board + report
-  rank             Int?      // Denormalized: 1-N, computed after deadline (null during week)
-  rankUpdatedAt    DateTime? // When rank was last computed
-  evidenceBoardScore Int?    // Pulled from IncidentSimEvidenceBoard.accuracyPct
-  reportScore      Int?      // From admin review of IncidentSimReport
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  caseId             String
+  userId             String
+  completedAt        DateTime? // Null if not completed by deadline
+  timeTakenMin       Int? // Minutes from release to completion (for tiebreaker)
+  score              Int       @default(0) // Derived from evidence board + report
+  rank               Int? // Denormalized: 1-N, computed after deadline (null during week)
+  rankUpdatedAt      DateTime? // When rank was last computed
+  evidenceBoardScore Int? // Pulled from IncidentSimEvidenceBoard.accuracyPct
+  reportScore        Int? // From admin review of IncidentSimReport
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   case WeeklyIncidentCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
   user User               @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -2086,14 +2088,14 @@ model WeeklyIncidentLeaderboard {
 }
 
 model WeeklyIncidentCertificate {
-  id          String   @id @default(cuid())
-  caseId      String   @unique
+  id          String    @id @default(cuid())
+  caseId      String    @unique
   season      Int
   weekNumber  Int
-  certCode    String   @unique // e.g., WIC-2026-W01-ABC123DEF
-  issuedAt    DateTime @default(now())
+  certCode    String    @unique // e.g., WIC-2026-W01-ABC123DEF
+  issuedAt    DateTime  @default(now())
   publishedAt DateTime? // When announced on feed/platform
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   case WeeklyIncidentCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
@@ -2106,20 +2108,20 @@ model WeeklyIncidentCertificate {
 // Extends existing SocShift model with per-ticket analysis.
 
 model ShiftTicket {
-  id            String        @id @default(cuid())
+  id            String    @id @default(cuid())
   shiftId       String
-  queuePosition Int           // Display order in shift (1-100)
-  severity      String        // CRITICAL, HIGH, MEDIUM, LOW
-  category      String        // MALWARE, NETWORK_ANOMALY, COMPLIANCE, FALSE_POSITIVE, etc.
+  queuePosition Int // Display order in shift (1-100)
+  severity      String // CRITICAL, HIGH, MEDIUM, LOW
+  category      String // MALWARE, NETWORK_ANOMALY, COMPLIANCE, FALSE_POSITIVE, etc.
   title         String
-  description   String        @db.Text
-  rawAlert      Json          // Full log event payload
+  description   String    @db.Text
+  rawAlert      Json // Full log event payload
   // SLA enforcement (minutes from creation to resolution)
-  slaMinutes    Int           // 60 (critical), 240 (high), 480 (medium), 1440 (low)
-  createdAt     DateTime      @default(now())
-  firstViewedAt DateTime?     // When analyst first opened it
-  resolvedAt    DateTime?     // When marked resolved/escalated/closed
-  archivedAt    DateTime?     // Soft delete at +8 weeks
+  slaMinutes    Int // 60 (critical), 240 (high), 480 (medium), 1440 (low)
+  createdAt     DateTime  @default(now())
+  firstViewedAt DateTime? // When analyst first opened it
+  resolvedAt    DateTime? // When marked resolved/escalated/closed
+  archivedAt    DateTime? // Soft delete at +8 weeks
 
   // Triage decision by student
   triage ShiftTicketTriage?
@@ -2135,15 +2137,15 @@ model ShiftTicketTriage {
   id          String   @id @default(cuid())
   ticketId    String   @unique
   attemptId   String
-  userAction  String   // CLOSED, ESCALATED, RESOLVED, IGNORED, MONITOR
-  confidence  Int      // 0-100: student's certainty level
+  userAction  String // CLOSED, ESCALATED, RESOLVED, IGNORED, MONITOR
+  confidence  Int // 0-100: student's certainty level
   resolution  String?  @db.Text // Notes/explanation
   isCorrect   Boolean? // Graded after deadline
   pointsAward Int      @default(0)
-  triageTime  Int      // Seconds from queue open to decision
+  triageTime  Int // Seconds from queue open to decision
   createdAt   DateTime @default(now())
 
-  ticket ShiftTicket     @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticket  ShiftTicket     @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   attempt SocShiftAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
   @@index([attemptId])
@@ -2151,24 +2153,24 @@ model ShiftTicketTriage {
 }
 
 model TicketQueueLeaderboard {
-  id              String    @id @default(cuid())
-  shiftId         String
-  userId          String
-  scope           String    @default("ALL_TIME") // ALL_TIME, WEEKLY, DAILY
-  completedAt     DateTime? // When finished the shift
-  accuracy        Float     @default(0.0) // % of correct decisions (0-100)
-  speed           Float     @default(0.0) // Average seconds per ticket
-  slaViolations   Int       @default(0) // Tickets resolved late
-  falsePositives  Int       @default(0) // Incorrectly escalated
-  missedCritical  Int       @default(0) // Missed real incidents
-  score           Int       @default(0) // Composite: accuracy + speed - penalties
-  rank            Int?      // Denormalized: 1-N
-  rankUpdatedAt   DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  shiftId        String
+  userId         String
+  scope          String    @default("ALL_TIME") // ALL_TIME, WEEKLY, DAILY
+  completedAt    DateTime? // When finished the shift
+  accuracy       Float     @default(0.0) // % of correct decisions (0-100)
+  speed          Float     @default(0.0) // Average seconds per ticket
+  slaViolations  Int       @default(0) // Tickets resolved late
+  falsePositives Int       @default(0) // Incorrectly escalated
+  missedCritical Int       @default(0) // Missed real incidents
+  score          Int       @default(0) // Composite: accuracy + speed - penalties
+  rank           Int? // Denormalized: 1-N
+  rankUpdatedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   shift SocShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([shiftId, userId, scope])
   @@index([shiftId, scope, rank]) // Fast leaderboard
@@ -2181,22 +2183,22 @@ model TicketQueueLeaderboard {
 // Supports EVTX, Sysmon, Apache, DNS, firewall data at varying scales.
 
 model HuntDataset {
-  id           String     @id @default(cuid())
-  slug         String     @unique
-  name         String
-  description  String     @db.Text
-  difficulty   Difficulty // EASY (1k), MEDIUM (50k), HARD (500k+)
-  category     String     // SYSMON, APACHE, NETWORK, DNS, FIREWALL, WINDOWS_EVENTS
-  logCount     Int        // 1000, 50000, 500000
-  formatType   String     // EVTX, CSV, JSON, SYSLOG
+  id                String     @id @default(cuid())
+  slug              String     @unique
+  name              String
+  description       String     @db.Text
+  difficulty        Difficulty // EASY (1k), MEDIUM (50k), HARD (500k+)
+  category          String // SYSMON, APACHE, NETWORK, DNS, FIREWALL, WINDOWS_EVENTS
+  logCount          Int // 1000, 50000, 500000
+  formatType        String // EVTX, CSV, JSON, SYSLOG
   // Compressed dataset URL or base64-embedded data
-  dataUrl      String?
-  dataEmbedded String?    @db.Text // For small datasets
+  dataUrl           String?
+  dataEmbedded      String?    @db.Text // For small datasets
   // Expected IoCs/patterns: ["IP:192.168.1.100", "PROCESS:cmd.exe", "DOMAIN:evil.com"]
   expectedArtifacts String[]
-  published    Boolean    @default(false)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  published         Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   sessions HuntInvestigationSession[]
 
@@ -2205,22 +2207,22 @@ model HuntDataset {
 }
 
 model HuntInvestigationSession {
-  id            String    @id @default(cuid())
-  userId        String
-  datasetId     String
-  startedAt     DateTime  @default(now())
-  endedAt       DateTime?
-  duration      Int?      // Total seconds (null if ongoing)
-  queriesCount  Int       @default(0)
-  artifactsFound Int      @default(0) // Count of HuntArtifact rows
-  score         Int       @default(0) // Accuracy * speed / time taken
-  status        String    @default("ACTIVE") // ACTIVE, COMPLETED, ABANDONED
-  archivedAt    DateTime? // Soft delete at +4 weeks
-  createdAt     DateTime  @default(now())
+  id             String    @id @default(cuid())
+  userId         String
+  datasetId      String
+  startedAt      DateTime  @default(now())
+  endedAt        DateTime?
+  duration       Int? // Total seconds (null if ongoing)
+  queriesCount   Int       @default(0)
+  artifactsFound Int       @default(0) // Count of HuntArtifact rows
+  score          Int       @default(0) // Accuracy * speed / time taken
+  status         String    @default("ACTIVE") // ACTIVE, COMPLETED, ABANDONED
+  archivedAt     DateTime? // Soft delete at +4 weeks
+  createdAt      DateTime  @default(now())
 
-  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dataset HuntDataset        @relation(fields: [datasetId], references: [id])
-  queries HuntQuery[]
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dataset   HuntDataset    @relation(fields: [datasetId], references: [id])
+  queries   HuntQuery[]
   artifacts HuntArtifact[]
 
   @@index([userId, startedAt])
@@ -2231,14 +2233,14 @@ model HuntInvestigationSession {
 }
 
 model HuntQuery {
-  id        String   @id @default(cuid())
-  sessionId String
-  query     String   @db.Text // User's search/filter expression
-  language  String   // GREP, REGEX, KQL, SQL_LITE, NATURAL_LANGUAGE
-  resultCount Int    // How many log lines matched
+  id          String   @id @default(cuid())
+  sessionId   String
+  query       String   @db.Text // User's search/filter expression
+  language    String // GREP, REGEX, KQL, SQL_LITE, NATURAL_LANGUAGE
+  resultCount Int // How many log lines matched
   matchedIocs String[] // Which expected artifacts this query caught
   isEffective Boolean? // True if found something new (not seen in prior queries)
-  executedAt DateTime @default(now())
+  executedAt  DateTime @default(now())
 
   session HuntInvestigationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
@@ -2247,13 +2249,13 @@ model HuntQuery {
 }
 
 model HuntArtifact {
-  id          String   @id @default(cuid())
-  sessionId   String
-  artifactId  String   // Must match one in HuntDataset.expectedArtifacts
-  type        String   // IP, DOMAIN, PROCESS, FILE, REGISTRY, HASH, etc.
-  value       String   // e.g., "192.168.1.100", "cmd.exe"
-  confidence  Int      // 0-100: user's certainty
-  foundAt     DateTime @default(now())
+  id         String   @id @default(cuid())
+  sessionId  String
+  artifactId String // Must match one in HuntDataset.expectedArtifacts
+  type       String // IP, DOMAIN, PROCESS, FILE, REGISTRY, HASH, etc.
+  value      String // e.g., "192.168.1.100", "cmd.exe"
+  confidence Int // 0-100: user's certainty
+  foundAt    DateTime @default(now())
 
   session HuntInvestigationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
@@ -2264,14 +2266,14 @@ model HuntArtifact {
 // ── Detection Rule Builder ───────────────────────────────────────────────
 
 model DetectionRuleVersion {
-  id             String   @id @default(cuid())
-  submissionId   String
-  version        Int      // 1, 2, 3, ...
-  rule           Json     // Full rule snapshot at this version
-  ruleType       String   // Inherited from parent
-  f1             Float    // Validation score at this version
-  notes          String?  // Change summary: "Added process.name filter"
-  createdAt      DateTime @default(now())
+  id           String   @id @default(cuid())
+  submissionId String
+  version      Int // 1, 2, 3, ...
+  rule         Json // Full rule snapshot at this version
+  ruleType     String // Inherited from parent
+  f1           Float // Validation score at this version
+  notes        String? // Change summary: "Added process.name filter"
+  createdAt    DateTime @default(now())
 
   submission DetectionSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
@@ -2280,11 +2282,11 @@ model DetectionRuleVersion {
 }
 
 model DetectionRuleShareAcl {
-  id          String   @id @default(cuid())
+  id           String   @id @default(cuid())
   submissionId String   @unique
-  accessType  String   @default("PRIVATE") // PRIVATE, COMMUNITY, RECRUITER_ONLY
-  sharedBy    String   // User ID who shared it
-  sharedAt    DateTime @default(now())
+  accessType   String   @default("PRIVATE") // PRIVATE, COMMUNITY, RECRUITER_ONLY
+  sharedBy     String // User ID who shared it
+  sharedAt     DateTime @default(now())
 
   submission DetectionSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   owner      User                @relation(fields: [sharedBy], references: [id], onDelete: Cascade)
@@ -2298,46 +2300,46 @@ model DetectionRuleShareAcl {
 // Portfolio aggregation runs on 5-min schedule; visibility controlled by user.
 
 model CareerPortfolio {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  slug            String   @unique // URL-safe: "alice-smith" or "alice-smith-2"
-  visibility      String   @default("PRIVATE") // PRIVATE, PUBLIC, RECRUITER_ONLY
-  bio             String?  @db.Text
-  profileHtml     String?  @db.Text // Pre-rendered portfolio HTML (optional)
-  lastUpdatedAt   DateTime @default(now())
-  lastComputedAt  DateTime? // When aggregation job ran
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  slug           String    @unique // URL-safe: "alice-smith" or "alice-smith-2"
+  visibility     String    @default("PRIVATE") // PRIVATE, PUBLIC, RECRUITER_ONLY
+  bio            String?   @db.Text
+  profileHtml    String?   @db.Text // Pre-rendered portfolio HTML (optional)
+  lastUpdatedAt  DateTime  @default(now())
+  lastComputedAt DateTime? // When aggregation job ran
 
   // Denormalized aggregates (updated by background job)
-  totalLabsSolved     Int @default(0)
-  totalIncidentsSolved Int @default(0)
-  totalWeeklyCerts     Int @default(0)
-  totalCompetitionsWon Int @default(0)
-  totalRulesShared    Int @default(0)
-  huntsCompleted      Int @default(0)
-  mitreTopTactics     String[] // Top 5: ["PERSISTENCE", "PRIVILEGE_ESCALATION", ...]
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  totalLabsSolved      Int      @default(0)
+  totalIncidentsSolved Int      @default(0)
+  totalWeeklyCerts     Int      @default(0)
+  totalCompetitionsWon Int      @default(0)
+  totalRulesShared     Int      @default(0)
+  huntsCompleted       Int      @default(0)
+  mitreTopTactics      String[] // Top 5: ["PERSISTENCE", "PRIVILEGE_ESCALATION", ...]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievements CareerPortfolioAchievement[]
+  user          User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievements  CareerPortfolioAchievement[]
   mitreCoverage CareerPortfolioMitreCoverage?
-  visitorLog PortfolioVisitorLog[]
+  visitorLog    PortfolioVisitorLog[]
 
   @@index([visibility, lastUpdatedAt]) // For recruiter/public discovery
   @@index([userId])
 }
 
 model CareerPortfolioAchievement {
-  id              String   @id @default(cuid())
-  portfolioId     String
-  type            String   // LAB_SOLVED, INCIDENT_COMPLETED, WEEKLY_CERT, LEADERBOARD_TOP10, HUNT_STREAK, RULE_SHARED
-  title           String   // "Solved: Advanced XSS" or "Weekly Champion: Week 5"
-  description     String   @db.Text
-  icon            String?  // Glyph/emoji: "⚡", "🏆", etc.
-  relatedId       String?  // Lab slug, Incident slug, Cert ID, Hunt ID
-  earnedAt        DateTime // When achievement was unlocked
-  displayOrder    Int      @default(0)
-  createdAt       DateTime @default(now())
+  id           String   @id @default(cuid())
+  portfolioId  String
+  type         String // LAB_SOLVED, INCIDENT_COMPLETED, WEEKLY_CERT, LEADERBOARD_TOP10, HUNT_STREAK, RULE_SHARED
+  title        String // "Solved: Advanced XSS" or "Weekly Champion: Week 5"
+  description  String   @db.Text
+  icon         String? // Glyph/emoji: "⚡", "🏆", etc.
+  relatedId    String? // Lab slug, Incident slug, Cert ID, Hunt ID
+  earnedAt     DateTime // When achievement was unlocked
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
 
   portfolio CareerPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 
@@ -2366,7 +2368,7 @@ model PortfolioVisitorLog {
   viewedAt    DateTime @default(now())
 
   portfolio CareerPortfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  visitor   User?          @relation("PortfolioVisitors", fields: [visitorId], references: [id], onDelete: SetNull)
+  visitor   User?           @relation("PortfolioVisitors", fields: [visitorId], references: [id], onDelete: SetNull)
 
   @@index([portfolioId, viewedAt])
   @@index([visitorId, viewedAt])
@@ -2375,15 +2377,15 @@ model PortfolioVisitorLog {
 // ── AI Mentor (Hint Enhancement) ──────────────────────────────────────────
 
 model MentorHintQuality {
-  id              String   @id @default(cuid())
-  hintId          String   @unique
-  avgScore        Float    @default(5.0) // 0-10 weighted moving average
-  totalRatings    Int      @default(0) // Denominator for avgScore
-  helpfulCount    Int      @default(0)
-  notHelpfulCount Int      @default(0)
-  submissionRate  Float    @default(0.0) // % of viewers who solved after
-  inferredDifficulty String @default("MEDIUM") // Computed from contextDifficulty
-  lastUpdatedAt   DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  hintId             String   @unique
+  avgScore           Float    @default(5.0) // 0-10 weighted moving average
+  totalRatings       Int      @default(0) // Denominator for avgScore
+  helpfulCount       Int      @default(0)
+  notHelpfulCount    Int      @default(0)
+  submissionRate     Float    @default(0.0) // % of viewers who solved after
+  inferredDifficulty String   @default("MEDIUM") // Computed from contextDifficulty
+  lastUpdatedAt      DateTime @updatedAt
 
   @@index([avgScore]) // Rank hints by effectiveness
   @@index([hintId])
@@ -2393,7 +2395,7 @@ model MentorHintSequence {
   id          String   @id @default(cuid())
   userId      String
   labId       String
-  stage       String   // e.g., "reconnaissance", "exploitation"
+  stage       String // e.g., "reconnaissance", "exploitation"
   // Array of hint IDs already shown: ["hint-001", "hint-003"]
   shownHints  String[]
   // Timestamp when last hint was shown (prevents rapid re-use within 5 min)
@@ -2498,16 +2500,16 @@ model Season {
 }
 
 model SeasonRating {
-  id           String    @id @default(cuid())
-  seasonId     String
-  userId       String
+  id            String    @id @default(cuid())
+  seasonId      String
+  userId        String
   // Elo-style rating; tier is derived from it but stored for cheap filtering.
-  rating       Int       @default(1000)
-  tier         Tier      @default(BRONZE)
-  peakRating   Int       @default(1000)
-  wins         Int       @default(0)
-  losses       Int       @default(0)
-  eventsPlayed Int       @default(0)
+  rating        Int       @default(1000)
+  tier          Tier      @default(BRONZE)
+  peakRating    Int       @default(1000)
+  wins          Int       @default(0)
+  losses        Int       @default(0)
+  eventsPlayed  Int       @default(0)
   // Denormalised placement, recomputed by the season ranking job.
   rank          Int?
   rankUpdatedAt DateTime?
@@ -2804,17 +2806,17 @@ enum CredentialStatus {
 // â”€â”€ Job applications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 model JobApplication {
-  id          String            @id @default(cuid())
-  jobId       String
-  applicantId String
-  status      ApplicationStatus @default(SUBMITTED)
-  coverNote   String?           @db.Text
+  id            String            @id @default(cuid())
+  jobId         String
+  applicantId   String
+  status        ApplicationStatus @default(SUBMITTED)
+  coverNote     String?           @db.Text
   // Snapshot of the portfolio slug at apply time, so a later rename does not
   // break the recruiter's link back to what they actually reviewed.
   portfolioSlug String?
-  appliedAt   DateTime          @default(now())
-  decidedAt   DateTime?
-  updatedAt   DateTime          @updatedAt
+  appliedAt     DateTime          @default(now())
+  decidedAt     DateTime?
+  updatedAt     DateTime          @updatedAt
 
   job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
   applicant User       @relation(fields: [applicantId], references: [id], onDelete: Cascade)
@@ -2828,13 +2830,13 @@ model JobApplication {
 }
 
 model JobApplicationEvent {
-  id            String            @id @default(cuid())
+  id            String             @id @default(cuid())
   applicationId String
   fromStatus    ApplicationStatus?
   toStatus      ApplicationStatus
-  note          String?           @db.Text
+  note          String?            @db.Text
   actorId       String?
-  createdAt     DateTime          @default(now())
+  createdAt     DateTime           @default(now())
 
   application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   actor       User?          @relation(fields: [actorId], references: [id], onDelete: SetNull)
@@ -2845,20 +2847,20 @@ model JobApplicationEvent {
 // â”€â”€ Skill gap analysis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 model RoleProfile {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  description String   @db.Text
-  seniority   SeniorityLevel @default(JUNIOR)
+  id                   String         @id @default(cuid())
+  slug                 String         @unique
+  title                String
+  description          String         @db.Text
+  seniority            SeniorityLevel @default(JUNIOR)
   // MITRE tactics this role is expected to cover, and the minimum number of
   // solved items per tactic to count as covered.
-  requiredTactics Json  @default("{}")
+  requiredTactics      Json           @default("{}")
   // Learning paths recommended to close a gap, referenced by slug so path
   // content can be reorganised without breaking role definitions.
   recommendedPathSlugs String[]
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  published            Boolean        @default(false)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   snapshots SkillGapSnapshot[]
 
@@ -2887,18 +2889,18 @@ model SkillGapSnapshot {
 // â”€â”€ Interview preparation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 model InterviewKit {
-  id          String         @id @default(cuid())
-  slug        String         @unique
-  title       String
-  description String         @db.Text
-  seniority   SeniorityLevel @default(JUNIOR)
-  difficulty  Difficulty     @default(MEDIUM)
-  timeLimitSec Int           @default(2700)
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  title        String
+  description  String         @db.Text
+  seniority    SeniorityLevel @default(JUNIOR)
+  difficulty   Difficulty     @default(MEDIUM)
+  timeLimitSec Int            @default(2700)
   // [{ id, prompt, idealPoints: string[], weight }]
-  questions   Json
-  published   Boolean        @default(false)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  questions    Json
+  published    Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   sessions InterviewSession[]
 
@@ -2917,8 +2919,8 @@ model InterviewSession {
   // Free-text summary produced at scoring time.
   feedback    String?         @db.Text
 
-  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kit     InterviewKit     @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kit     InterviewKit      @relation(fields: [kitId], references: [id], onDelete: Cascade)
   answers InterviewAnswer[]
 
   @@index([userId, startedAt])
@@ -2949,7 +2951,7 @@ model SkillAssessment {
   slug         String     @unique
   title        String
   description  String     @db.Text
-  domain       String     // e.g. DETECTION, FORENSICS, CLOUD
+  domain       String // e.g. DETECTION, FORENSICS, CLOUD
   difficulty   Difficulty @default(MEDIUM)
   timeLimitSec Int        @default(3600)
   // Percentage required to earn the credential.
@@ -2990,16 +2992,16 @@ model SkillAssessmentAttempt {
 }
 
 model VerifiedCredential {
-  id           String           @id @default(cuid())
-  userId       String
-  assessmentId String
+  id            String           @id @default(cuid())
+  userId        String
+  assessmentId  String
   // Public, shareable verification code.
-  code         String           @unique
-  score        Int
-  status       CredentialStatus @default(ACTIVE)
-  issuedAt     DateTime         @default(now())
-  expiresAt    DateTime?
-  revokedAt    DateTime?
+  code          String           @unique
+  score         Int
+  status        CredentialStatus @default(ACTIVE)
+  issuedAt      DateTime         @default(now())
+  expiresAt     DateTime?
+  revokedAt     DateTime?
   revokedReason String?
 
   user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -3008,4 +3010,87 @@ model VerifiedCredential {
   // Re-passing refreshes the existing credential rather than issuing a second.
   @@unique([userId, assessmentId])
   @@index([status, expiresAt])
+}
+
+// ── Monthly Championship ────────────────────────────────────────────────────
+// A recurring monthly event over a fixed set of challenges. One championship
+// exists per calendar month; the rollover cron opens the next and concludes
+// the previous, awarding certificates to the podium and finalists.
+
+model Championship {
+  id          String             @id @default(cuid())
+  slug        String             @unique
+  title       String
+  description String             @db.Text
+  year        Int
+  month       Int // 1-12
+  // UTC window. endsAt is the last instant of the month, so a comparison
+  // against it cannot admit a solve belonging to the next championship.
+  startsAt    DateTime
+  endsAt      DateTime
+  // Lab slugs making up the challenge set, soft-referenced like Competition.
+  labSlugs    Json
+  status      ChampionshipStatus @default(SCHEDULED)
+  published   Boolean            @default(false)
+  concludedAt DateTime?
+  createdAt   DateTime           @default(now())
+
+  entries ChampionshipEntry[]
+  awards  ChampionshipAward[]
+
+  // One championship per month, which is what makes the rollover idempotent.
+  @@unique([year, month])
+  @@index([status, startsAt])
+  @@index([published, startsAt])
+}
+
+model ChampionshipEntry {
+  id             String    @id @default(cuid())
+  championshipId String
+  userId         String
+  score          Int       @default(0)
+  solved         Int       @default(0)
+  // Drives the tie-break: equal scores are ordered by who got there first.
+  lastSolvedAt   DateTime?
+  // Written once at conclusion; null while the championship is running.
+  rank           Int?
+  joinedAt       DateTime  @default(now())
+
+  championship Championship @relation(fields: [championshipId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([championshipId, userId])
+  @@index([championshipId, score])
+  @@index([userId])
+}
+
+model ChampionshipAward {
+  id             String           @id @default(cuid())
+  championshipId String
+  userId         String
+  rank           Int
+  tier           ChampionshipTier
+  // Public verification code, e.g. MCH-2026-08-1-K7QR4M.
+  certCode       String           @unique
+  issuedAt       DateTime         @default(now())
+
+  championship Championship @relation(fields: [championshipId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Re-running the conclusion must not issue a second award.
+  @@unique([championshipId, userId])
+  @@index([userId, issuedAt])
+}
+
+enum ChampionshipStatus {
+  SCHEDULED
+  ACTIVE
+  CONCLUDED
+}
+
+enum ChampionshipTier {
+  CHAMPION
+  MEDALLIST
+  FINALIST
+  COMPETITOR
 }

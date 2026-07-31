@@ -34,6 +34,7 @@ const STUDENT_MORE: NavGroup[] = [
     label: "Compete",
     links: [
       { href: "/seasons",                 label: "Ranked Season"  },
+      { href: "/championship",            label: "Championship"   },
       { href: "/tournaments",             label: "Tournaments"    },
       { href: "/competitions",            label: "Competitions"   },
       { href: "/labs/incidents/weekly",   label: "Weekly Case"    },
