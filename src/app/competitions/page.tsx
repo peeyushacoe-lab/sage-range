@@ -3,8 +3,15 @@ import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { JoinCompetitionBtn } from "./_components/join-btn";
+import { RedeemInviteForm } from "./_components/redeem-invite-form";
+import {
+  loadViewerContext,
+  visibleCompetitionFilter,
+  visibilityLabel,
+  type CompetitionVisibility,
+} from "@/lib/competition-access";
 import { Navbar } from "@/components/navbar";
-import { EmptyState, PageHeader } from "@/components/ui";
+import { EmptyState, PageHeader, Badge } from "@/components/ui";
 
 import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
@@ -26,8 +33,12 @@ export default async function CompetitionsPage() {
   const user = await getOrCreateAppUser();
   if (!user) redirect("/sign-in");
 
+  // Only list what this user may actually see. Invite-only events are absent
+  // until entered, so browsing cannot reveal that a private event exists.
+  const viewer = await loadViewerContext(user.id);
+
   const competitions = await db.competition.findMany({
-    where: { published: true },
+    where: visibleCompetitionFilter(user.id, viewer),
     orderBy: { startDate: "asc" },
     include: {
       entries: {
@@ -56,6 +67,10 @@ export default async function CompetitionsPage() {
         title="Competitions"
         subtitle="Compete against other students. Complete assigned labs to earn points."
       />
+
+      <div className="mb-8">
+        <RedeemInviteForm />
+      </div>
 
       {competitions.length === 0 ? (
         <EmptyState
@@ -86,6 +101,11 @@ export default async function CompetitionsPage() {
                         {status}
                       </span>
                       <span className="text-xs text-zinc-600">{labCount} lab{labCount !== 1 ? "s" : ""}</span>
+                      {comp.visibility !== "PUBLIC" && (
+                        <Badge tone="purple">
+                          {visibilityLabel(comp.visibility as CompetitionVisibility)}
+                        </Badge>
+                      )}
                     </div>
                     <Link
                       href={`/competitions/${comp.slug}`}

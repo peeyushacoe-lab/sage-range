@@ -6,6 +6,11 @@ import { JoinCompetitionBtn } from "../_components/join-btn";
 import { Countdown } from "./_components/countdown";
 import { Navbar } from "@/components/navbar";
 import { createNotification } from "@/lib/notifications";
+import {
+  canAccessCompetition,
+  loadViewerContext,
+  type CompetitionVisibility,
+} from "@/lib/competition-access";
 
 import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
@@ -49,8 +54,23 @@ export default async function CompetitionDetailPage({
 
   if (!competition) notFound();
 
-  const status = getStatus(competition.startDate, competition.endDate);
   const userEntry = competition.entries.find((e) => e.userId === user.id);
+
+  // Gate on visibility. notFound rather than a "no access" page: confirming a
+  // private event exists at this slug is itself a disclosure.
+  const viewer = await loadViewerContext(user.id);
+  const allowed = canAccessCompetition(
+    {
+      visibility: competition.visibility as CompetitionVisibility,
+      organizationId: competition.organizationId,
+      cohortId: competition.cohortId,
+      inviteCode: competition.inviteCode,
+    },
+    { ...viewer, hasEntry: userEntry != null },
+  );
+  if (!allowed) notFound();
+
+  const status = getStatus(competition.startDate, competition.endDate);
   const labSlugs = competition.labSlugs as string[];
   const now = new Date();
   const isFrozen = !!competition.freezeAt && now >= competition.freezeAt && now < competition.endDate;
@@ -67,6 +87,26 @@ export default async function CompetitionDetailPage({
   for (const lc of labCompletions) {
     completionsByUser.set(lc.userId, (completionsByUser.get(lc.userId) ?? 0) + 1);
   }
+
+  // Institution standings. Ranked on total rather than average so a university
+  // cannot top the table on one strong entrant, and entrants with no
+  // institution recorded are simply left out rather than bucketed as "Other".
+  const institutionMap = new Map<
+    string,
+    { name: string; total: number; entrants: number; best: number }
+  >();
+  for (const entry of competition.entries) {
+    const name = entry.user.university?.trim();
+    if (!name) continue;
+    const row = institutionMap.get(name) ?? { name, total: 0, entrants: 0, best: 0 };
+    row.total += entry.score;
+    row.entrants += 1;
+    row.best = Math.max(row.best, entry.score);
+    institutionMap.set(name, row);
+  }
+  const institutionStandings = [...institutionMap.values()].sort(
+    (a, b) => b.total - a.total,
+  );
 
   // Auto-notify winners when competition ends (idempotent)
   if (status === "Ended" && competition.entries.length > 0) {
@@ -204,6 +244,44 @@ export default async function CompetitionDetailPage({
               <p className="text-2xl font-bold">{completionsByUser.get(user.id) ?? 0}/{labSlugs.length}</p>
             </div>
           </div>
+        )}
+
+        {/* Institution standings — only meaningful with more than one */}
+        {institutionStandings.length > 1 && (
+          <section className="mb-10">
+            <h2 className="mb-4 text-sm uppercase tracking-widest text-zinc-500">
+              Institution standings
+            </h2>
+            <div className="rounded-lg border border-white/10 divide-y divide-white/8">
+              <div className="grid grid-cols-12 px-4 py-2 text-xs uppercase tracking-wider text-zinc-600">
+                <span className="col-span-1">#</span>
+                <span className="col-span-6">Institution</span>
+                <span className="col-span-2 text-center">Entrants</span>
+                <span className="col-span-1 text-center">Best</span>
+                <span className="col-span-2 text-right">Total</span>
+              </div>
+              {institutionStandings.map((inst, i) => (
+                <div
+                  key={inst.name}
+                  className="grid grid-cols-12 items-center px-4 py-3 hover:bg-white/3"
+                >
+                  <span className="col-span-1 text-xs text-zinc-600">{i + 1}</span>
+                  <span className="col-span-6 truncate text-sm text-zinc-200">
+                    {inst.name}
+                  </span>
+                  <span className="col-span-2 text-center text-xs text-zinc-500">
+                    {inst.entrants}
+                  </span>
+                  <span className="col-span-1 text-center text-xs text-zinc-500">
+                    {inst.best}
+                  </span>
+                  <span className="col-span-2 text-right text-sm font-semibold text-sage-500">
+                    {inst.total}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Leaderboard */}

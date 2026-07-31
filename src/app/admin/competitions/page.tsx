@@ -5,12 +5,14 @@ import { CompetitionToggle } from "../_components/competition-toggle";
 export const dynamic = "force-dynamic";
 
 export default async function CompetitionsPage() {
-  const [competitions, publishedLabs] = await Promise.all([
+  const [competitions, publishedLabs, organizations, cohorts] = await Promise.all([
     db.competition.findMany({
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { entries: true } } },
     }),
     db.lab.findMany({ where: { published: true }, select: { id: true, slug: true, title: true }, orderBy: { title: "asc" } }),
+    db.organization.findMany({ where: { active: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    db.cohort.findMany({ where: { published: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
 
   const now = new Date();
@@ -22,7 +24,11 @@ export default async function CompetitionsPage() {
           <h1 className="text-2xl font-bold text-white">Competitions</h1>
           <p className="text-zinc-500 text-sm mt-1">{competitions.length} total</p>
         </div>
-        <NewCompetitionForm labs={publishedLabs} />
+        <NewCompetitionForm
+          labs={publishedLabs}
+          organizations={organizations}
+          cohorts={cohorts}
+        />
       </div>
 
       {competitions.length === 0 ? (

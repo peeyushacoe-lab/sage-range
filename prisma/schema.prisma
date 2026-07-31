@@ -740,8 +740,9 @@ model Organization {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
-  members OrganizationMember[]
-  cohorts Cohort[]
+  members      OrganizationMember[]
+  cohorts      Cohort[]
+  competitions Competition[]
 
   @@map("Institution")
 }
@@ -780,7 +781,36 @@ model Competition {
   labSlugs    Json
   createdAt   DateTime  @default(now())
 
+  // Who may see and enter. PUBLIC is the historical behaviour and stays the
+  // default so existing rows keep working after this migration.
+  visibility CompetitionVisibility @default(PUBLIC)
+  // Set for ORGANIZATION events. SetNull rather than Cascade: losing an org
+  // should not silently delete its competition history.
+  organizationId String?
+  // Set for COHORT events, narrowing an org event to one classroom.
+  cohortId       String?
+  // Required for INVITE_ONLY. Unique so a code identifies one competition.
+  inviteCode     String? @unique
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  cohort       Cohort?       @relation(fields: [cohortId], references: [id], onDelete: SetNull)
+
   entries CompetitionEntry[]
+
+  @@index([published, visibility])
+  @@index([organizationId])
+  @@index([cohortId])
+}
+
+enum CompetitionVisibility {
+  // Anyone signed in.
+  PUBLIC
+  // Members of the owning organization only.
+  ORGANIZATION
+  // Members of the owning cohort only.
+  COHORT
+  // Anyone holding the invite code.
+  INVITE_ONLY
 }
 
 model CompetitionEntry {
@@ -1150,6 +1180,7 @@ model Cohort {
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   members      CohortMember[]
   paths        CohortPath[]
+  competitions Competition[]
 
   @@index([organizationId])
 }
