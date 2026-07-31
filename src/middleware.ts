@@ -16,6 +16,9 @@ const AUTH_PAGES = ["/sign-in", "/sign-up"];
 const PUBLIC_API_PREFIXES = [
   "/api/auth/",          // NextAuth — handles its own session establishment
   "/api/stripe/webhook", // Stripe — verified via STRIPE_WEBHOOK_SECRET signature
+  // Credential verification: a recruiter checking a candidate has no account.
+  // Read-only, keyed by an unguessable code, and returns no email address.
+  "/api/career/credentials/",
 ];
 
 function isProtected(p: string) { return PROTECTED.some((prefix) => p.startsWith(prefix)); }

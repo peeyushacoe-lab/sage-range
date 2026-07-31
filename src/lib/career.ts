@@ -240,7 +240,10 @@ export async function verifyCredential(code: string) {
 
   return {
     code: credential.code,
-    holder: credential.user.displayName || credential.user.email,
+    // Never publish a full email address: this page is unauthenticated, so
+    // anyone holding a code could otherwise harvest the holder's address.
+    // Falls back to the local part, matching /verify/[certId].
+    holder: credential.user.displayName || credential.user.email.split("@")[0],
     assessment: credential.assessment.title,
     domain: credential.assessment.domain,
     difficulty: credential.assessment.difficulty,

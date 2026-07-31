@@ -24,3 +24,6 @@ certi-design.png
 # Third-party design skill toolkit, vendored locally. Not app code, and its
 # own CLI sources break `tsc --noEmit` for the whole project.
 ui-ux-pro-max-skill/
+
+# TypeScript incremental build cache — regenerated on every build
+tsconfig.tsbuildinfo

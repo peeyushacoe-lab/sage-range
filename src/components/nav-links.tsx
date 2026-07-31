@@ -59,9 +59,11 @@ const STUDENT_MORE: NavGroup[] = [
   {
     label: "Career",
     links: [
-      { href: "/career",           label: "Role Readiness" },
-      { href: "/jobs",             label: "Job Board"      },
-      { href: "/resume",           label: "Resume"         },
+      { href: "/career",              label: "Role Readiness" },
+      { href: "/career#assessments",  label: "Assessments"    },
+      { href: "/career#interviews",   label: "Interview Prep" },
+      { href: "/jobs",                label: "Job Board"      },
+      { href: "/resume",              label: "Resume"         },
     ],
   },
   {

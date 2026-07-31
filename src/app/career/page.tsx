@@ -141,7 +141,7 @@ export default async function CareerPage() {
         )}
 
         {/* ── Assessments ── */}
-        <section className="mb-10">
+        <section id="assessments" className="mb-10 scroll-mt-24">
           <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
             Verified assessments
           </h2>
@@ -156,7 +156,12 @@ export default async function CareerPage() {
               {assessments.map((a) => (
                 <Card key={a.id} className="flex flex-col gap-2 p-5" interactive>
                   <div className="flex items-start justify-between gap-2">
-                    <span className="text-base font-semibold">{a.title}</span>
+                    <Link
+                      href={`/career/assessments/${a.slug}`}
+                      className="text-base font-semibold hover:text-emerald-400"
+                    >
+                      {a.title}
+                    </Link>
                     <Badge tone="zinc">{a.domain}</Badge>
                   </div>
                   <p className="line-clamp-2 text-sm text-zinc-400">{a.description}</p>
@@ -170,7 +175,7 @@ export default async function CareerPage() {
         </section>
 
         {/* ── Interview prep ── */}
-        <section>
+        <section id="interviews" className="scroll-mt-24">
           <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
             Interview practice
           </h2>
@@ -185,7 +190,12 @@ export default async function CareerPage() {
               {kits.map((k) => (
                 <Card key={k.id} className="flex flex-col gap-2 p-5" interactive>
                   <div className="flex items-start justify-between gap-2">
-                    <span className="text-base font-semibold">{k.title}</span>
+                    <Link
+                      href={`/career/interviews/${k.slug}`}
+                      className="text-base font-semibold hover:text-emerald-400"
+                    >
+                      {k.title}
+                    </Link>
                     <Badge tone="zinc">{k.seniority}</Badge>
                   </div>
                   <p className="line-clamp-2 text-sm text-zinc-400">{k.description}</p>
