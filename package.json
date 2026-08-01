@@ -28,7 +28,9 @@
     "seed:phase4": "tsx scripts/seed-phase4.ts",
     "seed:all": "npm run seed:phase2 && npm run seed:phase3 && npm run seed:phase4",
     "smoke": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/smoke-test.ts",
-    "test:integration": "node scripts/run-integration-tests.mjs"
+    "test:integration": "node scripts/run-integration-tests.mjs",
+    "seed:career": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-career-library.ts",
+    "repair:weekly": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/repair-weekly-pipeline.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

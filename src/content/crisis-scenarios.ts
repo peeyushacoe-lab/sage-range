@@ -11,6 +11,8 @@
  */
 
 import type { CrisisScenario } from "@/lib/crisis-engine";
+import { CLOUD_BREACH_CRISIS } from "./crisis-cloud-breach";
+import { INSIDER_CRISIS } from "./crisis-insider";
 
 export const RANSOMWARE_CRISIS: CrisisScenario = {
   slug: "meridian-health-ransomware",
@@ -670,7 +672,11 @@ export const RANSOMWARE_CRISIS: CrisisScenario = {
   ],
 };
 
-export const CRISIS_SCENARIOS: CrisisScenario[] = [RANSOMWARE_CRISIS];
+export const CRISIS_SCENARIOS: CrisisScenario[] = [
+  RANSOMWARE_CRISIS,
+  CLOUD_BREACH_CRISIS,
+  INSIDER_CRISIS,
+];
 
 export function findCrisisScenario(slug: string): CrisisScenario | undefined {
   return CRISIS_SCENARIOS.find((s) => s.slug === slug);
