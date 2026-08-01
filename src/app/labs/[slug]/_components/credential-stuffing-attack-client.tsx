@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const LOGIN_ATTEMPTS = `Login attempts, last hour:
@@ -47,6 +47,7 @@ export function CredentialStuffingAttackClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. These are known-valid credentials from a completely different company's breach.");
     }
   }
@@ -57,6 +58,7 @@ export function CredentialStuffingAttackClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare the scope (one account vs. many) and the source of the passwords being tried.");
     }
   }
@@ -67,6 +69,7 @@ export function CredentialStuffingAttackClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what still blocks a login even when the password itself is correct.");
     }
   }

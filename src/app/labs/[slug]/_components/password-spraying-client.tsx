@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const AUTH_ATTEMPTS = `[10:00:01] user=jsmith     pass=Winter2026!   FAILED
@@ -55,6 +55,7 @@ export function PasswordSprayingClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at what stays constant across attempts, and what varies.");
     }
   }
@@ -65,6 +66,7 @@ export function PasswordSprayingClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare the number of attempts per individual account against the lockout threshold.");
     }
   }
@@ -75,6 +77,7 @@ export function PasswordSprayingClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Per-account lockout thresholds are exactly what this attack is designed to slip under — think about detecting the pattern differently.");
     }
   }

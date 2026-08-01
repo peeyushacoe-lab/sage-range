@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ALERTS = `Alert A: host 10.0.2.14 beacons to c2-relay-node88.net every 60s
@@ -48,6 +48,7 @@ export function IocCorrelationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at what all three alerts have in common despite different source hosts.");
     }
   }
@@ -58,6 +59,7 @@ export function IocCorrelationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Different source IPs doesn't mean unrelated activity — look at what they share.");
     }
   }
@@ -68,6 +70,7 @@ export function IocCorrelationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. You've confirmed a shared indicator — use it to look for more.");
     }
   }

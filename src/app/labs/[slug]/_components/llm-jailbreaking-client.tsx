@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 function Bubble({ from, children }: { from: "user" | "bot"; children: React.ReactNode }) {
@@ -53,6 +53,7 @@ export function LlmJailbreakingClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. The attacker didn't attack the system technically — they asked the model to pretend to be something else.");
     }
   }
@@ -63,6 +64,7 @@ export function LlmJailbreakingClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Consider what actually leaves the system, regardless of the fictional wrapper around it.");
     }
   }
@@ -73,6 +75,7 @@ export function LlmJailbreakingClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Name the defense that inspects what the model actually outputs, regardless of framing.");
     }
   }

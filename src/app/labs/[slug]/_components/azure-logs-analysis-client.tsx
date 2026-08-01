@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SIGNIN = `Azure AD Sign-in Logs:
@@ -50,6 +50,7 @@ export function AzureLogsAnalysisClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Consider whether someone could physically travel between these two locations in 15 minutes.");
     }
   }
@@ -60,6 +61,7 @@ export function AzureLogsAnalysisClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. The account just granted itself Global Admin — what's the most urgent thing to undo?");
     }
   }
@@ -70,6 +72,7 @@ export function AzureLogsAnalysisClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what each log type shows that the other doesn't.");
     }
   }

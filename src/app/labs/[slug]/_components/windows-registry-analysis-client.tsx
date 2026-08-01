@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const USERASSIST_KEY = `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist
@@ -66,6 +66,7 @@ export function WindowsRegistryAnalysisClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Decode the ROT13 values — Windows obfuscates UserAssist entries this way by default.");
     }
   }
@@ -76,6 +77,7 @@ export function WindowsRegistryAnalysisClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. What does the ShimCache modified timestamp actually tell an investigator?");
     }
   }
@@ -86,6 +88,7 @@ export function WindowsRegistryAnalysisClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Decode the ROT13 name from Task 1's third entry, then match it against the RunMRU key — flag the binary and the flag it ran with.");
     }
   }

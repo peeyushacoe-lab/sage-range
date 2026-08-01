@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const NOTICE = `Notice received from Managed Service Provider "NetOpsPro":
@@ -48,6 +48,7 @@ export function ThirdPartyVendorCompromiseClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. The vendor's own environment holds the credentials they use to reach your network — what must you assume about those?");
     }
   }
@@ -58,6 +59,7 @@ export function ThirdPartyVendorCompromiseClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Don't wait for the vendor's own investigation to finish before protecting your side.");
     }
   }
@@ -68,6 +70,7 @@ export function ThirdPartyVendorCompromiseClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about the broader lesson for how vendors are trusted and access is granted going forward.");
     }
   }

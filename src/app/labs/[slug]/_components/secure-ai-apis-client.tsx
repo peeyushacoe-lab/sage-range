@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const BUNDLE = `// main.bundle.js — shipped to every visitor's browser
@@ -51,6 +51,7 @@ export function SecureAiApisClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Think about who can read a browser-shipped JS bundle.");
     }
   }
@@ -61,6 +62,7 @@ export function SecureAiApisClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what would cap the damage a single account can do.");
     }
   }
@@ -71,6 +73,7 @@ export function SecureAiApisClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Rate limiting alone doesn't address manipulated inputs or unsafe outputs.");
     }
   }

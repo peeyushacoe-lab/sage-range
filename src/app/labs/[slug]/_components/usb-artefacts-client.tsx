@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const USBSTOR_ENTRY = `USBSTOR\\Disk&Ven_SanDisk&Prod_Cruzer&Rev_1.00\\4C530001A1B2C3D4&0
@@ -54,6 +54,7 @@ export function UsbArtefactsClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. The USBSTOR entry lists both the serial number and last-connected time directly.");
     }
   }
@@ -64,6 +65,7 @@ export function UsbArtefactsClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what shellbags actually record versus what a registry connection entry alone proves.");
     }
   }
@@ -74,6 +76,7 @@ export function UsbArtefactsClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about both the conclusion AND the correct evidence-handling next step.");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 type DnsRow = { id: number; time: string; query: string; type: string; len: number };
@@ -73,6 +73,7 @@ export function DnsExfiltrationDetectionClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the subdomain labels of the TXT queries — they aren't normal hostnames.");
     }
   }
@@ -83,6 +84,7 @@ export function DnsExfiltrationDetectionClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. The subdomain label is hex-encoded — decode it (e.g. 4a='J', 6f='o'...) to reveal the exfiltrated text fragment.");
     }
   }
@@ -93,6 +95,7 @@ export function DnsExfiltrationDetectionClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider the record type used, the abnormal query volume, and the fact this is a covert channel out of the network.");
     }
   }

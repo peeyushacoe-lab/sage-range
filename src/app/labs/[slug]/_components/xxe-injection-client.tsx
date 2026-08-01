@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const NORMAL_REQUEST = `POST /api/import HTTP/1.1
@@ -66,6 +66,7 @@ export function XxeInjectionClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at what <!ENTITY xxe SYSTEM ...> declares, and how &xxe; is used inside the XML body.");
     }
   }
@@ -76,6 +77,7 @@ export function XxeInjectionClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Which local file's contents were leaked back in the response? Format as a flag.");
     }
   }
@@ -86,6 +88,7 @@ export function XxeInjectionClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. What specific parser feature is responsible for resolving external entities like this?");
     }
   }

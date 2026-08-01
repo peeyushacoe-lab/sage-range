@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const FILTER_CODE = `// Server-side upload validation (avatar_upload.php)
@@ -56,6 +56,7 @@ export function FileUploadBypassClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at what the $blocked array actually contains versus every extension a web server might execute as PHP.");
     }
   }
@@ -66,6 +67,7 @@ export function FileUploadBypassClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Which extension succeeded in the attempt log, despite the filter? Format as a flag.");
     }
   }
@@ -76,6 +78,7 @@ export function FileUploadBypassClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. A deny-list will always be a step behind — what's the more robust class of fix?");
     }
   }

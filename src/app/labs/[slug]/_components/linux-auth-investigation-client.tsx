@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 type AuthRow = {
@@ -72,6 +72,7 @@ export function LinuxAuthInvestigationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the volume of failures against different accounts from one source IP, ending in a success.");
     }
   }
@@ -82,6 +83,7 @@ export function LinuxAuthInvestigationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. `find ... -exec /bin/sh` is a documented technique for escaping restricted sudo permissions.");
     }
   }
@@ -92,6 +94,7 @@ export function LinuxAuthInvestigationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Two separate persistence mechanisms were planted — name the pair using the flag format.");
     }
   }

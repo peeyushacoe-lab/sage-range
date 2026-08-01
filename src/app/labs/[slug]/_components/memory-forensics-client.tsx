@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 
 type ProcessRow = {
   pid: string;
@@ -75,6 +75,7 @@ export function MemoryForensicsClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Click each process to inspect it — look for an unusual name and anomalous thread count.");
     }
   }
@@ -86,6 +87,7 @@ export function MemoryForensicsClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Your answer must include both the C2 IP address and the port number.");
     }
   }
@@ -96,6 +98,7 @@ export function MemoryForensicsClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The MZ header in a foreign VAD region indicates a full PE was mapped — which technique does that?");
     }
   }

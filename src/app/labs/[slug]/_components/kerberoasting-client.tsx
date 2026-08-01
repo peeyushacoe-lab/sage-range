@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SPN_LIST = `Account       SPN                          Ticket Encryption
@@ -47,6 +47,7 @@ export function KerberoastingClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare the encryption type used by each SPN account's ticket.");
     }
   }
@@ -57,6 +58,7 @@ export function KerberoastingClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about how service account passwords are typically managed in practice.");
     }
   }
@@ -67,6 +69,7 @@ export function KerberoastingClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The fix should address both the password strength and the ticket encryption in use.");
     }
   }

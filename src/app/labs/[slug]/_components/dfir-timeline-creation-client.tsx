@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, SubmitBtn } from "./lab-ui";
+import { TaskShell, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SOURCES = `Event Log (Security, 4624): 2026-02-03 14:02:11 — Logon Type 10 (RDP), user: svc_backup, source 203.0.113.44
@@ -45,6 +45,7 @@ export function DfirTimelineCreationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Sort all three timestamps chronologically first.");
     }
   }
@@ -55,6 +56,7 @@ export function DfirTimelineCreationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Read the three merged events as one continuous sequence of actions.");
     }
   }
@@ -65,6 +67,7 @@ export function DfirTimelineCreationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about why an attacker would want a dropped tool to look nearly two years old.");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ACCESS_LOG = `203.0.113.8 - - [14/Aug/2026:02:11:03 +0000] "GET /search?q=widget HTTP/1.1" 200 1822
@@ -69,6 +69,7 @@ export function WebServerLogAnalysisClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the query-string payloads and the User-Agent string for this source IP.");
     }
   }
@@ -79,6 +80,7 @@ export function WebServerLogAnalysisClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. The 403 was bypassed with URL-encoding, and a sensitive file was ultimately read — name the technique + file in the flag.");
     }
   }
@@ -89,6 +91,7 @@ export function WebServerLogAnalysisClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. A file with a double extension was uploaded, then executed as PHP by the server.");
     }
   }

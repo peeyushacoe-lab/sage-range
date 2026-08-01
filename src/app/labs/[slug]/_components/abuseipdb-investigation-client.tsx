@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ABUSE_REPORT = `IP: 185.220.101.45
@@ -55,6 +55,7 @@ export function AbuseipdbInvestigationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the confidence score and the number of reports behind it.");
     }
   }
@@ -65,6 +66,7 @@ export function AbuseipdbInvestigationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Match the SOC alert's behavior to one of the listed categories.");
     }
   }
@@ -75,6 +77,7 @@ export function AbuseipdbInvestigationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. A 98% score with a corroborating alert against a bastion host needs action now, not just logging.");
     }
   }

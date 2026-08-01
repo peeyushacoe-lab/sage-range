@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const LIVE_ALERT = `LIVE ALERT: GetObject calls on s3://acme-customer-data/
@@ -46,6 +46,7 @@ export function CloudIncidentResponseClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Data is leaving right now — what stops the flow fastest without wiping evidence?");
     }
   }
@@ -56,6 +57,7 @@ export function CloudIncidentResponseClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what you'd lose forever by tearing everything down immediately.");
     }
   }
@@ -66,6 +68,7 @@ export function CloudIncidentResponseClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The credentials were valid — think about everywhere they could have been used, not just where you noticed first.");
     }
   }

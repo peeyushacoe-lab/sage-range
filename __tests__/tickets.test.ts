@@ -97,14 +97,17 @@ describe("Ticket Queue Simulator", () => {
     });
 
     it("should exclude resolved tickets", async () => {
-      // Mark first ticket as resolved
+      // Measure before resolving: the shift also carries tickets created by
+      // other specs in this file, so an absolute count is not stable.
+      const before = await getTicketQueue(testShift.id);
+
       await db.shiftTicket.update({
         where: { id: testTickets[0].id },
         data: { resolvedAt: new Date() },
       });
 
       const queue = await getTicketQueue(testShift.id);
-      expect(queue).toHaveLength(4);
+      expect(queue).toHaveLength(before.length - 1);
       expect(queue.every((t) => t.id !== testTickets[0].id)).toBe(true);
     });
   });

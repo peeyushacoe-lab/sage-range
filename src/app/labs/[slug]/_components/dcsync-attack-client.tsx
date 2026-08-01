@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ACL = `Object: DC=corp,DC=local
@@ -49,6 +49,7 @@ export function DcsyncAttackClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look for the permission granted to a non-DC, non-admin account on the domain object.");
     }
   }
@@ -59,6 +60,7 @@ export function DcsyncAttackClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare this to directly copying NTDS.dit off a domain controller's disk.");
     }
   }
@@ -69,6 +71,7 @@ export function DcsyncAttackClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about the permission itself, and whether other accounts might have the same issue.");
     }
   }

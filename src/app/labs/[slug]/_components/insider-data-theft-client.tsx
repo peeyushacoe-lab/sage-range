@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const DLP_ALERT = `DLP Alert — 2026-06-12 22:14
@@ -51,6 +51,7 @@ export function InsiderDataTheftClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the size and destination of the upload, and its timing relative to the resignation.");
     }
   }
@@ -61,6 +62,7 @@ export function InsiderDataTheftClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Consider why the employee suddenly accessed a folder untouched for 8 months, right before the upload.");
     }
   }
@@ -71,6 +73,7 @@ export function InsiderDataTheftClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about both stopping further access and keeping evidence intact for the investigation.");
     }
   }

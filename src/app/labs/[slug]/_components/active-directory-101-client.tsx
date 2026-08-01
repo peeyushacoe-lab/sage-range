@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 
 function checkFlag(value: string, expected: string): boolean {
   const strip = (s: string) =>
@@ -77,8 +77,10 @@ export function ActiveDirectory101Client({
       setT1Error("");
       void saveStage("task_1");
     } else if (!hasRequired) {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Select both service accounts — look for the svc_ prefix pattern.");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. john.doe and jane.smith are regular user accounts, not service accounts.");
     }
   }
@@ -89,6 +91,7 @@ export function ActiveDirectory101Client({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Look at the tool shown in the output — it requests Kerberos TGS tickets.");
     }
   }
@@ -100,6 +103,7 @@ export function ActiveDirectory101Client({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think of the Impacket script that spawns a remote shell using NTLM hashes.");
     }
   }

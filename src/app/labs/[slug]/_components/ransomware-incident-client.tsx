@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const PHISHING_ALERT = `Email: From "IT-Support@acmecorp-helpdesk.info" Subject "Mandatory Password Reset - Action Required"
@@ -57,6 +57,7 @@ export function RansomwareIncidentClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the delivery mechanism — what was the attachment and what did opening it spawn?");
     }
   }
@@ -67,6 +68,7 @@ export function RansomwareIncidentClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Look at exactly what let a single workstation reach the file server's admin share.");
     }
   }
@@ -77,6 +79,7 @@ export function RansomwareIncidentClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Two hosts are actively compromised right now — think about correct ordering: contain, then recover.");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SAMPLE_LOGS = `EventID=4688 Image=C:\\Windows\\System32\\rundll32.exe CommandLine="rundll32.exe C:\\Users\\Public\\payload.dll,Entry" ParentImage=C:\\Windows\\explorer.exe
@@ -57,6 +57,7 @@ export function SigmaRuleCreationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. These are Windows Event ID 4688 entries — what do 4688 events represent?");
     }
   }
@@ -67,6 +68,7 @@ export function SigmaRuleCreationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Find the command line that loads a suspicious DLL from a public/writable path — quote the distinguishing substring.");
     }
   }
@@ -77,6 +79,7 @@ export function SigmaRuleCreationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what else could contain that substring, or what rundll32 usage looks like normally.");
     }
   }

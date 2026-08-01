@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SCHEDULED_TASKS = `Task Name: "OneDriveStandaloneUpdater"     Trigger: At logon      Action: C:\\Windows\\Temp\\svc.exe
@@ -58,6 +58,7 @@ export function PersistenceDetectionClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare each task's action path to where the real application it's named after would actually live.");
     }
   }
@@ -68,6 +69,7 @@ export function PersistenceDetectionClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Two entries are legitimate signed Microsoft binaries — one has a suspicious name and an unusual install path.");
     }
   }
@@ -78,6 +80,7 @@ export function PersistenceDetectionClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Name the masquerading binary the malicious service points to, in the flag format.");
     }
   }

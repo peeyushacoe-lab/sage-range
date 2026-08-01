@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const INJECTED_SCRIPT = `Checkout page source diff:
@@ -47,6 +47,7 @@ export function PaymentCardSkimmerClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. What's this class of web-based card-stealing JavaScript injection commonly known as?");
     }
   }
@@ -57,6 +58,7 @@ export function PaymentCardSkimmerClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what data actually exists on this one page that doesn't exist anywhere else on the site.");
     }
   }
@@ -67,6 +69,7 @@ export function PaymentCardSkimmerClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about a browser-enforced policy controlling which external scripts are even allowed to run.");
     }
   }

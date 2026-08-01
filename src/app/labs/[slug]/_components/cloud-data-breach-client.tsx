@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const POLICY_HISTORY = `Bucket policy change history — s3://acme-customer-records:
@@ -47,6 +47,7 @@ export function CloudDataBreachClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare the config change date against the first external access date.");
     }
   }
@@ -57,6 +58,7 @@ export function CloudDataBreachClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what a 45-day detection gap says about the organization's monitoring.");
     }
   }
@@ -67,6 +69,7 @@ export function CloudDataBreachClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about the legal obligations that follow confirmed unauthorized access to personal data.");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const EMAIL_HEADERS = `From: "IT Support" <helpdesk@corp-it-support.info>
@@ -63,6 +63,7 @@ export function PhishingClickIncidentClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare the sender/Reply-To/Received domain against the real company domain (acmecorp.example) and flag the imitation domain.");
     }
   }
@@ -73,6 +74,7 @@ export function PhishingClickIncidentClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Walk through the sequence: what did the download do, and what did it launch?");
     }
   }
@@ -83,6 +85,7 @@ export function PhishingClickIncidentClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. For the IOC report, flag the final C2 destination this incident established contact with.");
     }
   }

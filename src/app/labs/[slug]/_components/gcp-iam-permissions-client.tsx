@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const IAM_BINDINGS = `Project: acme-prod-247
@@ -49,6 +49,7 @@ export function GcpIamPermissionsClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. One binding's member isn't a specific person or service account.");
     }
   }
@@ -59,6 +60,7 @@ export function GcpIamPermissionsClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare what Editor actually grants to the two specific services CI deploy uses.");
     }
   }
@@ -69,6 +71,7 @@ export function GcpIamPermissionsClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The fix should name the exact permissions the CI pipeline needs, nothing more.");
     }
   }

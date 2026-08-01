@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const BUCKET_POLICY = `{
@@ -83,6 +83,7 @@ export function CloudIamMisconfigurationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Flag the total number of customer records exposed by this public bucket.");
     }
   }
@@ -93,6 +94,7 @@ export function CloudIamMisconfigurationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Read the Action and Resource fields literally — what do wildcards on BOTH mean together?");
     }
   }

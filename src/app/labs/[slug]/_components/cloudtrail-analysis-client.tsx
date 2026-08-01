@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const CLOUDTRAIL_EVENTS = `{"eventTime":"2026-05-09T02:14:11Z","eventName":"GetCallerIdentity","userIdentity":{"accessKeyId":"AKIAEXAMPLE1"},"sourceIPAddress":"103.22.14.9"}
@@ -53,6 +53,7 @@ export function CloudtrailAnalysisClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the new username created, and the policy attached to it, together.");
     }
   }
@@ -63,6 +64,7 @@ export function CloudtrailAnalysisClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare the sourceIPAddress in the events against the known-good access pattern.");
     }
   }
@@ -73,6 +75,7 @@ export function CloudtrailAnalysisClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. What must happen to both the leaked credential AND the backdoor account it created?");
     }
   }

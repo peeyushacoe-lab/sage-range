@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const REQUESTS = `GET /api/invoices/1001          -> 200 { "owner": "you@corp.com", "total": 240.00 }
@@ -57,6 +57,7 @@ export function IdorHuntingClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the other user's email and their invoice total, in the flag format.");
     }
   }
@@ -67,6 +68,7 @@ export function IdorHuntingClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Re-read the code comment — what check is explicitly missing?");
     }
   }
@@ -77,6 +79,7 @@ export function IdorHuntingClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about who is being modified, and by whom — and what field is being changed.");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const TTPS = `Observed TTPs:
@@ -48,6 +48,7 @@ export function ThreatActorProfilingClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Consider the tailored targeting and patient dwell time here.");
     }
   }
@@ -58,6 +59,7 @@ export function ThreatActorProfilingClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about the practical defensive value of a profile match, not naming rights.");
     }
   }
@@ -68,6 +70,7 @@ export function ThreatActorProfilingClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider how unique any single technique really is across different threat groups.");
     }
   }

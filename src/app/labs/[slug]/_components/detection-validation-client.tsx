@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const VALIDATION_RESULTS = `Rule: "Suspicious PowerShell Encoded Command"
@@ -47,6 +47,7 @@ export function DetectionValidationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Divide false positives by total alerts fired.");
     }
   }
@@ -57,6 +58,7 @@ export function DetectionValidationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what would happen to legitimate admin activity under blocking mode at this rate.");
     }
   }
@@ -67,6 +69,7 @@ export function DetectionValidationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Look at what the 334 false positives most likely have in common.");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 
 type RobotsEntry = {
   path: string;
@@ -194,6 +194,7 @@ export function WebReconClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Click the Disallow entries and look for the admin path.");
     }
   }
@@ -204,6 +205,7 @@ export function WebReconClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Click each result row and read the analysis — one poses a CRITICAL risk.");
     }
   }
@@ -214,6 +216,7 @@ export function WebReconClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Click the subdomains and check which one has the highest value note.");
     }
   }

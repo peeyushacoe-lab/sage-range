@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 function Bubble({ from, children }: { from: "user" | "bot"; children: React.ReactNode }) {
@@ -60,6 +60,7 @@ export function AiDataLeakageClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the name and company of the person whose confidential negotiation details were exposed.");
     }
   }
@@ -70,6 +71,7 @@ export function AiDataLeakageClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. The employee asking didn't have access to that deal — where did the answer actually come from?");
     }
   }
@@ -80,6 +82,7 @@ export function AiDataLeakageClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about why the sales employee could see a deal that wasn't theirs — what access control is missing?");
     }
   }

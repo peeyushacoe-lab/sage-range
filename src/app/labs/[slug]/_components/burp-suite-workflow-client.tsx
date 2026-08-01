@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const INTERCEPT = `POST /api/account/update HTTP/1.1
@@ -53,6 +53,7 @@ export function BurpSuiteWorkflowClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. You want to manually resend one request and tweak it, not automate anything yet.");
     }
   }
@@ -63,6 +64,7 @@ export function BurpSuiteWorkflowClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Describe what class of vulnerability this role-parameter tampering represents.");
     }
   }
@@ -73,6 +75,7 @@ export function BurpSuiteWorkflowClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. You need something that automates trying thousands of values.");
     }
   }

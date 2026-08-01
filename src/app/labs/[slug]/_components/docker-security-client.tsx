@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const DOCKERFILE = `FROM ubuntu:latest
@@ -52,6 +52,7 @@ export function DockerSecurityClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at both the missing USER instruction and the FROM line's tag.");
     }
   }
@@ -62,6 +63,7 @@ export function DockerSecurityClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Container isolation isn't a perfect boundary — think about what happens if it fails.");
     }
   }
@@ -72,6 +74,7 @@ export function DockerSecurityClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what 'latest' can silently point to over time.");
     }
   }

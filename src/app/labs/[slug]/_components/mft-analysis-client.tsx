@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const MFT_TABLE = `MFT Record #4821: notes.txt     In Use: Yes   Size: 1,204 bytes   (non-resident)
@@ -55,6 +55,7 @@ export function MftAnalysisClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Small deleted files can have their content stored directly inside the MFT record.");
     }
   }
@@ -65,6 +66,7 @@ export function MftAnalysisClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Read exactly what the script deletes and clears.");
     }
   }
@@ -75,6 +77,7 @@ export function MftAnalysisClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. One of these two attributes is far more trustworthy against timestomping.");
     }
   }

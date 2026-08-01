@@ -10,6 +10,8 @@ import { updatePortfolioAggregates } from "@/lib/portfolio-aggregation";
 describe("Career Portfolio", () => {
   let testUserId: string;
   let testLabId: string;
+  // The slug is generated per run; asserting a literal never matched.
+  let testLabSlug: string;
 
   beforeEach(async () => {
     // Create test user
@@ -22,9 +24,10 @@ describe("Career Portfolio", () => {
     testUserId = user.id;
 
     // Create test lab
+    testLabSlug = `test-lab-${Date.now()}`;
     const lab = await db.lab.create({
       data: {
-        slug: `test-lab-${Date.now()}`,
+        slug: testLabSlug,
         title: "Test Lab",
         description: "Test lab for portfolio",
         type: "CTF",
@@ -127,7 +130,7 @@ describe("Career Portfolio", () => {
 
       expect(achievements.length).toBeGreaterThan(0);
       expect(achievements[0].type).toBe("LAB_SOLVED");
-      expect(achievements[0].relatedId).toBe("test-lab");
+      expect(achievements[0].relatedId).toBe(testLabSlug);
 
       // Cleanup
       await db.attempt.delete({ where: { id: attempt.id } });
@@ -246,12 +249,25 @@ describe("Career Portfolio", () => {
         },
       });
 
-      // Create progress to mark incident as completed
+      // Progress references a task by foreign key, so one has to exist —
+      // "dummy" failed the constraint before the assertion was ever reached.
+      const taskA = await db.incidentSimTask.create({
+        data: {
+          simulationId: incident.id,
+          order: 1,
+          title: "Identify persistence",
+          prompt: "Which mechanism was used?",
+          answerType: "FREE_TEXT",
+          correctAnswer: "scheduled task",
+          options: [],
+        },
+      });
+
       await db.incidentSimProgress.create({
         data: {
           userId: testUserId,
           simulationId: incident.id,
-          taskId: "dummy", // Just to create progress
+          taskId: taskA.id,
         },
       });
 
@@ -324,11 +340,23 @@ describe("Career Portfolio", () => {
       }
 
       // Create progress
+      const taskB = await db.incidentSimTask.create({
+        data: {
+          simulationId: incident.id,
+          order: 1,
+          title: "Identify tactic",
+          prompt: "Which tactic does this map to?",
+          answerType: "FREE_TEXT",
+          correctAnswer: "persistence",
+          options: [],
+        },
+      });
+
       await db.incidentSimProgress.create({
         data: {
           userId: testUserId,
           simulationId: incident.id,
-          taskId: "dummy",
+          taskId: taskB.id,
         },
       });
 

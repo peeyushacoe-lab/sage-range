@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 
 const PACKETS = [
   { no: 1,  time: "0.000000",   src: "192.168.1.10",   dst: "8.8.8.8",        proto: "DNS",   info: "Standard query A google.com",
@@ -160,6 +160,7 @@ export function NetworkForensics101Client({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look for the IP with repeated beaconing to port 4444.");
     }
   }
@@ -170,6 +171,7 @@ export function NetworkForensics101Client({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Examine the User-Agent string for tool-specific identifiers.");
     }
   }
@@ -181,6 +183,7 @@ export function NetworkForensics101Client({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The first two bytes (4D 5A / MZ) identify a well-known file format.");
     }
   }

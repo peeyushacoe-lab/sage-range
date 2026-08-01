@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const FILTER_CODE = `// Server-side "sanitization"
@@ -53,6 +53,7 @@ export function AdvancedXssClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. The filter only strips literal <script> tags — what else can run JS?");
     }
   }
@@ -63,6 +64,7 @@ export function AdvancedXssClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what actually triggers JS execution in a browser beyond the <script> tag.");
     }
   }
@@ -73,6 +75,7 @@ export function AdvancedXssClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider where location.hash actually travels.");
     }
   }

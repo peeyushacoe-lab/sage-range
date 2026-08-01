@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const NARRATIVE = `Intrusion narrative:
@@ -55,6 +55,7 @@ export function MitreNavigatorClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Which ATT&CK tactic is about surviving a reboot or logoff?");
     }
   }
@@ -65,6 +66,7 @@ export function MitreNavigatorClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. LSASS dumping clearly happened — what does zero mapped detections for that tactic mean?");
     }
   }
@@ -75,6 +77,7 @@ export function MitreNavigatorClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what a heatmap view gives you that a paragraph of narrative doesn't.");
     }
   }

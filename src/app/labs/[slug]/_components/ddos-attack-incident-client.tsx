@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const TRAFFIC = `Traffic graph, /login endpoint:
@@ -48,6 +48,7 @@ export function DdosAttackIncidentClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at how far above baseline this is, and how many distinct sources are involved.");
     }
   }
@@ -58,6 +59,7 @@ export function DdosAttackIncidentClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what can absorb this volume before it ever hits your own servers.");
     }
   }
@@ -68,6 +70,7 @@ export function DdosAttackIncidentClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what else could be happening inside a flood of login-endpoint traffic.");
     }
   }

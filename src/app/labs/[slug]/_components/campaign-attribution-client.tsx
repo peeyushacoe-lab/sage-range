@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const EVIDENCE = `Evidence gathered on a multi-stage campaign:
@@ -49,6 +49,7 @@ export function CampaignAttributionClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Weigh one high-confidence and two medium-confidence indicators together, not in isolation.");
     }
   }
@@ -59,6 +60,7 @@ export function CampaignAttributionClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about how custom malware could end up outside its originating group's control.");
     }
   }
@@ -69,6 +71,7 @@ export function CampaignAttributionClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider how to avoid overstating certainty to stakeholders.");
     }
   }

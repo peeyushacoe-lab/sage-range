@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const LOGIN_DATA = `Normal daily noise: ~15 failed logins/day, spread across ~5 different accounts, no pattern
@@ -45,6 +45,7 @@ export function DetectionLogicBuildingClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare the suspicious window to normal daily noise on two dimensions.");
     }
   }
@@ -55,6 +56,7 @@ export function DetectionLogicBuildingClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what happens if only ONE of the two conditions were required.");
     }
   }
@@ -65,6 +67,7 @@ export function DetectionLogicBuildingClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. A single fixed number won't fit every environment or time of day.");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const VENDOR_CLAIM = `Vendor pitch: "Our AI detection engine achieves 98% accuracy!"
@@ -54,6 +54,7 @@ export function AiDetectionEvaluationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. What would a trivial 'always predict benign' model score on this same dataset?");
     }
   }
@@ -64,6 +65,7 @@ export function AiDetectionEvaluationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. You need metrics that specifically account for the rare positive (attack) class.");
     }
   }
@@ -74,6 +76,7 @@ export function AiDetectionEvaluationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what happens to a SOC team drowning in false alarms.");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const LNK_FILES = `Q4_Financials.xlsx.lnk    Target: E:\\Confidential\\Q4_Financials.xlsx   Created: 2026-06-14 18:02
@@ -48,6 +48,7 @@ export function UsbForensicsClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Filter the LNK files by both the drive letter and the employee's last working day.");
     }
   }
@@ -58,6 +59,7 @@ export function UsbForensicsClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about which files are actually relevant to this specific investigation.");
     }
   }
@@ -68,6 +70,7 @@ export function UsbForensicsClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what LNK evidence proves on its own, versus what it doesn't.");
     }
   }

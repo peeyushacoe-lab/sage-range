@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const TECHNIQUES = `PsExec:   Creates a Windows service (often named PSEXESVC), leaves Event ID 7045
@@ -46,6 +46,7 @@ export function LateralMovementTechniquesClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Which technique doesn't drop a new binary or service at all?");
     }
   }
@@ -56,6 +57,7 @@ export function LateralMovementTechniquesClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. PsExec has to install something on the target to run remote commands.");
     }
   }
@@ -66,6 +68,7 @@ export function LateralMovementTechniquesClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Focus on what's true of Pass-the-Hash regardless of the delivery tool.");
     }
   }

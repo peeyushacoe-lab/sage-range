@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const MAIL_RULE = `Mailbox rule found in ap-manager@corp.com (created by attacker):
@@ -51,6 +51,7 @@ export function BusinessEmailCompromiseClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at what the attacker's mailbox rule does with invoice-related emails.");
     }
   }
@@ -61,6 +62,7 @@ export function BusinessEmailCompromiseClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Name the specific BEC technique this represents.");
     }
   }
@@ -71,6 +73,7 @@ export function BusinessEmailCompromiseClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what's still reversible if the money hasn't fully arrived yet.");
     }
   }

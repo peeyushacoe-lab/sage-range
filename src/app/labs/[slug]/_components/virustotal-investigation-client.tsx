@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const VT_REPORT = `Hash: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
@@ -57,6 +57,7 @@ export function VirustotalInvestigationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the malware family name and detection ratio from the report.");
     }
   }
@@ -67,6 +68,7 @@ export function VirustotalInvestigationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Look at the registration date relative to when the sample was first seen.");
     }
   }
@@ -77,6 +79,7 @@ export function VirustotalInvestigationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Threat intel is only useful if you act on it — what's the two-part action here?");
     }
   }

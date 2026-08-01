@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 import { Icon } from "@/components/ui/icon";
@@ -40,6 +40,7 @@ export function WelcomeCtfClient({
       setErrors((p) => ({ ...p, [stage]: "" }));
       void saveStage(stage);
     } else {
+      reportWrong(labId, stage);
       setErrors((p) => ({ ...p, [stage]: "Incorrect flag. Try again." }));
     }
   }

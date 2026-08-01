@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const WHOIS = `Domain: secure-firstnatlonal-bank.com
@@ -53,6 +53,7 @@ export function WhoisAnalysisClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. A legitimate bank portal doesn't get freshly registered days ago.");
     }
   }
@@ -63,6 +64,7 @@ export function WhoisAnalysisClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what shared nameservers and a tight registration window suggest.");
     }
   }
@@ -73,6 +75,7 @@ export function WhoisAnalysisClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider how easy it is to hide or fake WHOIS registration details.");
     }
   }

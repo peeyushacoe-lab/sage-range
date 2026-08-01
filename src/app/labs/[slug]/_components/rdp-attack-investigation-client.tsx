@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 type RdpRow = { id: number; time: string; user: string; ip: string; eventId: string; result: "Failed" | "Success" };
@@ -77,6 +77,7 @@ export function RdpAttackInvestigationClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the account variety and the eventual success from the same source IP.");
     }
   }
@@ -87,6 +88,7 @@ export function RdpAttackInvestigationClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Check the net.exe command line spawned from within the RDP session.");
     }
   }
@@ -97,6 +99,7 @@ export function RdpAttackInvestigationClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Name the account added to Administrators, in the flag format.");
     }
   }

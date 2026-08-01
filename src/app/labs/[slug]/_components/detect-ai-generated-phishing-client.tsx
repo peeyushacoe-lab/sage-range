@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const EMAIL = `From: "David Chen" <d.chen@acme-corp-finance.co>  (real CEO: d.chen@acmecorp.com)
@@ -55,6 +55,7 @@ export function DetectAiGeneratedPhishingClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare this email's writing quality to old-school phishing.");
     }
   }
@@ -65,6 +66,7 @@ export function DetectAiGeneratedPhishingClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Since grammar checks fail, what other signals are still present here?");
     }
   }
@@ -75,6 +77,7 @@ export function DetectAiGeneratedPhishingClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider a control that works regardless of how convincing the email itself is.");
     }
   }

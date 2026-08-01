@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, SubmitBtn } from "./lab-ui";
+import { TaskShell, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SIGMA_RULE = `title: Suspicious rundll32 Execution
@@ -54,6 +54,7 @@ export function SigmaToSentinelClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Match the Sigma logsource category to its Sentinel/Defender equivalent.");
     }
   }
@@ -64,6 +65,7 @@ export function SigmaToSentinelClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare the KQL draft's filter condition against the original Sigma rule's condition.");
     }
   }
@@ -74,6 +76,7 @@ export function SigmaToSentinelClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The fix should mirror what the Sigma rule actually checked for, not just the binary name.");
     }
   }

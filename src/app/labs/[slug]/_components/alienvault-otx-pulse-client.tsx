@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const PULSE_A = `Pulse: "QuietPanda Backdoor - Q1 Campaign"
@@ -68,6 +68,7 @@ export function AlienvaultOtxPulseClient({
       setT1Error("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the indicator count and malware family from the pulse metadata.");
     }
   }
@@ -78,6 +79,7 @@ export function AlienvaultOtxPulseClient({
       setT2Error("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Weigh author verification, subscriber count, and references, not just recency.");
     }
   }
@@ -88,6 +90,7 @@ export function AlienvaultOtxPulseClient({
       setT3Error("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Match each firewall log destination against the pulse's indicator list.");
     }
   }
