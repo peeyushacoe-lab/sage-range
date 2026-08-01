@@ -30,7 +30,8 @@
     "smoke": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/smoke-test.ts",
     "test:integration": "node scripts/run-integration-tests.mjs",
     "seed:career": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-career-library.ts",
-    "repair:weekly": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/repair-weekly-pipeline.ts"
+    "repair:weekly": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/repair-weekly-pipeline.ts",
+    "seed:new-labs": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-new-labs.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

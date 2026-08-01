@@ -98,11 +98,24 @@ import { RogueWirelessAp } from "./rogue-wireless-ap";
 import { PaymentCardSkimmer } from "./payment-card-skimmer";
 import { ThirdPartyVendorCompromise } from "./third-party-vendor-compromise";
 
+import { PcapTriage } from "./pcap-triage";
+import { LinuxPersistenceHunt } from "./linux-persistence-hunt";
+import { EmailHeaderForensics } from "./email-header-forensics";
+import { PeStaticAnalysis } from "./pe-static-analysis";
+import { MemoryProcessHunt } from "./memory-process-hunt";
+import { BuildPipelineCompromise } from "./build-pipeline-compromise";
+
 export type LabContentProps = { labId: string; userId: string };
 
 type LabContent = (props: LabContentProps) => React.ReactNode | Promise<React.ReactNode>;
 
 const REGISTRY: Record<string, LabContent> = {
+  "pcap-triage": PcapTriage,
+  "linux-persistence-hunt": LinuxPersistenceHunt,
+  "email-header-forensics": EmailHeaderForensics,
+  "pe-static-analysis": PeStaticAnalysis,
+  "memory-process-hunt": MemoryProcessHunt,
+  "build-pipeline-compromise": BuildPipelineCompromise,
   "welcome-ctf": WelcomeCtf,
   "sql-injection-101": SqlInjection101,
   "soc-alert-investigation": SocAlertInvestigation,
@@ -205,6 +218,12 @@ const REGISTRY: Record<string, LabContent> = {
 };
 
 export const TASK_STAGES: Record<string, string[]> = {
+  "pcap-triage": ["task_1", "task_2", "task_3"],
+  "linux-persistence-hunt": ["task_1", "task_2", "task_3"],
+  "email-header-forensics": ["task_1", "task_2", "task_3"],
+  "pe-static-analysis": ["task_1", "task_2", "task_3"],
+  "memory-process-hunt": ["task_1", "task_2", "task_3"],
+  "build-pipeline-compromise": ["task_1", "task_2", "task_3"],
   "welcome-ctf": ["task_1", "task_2", "task_3"],
   "sql-injection-101": ["task_1", "task_2", "task_3"],
   "soc-alert-investigation": ["investigation", "task_2", "task_3"],
