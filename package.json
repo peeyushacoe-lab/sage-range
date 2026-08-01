@@ -26,7 +26,8 @@
     "seed:incidents": "npm run seed:companies && tsx scripts/seed-incident-bec-2026-002.ts && tsx scripts/seed-incident-cloud-2026-001.ts && tsx scripts/seed-incident-edu-2026-002.ts && tsx scripts/seed-incident-fin-2026-004.ts && tsx scripts/seed-incident-gov-2026-003.ts && tsx scripts/seed-incident-hosp-2026-001.ts && tsx scripts/seed-incident-identity-2026-001.ts && tsx scripts/seed-incident-mfg-2026-004.ts && tsx scripts/seed-incident-ret-2026-005.ts && tsx scripts/seed-incident-supply-2026-001.ts",
     "seed:phase3": "tsx scripts/seed-phase3.ts",
     "seed:phase4": "tsx scripts/seed-phase4.ts",
-    "seed:all": "npm run seed:phase2 && npm run seed:phase3 && npm run seed:phase4"
+    "seed:all": "npm run seed:phase2 && npm run seed:phase3 && npm run seed:phase4",
+    "smoke": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/smoke-test.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
