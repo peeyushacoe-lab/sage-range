@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
-import { canEditScenario, type ScenarioVisibility } from "@/lib/scenario-sharing";
+import {
+  canEditScenario,
+  canSetVisibility,
+  type ScenarioVisibility,
+} from "@/lib/scenario-sharing";
 
 const Body = z.object({ visibility: z.enum(["PRIVATE", "UNLISTED", "COMMUNITY"]) });
 
@@ -23,15 +27,26 @@ export async function PATCH(
   const scenario = await db.customScenario.findUnique({ where: { id } });
   if (!scenario) return NextResponse.json({ error: "Scenario not found" }, { status: 404 });
 
-  const allowed = canEditScenario(
-    {
-      createdById: scenario.createdById,
-      visibility: scenario.visibility as ScenarioVisibility,
-      published: scenario.published,
-    },
-    { userId: user.id, isAdmin: user.role === "ADMIN" },
-  );
-  if (!allowed) return NextResponse.json({ error: "Scenario not found" }, { status: 404 });
+  const acl = {
+    createdById: scenario.createdById,
+    visibility: scenario.visibility as ScenarioVisibility,
+    published: scenario.published,
+    takenDownAt: scenario.takenDownAt,
+  };
+  const viewer = { userId: user.id, isAdmin: user.role === "ADMIN" };
+
+  if (!canEditScenario(acl, viewer)) {
+    return NextResponse.json({ error: "Scenario not found" }, { status: 404 });
+  }
+
+  // A takedown an author can undo is not a takedown. Only an admin may return
+  // removed content to the gallery.
+  if (!canSetVisibility(acl, viewer, parsed.data.visibility)) {
+    return NextResponse.json(
+      { error: "This scenario was removed by a moderator and cannot be republished." },
+      { status: 403 },
+    );
+  }
 
   const updated = await db.customScenario.update({
     where: { id },

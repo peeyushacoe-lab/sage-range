@@ -156,6 +156,8 @@ model User {
   verifiedCredentials     VerifiedCredential[]
   CrisisRun               CrisisRun[]
   ScenarioRating          ScenarioRating[]
+  scenarioReportsFiled    ScenarioReport[]         @relation("ScenarioReportsFiled")
+  scenarioReportsReviewed ScenarioReport[]         @relation("ScenarioReportsReviewed")
 
   @@index([skillScore])
   @@index([coins])
@@ -352,10 +354,16 @@ model CustomScenario {
   // Cascade: deleting an original must not delete everyone's forks.
   clonedFromId String?
 
-  createdBy  User             @relation("CreatedCustomScenarios", fields: [createdById], references: [id], onDelete: Cascade)
+  createdBy      User      @relation("CreatedCustomScenarios", fields: [createdById], references: [id], onDelete: Cascade)
+  // Moderation. Set when a scenario is removed from circulation; the author
+  // keeps read access but cannot restore it to the gallery themselves.
+  takenDownAt    DateTime?
+  takedownReason String?   @db.Text
+
   clonedFrom CustomScenario?  @relation("ScenarioClones", fields: [clonedFromId], references: [id], onDelete: SetNull)
   clones     CustomScenario[] @relation("ScenarioClones")
   ratings    ScenarioRating[]
+  reports    ScenarioReport[]
 
   @@index([createdById])
   @@index([published])
@@ -1387,6 +1395,7 @@ enum AuditAction {
   TOURNAMENT_CREATE
   TOURNAMENT_START
   TOURNAMENT_MATCH_REPORT
+  ADMIN_SCENARIO_MODERATE
 }
 
 model AuditLog {
@@ -3191,4 +3200,43 @@ enum CrisisRunStatus {
   IN_PROGRESS
   COMPLETED
   ABANDONED
+}
+
+model ScenarioReport {
+  id         String               @id @default(cuid())
+  scenarioId String
+  reporterId String
+  reason     ScenarioReportReason
+  detail     String?              @db.Text
+  status     ReportStatus         @default(OPEN)
+
+  reviewedById String?
+  reviewedAt   DateTime?
+  resolution   String?   @db.Text
+
+  createdAt DateTime @default(now())
+
+  scenario   CustomScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  reporter   User           @relation("ScenarioReportsFiled", fields: [reporterId], references: [id], onDelete: Cascade)
+  reviewedBy User?          @relation("ScenarioReportsReviewed", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  // One report per person per scenario; re-reporting updates rather than
+  // inflating the queue.
+  @@unique([scenarioId, reporterId])
+  @@index([status, createdAt])
+  @@index([scenarioId])
+}
+
+enum ScenarioReportReason {
+  INAPPROPRIATE
+  PLAGIARISM
+  MISLEADING
+  SPAM
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  UPHELD
+  DISMISSED
 }

@@ -7,6 +7,7 @@ import {
   canRateScenario,
   canCloneScenario,
   canEditScenario,
+  canReportScenario,
   summariseRatings,
   isFollowing,
   type ScenarioVisibility,
@@ -16,6 +17,7 @@ import { PageHeader, Card, Badge, StatCard } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
 import { ScenarioActions } from "./_components/scenario-actions";
 import { RateScenario } from "./_components/rate-scenario";
+import { ReportScenario } from "./_components/report-scenario";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +56,7 @@ export default async function ScenarioDetailPage({
     createdById: scenario.createdById,
     visibility: scenario.visibility as ScenarioVisibility,
     published: scenario.published,
+    takenDownAt: scenario.takenDownAt,
   };
 
   // A scenario the viewer may not open reads as absent rather than forbidden,
@@ -63,6 +66,11 @@ export default async function ScenarioDetailPage({
   const summary = summariseRatings(scenario.ratings.map((r) => r.stars));
   const myRating = scenario.ratings.find((r) => r.userId === user.id) ?? null;
   const following = await isFollowing(user.id, scenario.createdById);
+
+  const myReport = await db.scenarioReport.findUnique({
+    where: { scenarioId_reporterId: { scenarioId: scenario.id, reporterId: user.id } },
+    select: { id: true },
+  });
 
   const isAuthor = scenario.createdById === user.id;
   const authorName =
@@ -133,6 +141,24 @@ export default async function ScenarioDetailPage({
           <StatCard label="Clones" value={scenario._count.clones} sub="forks" />
           <StatCard label="Objectives" value={scenario.learningObjectives.length} sub="stated" />
         </div>
+
+        {scenario.takenDownAt && (
+          <Card className="mb-8 border-red-500/40 bg-red-500/5 p-5">
+            <p className="text-sm font-semibold text-red-300">
+              Removed by a moderator
+            </p>
+            <p className="mt-1 text-sm text-zinc-400">
+              {scenario.takedownReason ??
+                "This scenario was removed from the community gallery."}
+            </p>
+            {isAuthor && (
+              <p className="mt-2 text-xs text-zinc-500">
+                You can still read and edit it, but it cannot be republished to the
+                gallery without a moderator restoring it.
+              </p>
+            )}
+          </Card>
+        )}
 
         <Card className="mb-8 p-6">
           <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
@@ -211,6 +237,12 @@ export default async function ScenarioDetailPage({
             </Card>
           )}
         </section>
+
+        {canReportScenario(acl, viewer) && (
+          <div className="mt-10 border-t border-white/8 pt-6">
+            <ReportScenario scenarioId={scenario.id} alreadyReported={myReport != null} />
+          </div>
+        )}
       </div>
     </main>
   );

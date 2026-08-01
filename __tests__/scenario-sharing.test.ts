@@ -5,6 +5,9 @@ import {
   canCloneScenario,
   canRateScenario,
   appearsInGallery,
+  canSetVisibility,
+  canReportScenario,
+  reportPriority,
   isValidStars,
   summariseRatings,
   rankingScore,
@@ -160,6 +163,93 @@ describe("rankingScore", () => {
     const many = rankingScore({ average: 5, count: 500 });
     expect(many).toBeGreaterThan(few);
     expect(many).toBeLessThanOrEqual(5);
+  });
+});
+
+describe("moderation — takedown", () => {
+  const down = (over: Partial<ScenarioAcl> = {}) =>
+    scenario({ takenDownAt: new Date("2026-08-01T00:00:00Z"), ...over });
+
+  it("removes it from the gallery", () => {
+    expect(appearsInGallery(down())).toBe(false);
+  });
+
+  it("hides it from everyone but its author and admins", () => {
+    expect(canViewScenario(down(), viewer())).toBe(false);
+    expect(canViewScenario(down(), viewer({ userId: "author" }))).toBe(true);
+    expect(canViewScenario(down(), viewer({ isAdmin: true }))).toBe(true);
+  });
+
+  it("stops the author republishing it", () => {
+    // The whole point: a takedown that the author can undo is not a takedown.
+    expect(canSetVisibility(down(), viewer({ userId: "author" }), "COMMUNITY")).toBe(false);
+  });
+
+  it("still lets the author make it private or unlisted", () => {
+    expect(canSetVisibility(down(), viewer({ userId: "author" }), "PRIVATE")).toBe(true);
+    expect(canSetVisibility(down(), viewer({ userId: "author" }), "UNLISTED")).toBe(true);
+  });
+
+  it("lets an admin restore it", () => {
+    expect(canSetVisibility(down(), viewer({ isAdmin: true }), "COMMUNITY")).toBe(true);
+  });
+
+  it("cannot be reintroduced by cloning, even by an admin", () => {
+    expect(canCloneScenario(down(), viewer())).toBe(false);
+    expect(canCloneScenario(down(), viewer({ userId: "author" }))).toBe(false);
+    expect(canCloneScenario(down(), viewer({ isAdmin: true }))).toBe(false);
+  });
+
+  it("cannot be rated", () => {
+    expect(canRateScenario(down(), viewer())).toBe(false);
+  });
+
+  it("cannot be reported again", () => {
+    expect(canReportScenario(down(), viewer())).toBe(false);
+  });
+
+  it("leaves an untouched scenario unaffected", () => {
+    expect(appearsInGallery(scenario())).toBe(true);
+    expect(canSetVisibility(scenario(), viewer({ userId: "author" }), "COMMUNITY")).toBe(true);
+  });
+});
+
+describe("canReportScenario", () => {
+  it("lets a viewer report community content", () => {
+    expect(canReportScenario(scenario(), viewer())).toBe(true);
+  });
+
+  it("stops you reporting your own work", () => {
+    expect(canReportScenario(scenario(), viewer({ userId: "author" }))).toBe(false);
+  });
+
+  it("has nothing to report on a private scenario", () => {
+    expect(canReportScenario(scenario({ visibility: "PRIVATE" }), viewer())).toBe(false);
+  });
+
+  it("allows reporting unlisted content, which is still in circulation", () => {
+    expect(canReportScenario(scenario({ visibility: "UNLISTED" }), viewer())).toBe(true);
+  });
+});
+
+describe("canSetVisibility", () => {
+  it("refuses anyone who cannot edit", () => {
+    expect(canSetVisibility(scenario(), viewer(), "PRIVATE")).toBe(false);
+  });
+});
+
+describe("reportPriority", () => {
+  it("counts distinct reporters, not reports", () => {
+    expect(
+      reportPriority([{ reporterId: "a" }, { reporterId: "a" }, { reporterId: "a" }]),
+    ).toBe(1);
+    expect(
+      reportPriority([{ reporterId: "a" }, { reporterId: "b" }, { reporterId: "c" }]),
+    ).toBe(3);
+  });
+
+  it("is zero with no reports", () => {
+    expect(reportPriority([])).toBe(0);
   });
 });
 

@@ -31,6 +31,7 @@ export async function POST(
       createdById: scenario.createdById,
       visibility: scenario.visibility as ScenarioVisibility,
       published: scenario.published,
+      takenDownAt: scenario.takenDownAt,
     },
     { userId: user.id, isAdmin: user.role === "ADMIN" },
   );

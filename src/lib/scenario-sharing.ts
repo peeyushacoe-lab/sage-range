@@ -16,7 +16,31 @@ export type ScenarioAcl = {
   visibility: ScenarioVisibility;
   /** Legacy flag retained from before visibility existed. */
   published: boolean;
+  /** Set when a moderator has removed this from circulation. */
+  takenDownAt?: Date | null;
 };
+
+export const REPORT_REASONS = [
+  "INAPPROPRIATE",
+  "PLAGIARISM",
+  "MISLEADING",
+  "SPAM",
+  "OTHER",
+] as const;
+
+export type ScenarioReportReason = (typeof REPORT_REASONS)[number];
+
+export const REPORT_REASON_LABEL: Record<ScenarioReportReason, string> = {
+  INAPPROPRIATE: "Inappropriate or harmful content",
+  PLAGIARISM: "Copied from someone else's work",
+  MISLEADING: "Technically wrong or misleading",
+  SPAM: "Spam or advertising",
+  OTHER: "Something else",
+};
+
+export function isTakenDown(scenario: ScenarioAcl): boolean {
+  return scenario.takenDownAt != null;
+}
 
 export type ScenarioViewer = {
   userId: string;
@@ -33,7 +57,10 @@ export type ScenarioViewer = {
  */
 export function canViewScenario(scenario: ScenarioAcl, viewer: ScenarioViewer): boolean {
   if (viewer.isAdmin) return true;
+  // The author keeps access to their own taken-down work, so they can see what
+  // was removed and edit it; everyone else loses it immediately.
   if (scenario.createdById === viewer.userId) return true;
+  if (isTakenDown(scenario)) return false;
 
   switch (scenario.visibility) {
     case "COMMUNITY":
@@ -59,6 +86,9 @@ export function canEditScenario(scenario: ScenarioAcl, viewer: ScenarioViewer): 
  * you cannot clone something you could not open in the first place.
  */
 export function canCloneScenario(scenario: ScenarioAcl, viewer: ScenarioViewer): boolean {
+  // Removed content must not be reintroduced through a fork — not even by its
+  // author, and not by an admin who can still read it.
+  if (isTakenDown(scenario)) return false;
   return canViewScenario(scenario, viewer);
 }
 
@@ -70,13 +100,60 @@ export function canCloneScenario(scenario: ScenarioAcl, viewer: ScenarioViewer):
  */
 export function canRateScenario(scenario: ScenarioAcl, viewer: ScenarioViewer): boolean {
   if (scenario.createdById === viewer.userId) return false;
+  if (isTakenDown(scenario)) return false;
   if (scenario.visibility === "PRIVATE") return false;
   return canViewScenario(scenario, viewer);
 }
 
 /** Whether this scenario belongs in the public gallery. */
 export function appearsInGallery(scenario: ScenarioAcl): boolean {
+  if (isTakenDown(scenario)) return false;
   return scenario.visibility === "COMMUNITY";
+}
+
+/**
+ * Whether the viewer may set this scenario to a given visibility.
+ *
+ * The point of the takedown flag: without this, a moderator setting a scenario
+ * to PRIVATE achieves nothing, because its author can flip it straight back to
+ * COMMUNITY. Only an admin can restore a taken-down scenario, and clearing the
+ * flag is a separate deliberate act.
+ */
+export function canSetVisibility(
+  scenario: ScenarioAcl,
+  viewer: ScenarioViewer,
+  target: ScenarioVisibility,
+): boolean {
+  if (!canEditScenario(scenario, viewer)) return false;
+  if (isTakenDown(scenario) && target === "COMMUNITY" && !viewer.isAdmin) return false;
+  return true;
+}
+
+/**
+ * Whether the viewer may report this scenario.
+ *
+ * You cannot report your own work, and there is nothing to report on something
+ * that is not in circulation. Admins act through the review queue rather than
+ * by filing reports against themselves.
+ */
+export function canReportScenario(scenario: ScenarioAcl, viewer: ScenarioViewer): boolean {
+  if (scenario.createdById === viewer.userId) return false;
+  if (isTakenDown(scenario)) return false;
+  if (scenario.visibility === "PRIVATE") return false;
+  return canViewScenario(scenario, viewer);
+}
+
+export type ReportStatus = "OPEN" | "UPHELD" | "DISMISSED";
+
+/**
+ * Whether a scenario warrants a moderator's attention ahead of others.
+ *
+ * Reports from distinct users matter more than repeated reasons: three people
+ * independently flagging something is a stronger signal than one person
+ * picking three categories.
+ */
+export function reportPriority(openReports: readonly { reporterId: string }[]): number {
+  return new Set(openReports.map((r) => r.reporterId)).size;
 }
 
 export const MIN_STARS = 1;
@@ -134,9 +211,9 @@ export function cloneTitle(original: string): string {
 
 // ── Database helpers ───────────────────────────────────────────────────────
 
-/** Prisma filter for the community gallery. */
+/** Prisma filter for the community gallery. Mirrors appearsInGallery. */
 export function galleryFilter() {
-  return { visibility: "COMMUNITY" as const };
+  return { visibility: "COMMUNITY" as const, takenDownAt: null };
 }
 
 /**
