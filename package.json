@@ -33,7 +33,9 @@
     "repair:weekly": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/repair-weekly-pipeline.ts",
     "seed:new-labs": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-new-labs.ts",
     "seed:incidents-full": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-incident-catalogue.ts",
-    "seed:modules": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-path-modules.ts"
+    "seed:modules": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-path-modules.ts",
+    "seed:templates": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-scenario-templates.ts",
+    "seed:academy-courses": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-academy-courses.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

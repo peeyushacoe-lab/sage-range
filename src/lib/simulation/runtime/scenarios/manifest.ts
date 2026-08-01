@@ -1,4 +1,5 @@
 import type { IndustryArchetypeId } from "../company/generator";
+import { EXTENDED_SCENARIOS } from "./manifest-extended";
 
 export interface StartingConditions {
   activeControls?: string[];           // defender actions already applied at start
@@ -143,6 +144,10 @@ export const SCENARIOS: Record<string, ScenarioManifest> = {
   },
 
 };
+
+// Merged at export so callers see one registry. The split is for file length
+// only — EXTENDED_SCENARIOS entries are equal in every other respect.
+Object.assign(SCENARIOS, EXTENDED_SCENARIOS);
 
 export function getScenario(id: string): ScenarioManifest | null {
   return SCENARIOS[id] ?? null;
