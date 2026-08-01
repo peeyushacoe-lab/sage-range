@@ -104,3 +104,18 @@ export function SubmitBtn({ label = "Submit" }: { label?: string }) {
     </button>
   );
 }
+
+/**
+ * Report a wrong submission to the server.
+ *
+ * Lab answers are checked in the browser, so without this the server only ever
+ * sees successes and cannot tell a reasoned solve from a brute-forced one.
+ * Fire-and-forget: a failure here must never block the learner.
+ */
+export function reportWrong(labId: string, stage: string): void {
+  void fetch("/api/labs/wrong-attempt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ labId, stage }),
+  }).catch(() => {});
+}

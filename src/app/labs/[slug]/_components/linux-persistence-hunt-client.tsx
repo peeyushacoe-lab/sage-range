@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -96,6 +96,7 @@ export function LinuxPersistenceHuntClient({
       setE1("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setE1("Look for an entry that fetches and executes remote content.");
     }
   }
@@ -107,6 +108,7 @@ export function LinuxPersistenceHuntClient({
       setE2("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setE2("Which directive in the unit file runs the reverse shell? Name it exactly.");
     }
   }
@@ -118,6 +120,7 @@ export function LinuxPersistenceHuntClient({
       setE3("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setE3("Give the file. Compare modification dates against the others.");
     }
   }

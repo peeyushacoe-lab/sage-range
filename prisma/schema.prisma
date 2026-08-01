@@ -266,15 +266,18 @@ model Flag {
 }
 
 model Attempt {
-  id           String        @id @default(cuid())
-  userId       String
-  labId        String
-  status       AttemptStatus @default(IN_PROGRESS)
-  score        Int           @default(0)
-  labVersion   Int           @default(1)
-  startedAt    DateTime      @default(now())
-  solvedAt     DateTime?
-  timeTakenSec Int?
+  id            String        @id @default(cuid())
+  userId        String
+  labId         String
+  status        AttemptStatus @default(IN_PROGRESS)
+  score         Int           @default(0)
+  // Wrong submissions before the lab was solved. Drives the award penalty in
+  // src/lib/scoring.ts, so a brute-forced solve ranks below a clean one.
+  wrongAttempts Int           @default(0)
+  labVersion    Int           @default(1)
+  startedAt     DateTime      @default(now())
+  solvedAt      DateTime?
+  timeTakenSec  Int?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   lab  Lab  @relation(fields: [labId], references: [id], onDelete: Cascade)

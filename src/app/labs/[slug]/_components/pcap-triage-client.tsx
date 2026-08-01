@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -96,6 +96,7 @@ export function PcapTriageClient({
       setE1("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setE1("Not that one. Look for volume that does not match duration.");
     }
   }
@@ -106,6 +107,7 @@ export function PcapTriageClient({
       setE2("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setE2("Read the inter-arrival times — they barely vary. Answer in seconds.");
     }
   }
@@ -116,6 +118,7 @@ export function PcapTriageClient({
       setE3("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setE3("Give the parent domain only, without the changing label.");
     }
   }

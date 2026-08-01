@@ -6,6 +6,8 @@
  * scattered through route handlers.
  */
 
+import { NEGATIVE_MARK_FRACTION } from "@/lib/scoring";
+
 export type AssessmentQuestion = {
   id: string;
   /** SINGLE picks one option; MULTI requires the exact set. */
@@ -27,6 +29,10 @@ export type GradedAssessment = {
   correct: string[];
   /** Question ids answered incorrectly or skipped. */
   incorrect: string[];
+  /** Question ids left unanswered. Subset of `incorrect`, never penalised. */
+  skipped: string[];
+  /** Points deducted for wrong answers, before the score is floored at zero. */
+  penalty: number;
   /** TEXT questions needing a human, excluded from the automatic score. */
   requiresReview: string[];
 };
@@ -52,10 +58,12 @@ export function gradeAssessment(
 ): GradedAssessment {
   const correct: string[] = [];
   const incorrect: string[] = [];
+  const skipped: string[] = [];
   const requiresReview: string[] = [];
 
   let earned = 0;
   let available = 0;
+  let penalty = 0;
 
   for (const q of questions) {
     const points = q.points ?? 1;
@@ -69,7 +77,10 @@ export function gradeAssessment(
     available += points;
 
     if (given === undefined || given === null) {
+      // Unanswered, not wrong. Penalising a skip would make guessing the
+      // rational move and defeat the point of negative marking.
       incorrect.push(q.id);
+      skipped.push(q.id);
       continue;
     }
 
@@ -85,20 +96,31 @@ export function gradeAssessment(
       earned += points;
       correct.push(q.id);
     } else {
+      // Negative marking: a wrong answer costs a fraction of the question's
+      // points, so guessing scores worse than leaving it blank.
+      const cost = points * NEGATIVE_MARK_FRACTION;
+      penalty += cost;
+      earned -= cost;
       incorrect.push(q.id);
     }
   }
 
+  // Floored at zero: a negative percentage is not meaningful to display, and
+  // one bad paper should not drag a learner's whole profile down.
+  const flooredEarned = Math.max(0, earned);
+
   // An assessment made entirely of TEXT questions has nothing to auto-score.
-  const score = available === 0 ? 0 : Math.round((earned / available) * 100);
+  const score = available === 0 ? 0 : Math.round((flooredEarned / available) * 100);
 
   return {
     score,
-    earned,
+    earned: Math.round(flooredEarned * 100) / 100,
     available,
     passed: available > 0 && score >= passingScore,
     correct,
     incorrect,
+    skipped,
+    penalty: Math.round(penalty * 100) / 100,
     requiresReview,
   };
 }

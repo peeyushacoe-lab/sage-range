@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 import { coinsForPoints } from "@/lib/soc-league";
 import { checkDailyHuntCompletion } from "@/lib/daily-hunt";
+import { awardAfterPenalty, weightedPoints } from "@/lib/scoring";
 
 const Body = z.object({
   labId: z.string().min(1),
@@ -143,7 +144,12 @@ export async function POST(req: Request) {
         const now = new Date();
         const startedAt = existing?.startedAt ?? now;
         const timeTakenSec = Math.floor((now.getTime() - startedAt.getTime()) / 1000);
-        const awardPoints = user.role === "STUDENT" ? lab.points : 0;
+        // Weight by difficulty, then dock for wrong submissions, so a
+        // brute-forced solve ranks below a reasoned one and depth beats volume.
+        const facePoints = weightedPoints(lab.points, lab.difficulty);
+        const wrongAttempts = existing?.wrongAttempts ?? 0;
+        const awardPoints =
+          user.role === "STUDENT" ? awardAfterPenalty(facePoints, wrongAttempts) : 0;
         await db.$transaction([
           db.attempt.upsert({
             where: { userId_labId: { userId: user.id, labId: lab.id } },

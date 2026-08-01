@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -95,6 +95,7 @@ export function MemoryProcessHuntClient({
       setE1("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setE1("svchost.exe should descend from services.exe. One does not. Give its PID.");
     }
   }
@@ -106,6 +107,7 @@ export function MemoryProcessHuntClient({
       setE2("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setE2("Compare the image paths of PID 3288 and PID 2440. Give the anomalous full path.");
     }
   }
@@ -116,6 +118,7 @@ export function MemoryProcessHuntClient({
       setE3("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setE3("Which process has unbacked RWX memory beginning with an MZ header?");
     }
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -95,6 +95,7 @@ export function EmailHeaderForensicsClient({
       setE1("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setE1("Read the Received chain from the bottom up — the earliest hop is the origin.");
     }
   }
@@ -106,6 +107,7 @@ export function EmailHeaderForensicsClient({
       setE2("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setE2("Compare the sending domain against the genuine one, character by character.");
     }
   }
@@ -117,6 +119,7 @@ export function EmailHeaderForensicsClient({
       setE3("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setE3("Which header would silently redirect the victim's reply elsewhere?");
     }
   }

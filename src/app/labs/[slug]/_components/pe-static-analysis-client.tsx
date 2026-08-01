@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -89,6 +89,7 @@ export function PeStaticAnalysisClient({
       setE1("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setE1("Which section has entropy near the theoretical maximum of 8?");
     }
   }
@@ -100,6 +101,7 @@ export function PeStaticAnalysisClient({
       setE2("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setE2("Which import lets a packed binary resolve APIs at runtime, hiding them from the import table?");
     }
   }
@@ -110,6 +112,7 @@ export function PeStaticAnalysisClient({
       setE3("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setE3("One string is a network destination. Give the domain.");
     }
   }

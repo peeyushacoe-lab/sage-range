@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -110,6 +110,7 @@ export function BuildPipelineCompromiseClient({
       setE1("");
       void saveStage("task_1");
     } else {
+      reportWrong(labId, "task_1");
       setE1("Compare the build log against the committed pipeline definition. Name the step that should not exist.");
     }
   }
@@ -121,6 +122,7 @@ export function BuildPipelineCompromiseClient({
       setE2("");
       void saveStage("task_2");
     } else {
+      reportWrong(labId, "task_2");
       setE2("An internal package was resolved from a public registry at a version that does not exist internally.");
     }
   }
@@ -132,6 +134,7 @@ export function BuildPipelineCompromiseClient({
       setE3("");
       void saveStage("task_3");
     } else {
+      reportWrong(labId, "task_3");
       setE3("Which hash represents the artefact the source actually produces?");
     }
   }
