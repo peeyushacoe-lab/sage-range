@@ -20,6 +20,9 @@
 
 import { PrismaClient } from "@prisma/client";
 import { LEARNING_PATHS } from "../src/content/learning-paths";
+import { ADVANCED_PATHS } from "../src/content/learning-paths-advanced";
+
+const ALL_PATHS = [...LEARNING_PATHS, ...ADVANCED_PATHS];
 
 const db = new PrismaClient();
 const REFRESH = process.argv.includes("--refresh");
@@ -36,7 +39,7 @@ async function main() {
   const maxOrder = await db.learningPath.aggregate({ _max: { order: true } });
   let nextOrder = (maxOrder._max.order ?? 0) + 1;
 
-  for (const seed of LEARNING_PATHS) {
+  for (const seed of ALL_PATHS) {
     let path = await db.learningPath.findUnique({
       where: { slug: seed.slug },
       select: { id: true },
