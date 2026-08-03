@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { Navbar } from "@/components/navbar";
 import { formatDuration } from "@/lib/utils";
+import { getDeckSummary } from "@/lib/academy-review";
 
 import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
@@ -110,6 +111,11 @@ export default async function AcademyPage() {
   const userLevel = user ? xpToLevel(user.xp) : null;
   const totalCompleted = completedLessonSet.size;
 
+  // Flashcard review queue across every enrolled course.
+  const deck = user
+    ? await getDeckSummary(user.id)
+    : { total: 0, due: 0, new: 0, learning: 0, young: 0, mature: 0, leeches: 0 };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
@@ -122,9 +128,28 @@ export default async function AcademyPage() {
             <h1 className="text-2xl font-bold text-white mb-1">Learn &amp; Level Up</h1>
             <p className="text-sm text-zinc-500">Structured cybersecurity courses with hands-on challenges. Learn first, then apply in labs.</p>
           </div>
-          <Link href="/academy/cheatsheets" className="hidden sm:inline-flex text-xs text-zinc-400 border border-white/10 rounded-lg px-4 py-2 hover:text-white hover:border-white/20 transition">
-            Cheat Sheets →
-          </Link>
+          <div className="hidden sm:flex items-center gap-2 shrink-0">
+            {user && deck.total > 0 && (
+              <Link
+                href="/academy/review"
+                className={`inline-flex items-center gap-2 text-xs rounded-lg px-4 py-2 border transition ${
+                  deck.due > 0
+                    ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20"
+                    : "text-zinc-400 border-white/10 hover:text-white hover:border-white/20"
+                }`}
+              >
+                Review
+                {deck.due > 0 && (
+                  <span className="bg-emerald-500 text-black font-bold rounded-full px-1.5 text-[10px] tabular-nums">
+                    {deck.due}
+                  </span>
+                )}
+              </Link>
+            )}
+            <Link href="/academy/cheatsheets" className="inline-flex text-xs text-zinc-400 border border-white/10 rounded-lg px-4 py-2 hover:text-white hover:border-white/20 transition">
+              Cheat Sheets →
+            </Link>
+          </div>
         </div>
 
         {/* User stats bar */}
@@ -169,6 +194,30 @@ export default async function AcademyPage() {
               className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition"
             >
               Resume →
+            </Link>
+          </div>
+        )}
+
+        {/* Cards waiting. Shown whenever any are due — recall practice decays
+            fast, and burying the prompt in a menu is how a deck goes stale. */}
+        {user && deck.due > 0 && (
+          <div className="mb-8 rounded-2xl border border-purple-500/20 bg-gradient-to-r from-purple-950/30 to-zinc-900/40 p-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-purple-400 font-semibold mb-1">
+                Spaced Repetition
+              </p>
+              <p className="text-sm font-semibold text-white mb-0.5">
+                {deck.due} card{deck.due === 1 ? "" : "s"} due for review
+              </p>
+              <p className="text-xs text-zinc-500">
+                {deck.mature} mature · {deck.young} young · {deck.new} not yet seen
+              </p>
+            </div>
+            <Link
+              href="/academy/review"
+              className="shrink-0 bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition"
+            >
+              Review →
             </Link>
           </div>
         )}

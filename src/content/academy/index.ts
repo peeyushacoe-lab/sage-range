@@ -25,3 +25,4 @@ export const ACADEMY_CONTENT: Course[] = [
 ];
 
 export * from "./blocks";
+export { FLASHCARDS, type CardSeed } from "./flashcards";

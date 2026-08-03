@@ -114,6 +114,7 @@ model User {
   academyNotes              AcademyUserNote[]
   academyQuizAttempts       AcademyQuizAttempt[]
   academyCertificates       AcademyCertificate[]
+  academyCardReviews        AcademyCardReview[]
   dailyHuntAttempts         DailyHuntAttempt[]
   incidentSimProgress       IncidentSimProgress[]
   socShiftAttempts          SocShiftAttempt[]
@@ -1435,6 +1436,16 @@ enum AcademyBlockType {
   IMAGE
   CALLOUT
   KNOWLEDGE_CHECK
+  // Paced formats that do what a lecture video does, without the video: a
+  // terminal session that replays keystroke by keystroke, an investigation the
+  // learner advances a step at a time, and an attack chain that draws itself.
+  TERMINAL
+  WALKTHROUGH
+  DIAGRAM
+  // Construct-an-answer practice. KNOWLEDGE_CHECK tests recall by picking an
+  // option; this asks the learner to build the command themselves, which is
+  // what the labs actually require of them.
+  PRACTICE
 }
 
 enum AcademyQuestionType {
@@ -1629,9 +1640,45 @@ model AcademyFlashcard {
   order     Int      @default(0)
   createdAt DateTime @default(now())
 
-  lesson AcademyLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson  AcademyLesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  reviews AcademyCardReview[]
 
   @@index([lessonId])
+}
+
+/// Per-learner SM-2 scheduling state for one flashcard.
+///
+/// Kept off AcademyFlashcard deliberately: the card is authored content shared
+/// by every learner, while interval and ease are personal. A card can be
+/// rewritten without disturbing anyone's schedule, and a learner's history
+/// survives content edits.
+model AcademyCardReview {
+  id          String @id @default(cuid())
+  userId      String
+  flashcardId String
+
+  /// Consecutive successful reviews. Reset to zero by a lapse.
+  repetitions Int      @default(0)
+  /// Current spacing in days. Zero means the card is still in learning.
+  intervalDays Int     @default(0)
+  /// SM-2 ease factor, floored at 1.3.
+  easeFactor  Float    @default(2.5)
+  dueAt       DateTime @default(now())
+  /// Times a previously-learned card was forgotten. High counts mark a leech.
+  lapses      Int      @default(0)
+  reviews     Int      @default(0)
+
+  lastGrade      String?
+  lastReviewedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcard AcademyFlashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, flashcardId])
+  @@index([userId, dueAt])
+  @@index([flashcardId])
 }
 
 model AcademyCertificate {

@@ -2,7 +2,9 @@
  * Cryptography for Defenders — full lesson content.
  */
 
-import { type Course, lesson, text, code, callout, check } from "./blocks";
+import {
+  type Course, lesson, text, code, callout, check, cmd, note, out, step, terminal, walkthrough, practice,
+} from "./blocks";
 
 export const CRYPTOGRAPHY: Course = {
   slug: "cryptography-for-defenders",
@@ -40,6 +42,43 @@ Encryption  Reversible with a key      AES, ChaCha20, RSA
               "danger",
               "Base64 is not protection",
               "Credentials 'obfuscated' with Base64 are stored in plaintext with an extra step. Attackers decode it as a reflex; so should you when reading logs.",
+            ),
+
+            terminal(
+              "Three operations people confuse, side by side",
+              "student@crypto-lab",
+              [
+                note("Encoding. Reversible by anyone, no key involved. It is a change of alphabet, not a security control."),
+                cmd("echo -n 'transfer 50000 to acct 9912' | base64"),
+                out("dHJhbnNmZXIgNTAwMDAgdG8gYWNjdCA5OTEy"),
+                cmd("echo 'dHJhbnNmZXIgNTAwMDAgdG8gYWNjdCA5OTEy' | base64 -d"),
+                out("transfer 50000 to acct 9912"),
+                note("No key was supplied in either direction. Anything protected only by base64 is not protected."),
+                note("Hashing. One-way, fixed length, and deterministic — the same input always gives the same digest."),
+                cmd("echo -n 'transfer 50000 to acct 9912' | sha256sum"),
+                out("6b8e15d1a3f2c0e9847bb50d21c7f4a0938e5c1642dd7fa03b9e1c8055a47f2d  -"),
+                cmd("echo -n 'transfer 50001 to acct 9912' | sha256sum"),
+                out("f10c4a7e92b3d5081ca6ef4471d0982b5e63a1c07f8b294de5013ab6c7f8290e  -"),
+                note("One digit changed and the entire digest changed. That avalanche property is what makes a hash useful for integrity — and useless for confidentiality, since you cannot get the message back."),
+                note("Encryption. Reversible, but only with the key."),
+                cmd("openssl enc -aes-256-cbc -pbkdf2 -in payment.txt -out payment.enc -pass pass:correct-horse"),
+                cmd("xxd payment.enc | head -2"),
+                out(`00000000: 5361 6c74 6564 5f5f 91c4 0a2f 88bd 3e17  Salted__.../..>.
+00000010: c209 4ab7 3f10 e582 6d41 f0a9 27cc 5b3e  ..J.?...mA..'.[>`),
+                cmd("openssl enc -d -aes-256-cbc -pbkdf2 -in payment.enc -pass pass:wrong-key"),
+                out("bad decrypt\n40E7A1B2:error:1C800064:Provider routines:ossl_cipher_unpadblock:bad decrypt"),
+                note("Wrong key, no plaintext. Encoding gives it up to anyone, hashing gives it to no one, encryption gives it to whoever holds the key. Choosing the wrong one of the three is the most common crypto mistake in production code."),
+              ],
+            ),
+
+            practice(
+              "A colleague sends a file and asks you to confirm it is byte-for-byte what they sent. Write the command that produces the value you would compare.",
+              ["sha256sum"],
+              "sha256sum payment.txt",
+              "Integrity is a hashing question, not an encoding or encryption one. base64 would only change the alphabet — anyone could alter the file and re-encode it — and encrypting proves nothing about what the plaintext was.",
+              {
+                forbids: ["base64", "openssl enc"],
+              },
             ),
             check(
               "An application stores API keys Base64-encoded in its configuration. How should this be characterised in a report?",
@@ -175,6 +214,41 @@ The algorithm is not weaker. It is deliberately slower.`,
             text(
               "Deliberately slow functions — bcrypt, scrypt, Argon2 — plus a per-password **salt** to defeat precomputed tables, are the standard. Argon2 additionally resists GPU parallelism by requiring memory as well as time.",
             ),
+
+            terminal(
+              "Why the algorithm choice decides the outcome",
+              "student@crypto-lab",
+              [
+                note("A database of password hashes has leaked. What happens next depends entirely on how they were stored."),
+                cmd("head -3 leaked_md5.txt"),
+                out(`5f4dcc3b5aa765d61d8327deb882cf99
+e10adc3949ba59abbe56e057f20f883e
+25d55ad283aa400af464c76d713c07ad`),
+                cmd("hashcat -m 0 -a 0 leaked_md5.txt rockyou.txt --quiet --status"),
+                out(`Speed.#1.........: 68914.2 MH/s (58.11ms)
+Recovered........: 3/3 (100.00%) Digests
+
+5f4dcc3b5aa765d61d8327deb882cf99:password
+e10adc3949ba59abbe56e057f20f883e:123456
+25d55ad283aa400af464c76d713c07ad:password123`),
+                note("Sixty-eight billion guesses per second. MD5 was designed to be fast, and speed is precisely the wrong property here."),
+                note("Now the same passwords stored with bcrypt at cost factor 12."),
+                cmd("head -1 leaked_bcrypt.txt"),
+                out("$2b$12$Nt9AGb1zaTiSD8UEjyKrLuJm4ROlR1r6xtqzeCA0hZvxpDrDdU2Vy"),
+                cmd("hashcat -m 3200 -a 0 leaked_bcrypt.txt rockyou.txt --quiet --status"),
+                out(`Speed.#1.........: 4218 H/s (61.44ms)
+Recovered........: 1/3 (33.33%) Digests
+Progress.........: 14344385/14344385 (100.00%)
+
+$2b$12$Nt9AGb1zaTiSD8UEjyKrLuJm4ROlR1r6xtqzeCA0hZvxpDrDdU2Vy:password`),
+                note("Four thousand guesses per second instead of sixty-eight billion — sixteen million times slower. The whole rockyou list took hours rather than milliseconds."),
+                note("Note what did not change: 'password' still fell. A slow hash buys time against weak passwords; it does not rescue them."),
+                cmd("grep -c . leaked_bcrypt.txt && awk -F'$' '{print $2, $3}' leaked_bcrypt.txt | sort -u"),
+                out(`3
+2b 12`),
+                note("The cost factor is stored in the hash itself, so you can raise it later and re-hash on next login. Designing for that from the start is the difference between a tunable system and a rewrite."),
+              ],
+            ),
             check(
               "Why is SHA-256 unsuitable for password storage despite being cryptographically sound?",
               [
@@ -209,6 +283,75 @@ Each of these makes TLS encrypt to an attacker just as happily.`,
               "danger",
               "Self-signed in production means unvalidated",
               "If a client must accept a self-signed certificate, it usually accepts *any* certificate. Pin the specific certificate instead, so exactly one is trusted rather than all of them.",
+            ),
+
+            walkthrough(
+              "Diagnosing a chain that will not validate",
+              "A client is refusing a certificate the server team insists is valid. Both can be true — validation depends on what the client can see, not on what exists.",
+              [
+                step(
+                  "Ask what the server actually sent",
+                  "A certificate is valid in the abstract; a chain is valid as presented. Start by looking at the wire, not at the certificate file on the server.",
+                  {
+                    evidence: {
+                      label: "openssl s_client -connect api.internal:443",
+                      code: `Certificate chain
+ 0 s:CN = api.internal
+   i:CN = Acme Issuing CA G2
+
+Verify return code: 21 (unable to verify the first certificate)`,
+                    },
+                    insight: "The server sent one certificate. The chain has depth 0 — the intermediate is missing from what was presented.",
+                  },
+                ),
+                step(
+                  "Work out why it appeared to work elsewhere",
+                  "Browsers often cache intermediates from previous sessions, or fetch them via the Authority Information Access extension. A command-line client with a cold cache does neither.",
+                  {
+                    evidence: {
+                      label: "AIA extension on the leaf",
+                      code: `X509v3 Authority Information Access:
+    CA Issuers - URI:http://pki.acme.internal/g2.crt
+    OCSP - URI:http://ocsp.acme.internal`,
+                    },
+                    insight: "The pointer exists, but fetching it needs network access to an internal PKI host — which this client, in a different segment, does not have.",
+                  },
+                ),
+                step(
+                  "Check the trust anchor separately from the chain",
+                  "Missing intermediate and untrusted root are different failures with different fixes. Supply the intermediate manually and see what the error becomes.",
+                  {
+                    evidence: {
+                      label: "With the intermediate supplied",
+                      code: `openssl verify -untrusted g2.crt -CAfile /etc/ssl/certs/ca-certificates.crt leaf.crt
+
+leaf.crt: CN = api.internal
+error 2 at 2 depth lookup: unable to get issuer certificate`,
+                    },
+                    insight: "The error moved from depth 0 to depth 2. The intermediate is now fine; the private root is not in the client's trust store.",
+                  },
+                ),
+                step(
+                  "Confirm the name and validity while you are here",
+                  "Two failures often hide a third. Check the subject alternative names and dates before declaring the diagnosis complete — hostname mismatch produces a similar user-visible symptom.",
+                  {
+                    evidence: {
+                      label: "Leaf details",
+                      code: `Not Before: 2026-03-01  Not After: 2027-03-01
+X509v3 Subject Alternative Name:
+    DNS:api.internal, DNS:api-v2.internal`,
+                    },
+                    insight: "Dates are fine and the name matches. Two problems, not three.",
+                  },
+                ),
+                step(
+                  "Fix both, in the right places",
+                  "Configure the server to present the full chain — that is a server misconfiguration, and it will bite every cold client. Separately, distribute the internal root to the client's trust store, which is a provisioning gap. Fixing only one leaves the failure intermittent, which is far harder to diagnose next time.",
+                  {
+                    insight: "'It works in my browser' almost always means an intermediate was cached. Test with a cold client before believing a chain is correct.",
+                  },
+                ),
+              ],
             ),
             check(
               "An application sets rejectUnauthorized: false to work with an internal service. What is the security impact?",

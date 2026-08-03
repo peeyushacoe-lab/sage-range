@@ -2,7 +2,9 @@
  * Threat Intelligence Essentials — full lesson content.
  */
 
-import { type Course, lesson, text, code, callout, check } from "./blocks";
+import {
+  type Course, lesson, text, code, callout, check, cmd, diagram, note, out, stage, step, terminal, walkthrough, practice,
+} from "./blocks";
 
 export const THREAT_INTELLIGENCE: Course = {
   slug: "threat-intelligence-essentials",
@@ -190,6 +192,77 @@ Useful        "We assess with moderate confidence that this
             text(
               "For most defenders attribution matters far less than it appears to. What changes your defences is the **technique**, not the name attached to it. Attribution matters for legal, insurance and diplomatic decisions — rarely for which detection you write next.",
             ),
+
+            walkthrough(
+              "Building an attribution assessment you can defend",
+              "Two intrusions share a malware family. Work through what that supports, what it does not, and how to write the difference down.",
+              [
+                step(
+                  "List the observations before interpreting any of them",
+                  "Separate what you saw from what you concluded. Mixing the two is how a weak assessment ends up sounding certain.",
+                  {
+                    evidence: {
+                      label: "Shared characteristics",
+                      code: `- Same loader family (PlugX variant), compiled 4 days apart
+- Both used a legitimate signed binary for DLL sideloading
+- C2 infrastructure in the same /24, registered via same registrar
+- Both targeted the manufacturing sector, 6 weeks apart
+- Operator activity clusters 01:00-09:00 UTC in both cases`,
+                    },
+                    insight: "Five overlaps. Each has a very different evidential weight, and treating them as five equal points is the core error.",
+                  },
+                ),
+                step(
+                  "Discount what is commodity or coincidental",
+                  "Malware families are shared, sold and stolen. Sector targeting is a function of what is profitable. Neither narrows the field much on its own.",
+                  {
+                    evidence: {
+                      label: "Weight assessment",
+                      code: `Loader family      LOW    — PlugX used by many groups, builder leaked
+Sector overlap     LOW    — manufacturing broadly targeted
+Working hours      LOW    — consistent with a large timezone band
+Sideloading TTP    MEDIUM — common technique, specific host binary less so
+Infrastructure     MEDIUM — same /24 and registrar is a real link`,
+                    },
+                    insight: "Nothing here is high confidence alone. That is the normal state of attribution evidence, not a failure of collection.",
+                  },
+                ),
+                step(
+                  "Look for the details that are expensive to fake",
+                  "Operational habits — the specific staging directory, a typo in a hardcoded path, the order operations are performed in — are harder to copy than tooling, because they are unconscious.",
+                  {
+                    evidence: {
+                      label: "Operational detail",
+                      code: `Both intrusions:
+  staged to C:\\Windows\\Temp\\vmware_tmp\\ (directory does not exist by default)
+  archived with the same non-default rar switches: -m5 -v200m -hp
+  disabled Defender via the same three registry writes, same order`,
+                    },
+                    insight: "A directory name that must be created, identical archive switches, and an identical sequence of registry writes. This is the strongest link in the set.",
+                  },
+                ),
+                step(
+                  "State the assessment at the right level of specificity",
+                  "There are three separable claims: same malware, same operator, same sponsor. The evidence supports them to very different degrees, and collapsing them is what makes attribution reporting untrustworthy.",
+                  {
+                    evidence: {
+                      label: "Assessment",
+                      code: `Same tooling:   HIGH confidence
+Same operator:  MODERATE confidence  (tradecraft overlap, infra proximity)
+Same sponsor:   LOW confidence       (no evidence bearing on this)`,
+                    },
+                    insight: "The third line is the one a reader will assume you meant if you do not write it. Say it explicitly, even though it is the weakest.",
+                  },
+                ),
+                step(
+                  "Write down what would change your mind",
+                  "An assessment without falsifiers is an opinion. Naming the observation that would overturn it makes the reasoning auditable, and gives collection something specific to look for.",
+                  {
+                    insight: "Here: evidence that the staging directory and rar switches appear in a public playbook or leaked toolkit would drop 'same operator' to LOW immediately.",
+                  },
+                ),
+              ],
+            ),
             check(
               "Why should defenders treat attribution cautiously?",
               [
@@ -278,6 +351,55 @@ Step 1 answers a question. Steps 3 and 4 change your defences.`,
             text(
               "Step five matters more than it looks. Lists that are never expired accumulate into blocklists nobody trusts, full of addresses reassigned to unrelated services years ago — and the false positives that follow erode confidence in every indicator you deploy afterwards.",
             ),
+
+            terminal(
+              "Checking whether a feed is still worth ingesting",
+              "analyst@ti-box",
+              [
+                note("A feed supplies 40,000 indicators. The question is not how many — it is how many are still true, and whether any ever matched."),
+                cmd("wc -l feed_ips.txt && head -3 feed_ips.txt"),
+                out(`40218 feed_ips.txt
+185.244.25.171,2024-11-02,c2
+91.203.44.18,2025-01-17,c2
+45.9.148.99,2023-06-30,scanner`),
+                note("First check the age distribution. An indicator's usefulness decays fast, and the decay rate differs enormously by type."),
+                cmd("awk -F, '{print substr($2,1,4)}' feed_ips.txt | sort | uniq -c | sort -k2"),
+                out(`   9114 2023
+  18402 2024
+  11288 2025
+    414 2026`),
+                note("Two-thirds of this feed predates 2025. IP addresses get reassigned — an address that hosted C2 in 2023 is very likely someone's mail server now."),
+                cmd("awk -F, '$2 < \"2025-01-01\"' feed_ips.txt | ti-check --resolve-current | head -4"),
+                out(`185.244.25.171  now: unassigned, no PTR
+45.9.148.99     now: shared hosting, 812 domains
+203.0.113.44    now: CDN edge node  <-- blocking this would break traffic
+198.51.100.7    now: corporate mail relay  <-- blocking this would break mail`),
+                note("Two of four old indicators now point at infrastructure you would damage yourself by blocking. This is the concrete cost of stale intelligence."),
+                note("Now the question that actually decides renewal: did any of it ever fire?"),
+                cmd("siem-query --index proxy,firewall --last 180d --match-file feed_ips.txt --summary"),
+                out(`Indicators matched at least once:      11 / 40218  (0.03%)
+Total matches:                        847
+  of which from indicators <90d old:  831
+  of which from indicators >1y old:    16 (all 2 addresses, both CDN)`),
+                note("Eleven indicators out of forty thousand ever matched, and the recent ones did nearly all the work. The old bulk is not neutral — it generated sixteen false positives."),
+                note("The decision is not 'drop the feed'. It is 'ingest indicators newer than ninety days and expire the rest automatically'. Volume was never the value."),
+              ],
+            ),
+
+            practice(
+              "Write a one-liner that keeps only the indicators first seen on or after 1 January 2026, discarding the rest of the feed.",
+              ["awk", "2026-01-01"],
+              `awk -F, '$2 >= "2026-01-01"' feed_ips.txt`,
+              "ISO dates compare correctly as strings, so no parsing is needed. Expiring by age is the practical answer to indicator decay — old addresses get reassigned, and blocking a reassigned address damages your own operations.",
+              {
+                setup: {
+                  label: "feed_ips.txt — address, first_seen, category",
+                  code: `185.244.25.171,2024-11-02,c2
+91.203.44.18,2026-01-17,c2
+45.9.148.99,2023-06-30,scanner`,
+                },
+              },
+            ),
             check(
               "What is the most valuable immediate use of a newly published indicator list?",
               [
@@ -314,6 +436,20 @@ Exfiltration over DNS                T1048.003      Untested`,
               "important",
               "Untested is not covered",
               "A rule that exists but has never been exercised is an assumption. Treat 'untested' as a separate state from 'covered', or your coverage map will flatter you.",
+            ),
+
+            diagram(
+              "An intrusion report, mapped technique by technique",
+              "Mapping is only useful if each stage points at something you could detect or prevent. Read each node as a question: would we have seen this?",
+              [
+                stage("Spearphishing attachment", "T1566.001", "A macro-enabled document reaches three finance mailboxes. Detectable at the mail gateway by attachment type and sender reputation; preventable by disabling macros from the internet."),
+                stage("User execution", "T1204.002", "One recipient enables content. The only control left at this point is the endpoint, which is why the earlier stages matter so much more."),
+                stage("Command and scripting interpreter", "T1059.001", "The macro spawns PowerShell with an encoded command. Parent-child telemetry catches this cleanly — Office spawning an interpreter has almost no legitimate use."),
+                stage("Ingress tool transfer", "T1105", "A second-stage implant is fetched over HTTPS from a three-week-old domain. Domain age and destination reputation are the signal; the traffic itself looks ordinary."),
+                stage("OS credential dumping", "T1003.001", "LSASS is accessed for credential material. Handle-access telemetry with a process filter is one of the highest-value detections available on Windows."),
+                stage("Remote services", "T1021.002", "Harvested credentials are used for SMB admin shares to two servers. Look for a workstation authenticating to servers it has never touched before."),
+                stage("Exfiltration to cloud storage", "T1567.002", "Data leaves via a consumer file-sharing service. Volume asymmetry on a workstation is the practical detection, since the destination is legitimate."),
+              ],
             ),
             check(
               "You map a report and find a technique with no detection. What is the most useful next step?",

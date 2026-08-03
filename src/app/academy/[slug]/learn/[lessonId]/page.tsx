@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
-import { LessonViewer } from "./_components/lesson-viewer";
+import { LessonViewer, type BlockType } from "./_components/lesson-viewer";
 
 export const dynamic = "force-dynamic";
 
@@ -97,7 +97,7 @@ export default async function LearnLessonPage({
         durationMin: lesson.durationMin,
         blocks:      lesson.blocks.map(b => ({
           id:      b.id,
-          type:    b.type as "TEXT" | "CODE" | "IMAGE" | "CALLOUT" | "KNOWLEDGE_CHECK",
+          type:    b.type as BlockType,
           order:   b.order,
           content: b.content as Record<string, unknown>,
         })),

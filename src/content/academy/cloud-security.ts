@@ -2,7 +2,9 @@
  * Cloud Security Essentials — full lesson content.
  */
 
-import { type Course, lesson, text, code, callout, check } from "./blocks";
+import {
+  type Course, lesson, text, code, callout, check, cmd, diagram, note, out, stage, step, terminal, walkthrough, practice,
+} from "./blocks";
 
 export const CLOUD_SECURITY: Course = {
   slug: "cloud-security-essentials",
@@ -162,6 +164,49 @@ requestParams  { "policyArn": ".../AdministratorAccess" }`,
             text(
               "Read alone, `CreateUser` is administrative housekeeping. Followed by `AttachUserPolicy` granting administrator, and then `CreateAccessKey`, it is an attacker ensuring that revoking the credential they arrived on will not remove them.\n\nSequences carry meaning that individual events do not.",
             ),
+
+            terminal(
+              "Reading CloudTrail without a SIEM",
+              "analyst@ir-box",
+              [
+                note("You have a day of CloudTrail JSON and an access key you believe was stolen. Start with what that key did."),
+                cmd("jq -r 'select(.userIdentity.accessKeyId==\"AKIA4XMPL3EXAMPLE\") | .eventName' trail.json | sort | uniq -c | sort -rn"),
+                out(`     42 GetCallerIdentity
+     18 ListBuckets
+     11 DescribeInstances
+      6 ListUsers
+      3 CreateAccessKey
+      1 AttachUserPolicy`),
+                note("GetCallerIdentity forty-two times is orientation — whoever holds the key does not know what it is. The last two lines are the problem."),
+                cmd("jq -r 'select(.eventName==\"CreateAccessKey\") | [.eventTime, .userIdentity.arn, .requestParameters.userName] | @tsv' trail.json"),
+                out(`2026-07-31T02:41:07Z  arn:aws:iam::4021:user/ci-deploy  ci-deploy
+2026-07-31T02:41:34Z  arn:aws:iam::4021:user/ci-deploy  svc-backup
+2026-07-31T02:42:02Z  arn:aws:iam::4021:user/ci-deploy  svc-backup`),
+                note("The compromised identity minted a key for itself, then two for a different user. That second user is now the persistence."),
+                cmd("jq -r 'select(.eventName==\"AttachUserPolicy\") | [.eventTime, .requestParameters.userName, .requestParameters.policyArn] | @tsv' trail.json"),
+                out(`2026-07-31T02:42:19Z  svc-backup  arn:aws:iam::aws:policy/AdministratorAccess`),
+                note("Twelve minutes from first API call to full administrator. Now find every source address involved."),
+                cmd("jq -r 'select(.userIdentity.accessKeyId==\"AKIA4XMPL3EXAMPLE\") | .sourceIPAddress' trail.json | sort -u"),
+                out(`185.244.25.171
+203.0.113.44`),
+                note("Two addresses, neither in your VPC ranges. Revoke svc-backup's keys first — that is the access that survives rotating the original."),
+              ],
+            ),
+
+            practice(
+              "Write a jq command that prints the time and target user name of every CreateAccessKey event in trail.json.",
+              ["jq", "eventName", "CreateAccessKey", "eventTime"],
+              `jq -r 'select(.eventName=="CreateAccessKey") | [.eventTime, .requestParameters.userName] | @tsv' trail.json`,
+              "select() filters the event stream by name, then the array and @tsv turn the fields you want into a readable column. CreateAccessKey is the event that makes an intrusion survive rotating the original credential, so it is worth being able to pull on demand.",
+              {
+                setup: {
+                  label: "trail.json — one event per line",
+                  code: `{"eventTime":"2026-07-31T02:41:07Z","eventName":"CreateAccessKey",
+ "userIdentity":{"arn":"arn:aws:iam::4021:user/ci-deploy"},
+ "requestParameters":{"userName":"svc-backup"}}`,
+                },
+              },
+            ),
             check(
               "A leaked access key is revoked immediately after CreateUser, AttachUserPolicy and CreateAccessKey are observed. Is the incident contained?",
               [
@@ -227,6 +272,19 @@ No trail configured in ap-south-1.`,
               "Trust policy changes are quiet and severe",
               "Adding an external account to a role's trust policy grants standing access without creating any credential in your account. It is easy to miss in a review and survives every key rotation you perform.",
             ),
+
+            diagram(
+              "One leaked key to durable access",
+              "Every stage after the first exists to survive the remediation you are about to perform. Read it as a list of things to check before you declare the incident closed.",
+              [
+                stage("Credential exposure", "T1552.001", "A long-lived access key reaches somewhere it should not — a public repository, a build log, a laptop. No API call has happened yet, and this is the last moment prevention is cheap."),
+                stage("Orientation", "T1580", "GetCallerIdentity, ListBuckets, DescribeInstances. The operator does not know what the key can do, so they ask. A burst of read-only enumeration from a new address is the earliest detectable moment."),
+                stage("Second identity", "T1136.003", "A new IAM user or access key is created. This is the pivot that matters: rotating the original key now achieves nothing, because the access no longer depends on it."),
+                stage("Privilege escalation", "T1098.001", "A managed policy — usually AdministratorAccess, because it is the one that always exists — is attached to the new identity."),
+                stage("Trail tampering", "T1562.008", "Logging is stopped, deleted, or pointed at a bucket the operator controls. StopLogging and DeleteTrail should page someone at any hour; they have no legitimate emergency use."),
+                stage("Resource abuse or exfiltration", "T1496", "Compute is spun up for mining, or storage is read out. This is the stage the finance team notices, days later, which is far too late to be your detection."),
+              ],
+            ),
             check(
               "Which cloud persistence technique survives a full rotation of all your access keys?",
               [
@@ -269,6 +327,87 @@ No trail configured in ap-south-1.`,
               "tip",
               "Answer the question the regulator will ask",
               "'Was it accessed?' is answerable only if access logging was on. If it was not, say so plainly rather than implying absence of access — those are very different statements.",
+            ),
+
+            walkthrough(
+              "Working out whether the exposure was actually read",
+              "A bucket holding customer exports has been world-readable for eleven days. The disclosure question is not whether it was public — it is whether anyone took anything.",
+              [
+                step(
+                  "Establish exactly when it became public",
+                  "The policy change is in the management trail. Get the precise timestamp before anything else, because it bounds every question that follows.",
+                  {
+                    evidence: {
+                      label: "CloudTrail — management events",
+                      code: `2026-07-20T14:22:51Z  PutBucketPolicy
+  bucket: acme-customer-exports
+  principal: arn:aws:iam::4021:user/data-eng-intern
+  policy: Principal "*", Action s3:GetObject`,
+                    },
+                    insight: "Eleven days of exposure, and an identifiable human who did it. Resist the urge to focus on the human — the exposure window is the finding.",
+                  },
+                ),
+                step(
+                  "Check whether data-plane logging was even on",
+                  "This is where most of these investigations end badly. Management events are on by default; object-level reads are not. If S3 access logging was off, you cannot prove absence of access.",
+                  {
+                    evidence: {
+                      label: "Bucket configuration",
+                      code: `ServerAccessLogging: Enabled -> s3://acme-logs/exports/
+ObjectLevelLogging (CloudTrail data events): Disabled`,
+                    },
+                    insight: "Server access logs are enabled. That is a lucky break — without them the honest answer to the disclosure question would be 'we do not know'.",
+                  },
+                ),
+                step(
+                  "Separate your own traffic from everyone else's",
+                  "The vast majority of requests will be your own application. Filter to unauthenticated requests, since a public read needs no credentials.",
+                  {
+                    evidence: {
+                      label: "Access log — anonymous GETs in the window",
+                      code: `requester: - (anonymous)
+2026-07-24T03:11:02Z GET /exports/2026-q2-customers.csv  200  41822190
+2026-07-24T03:11:44Z GET /exports/2026-q1-customers.csv  200  38911204
+2026-07-29T18:02:19Z GET /                               403  -`,
+                    },
+                    insight: "Two successful anonymous reads of full customer exports, forty megabytes each. The 403 is a scanner that found nothing.",
+                  },
+                ),
+                step(
+                  "Attribute the reads as far as you honestly can",
+                  "Source addresses give you geography and hosting provider, not identity. Say what the evidence supports and no more — a disclosure that overstates certainty is worse than one that admits a gap.",
+                  {
+                    evidence: {
+                      label: "Source analysis",
+                      code: `45.9.148.99   hosting provider, no PTR, seen scanning /24 broadly
+45.9.148.99   both requests, 42 seconds apart, curl/7.81.0 user agent`,
+                    },
+                    insight: "One source, automated client, two targeted requests. It knew the object names — which means it had already listed the bucket.",
+                  },
+                ),
+                step(
+                  "State the finding in terms the business can act on",
+                  "Two customer export files containing personal data were downloaded by an unidentified party on 24 July. The bucket was public from 20 to 31 July. Object-level logging was disabled, so reads before server access logging rotated cannot be ruled out. That last sentence is the one people want to delete, and the one that must stay.",
+                  {
+                    insight: "Notification obligations turn on 'was personal data accessed', not 'was it exposed'. You now have a defensible answer to both.",
+                  },
+                ),
+              ],
+            ),
+
+            practice(
+              "Write a one-liner that returns only the successful anonymous reads from the access log — the requests that bear on whether data actually left.",
+              ["grep", "200"],
+              `grep '^-' access.log | grep ' 200 '`,
+              "Anonymous requests carry '-' as the requester, and only a 200 means the object was served. Authenticated requests are your own application and answer a different question entirely.",
+              {
+                setup: {
+                  label: "access.log — requester, time, method, path, status, bytes",
+                  code: `-        2026-07-24T03:11:02Z GET /exports/2026-q2-customers.csv 200 41822190
+-        2026-07-29T18:02:19Z GET /                               403 -
+AIDA991  2026-07-24T09:00:11Z GET /exports/2026-q2-customers.csv 200 41822190`,
+                },
+              },
             ),
             check(
               "You discover a publicly readable bucket of customer documents. What is the correct first action?",

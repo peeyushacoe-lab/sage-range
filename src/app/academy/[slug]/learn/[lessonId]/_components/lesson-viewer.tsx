@@ -6,11 +6,26 @@ import { useRouter } from "next/navigation";
 
 import { Icon, type IconName } from "@/components/ui/icon";
 import { NoCopy } from "@/components/ui/no-copy";
+import { TerminalReplay } from "./terminal-replay";
+import { WalkthroughBlock } from "./walkthrough-block";
+import { ChainDiagram } from "./chain-diagram";
+import { PracticeBlock } from "./practice-block";
+
 type KCOption = { id: string; text: string };
+export type BlockType =
+  | "TEXT"
+  | "CODE"
+  | "IMAGE"
+  | "CALLOUT"
+  | "KNOWLEDGE_CHECK"
+  | "TERMINAL"
+  | "WALKTHROUGH"
+  | "DIAGRAM"
+  | "PRACTICE";
 type Block = {
   id: string;
   order: number;
-  type: "TEXT" | "CODE" | "IMAGE" | "CALLOUT" | "KNOWLEDGE_CHECK";
+  type: BlockType;
   content: Record<string, unknown>;
 };
 type Flashcard = { id: string; front: string; back: string };
@@ -209,6 +224,12 @@ export function LessonViewer({
                 <div className="flex items-center gap-2 mb-4">
                   <h2 className="text-xs uppercase tracking-widest text-zinc-500 font-mono">Flashcards</h2>
                   <span className="text-[10px] text-zinc-600">— click to flip</span>
+                  <Link
+                    href="/academy/review"
+                    className="ml-auto text-[10px] text-purple-400 hover:text-purple-300 border border-purple-500/25 bg-purple-500/8 rounded px-2 py-1 transition"
+                  >
+                    Review on a schedule →
+                  </Link>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2">
                   {lesson.flashcards.map((card, i) => (
@@ -353,6 +374,11 @@ function BlockRenderer({ block }: { block: Block }) {
       </figure>
     );
   }
+
+  if (block.type === "TERMINAL") return <TerminalReplay content={c} />;
+  if (block.type === "WALKTHROUGH") return <WalkthroughBlock content={c} />;
+  if (block.type === "DIAGRAM") return <ChainDiagram content={c} />;
+  if (block.type === "PRACTICE") return <PracticeBlock content={c} />;
 
   if (block.type === "KNOWLEDGE_CHECK") {
     return <KnowledgeCheckBlock content={c} />;

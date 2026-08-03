@@ -2,7 +2,9 @@
  * Digital Forensics Essentials — full lesson content.
  */
 
-import { type Course, lesson, text, code, callout, check } from "./blocks";
+import {
+  type Course, lesson, text, code, callout, check, cmd, note, out, step, terminal, walkthrough, practice,
+} from "./blocks";
 
 export const FORENSICS: Course = {
   slug: "digital-forensics-essentials",
@@ -74,6 +76,49 @@ Prefetch, Amcache          Process list and command lines
               "important",
               "Write blockers exist because mounting writes",
               "Attaching a disk to a running system can update timestamps and journals before you touch anything. A hardware write blocker removes the argument entirely.",
+            ),
+
+            terminal(
+              "Acquiring a disk image with verification",
+              "examiner@fw-station",
+              [
+                note("The disk is attached through a hardware write blocker. Confirm that before touching anything."),
+                cmd("blockdev --getro /dev/sdb"),
+                out("1"),
+                note("A 1 means read-only. If this returns 0, stop — you are about to alter evidence."),
+                cmd("hdparm -I /dev/sdb | grep -E 'Model|Serial|device size with M'"),
+                out(`  Model Number:       SAMSUNG MZVLB512HBJQ-000L7
+  Serial Number:      S4ENNF0N612345
+  device size with M = 488386 MiBytes (512110 MB)`),
+                note("Record the model and serial in your notes now. This is what ties the image to the physical device later."),
+                cmd("dc3dd if=/dev/sdb of=/eve/case-2026-114/sdb.raw hash=sha256 log=/evi/case-2026-114/acquire.log"),
+                out(`dc3dd 7.2.646 started at 2026-08-03 09:14:02 +0000
+compiled options: DEFAULT_BLOCKSIZE=32768
+device size: 1000215216 sectors
+   512110190592 bytes ( 477 G ) copied ( 100% ),  3412 s,  143 M/s
+
+  sha256 total (dc3dd): 8f2a1c9e04b7d3116a55c8ef920d4b73c1e08fa62d95b4470ac3ed81f6b209ca
+
+512110190592 bytes ( 477 G ) copied ( 100% ), 3413.2088 s, 143 M/s`),
+                note("dc3dd hashed while it read, so the hash covers what was actually on the wire. Now verify the file on disk independently."),
+                cmd("sha256sum /evi/case-2026-114/sdb.raw"),
+                out("8f2a1c9e04b7d3116a55c8ef920d4b73c1e08fa62d95b4470ac3ed81f6b209ca  /evi/case-2026-114/sdb.raw"),
+                note("The two hashes match, computed by different code paths. That is what makes the image defensible — and why the source hash must be taken during acquisition, not after."),
+                cmd("chmod 444 /evi/case-2026-114/sdb.raw && ls -l /evi/case-2026-114/"),
+                out(`-r--r--r-- 1 examiner examiner        2841 Aug  3 10:11 acquire.log
+-r--r--r-- 1 examiner examiner 512110190592 Aug  3 10:11 sdb.raw`),
+                note("Work from a copy of this file, never the file itself. The original image is now as close to the evidence as you will get."),
+              ],
+            ),
+
+            practice(
+              "You have just acquired sdb.raw and recorded the acquisition hash. Write the command that independently verifies the image file on disk still matches it.",
+              ["sha256sum"],
+              "sha256sum /evi/case-2026-114/sdb.raw",
+              "The point is a second, independent computation — the acquisition tool hashed what it read from the wire, and this hashes what landed on disk. Two code paths agreeing is what makes the image defensible.",
+              {
+                forbids: ["md5sum"],
+              },
             ),
             check(
               "Why hash an image at the moment of acquisition rather than later?",
@@ -164,6 +209,73 @@ Sysmon EID1 Execution with full command  Only if Sysmon is deployed
               "warning",
               "Corroborate before concluding",
               "One artefact is a lead. Two independent artefacts agreeing is a finding. State which you have.",
+            ),
+
+            walkthrough(
+              "Proving a binary ran, and when",
+              "Someone claims a tool was never executed on this host. No single artefact settles that. Four weak signals, agreeing, do.",
+              [
+                step(
+                  "Prefetch: did Windows prepare to run it?",
+                  "A prefetch file exists because the loader saw the executable start. Its embedded run count and last-run timestamps are among the most direct execution evidence Windows keeps.",
+                  {
+                    evidence: {
+                      label: "C:\\Windows\\Prefetch\\",
+                      code: `RCLONE.EXE-9F2A11C4.pf
+  run count:  3
+  last run:   2026-07-29 02:14:51
+  prior runs: 2026-07-28 23:40:02, 2026-07-28 23:07:19
+  loaded from: \\VOLUME{01d9...}\\USERS\\SVC-BACKUP\\APPDATA\\LOCAL\\TEMP\\`,
+                    },
+                    insight: "Three executions, and the path is a user temp directory — not where an administrator installs a legitimate transfer tool.",
+                  },
+                ),
+                step(
+                  "ShimCache: was it present, and where?",
+                  "AppCompatCache records the path and file modification time of binaries the shim engine evaluated. It is often called execution evidence; it is closer to presence evidence, which is a distinction worth being exact about.",
+                  {
+                    evidence: {
+                      label: "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\AppCompatCache",
+                      code: `C:\\Users\\svc-backup\\AppData\\Local\\Temp\\rclone.exe
+  file modified: 2026-07-28 22:51:04
+  entry position: 4 of 1024`,
+                    },
+                    insight: "Corroborates presence and gives a file modification time earlier than the first prefetch run — consistent with the file being dropped, then run.",
+                  },
+                ),
+                step(
+                  "Amcache: what was the file itself?",
+                  "Amcache carries a SHA-1 of the binary. This is the artefact that survives the file being deleted, and it lets you identify the exact build rather than just a filename anyone could have chosen.",
+                  {
+                    evidence: {
+                      label: "Amcache.hve — InventoryApplicationFile",
+                      code: `rclone.exe|8a1f...  SHA1: 9c2b7e40d18a3f5510cc0e2288a1b64d7f03e9aa
+  link date: 2026-01-14
+  publisher: (none)  signed: no`,
+                    },
+                    insight: "Unsigned, no publisher, and a hash you can check against known rclone builds. The filename was honest, which is not always the case.",
+                  },
+                ),
+                step(
+                  "Cross-check against something outside the disk",
+                  "Every artefact so far lives on the machine under investigation, and anything on that machine could have been altered. An independent source is what turns a strong case into a closed one.",
+                  {
+                    evidence: {
+                      label: "Firewall logs — same host, same window",
+                      code: `2026-07-29 02:15:04  10.20.4.88 -> 185.244.25.171:443  outbound  4.1 GB
+2026-07-28 23:41:12  10.20.4.88 -> 185.244.25.171:443  outbound  11.8 GB`,
+                    },
+                    insight: "Large outbound transfers beginning seconds after two of the three prefetch run times. The disk says it ran; the network says what it did.",
+                  },
+                ),
+                step(
+                  "State what the evidence supports",
+                  "Four artefacts from three independent subsystems place the same binary on the host, executing three times, immediately followed by multi-gigabyte outbound transfers. The claim that it never ran does not survive that. Note also what you cannot say: none of this identifies who typed the command.",
+                  {
+                    insight: "Being precise about the boundary of your findings is what makes the findings usable. Overreach on attribution and the whole report gets discounted.",
+                  },
+                ),
+              ],
             ),
             check(
               "A binary appears in ShimCache but not in Prefetch or Amcache. What is the safest conclusion?",
@@ -282,6 +394,40 @@ NTFS     $MFT         every file, including many deleted entries
               "Mind the timezones",
               "Artefacts record in different zones — some UTC, some local, some both. Normalise everything to UTC before merging, or you will construct a sequence that never happened.",
             ),
+
+            terminal(
+              "From image to reviewable timeline",
+              "examiner@fw-station",
+              [
+                note("Timeline first, theory second. Parse everything, then narrow — going the other way means you only find what you already suspected."),
+                cmd("log2timeline.py --status_view window --storage-file case114.plaso /evi/case-2026-114/sdb.raw"),
+                out(`Source path        : /evi/case-2026-114/sdb.raw
+Source type        : storage media image
+Processing started : 2026-08-03 11:02:14
+
+Identifier   PID    Status     Events    File
+Main         8841   running    1841204   filestat
+Worker_00    8842   running     412009   winreg
+Worker_01    8843   running     288115   winevtx
+
+Processing completed. 4 812 655 events in 41m18s.`),
+                note("Nearly five million events. That is unreadable as-is, which is the point of the next step."),
+                cmd("psort.py -o l2tcsv -w case114.csv case114.plaso 'date > \"2026-07-28 00:00:00\" AND date < \"2026-07-30 00:00:00\"'"),
+                out(`Filter string: date > "2026-07-28 00:00:00" AND date < "2026-07-30 00:00:00"
+Events filtered : 4 798 002
+Events written  :    14 653
+Processing completed in 2m41s.`),
+                note("Two days around the suspected activity leaves fourteen thousand events. Still a lot, but now it is a day of reading rather than a month."),
+                cmd("grep -iE 'prefetch|\\.pf$|EventLog:4624|EventLog:4688' case114.csv | head -6"),
+                out(`2026-07-28T22:51:04Z,FILE,NTFS $MFT,...,rclone.exe created in \\Users\\svc-backup\\AppData\\Local\\Temp
+2026-07-28T23:07:19Z,PE,Prefetch,...,RCLONE.EXE-9F2A11C4.pf run 1
+2026-07-28T23:07:21Z,LOG,WinEVTX,...,4688 New Process rclone.exe parent cmd.exe
+2026-07-28T23:40:02Z,PE,Prefetch,...,RCLONE.EXE-9F2A11C4.pf run 2
+2026-07-29T02:14:51Z,PE,Prefetch,...,RCLONE.EXE-9F2A11C4.pf run 3
+2026-07-29T02:41:33Z,FILE,NTFS $MFT,...,rclone.exe deleted`),
+                note("Dropped at 22:51, run three times, deleted at 02:41. The sequence is the finding — no single line above would have been enough."),
+              ],
+            ),
             check(
               "What is the most effective way to approach a super timeline with millions of entries?",
               [
@@ -354,6 +500,16 @@ Sysmon
             ),
             text(
               "Attackers increasingly avoid clearing logs precisely because it is so loud, and instead stop the collector or quietly narrow its configuration. A log that continues cleanly but stops recording one *category* of event is the subtler version of the same idea, and is easy to miss because the file itself looks perfectly healthy.",
+            ),
+
+            practice(
+              "Write the PowerShell command that returns every Security log entry recording that the log itself was cleared.",
+              ["Get-WinEvent", "1102"],
+              "Get-WinEvent -FilterHashtable @{LogName='Security'; Id=1102}",
+              "Clearing the Security log writes event 1102 before the clear takes effect, so the destruction records itself. The absence of everything else is the finding, and 1102 is what proves the absence was deliberate.",
+              {
+                forbids: ["4624"],
+              },
             ),
             check(
               "Security log entries stop for 40 minutes during a suspected intrusion, then resume. How should the report characterise this?",

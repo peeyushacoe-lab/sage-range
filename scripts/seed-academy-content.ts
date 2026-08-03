@@ -18,7 +18,7 @@
  */
 
 import { PrismaClient, Prisma } from "@prisma/client";
-import { ACADEMY_CONTENT, expandBlock } from "../src/content/academy";
+import { ACADEMY_CONTENT, expandBlock, FLASHCARDS } from "../src/content/academy";
 
 const db = new PrismaClient();
 
@@ -27,6 +27,7 @@ async function main() {
 
   let lessonsFilled = 0;
   let blocksWritten = 0;
+  let cardsWritten = 0;
   const mismatches: string[] = [];
   const missing: string[] = [];
 
@@ -101,8 +102,43 @@ async function main() {
           }),
         });
 
+        // Flashcards for this lesson, if the deck has any.
+        //
+        // Replaced rather than merged, like blocks — but only when the deck
+        // actually supplies cards. A lesson absent from the deck keeps whatever
+        // cards it already has, so re-running this cannot wipe an existing
+        // course's flashcards along with the learners' schedules for them.
+        const deck = FLASHCARDS[course.slug]?.[les.title];
+        if (deck?.length) {
+          await db.academyFlashcard.deleteMany({ where: { lessonId: dbLesson.id } });
+          await db.academyFlashcard.createMany({
+            data: deck.map((c, i) => ({
+              lessonId: dbLesson.id,
+              front: c.front,
+              back: c.back,
+              order: i + 1,
+            })),
+          });
+          cardsWritten += deck.length;
+        }
+
         lessonsFilled++;
         blocksWritten += les.blocks.length;
+      }
+    }
+  }
+
+  // A deck entry whose lesson title matches nothing writes no cards and would
+  // otherwise fail silently.
+  const authoredTitles = new Set(
+    ACADEMY_CONTENT.flatMap((c) =>
+      c.modules.flatMap((m) => m.lessons.map((l) => `${c.slug}::${l.title}`)),
+    ),
+  );
+  for (const [slug, lessons] of Object.entries(FLASHCARDS)) {
+    for (const title of Object.keys(lessons)) {
+      if (!authoredTitles.has(`${slug}::${title}`)) {
+        missing.push(`flashcards for ${slug} / "${title}" — no such lesson`);
       }
     }
   }
@@ -115,10 +151,12 @@ async function main() {
   const totals = {
     lessons: await db.academyLesson.count(),
     blocks: await db.academyLessonBlock.count(),
+    cards: await db.academyFlashcard.count(),
   };
 
   console.log(`Lessons filled: ${lessonsFilled}`);
   console.log(`Blocks written: ${blocksWritten}`);
+  console.log(`Flashcards written: ${cardsWritten}`);
 
   if (mismatches.length) {
     console.log(`\n${mismatches.length} title mismatch(es) — content may be attached to the wrong lesson:`);
@@ -137,7 +175,8 @@ async function main() {
 
   console.log(
     `\nNow live — ${totals.lessons} lessons, ${totals.blocks} content blocks ` +
-      `(${(totals.blocks / Math.max(1, totals.lessons)).toFixed(1)} per lesson)\n`,
+      `(${(totals.blocks / Math.max(1, totals.lessons)).toFixed(1)} per lesson), ` +
+      `${totals.cards} flashcards\n`,
   );
 
   await db.$disconnect();

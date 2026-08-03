@@ -6,7 +6,9 @@
  * check that tests reasoning rather than recall.
  */
 
-import { type Course, lesson, text, code, callout, check } from "./blocks";
+import {
+  type Course, lesson, text, code, callout, check, cmd, diagram, note, out, stage, step, terminal, walkthrough, practice,
+} from "./blocks";
 
 export const NETWORK_SECURITY: Course = {
   slug: "network-security-fundamentals",
@@ -82,6 +84,56 @@ export const NETWORK_SECURITY: Course = {
               "tip",
               "NXDOMAIN rate is a cheap detection",
               "Ordinary hosts fail a small fraction of lookups. A host failing the overwhelming majority is either badly misconfigured or running something that expects to fail. Both are worth knowing about.",
+            ),
+
+            terminal(
+              "Pulling a day of resolver logs apart",
+              "analyst@soc-jump",
+              [
+                note("Start wide. Which hosts made the most unique lookups today?"),
+                cmd("awk '{print $3, $4}' dns.log | sort -u | awk '{print $1}' | sort | uniq -c | sort -rn | head -5"),
+                out(`   4127 10.20.4.88
+    612 10.20.4.15
+    588 10.20.9.31
+    401 10.20.4.02
+    377 10.20.7.14`),
+                note("10.20.4.88 made almost seven times more unique lookups than anything else. That is not a person browsing."),
+                cmd("grep '10.20.4.88' dns.log | awk '{print $4}' | rev | cut -d. -f1,2 | rev | sort | uniq -c | sort -rn | head -3"),
+                out(`   3981 updates-cdn.info
+     94 windowsupdate.com
+     52 office365.com`),
+                note("Nearly four thousand distinct names under one parent domain. Now look at what they resolved to."),
+                cmd("grep 'updates-cdn.info' dns.log | awk '{print $6}' | sort | uniq -c"),
+                out(`   3974 NXDOMAIN
+      7 NOERROR`),
+                note("A 99.8% failure rate. The malware is walking a generated list; the operator registered seven of them."),
+                cmd("grep 'updates-cdn.info' dns.log | grep NOERROR | awk '{print $4, $7}'"),
+                out(`9c2e0b47.updates-cdn.info  91.203.44.18
+b81f70a3.updates-cdn.info  91.203.44.18
+d40c9e15.updates-cdn.info  91.203.44.18
+7a2b8f60.updates-cdn.info  185.244.25.171
+e93d1c8a.updates-cdn.info  185.244.25.171
+1f6a04b2.updates-cdn.info  185.244.25.171
+55ce7d90.updates-cdn.info  185.244.25.171`),
+                note("Seven names, two addresses. Those two IPs are your blocking targets — and the pattern is your detection."),
+              ],
+            ),
+
+            practice(
+              "Using the log format below, write a one-liner that prints every query name with the number of times it was requested, most frequent first.",
+              ["awk", "uniq -c", "sort -rn"],
+              "awk '{print $3}' dns.log | sort | uniq -c | sort -rn",
+              "Extract the field, sort so identical names are adjacent, count the runs with uniq -c, then sort numerically in reverse. uniq only collapses adjacent lines, which is why the first sort is not optional.",
+              {
+                setup: {
+                  label: "dns.log — space separated",
+                  code: `timestamp             client        query                         type  rcode
+2026-08-02T02:14:01Z  10.20.4.88    x1f4a9d2.updates-cdn.info     A     NXDOMAIN
+2026-08-02T02:14:06Z  10.20.4.88    a7b3c0e1.updates-cdn.info     A     NXDOMAIN
+2026-08-02T02:15:02Z  10.20.4.15    outlook.office365.com         A     NOERROR`,
+                },
+                forbids: ["grep -c"],
+              },
             ),
             check(
               "A workstation generates 1,900 DNS queries in an hour, 99% returning NXDOMAIN, all under one parent domain. What does this most likely indicate?",
@@ -229,6 +281,21 @@ WKS-FIN-207     WKS-ENG-052, WKS-ENG-061,   anomalous — workstation to
             text(
               "The 'even chunks' detail in the second row is what separates deliberate exfiltration from an ordinary large upload. Attackers commonly split transfers to stay under volume-based alerting thresholds — and that regularity is itself the signature.",
             ),
+
+            practice(
+              "Write a one-liner that prints only the hosts sending out more bytes than they received — the direction asymmetry that matters for exfiltration.",
+              ["awk", "$3", "$2"],
+              "awk '$3 > $2 {print $1, $2, $3}' flows.txt",
+              "The comparison is the whole detection. Total volume tells you little on its own; a workstation that uploads more than it downloads is behaving unlike a workstation.",
+              {
+                setup: {
+                  label: "flows.txt — host, bytes_in, bytes_out",
+                  code: `10.20.4.15   842011920   19402011
+10.20.4.88     4021884  11844029301
+10.20.9.31    92011002    1840221`,
+                },
+              },
+            ),
             check(
               "A host sends 4 GB outbound over eleven hours in evenly sized chunks, overnight, to a single external IP. What is the strongest interpretation?",
               [
@@ -318,6 +385,78 @@ Mean payload out: 118 bytes    Mean payload in: 96 bytes`,
               "Legitimate software beacons too",
               "Monitoring agents, update checkers and telemetry all poll on intervals. The differentiators are destination reputation, certificate quality, client fingerprint, and whether the process responsible is one you expect.",
             ),
+
+            walkthrough(
+              "Separating a beacon from a busy application",
+              "A host is talking to the same external address every few minutes. So is your monitoring agent. Work through what actually distinguishes them.",
+              [
+                step(
+                  "Start from the interval, not the destination",
+                  "Reputation lists will not help here — the destination is a rented VPS with no history. What you can measure without any external data is the rhythm of the connections.",
+                  {
+                    evidence: {
+                      label: "conn.log — intervals between connections (seconds)",
+                      code: `10.20.4.88 -> 185.244.25.171
+  302 298 301 300 299 303 297 301 300 302 298 300
+
+10.20.4.15 -> 34.117.59.81
+  61 447 12 890 33 1204 8 76 2311 44 19 655`,
+                    },
+                    insight: "The first host's intervals sit within six seconds of five minutes, every time. The second wanders across three orders of magnitude.",
+                  },
+                ),
+                step(
+                  "Quantify the regularity rather than eyeballing it",
+                  "Standard deviation over the intervals turns the impression into a number you can alert on. Low deviation relative to the mean means a timer is driving the traffic.",
+                  {
+                    evidence: {
+                      label: "Interval statistics",
+                      code: `host          mean    stddev   stddev/mean
+10.20.4.88    300.1     1.9        0.006
+10.20.4.15    563.3    712.4        1.264`,
+                    },
+                    insight: "A ratio near zero is a machine on a schedule. Near or above one is a human, or an application reacting to a human.",
+                  },
+                ),
+                step(
+                  "Check whether the monitoring agent looks the same",
+                  "This is the step people skip, and it is why beacon rules get switched off. Your own agents also poll on a fixed timer, so regularity alone will flag them too.",
+                  {
+                    evidence: {
+                      label: "Known-good comparison",
+                      code: `10.20.9.31 -> edr-cloud.vendor.net
+  60 60 61 60 60 60 59 60 61 60
+  stddev/mean = 0.008`,
+                    },
+                    insight: "The EDR agent is *more* regular than the suspect. Regularity is necessary but nowhere near sufficient.",
+                  },
+                ),
+                step(
+                  "Bring in payload size and destination age",
+                  "What separates the two is not the timing — it is everything around it. The agent talks to a domain registered in 2014 with a valid certificate and transfers varying amounts of data. The beacon talks to a three-week-old VPS and sends near-identical byte counts every time.",
+                  {
+                    evidence: {
+                      label: "Bytes per connection",
+                      code: `10.20.4.88 -> 185.244.25.171
+  bytes out: 148 152 148 149 148 151 148
+  bytes in:  96  96  96  96  96  102 96
+
+10.20.9.31 -> edr-cloud.vendor.net
+  bytes out: 2841 19722 3106 88410 2977
+  bytes in:  412  388   9911 402   1204`,
+                    },
+                    insight: "Constant payload size means the beacon is asking the same question and mostly hearing 'nothing to do'. Real telemetry varies because there is real telemetry.",
+                  },
+                ),
+                step(
+                  "Write the detection with all three conditions",
+                  "Alert on: interval deviation under 5% of the mean, byte counts varying by under 10%, and a destination first seen in your environment within the last 30 days. Any one alone is noise. Together they are specific enough to page someone.",
+                  {
+                    insight: "Every condition you add cuts false positives — and the third one, destination age, costs nothing but an asset database you already have.",
+                  },
+                ),
+              ],
+            ),
             check(
               "An analyst dismisses a candidate beacon because its interval varies between 48 and 72 seconds. Is that reasoning sound?",
               [
@@ -360,6 +499,20 @@ Query type: 100% TXT     Environment baseline: under 2% TXT`,
               "Baseline before you hunt",
               "Every one of these signals is relative. You cannot say a label is 'long' or TXT usage is 'high' without knowing what your own environment looks like on an ordinary day.",
             ),
+
+            practice(
+              "Write a one-liner that prints only the queries whose name is longer than 50 characters — the length that separates ordinary hostnames from encoded payloads.",
+              ["awk", "length"],
+              "awk 'length($3) > 50 {print $3}' dns.log",
+              "awk's length() applied to the query field filters on the property that matters. Tunnelling has to encode data into the name itself, so the name grows well beyond what real hostnames need.",
+              {
+                setup: {
+                  label: "dns.log — query is field 3",
+                  code: `2026-08-02T02:14:01Z  10.20.4.88  aGVsbG8gd29ybGQgdGhpcyBpcyBhIHZlcnkgbG9uZyBlbmNvZGVkIHBheWxvYWQ.t.evil.io
+2026-08-02T02:14:03Z  10.20.4.15  outlook.office365.com`,
+                },
+              },
+            ),
             check(
               "Which combination most strongly indicates DNS tunnelling rather than unusual-but-benign traffic?",
               [
@@ -392,6 +545,19 @@ update.microsoft   88        1,204,000    business hours    variable`,
               "warning",
               "State what the evidence supports",
               "Flow records show volume, not content. You can say 184 MB left to this host in this window. You cannot say which files those were unless other evidence establishes it — and the difference matters enormously in a notification.",
+            ),
+
+            diagram(
+              "Collection to exfiltration, one stage at a time",
+              "Data rarely leaves in the shape it was stored. Watch where the observable moments are — each stage leaves different evidence.",
+              [
+                stage("Discovery", "T1083", "The operator enumerates file shares and mapped drives looking for anything worth taking. High-volume directory listings from a single account, often outside business hours."),
+                stage("Local collection", "T1074.001", "Files are copied to one staging directory on a compromised host — usually somewhere unremarkable like a temp or profile folder. This is the loudest stage on the endpoint and the quietest on the network."),
+                stage("Compression", "T1560.001", "The staging directory is archived, often split into fixed-size volumes. A large archive appearing where no archive belongs is a strong host-based signal."),
+                stage("Encryption", "T1560", "The archive is encrypted before it leaves, so DLP inspecting content sees nothing. This is why network content inspection alone will not save you."),
+                stage("Transfer", "T1567.002", "The archive goes out — commonly to a cloud storage provider, because that traffic is expected and TLS-wrapped. Look for volume asymmetry: a workstation uploading far more than it downloads."),
+                stage("Cleanup", "T1070.004", "The staging directory and archive are deleted. Deletion timestamps clustered minutes after a large upload are frequently the clearest evidence left behind."),
+              ],
             ),
             check(
               "Flow data shows 184 MB sent to an external host over eleven hours. What can you legitimately conclude?",

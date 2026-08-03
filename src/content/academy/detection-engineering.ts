@@ -2,7 +2,9 @@
  * Detection Engineering Essentials — full lesson content.
  */
 
-import { type Course, lesson, text, code, callout, check } from "./blocks";
+import {
+  type Course, lesson, text, code, callout, check, cmd, note, out, step, terminal, walkthrough, practice,
+} from "./blocks";
 
 export const DETECTION_ENGINEERING: Course = {
   slug: "detection-engineering-essentials",
@@ -85,6 +87,25 @@ level: high`,
             ),
             text(
               "Two habits separate durable rules from brittle ones. First, **filter narrowly** — this rule excludes one specific command line, not every PowerShell launch. Second, **document the false positive** so the next engineer understands why the exclusion exists and can tell when it stops being valid.",
+            ),
+
+            practice(
+              "Complete the condition line so the rule fires on the selection but never on the known-good activity captured by the filter.",
+              ["selection", "not", "filter"],
+              "condition: selection and not filter",
+              "Sigma conditions read as plain logic, and this is the shape almost every tuned rule ends up with: match the behaviour, then subtract the specific legitimate case. Writing the exclusion as its own named block keeps the detection readable when someone revisits it a year later.",
+              {
+                setup: {
+                  label: "rule fragment",
+                  code: `detection:
+  selection:
+    ParentImage|endswith: '\\EXCEL.EXE'
+    Image|endswith: '\\powershell.exe'
+  filter:
+    CommandLine|contains: 'C:\\FinOps\\refresh-rates.ps1'
+  condition: ???`,
+                },
+              },
             ),
             check(
               "Which change would most weaken this rule?",
@@ -209,6 +230,53 @@ explorer.exe → chrome.exe     outlook.exe → wscript.exe
             text(
               "The right-hand column is not proof of compromise — build systems and administrative tooling produce odd chains legitimately. It is an excellent *place to look*, which is what a detection is for.",
             ),
+
+            terminal(
+              "Writing and testing a parent-child rule",
+              "detect@rules-ci",
+              [
+                note("The hypothesis: Office applications should not spawn script interpreters. Write it as a rule before checking whether it holds."),
+                cmd("cat rules/office_spawns_interpreter.yml"),
+                out(`title: Office Application Spawning Script Interpreter
+id: 8c1f4a20-0d7e-4a11-9f33-2b6ce0a51d84
+status: experimental
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith:
+      - '\\WINWORD.EXE'
+      - '\\EXCEL.EXE'
+      - '\\POWERPNT.EXE'
+    Image|endswith:
+      - '\\wscript.exe'
+      - '\\cscript.exe'
+      - '\\powershell.exe'
+      - '\\mshta.exe'
+  condition: selection
+level: high`),
+                note("Now the part people skip: run it against thirty days of production telemetry before it goes anywhere near an analyst."),
+                cmd("sigma-cli check --rule rules/office_spawns_interpreter.yml --baseline prod-30d.parquet"),
+                out(`Matches over 30 days: 218
+Distinct hosts:        4
+Distinct parents:      1 (EXCEL.EXE)
+Distinct children:     1 (powershell.exe)`),
+                note("Two hundred and eighteen hits across four hosts. If this shipped as written, the analyst gets seven alerts a day from the same four machines."),
+                cmd("sigma-cli explain --rule rules/office_spawns_interpreter.yml --baseline prod-30d.parquet --group CommandLine | head -4"),
+                out(`  214  powershell.exe -ExecutionPolicy Bypass -File C:\\FinOps\\refresh-rates.ps1
+    2  powershell.exe -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoA...
+    1  powershell.exe -nop -w hidden -c IEX(New-Object Net...
+    1  powershell.exe Get-Process`),
+                note("Two hundred and fourteen of those are one finance macro doing its job. The three below it are exactly what the rule was written to catch."),
+                note("Exclude the specific script path — not EXCEL.EXE, and not powershell.exe. A broad exclusion here would have discarded the real detections too."),
+                cmd("sigma-cli check --rule rules/office_spawns_interpreter.yml --baseline prod-30d.parquet --after-tuning"),
+                out(`Matches over 30 days: 4
+Distinct hosts:        3
+Estimated alerts/day:  0.13`),
+                note("One alert every eight days, and every one worth opening. That ratio is the deliverable — not the rule file."),
+              ],
+            ),
             check(
               "Why is w3wp.exe spawning cmd.exe particularly notable?",
               [
@@ -248,6 +316,74 @@ wmic /node:10.20.1.25 process call create "cmd /c ..."
               "important",
               "Baseline decides everything here",
               "In an estate where administrators use wmic daily, alerting on wmic is unworkable. In one where they never do, it is one of your best signals. The same rule is excellent or useless depending on the environment.",
+            ),
+
+            walkthrough(
+              "Turning a noisy binary into a usable detection",
+              "certutil.exe is signed, present on every Windows host, and used constantly by legitimate software. It is also a download tool. Work out what you can actually alert on.",
+              [
+                step(
+                  "Measure the noise before writing anything",
+                  "Start by counting how often the binary runs at all across the estate. The number decides whether you are writing a detection or a hunting query.",
+                  {
+                    evidence: {
+                      label: "30 days of process creation",
+                      code: `certutil.exe executions: 41 802
+distinct hosts:          3 914
+distinct command lines:    127`,
+                    },
+                    insight: "Alerting on execution is out of the question. But 127 distinct command lines across 3,914 hosts means the *arguments* are highly repetitive.",
+                  },
+                ),
+                step(
+                  "Group by argument, not by binary",
+                  "The legitimate uses cluster tightly — certificate store operations, mostly from management software. The interesting flags barely appear.",
+                  {
+                    evidence: {
+                      label: "Top command lines by frequency",
+                      code: `38 114  certutil -verifystore My
+  2 902  certutil -f -p **** -importpfx
+    701  certutil -store -enterprise NTAuth
+     78  certutil -hashfile ... SHA256
+      6  certutil -urlcache -split -f http://...
+      1  certutil -decode payload.b64 payload.exe`,
+                    },
+                    insight: "The bottom two lines are 0.017% of all executions, and they are the only ones that download or decode.",
+                  },
+                ),
+                step(
+                  "Check the rare arguments have no legitimate owner",
+                  "Six urlcache executions is few enough to check individually. If one turns out to be a deployment script, your rule needs an exclusion rather than a lower threshold.",
+                  {
+                    evidence: {
+                      label: "The six -urlcache executions",
+                      code: `4x  host WKS-4412, parent w3wp.exe,  http://10.20.1.9/agent.msi   (internal, patch server)
+2x  host WKS-0088, parent cmd.exe,   http://185.244.25.171/a.txt  (external, VPS)`,
+                    },
+                    insight: "Four are an internal patch server and belong in an exclusion by destination. Two are an external IP address with no hostname — which is the detection.",
+                  },
+                ),
+                step(
+                  "Write the rule around intent, not the binary name",
+                  "Alert on certutil with -urlcache, -decode or -encode where the destination is not an internal address. The binary being signed and common is irrelevant once the arguments carry the intent.",
+                  {
+                    evidence: {
+                      label: "Tuned rule — 30-day replay",
+                      code: `matches:              2
+distinct hosts:       1
+estimated alerts/day: 0.07`,
+                    },
+                    insight: "Two alerts in a month, both true positives. The same log source that looked hopeless at 41,802 events produced a precise detection — because the grouping was on arguments.",
+                  },
+                ),
+                step(
+                  "Accept what this rule does not cover",
+                  "An operator who knows this rule exists uses a different binary. That is fine, and it is why living-off-the-land coverage is a set of narrow rules rather than one clever one. Write the same analysis for bitsadmin, mshta and regsvr32 next.",
+                  {
+                    insight: "Narrow rules that fire rarely and correctly are worth more than a broad rule that gets muted in week two.",
+                  },
+                ),
+              ],
             ),
             check(
               "Why is detecting living-off-the-land techniques harder than detecting malware?",
@@ -377,6 +513,47 @@ Workable.`,
             ),
             text(
               "Continuous integration is where this pays off. A pipeline that checks syntax, confirms referenced fields exist in your schema, and runs each rule against its stored samples catches the broken-rule-that-matches-nothing problem at review time rather than months later during an incident.",
+            ),
+
+            terminal(
+              "A detection pipeline that refuses bad rules",
+              "detect@rules-ci",
+              [
+                note("Rules live in git and ship through CI, exactly like application code. Here is what a pull request runs."),
+                cmd("cat .github/workflows/detections.yml"),
+                out(`name: detections
+on: [pull_request]
+jobs:
+  validate:
+    steps:
+      - run: sigma-cli validate rules/            # schema and syntax
+      - run: sigma-cli lint rules/ --strict       # required metadata
+      - run: pytest tests/detections/             # true and false positives
+      - run: sigma-cli baseline rules/ --max-per-day 1.0`),
+                note("Four gates. The last one is the one that keeps the alert queue survivable."),
+                cmd("sigma-cli validate rules/"),
+                out(`rules/office_spawns_interpreter.yml   OK
+rules/certutil_remote_fetch.yml       OK
+rules/lsass_handle_access.yml         ERROR
+    line 14: 'condition' references undefined selection 'filter_legit'
+
+1 error, 2 passed`),
+                note("A typo in a condition would have shipped a rule that silently never fires. This is the failure mode CI exists to catch."),
+                cmd("pytest tests/detections/ -q"),
+                out(`tests/detections/test_office_spawns.py::test_fires_on_maldoc      PASSED
+tests/detections/test_office_spawns.py::test_ignores_finops_macro PASSED
+tests/detections/test_certutil.py::test_fires_on_external_fetch   PASSED
+tests/detections/test_certutil.py::test_ignores_patch_server      FAILED
+
+E  Expected 0 matches, got 4
+E  Sample: certutil -urlcache -split -f http://10.20.1.9/agent.msi`),
+                note("The exclusion was written against the wrong field. Every rule needs both tests: one proving it fires, one proving it stays quiet."),
+                cmd("git log --oneline -3 -- rules/certutil_remote_fetch.yml"),
+                out(`a3f1c04  tune: exclude internal patch server by destination
+7b20e91  fix: match on urlcache and decode, not binary name
+c14d8a2  add: certutil remote fetch detection`),
+                note("Every change to a detection has an author, a reason and a diff. When an alert misbehaves at 3am, that history is what tells you why the rule looks the way it does."),
+              ],
             ),
             check(
               "What is the primary benefit of managing detections in version control?",
