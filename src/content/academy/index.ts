@@ -14,8 +14,18 @@ import { FORENSICS } from "./forensics";
 import { DETECTION_ENGINEERING } from "./detection-engineering";
 import { CRYPTOGRAPHY } from "./cryptography";
 import { THREAT_INTELLIGENCE } from "./threat-intelligence";
+import { CYBER_FUNDAMENTALS } from "./cyber-fundamentals";
+import { SOC_ANALYST } from "./soc-analyst";
+import { WEB_SECURITY } from "./web-security";
+import { LINUX_SECURITY } from "./linux-security";
 
 export const ACADEMY_CONTENT: Course[] = [
+  // The four foundational courses, brought up to the standard of the rest.
+  CYBER_FUNDAMENTALS,
+  SOC_ANALYST,
+  WEB_SECURITY,
+  LINUX_SECURITY,
+  // The six specialist courses authored to this standard from the start.
   NETWORK_SECURITY,
   CLOUD_SECURITY,
   FORENSICS,

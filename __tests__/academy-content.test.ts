@@ -2,6 +2,26 @@ import { describe, it, expect } from "vitest";
 import { ACADEMY_CONTENT, expandBlock, FLASHCARDS, type Block } from "@/content/academy";
 import { checkPractice } from "@/lib/practice-check";
 import { ACADEMY_COURSES } from "@/content/academy-courses";
+import { course1 } from "../scripts/seed-academy/course-1-fundamentals";
+import { course2 } from "../scripts/seed-academy/course-2-soc";
+import { course3 } from "../scripts/seed-academy/course-3-web";
+import { course4 } from "../scripts/seed-academy/course-4-linux";
+
+/**
+ * The authoritative structure a course's content must match, keyed by slug.
+ *
+ * The six specialist courses are defined in academy-courses.ts; the four
+ * foundational courses are defined in scripts/seed-academy, which is what the
+ * database is seeded from. Content is attached to lessons by position within
+ * (course, module, lesson), so a structural drift here silently attaches prose
+ * to the wrong lesson — which is exactly what these tests exist to prevent.
+ */
+const COURSE_STRUCTURE = new Map(
+  [...ACADEMY_COURSES, course1, course2, course3, course4].map((c) => [
+    c.slug,
+    { modules: c.modules.map((m) => ({ title: m.title, lessons: m.lessons.map((l) => l.title) })) },
+  ]),
+);
 
 const ALL_LESSONS = ACADEMY_CONTENT.flatMap((c) =>
   c.modules.flatMap((m) =>
@@ -10,16 +30,16 @@ const ALL_LESSONS = ACADEMY_CONTENT.flatMap((c) =>
 );
 
 describe("academy content", () => {
-  it("covers every course defined in academy-courses.ts", () => {
+  it("gives every catalogue course full lesson content", () => {
     const authored = new Set(ACADEMY_CONTENT.map((c) => c.slug));
-    for (const course of ACADEMY_COURSES) {
-      expect(authored.has(course.slug), `${course.slug} has no lesson content`).toBe(true);
+    for (const slug of COURSE_STRUCTURE.keys()) {
+      expect(authored.has(slug), `${slug} has no lesson content`).toBe(true);
     }
   });
 
   it("matches the module and lesson structure of the course definitions", () => {
     for (const content of ACADEMY_CONTENT) {
-      const definition = ACADEMY_COURSES.find((c) => c.slug === content.slug);
+      const definition = COURSE_STRUCTURE.get(content.slug);
       expect(definition, `${content.slug} not found in course definitions`).toBeDefined();
 
       expect(content.modules.length, `${content.slug} module count`).toBe(
@@ -35,7 +55,7 @@ describe("academy content", () => {
         );
         m.lessons.forEach((l, j) => {
           expect(l.title, `${content.slug} / ${m.title} lesson ${j + 1}`).toBe(
-            def.lessons[j].title,
+            def.lessons[j],
           );
         });
       });

@@ -668,4 +668,686 @@ export const FLASHCARDS: Record<string, Record<string, CardSeed[]>> = {
       ),
     ],
   },
+
+  // ── Cybersecurity Fundamentals ───────────────────────────────────────────
+  "cybersecurity-fundamentals": {
+    "Why Cybersecurity Matters": [
+      card(
+        "What is the structural asymmetry between attackers and defenders?",
+        "An attacker needs to find one way in; a defender must cover every way in. This is why security work is never finished and why reducing the number of entry points matters more than predicting which will be used.",
+      ),
+      card(
+        "What does it mean to say the goal of security is to make attacks expensive?",
+        "There is no perfectly secure system, so the aim is to raise the cost of attacking until the attacker gives up, gets noticed, or moves to a softer target — not to make attack impossible.",
+      ),
+    ],
+    "The CIA Triad": [
+      card(
+        "Name the three properties of the CIA triad and what each protects.",
+        "Confidentiality — only authorised people can read data. Integrity — data cannot be altered undetectably. Availability — systems and data are reachable when needed.",
+      ),
+      card(
+        "Which CIA property does ransomware that encrypts files primarily violate?",
+        "Availability. The data still exists and is not read by the attacker, but it cannot be accessed when needed — which in a hospital is the property with lives attached.",
+      ),
+      card(
+        "Why do the three CIA properties trade against each other?",
+        "Maximising one often costs another — an air-gapped system has excellent confidentiality and no availability. Good security chooses the right balance for the specific data rather than maximising all three.",
+      ),
+    ],
+    "Threats, Vulnerabilities & Risk": [
+      card(
+        "Distinguish a threat, a vulnerability and risk.",
+        "A threat is something that could cause harm; a vulnerability is a weakness it could use; risk is a threat able to reach a vulnerability, weighted by how bad the outcome would be.",
+      ),
+      card(
+        "Why can two servers with the same vulnerability carry very different risk?",
+        "Risk requires a path between threat and weakness. An internet-facing server is reachable; an isolated one is not — and reachability is often the fastest lever, since segmenting is quicker than patching.",
+      ),
+      card(
+        "Why is a CVSS severity score not the same as a risk score?",
+        "Severity describes a vulnerability in the abstract, knowing nothing about whether the system is exposed, what data it holds, or whether a compensating control blocks the path. Risk depends on all of those.",
+      ),
+    ],
+    "Threat Actors": [
+      card(
+        "Why does an attacker's motivation predict behaviour better than their skill?",
+        "Motivation and patience determine what an actor does and when they give up. An opportunist leaves when anything is hard; a state-sponsored actor persists for months — regardless of the tooling either uses.",
+      ),
+      card(
+        "What makes insider threats resistant to perimeter controls?",
+        "Insiders already have credentials, know where valuable data is, and generate activity that looks legitimate because mostly it is. Perimeter defences are simply irrelevant to them.",
+      ),
+    ],
+    "The Attack Lifecycle": [
+      card(
+        "Why are the middle stages of the attack lifecycle the best place to invest in detection?",
+        "Reconnaissance is nearly invisible and exfiltration is too late. Persistence, escalation and lateral movement force the attacker to do unusual things on systems you control and can watch.",
+      ),
+      card(
+        "Why is lateral movement particularly detectable?",
+        "Reaching the data requires authenticating between systems in patterns that normal business activity does not produce — a workstation contacting a server it has never touched. The attacker cannot avoid it.",
+      ),
+    ],
+    "IP Addresses & Ports": [
+      card(
+        "What do an IP address and a port each identify in a connection?",
+        "The IP address identifies the machine; the port identifies the service on it. Together they form a socket, and a conversation is a pair of sockets.",
+      ),
+      card(
+        "Why does an ephemeral source port carry no investigative meaning?",
+        "It is assigned per connection from a high range and identifies nothing about the service or intent. Reading it as significant is a common beginner mistake — the destination port is what names the service.",
+      ),
+      card(
+        "What does seeing a private address such as 10.20.4.15 in a log tell you?",
+        "The 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16 ranges are not routable on the internet and are reused internally, so the traffic is internal rather than to or from the wider internet.",
+      ),
+    ],
+    "The OSI Model & DNS": [
+      card(
+        "What is the practical value of the OSI model in an investigation?",
+        "It tells you which layer a problem lives at and therefore which tool answers your question — a name that will not resolve is layer 7, dropped packets between subnets are layer 3.",
+      ),
+      card(
+        "Why are DNS resolver logs valuable even when subsequent traffic is encrypted?",
+        "The lookup records intent — the name a host wanted to reach — and happens before the encrypted session begins, so it survives even when the payload that follows is completely opaque.",
+      ),
+    ],
+    "Users, Permissions & Privilege": [
+      card(
+        "State the principle of least privilege and why it is about consequences.",
+        "An account should have exactly the permissions its job needs and no more. It limits what an attacker inherits on the day the account is compromised, independent of how good the code is.",
+      ),
+      card(
+        "Why are service accounts a common weak point?",
+        "They tend to be over-permissioned so nobody has to debug a broken service, often have passwords that never expire, and no human notices when they behave oddly at 3am.",
+      ),
+    ],
+    "Processes, Logs & the Filesystem": [
+      card(
+        "What three places does activity on a host leave traces, and why correlate them?",
+        "A process that ran, a log entry describing it, and filesystem changes. Each alone is weak; the three occurring in sequence is what produces confidence a benign explanation cannot account for.",
+      ),
+      card(
+        "Why is a process list alone a weak basis for concluding a host is clean?",
+        "It is a snapshot of what runs now. Malware that ran, did its work and exited leaves no trace in it — which is why persistent execution artefacts and logs matter as much as the live view.",
+      ),
+    ],
+    "Defence in Depth & Zero Trust": [
+      card(
+        "Why does defence in depth work even when no single layer is excellent?",
+        "The layers fail independently, so an attacker has to defeat several unrelated controls in sequence. Any one of them holding ends the intrusion.",
+      ),
+      card(
+        "What assumption does zero trust remove, and what replaces it?",
+        "It removes the idea that being inside the network confers trust. Every request is authenticated and authorised on its own merits regardless of origin — 'never trust, always verify'.",
+      ),
+    ],
+    "Authentication, Authorisation & MFA": [
+      card(
+        "Distinguish authentication from authorisation, and name the bug that confusing them causes.",
+        "Authentication is who you are; authorisation is what you may do. Systems that authenticate carefully then authorise barely produce broken access control — any record served by id you type.",
+      ),
+      card(
+        "Why does a passkey defeat real-time phishing where a TOTP code does not?",
+        "A TOTP code is valid for any site, so a relay works. A passkey signature is cryptographically bound to the real origin, so a lookalike domain gets no usable signature — the user cannot get it wrong.",
+      ),
+    ],
+    "Phishing & Social Engineering": [
+      card(
+        "Why is recognising the manipulation lever more reliable than recognising the pretext?",
+        "The pretexts vary endlessly, but the levers — authority, urgency, fear, familiarity, reciprocity — are consistent. Noticing 'this message is manufacturing urgency and secrecy' generalises where spotting a specific scam does not.",
+      ),
+      card(
+        "What single control most reduces the impact of business email compromise?",
+        "A mandatory out-of-band verification step for any change to payment details. It removes the payoff regardless of whether anyone was fooled, and BEC often carries no link or attachment to filter.",
+      ),
+    ],
+    "Malware & Ransomware": [
+      card(
+        "How did double-extortion ransomware break the advice that backups are a complete answer?",
+        "Modern ransomware steals the data before encrypting it, so refusing to pay means restoring from backup and still having the data published. Backups address availability but not the confidentiality half.",
+      ),
+      card(
+        "Why is an untested backup described as a hypothesis rather than a control?",
+        "Backups routinely run for years and then fail to restore — retention too short, backup server encrypted alongside production, or a full restore never timed. Until tested, recovery is a belief.",
+      ),
+    ],
+    "Firewalls, Antivirus & Patching": [
+      card(
+        "Why is outbound firewall filtering the neglected half that catches command-and-control?",
+        "Most firewalls are tight inbound and loose outbound, so an implant calling home over 443 leaves unchallenged. C2 relies on outbound-initiated connections that inbound rules never see.",
+      ),
+      card(
+        "Why are the vulnerabilities used in real intrusions usually old rather than zero-days?",
+        "Exploited flaws overwhelmingly have patches available for months or years. Zero-days get attention; unapplied patches do the damage, which makes patching speed a high-value investment.",
+      ),
+    ],
+    "Encryption & Backups": [
+      card(
+        "What does encryption at rest protect against, and what does it not?",
+        "It protects against someone obtaining the physical media or a raw file copy. It does nothing against a valid credential, because the system decrypts transparently for authorised callers.",
+      ),
+      card(
+        "What do RPO and RTO measure, and why can neither be known without testing?",
+        "RPO is how much data you can afford to lose, set by backup frequency; RTO is how long you can be down, set by restore speed. A team that has never timed a restore has a hope, not an RTO.",
+      ),
+    ],
+    "Cybersecurity Career Paths": [
+      card(
+        "Why do most people enter security through the blue team?",
+        "SOC work is where the volume of entry-level roles is, and triage exposes you to every other discipline in small doses — making it a natural on-ramp to wherever you end up.",
+      ),
+      card(
+        "Why are the boundaries between security disciplines softer than the labels suggest?",
+        "Detection engineering needs offensive knowledge to know what to look for, and good pentesters are the ones who can explain a finding to the team that must fix it. Skills cross over constantly.",
+      ),
+    ],
+    "Applied Scenario: Spotting the Attack": [
+      card(
+        "Why check authentication logs before isolating a compromised workstation?",
+        "Scoping decides what containment must cover. Sixty seconds establishing that a second host was involved prevents a containment action that looks successful while the attacker still has access.",
+      ),
+      card(
+        "In investigation, what does a bare IP address as a download destination suggest?",
+        "Legitimate software fetches from named domains with reputation and certificates. A connection to a raw IP address, especially a recently-seen one, is unusual enough to be worth immediate attention.",
+      ),
+    ],
+  },
+
+  // ── SOC Analyst Fundamentals ─────────────────────────────────────────────
+  "soc-analyst-fundamentals": {
+    "What is a SOC?": [
+      card(
+        "Why is dwell time the number a SOC cares about most?",
+        "The gap between compromise and detection is where damage accumulates. An intrusion caught in an hour is an incident; the same one caught in six months is a breach with regulatory consequences.",
+      ),
+      card(
+        "What is the actual skill of SOC work, given most alerts are not attacks?",
+        "Working through high volumes of ambiguity quickly without becoming so numb that the real one goes past unread — not spotting the obvious intrusion, which is rare.",
+      ),
+    ],
+    "SOC Tiers & Roles": [
+      card(
+        "What is Tier 1 actually accountable for, if not getting the verdict right?",
+        "Making a defensible decision quickly and passing on enough context that the next person does not start from nothing. With minutes per alert, a correct final verdict is not a reasonable expectation.",
+      ),
+      card(
+        "Why is the feedback loop from triage to detection engineering so important?",
+        "When Tier 1 closes the same false positive forty times a week, that is a rule-tuning problem, not a staffing one. Without a route back to tuning, a SOC slowly drowns in its own alerts.",
+      ),
+    ],
+    "What We Monitor": [
+      card(
+        "What question does each of endpoint, network and identity telemetry answer?",
+        "Endpoints tell you what ran, networks tell you what was communicated, identity tells you who did it. No single domain is sufficient, so investigations move between them constantly.",
+      ),
+      card(
+        "Why can an attacker using stolen valid credentials evade identity monitoring alone?",
+        "The authentication succeeds with a real credential from a plausible time, so identity telemetry records something normal. Detecting it needs behavioural context, not the authentication event itself.",
+      ),
+    ],
+    "Baselines & Anomalies": [
+      card(
+        "Why is the quality of detection limited by the quality of your baseline?",
+        "Almost all detection is comparison against normal, so an event is only interesting relative to what usually happens. Rules written for someone else's environment produce meaningless alerts.",
+      ),
+      card(
+        "What happens when an automatic baseline is built during a compromise?",
+        "The attacker's activity becomes part of 'normal' and stops generating alerts permanently. Automatic baselining learns whatever it observes, with no notion of what should have been happening.",
+      ),
+    ],
+    "Reading Logs": [
+      card(
+        "What five questions does almost any log entry answer?",
+        "When, where, who, what, and the outcome. Finding those five in an unfamiliar format is the first thing to do with any new log source.",
+      ),
+      card(
+        "Why do timestamps cause so much wasted investigation?",
+        "Time zones make simultaneous events appear an hour apart, clock drift produces subtly misleading timelines, and ingestion time differs from event time under load. Normalising to UTC removes much of it.",
+      ),
+      card(
+        "Which log fields should be treated as claims rather than facts?",
+        "User agent strings, client-supplied hostnames and process names are all attacker-controllable. Source IP and the outcome recorded by the system itself are much harder to forge.",
+      ),
+    ],
+    "Log Types & Sources": [
+      card(
+        "Why is process creation with command line the highest-value endpoint log source?",
+        "It records both that a program ran and what it was told to do. It is off by default on Windows and needs a registry setting for the command line, without which it is nearly useless.",
+      ),
+      card(
+        "Why is Windows event 1102 a uniquely strong signal?",
+        "It records the clearing of the event log, written before the clear takes effect — so the act of destroying evidence records itself, turning an otherwise invisible action into a clear indicator.",
+      ),
+    ],
+    "Mini Assessment: Log Triage": [
+      card(
+        "In authentication logs, why is failure then success for one account from one source so telling?",
+        "Failed logins are constant background noise, but a run of failures followed by a success for the same username from the same address is the moment guessing stopped working — the pivot into compromise.",
+      ),
+      card(
+        "Why does a four-second gap between login and a root shell indicate automation?",
+        "A person logging in to do legitimate work reads something first. Escalation four seconds after login is a script, not a human — and it also reveals the account had unrestricted sudo.",
+      ),
+    ],
+    "What is a SIEM?": [
+      card(
+        "Why is normalisation the step where most SIEM deployments succeed or fail?",
+        "It maps each vendor's field names onto a common schema. Done well, a rule written once works everywhere; done badly, the rule matches nothing on half the estate and produces no error to say so.",
+      ),
+      card(
+        "Why is ingesting every available log into a SIEM a trap?",
+        "Licensing is volume-based, so it means a large bill, slow searches and a bigger haystack around the same needle. Send what answers a question you actually ask, and archive the rest cheaply.",
+      ),
+    ],
+    "Correlation & Detection Rules": [
+      card(
+        "What does correlation let a detection rule do that a single-event rule cannot?",
+        "Combine events unremarkable alone into a pattern that is not — one failed login is nothing, two hundred failures then a success is an alert. It is how a rule becomes specific enough to act on.",
+      ),
+      card(
+        "Why is alert volume a design constraint rather than an afterthought?",
+        "A rule producing 40 alerts a day at ten minutes each consumes most of a full-time person. A rule nobody has time to work gets muted within a fortnight, and muted rules detect nothing.",
+      ),
+    ],
+    "The Triage Process": [
+      card(
+        "In triage, why must a benign explanation account for all the evidence, not most?",
+        "A backup job explains large outbound transfer but not transfer to a residential IP at 02:00 from a workstation. Accepting the first plausible story that covers part of the evidence is how real intrusions get closed.",
+      ),
+      card(
+        "Why write the reason for a closure, not just the verdict?",
+        "'False positive' is worthless three months later when the same alert fires. A specific reason — matched this backup job, confirmed with this team, destination is our storage — is still useful a year on.",
+      ),
+    ],
+    "Indicators of Compromise (IOCs)": [
+      card(
+        "Why are behavioural detections more durable than indicator-based ones?",
+        "Recompiling to change a hash costs nothing; changing that an implant must establish persistence, escalate and move laterally costs a redesign of how the operator works. Behaviour is what they cannot cheaply abandon.",
+      ),
+      card(
+        "Why can blocking a two-year-old malicious IP address cause harm?",
+        "Addresses get reassigned, so an old C2 address may now be a CDN node or mail relay. Blocking it causes an outage you inflicted on yourself and teaches analysts to distrust the feed.",
+      ),
+    ],
+    "Mini Assessment: Work the Alert": [
+      card(
+        "What is the most common benign cause of an impossible-travel alert?",
+        "A VPN connecting or disconnecting, which moves a user's apparent location instantly. The rule knows nothing about VPNs, roaming or corporate egress points, so that is the explanation to test rather than assume.",
+      ),
+      card(
+        "Which check most efficiently resolves an impossible-travel alert?",
+        "Confirming the user was genuinely travelling and that MFA used a device-bound factor. Geolocation and distance are what the rule already did; travel records plus a phishing-resistant factor address both halves.",
+      ),
+    ],
+    "The IR Lifecycle": [
+      card(
+        "Name the six PICERL phases and the two most often skipped.",
+        "Preparation, Identification, Containment, Eradication, Recovery, Lessons learned. Preparation and Lessons learned are the ends that get squeezed, and they determine how well the middle goes.",
+      ),
+      card(
+        "Why must you scope before eradicating and eradicate before recovering?",
+        "Cleaning the one host you know about while a second is compromised looks successful and is not; restoring a system while access remains open leads to reinfection, usually within days.",
+      ),
+    ],
+    "Containment & Evidence": [
+      card(
+        "Why is network isolation almost always preferable to powering off a compromised host?",
+        "Both stop the attacker, but only isolation preserves memory — which holds the running implant, its configuration and often credentials. That evidence is unrecoverable once the machine loses power.",
+      ),
+      card(
+        "What does the order of volatility dictate about evidence collection?",
+        "Collect from most to least volatile — memory before disk before backups. Everything above 'disk' is gone the moment power is lost and cannot be recovered afterwards.",
+      ),
+    ],
+    "Threat Intel & MITRE ATT&CK": [
+      card(
+        "In ATT&CK, what is the difference between a tactic and a technique?",
+        "A tactic is the objective — persistence, exfiltration; a technique is a way of achieving it, with an id like T1566.001. The value is a shared, unambiguous vocabulary for attacker behaviour.",
+      ),
+      card(
+        "How does mapping detections onto the ATT&CK matrix help a SOC?",
+        "It turns a vague sense of coverage into a picture with holes in it. The gaps show which tactics you would currently miss entirely, which guides what to build next better than the newest report.",
+      ),
+    ],
+    "Using Intel in the SOC": [
+      card(
+        "Why does most threat intelligence fail to change anything?",
+        "It produces well-written reports with no decision attached. The fix is to start from the decision — what would you do differently if you knew this — and collect only what serves one.",
+      ),
+      card(
+        "Why does relevance outrank novelty when triaging a threat report?",
+        "Relevance is a function of your exposure, not the technique's age. A five-year-old method targeting software you run matters more than a novel one targeting software you do not.",
+      ),
+    ],
+    "End-to-End Investigation": [
+      card(
+        "Why is a service account authenticating from a workstation an anomaly worth pursuing?",
+        "Service accounts run on servers, not finance desktops. One initiating a connection from a workstation is out of place, and pulling that thread often reveals credential theft upstream.",
+      ),
+      card(
+        "Why disable a compromised account after network isolation rather than before?",
+        "Revoking access first alerts the attacker while they still hold a live session on, say, a domain controller. Isolating first removes their reach before they learn they have been detected.",
+      ),
+    ],
+  },
+
+  // ── Web Security Fundamentals ────────────────────────────────────────────
+  "web-security-fundamentals": {
+    "The Request/Response Cycle": [
+      card(
+        "What is the security consequence of HTTP being stateless?",
+        "The server remembers nothing between requests, so each one must carry everything needed to identify who is asking. That is why sessions exist and why identity is proved afresh every request.",
+      ),
+      card(
+        "Why is client-side validation insufficient as a security control?",
+        "Everything in a request is attacker-controlled, and a browser is only one possible client. Anyone can craft the request directly without running the page's JavaScript, so the server must validate.",
+      ),
+    ],
+    "Status Codes, Methods & Cookies": [
+      card(
+        "How can differing 401 and 403 responses on a login form leak information?",
+        "Returning one status for an unknown username and another for a known username with a wrong password confirms which usernames exist, letting an attacker narrow later attacks to real accounts.",
+      ),
+      card(
+        "What does the HttpOnly cookie flag protect against?",
+        "It stops JavaScript reading the cookie, which turns an XSS bug from session theft into something less severe. It does not prevent XSS itself, only one of its consequences.",
+      ),
+    ],
+    "Password Storage & Hashing": [
+      card(
+        "In web authentication, why is a fast hash like SHA-256 wrong for storing passwords?",
+        "Speed is the attacker's advantage once the database leaks — billions of guesses per second make offline cracking cheap. Password storage wants a deliberately slow algorithm so each guess costs something.",
+      ),
+      card(
+        "Why must a web application salt each stored password individually?",
+        "Without a unique salt, identical passwords produce identical hashes, so cracking one breaks every account that shared it and precomputed rainbow tables work. Modern algorithms handle the salt for you.",
+      ),
+    ],
+    "Sessions, Tokens & Brute Force": [
+      card(
+        "Why should nothing secret ever go in a JWT payload?",
+        "A JWT payload is base64-encoded, not encrypted — anyone holding the token can read every claim. Signing proves it was not altered; it does nothing to hide the contents.",
+      ),
+      card(
+        "Why does per-account rate limiting fail to stop password spraying?",
+        "Spraying tries one common password across many accounts, so no single account exceeds the limit. Defence needs per-source limiting as well, and ideally phishing-resistant MFA.",
+      ),
+    ],
+    "How SQL Injection Works": [
+      card(
+        "What is the root cause of SQL injection?",
+        "User input becomes part of a query's structure rather than remaining data, because the query is assembled by joining strings. The database cannot tell the developer's instruction from the user's input.",
+      ),
+      card(
+        "Why does suppressing database errors not fix SQL injection?",
+        "Blind injection infers data one bit at a time from whether the page changes or how long it takes to respond, needing no error message at all — and it is fully automatable.",
+      ),
+    ],
+    "Preventing SQL Injection": [
+      card(
+        "How does a parameterised query prevent injection?",
+        "The query structure is sent to the database separately from the values, so it knows which part is instruction before it sees the input. Input can then contain any characters and is still treated as data.",
+      ),
+      card(
+        "Why does using an ORM not guarantee protection from SQL injection?",
+        "Protection is per-query. A single raw query built with string interpolation is injectable regardless of the ORM, and one injection point is usually enough to reach the whole database.",
+      ),
+    ],
+    "Mini Assessment: Spot the SQLi": [
+      card(
+        "Why can an ORDER BY column not be protected by a query parameter?",
+        "A column name is part of the query's structure, and parameters can only carry values. The only safe pattern is an allow-list — choosing from a fixed set of column names the developer controls.",
+      ),
+      card(
+        "Why is unvalidated input passed as a parameter still safe from injection?",
+        "Parameterisation separates structure from data before parsing, so the content is treated as a value no matter what it contains. Unvalidated is not the same as injectable.",
+      ),
+    ],
+    "How XSS Works": [
+      card(
+        "Whose privileges does an injected XSS script run with, and why does that matter?",
+        "The victim's — their session, cookies and the site's own origin. From the application's view the attacker's actions are indistinguishable from the user's, which is what makes XSS severe.",
+      ),
+      card(
+        "Why is DOM-based XSS invisible to a firewall inspecting requests?",
+        "The payload is often in the URL fragment, which browsers never send to the server. Client-side code reads it and writes it into the page, so server-side traffic never carries it.",
+      ),
+    ],
+    "Preventing XSS": [
+      card(
+        "Why is filtering script tags an inadequate defence against XSS?",
+        "Script execution has many other routes — event handler attributes, javascript: URLs, SVG — and an img tag with onerror needs no script tag at all. Context-aware output encoding covers them all.",
+      ),
+      card(
+        "Why use a maintained sanitiser rather than filtering HTML yourself?",
+        "The HTML parser has enormous surface and bypasses for hand-written filters are found continually. A library like DOMPurify with an allow-list is one of the clearest cases where your own is strictly worse.",
+      ),
+    ],
+    "Server-Side Request Forgery": [
+      card(
+        "Why is SSRF considered more severe in cloud environments?",
+        "The instance metadata service at 169.254.169.254 returns the host's role credentials to anything that can make an HTTP request from it, so an SSRF turns a web bug directly into cloud API access.",
+      ),
+      card(
+        "How is blind SSRF still exploitable when the response is never shown?",
+        "The attacker learns from timing and error differences — an open port responds differently from a closed one — which is enough to map an internal network and reach services that act without replying.",
+      ),
+    ],
+    "Defending Against SSRF": [
+      card(
+        "Why can validating a URL's resolved address before fetching it be bypassed?",
+        "The check and the fetch are separate DNS resolutions, and an attacker controlling the record can answer them differently — safe to the check, internal to the fetch. This is a time-of-check to time-of-use flaw.",
+      ),
+      card(
+        "Why is the durable SSRF defence at the network layer rather than in the application?",
+        "Network egress control enforces the destination when the connection is actually made, so the service cannot route to internal ranges or the metadata endpoint regardless of what the application decides.",
+      ),
+    ],
+    "Broken Access Control & IDOR": [
+      card(
+        "Why is broken access control largely invisible to automated scanners?",
+        "A scanner sees a 200 response with a valid-looking object and cannot know it belonged to someone else. Finding it requires knowing what should be permitted, which is business logic, not a pattern.",
+      ),
+      card(
+        "Why are unguessable identifiers not a substitute for access control?",
+        "Identifiers leak through referrals, logs, screenshots and exports, and the moment one does the object is readable by anyone. UUIDs raise enumeration cost and provide no authorisation.",
+      ),
+    ],
+    "Privilege Escalation & CSRF": [
+      card(
+        "What is mass assignment, and how does it enable privilege escalation?",
+        "Saving a whole request body to a record lets a user set fields they should not, such as their own role. The fix is to select the permitted fields explicitly rather than filtering the dangerous ones.",
+      ),
+      card(
+        "Why does cross-site request forgery work at all?",
+        "Browsers attach cookies to requests automatically based on the destination, regardless of which site initiated them — so an attacker's page can cause an authenticated request the victim did not intend.",
+      ),
+    ],
+    "Secure Coding Principles": [
+      card(
+        "Why should a permission check fail closed?",
+        "Failing open converts an outage into an authorisation bypass, and load is something an attacker can often influence. Denying on error means a failure degrades availability, never confidentiality.",
+      ),
+      card(
+        "Why make the safe path the easy path in a codebase?",
+        "If safety requires remembering a rule on every call site it will eventually be forgotten — not through carelessness but because that is what happens to rules that depend on memory. A safe helper gets used.",
+      ),
+    ],
+    "Dependencies & Secrets": [
+      card(
+        "Why is rotating a committed secret the only reliable response?",
+        "Git history, every clone, and possibly CI logs and forks still contain it. Deleting it in a later commit or rewriting history cannot reach copies you do not control, so it must be treated as public.",
+      ),
+      card(
+        "Why does an SBOM's value appear entirely on the day of a major advisory?",
+        "When the next advisory lands, a software bill of materials lets you answer 'are we affected?' in minutes rather than auditing every dependency by hand under time pressure.",
+      ),
+    ],
+    "Applied Review": [
+      card(
+        "Why can a missing ownership check be more severe than a SQL injection in the same endpoint?",
+        "SQL injection needs a crafted payload; an authorisation gap needs only a different id, works for every object, and produces requests that look entirely legitimate — exploitable with no anomaly in the logs.",
+      ),
+      card(
+        "In a code review, why is spotting the shared pattern often more valuable than the individual bugs?",
+        "Four bugs in one endpoint — all user input trusted at a different layer — suggests the codebase lacks a safe path. That is a design conversation rather than four disconnected tickets.",
+      ),
+    ],
+  },
+
+  // ── Linux Security Fundamentals ──────────────────────────────────────────
+  "linux-security-fundamentals": {
+    "The Command Line": [
+      card(
+        "Why is the shell the primary tool for Linux security work?",
+        "It is scriptable, works identically over a remote connection, leaves a record of exactly what was done, and reaches everything. On a compromised host you will often have nothing but a shell.",
+      ),
+      card(
+        "Why is an interactive login from an unrecognised external address significant on a server?",
+        "Servers usually run services, not interactive sessions. A human shell logged in from an address that is neither an admin jump host nor a known range is precisely the anomaly to investigate first.",
+      ),
+    ],
+    "Pipes, Redirects & Find": [
+      card(
+        "Why is searching a filesystem by modification time often more useful than by filename?",
+        "An attacker controls what a file is called but leaves a modification timestamp they cannot easily choose. The time places the file in the window of the activity you are investigating.",
+      ),
+      card(
+        "What is the core investigative skill the shell's pipe enables?",
+        "Composition — chaining small single-purpose commands to answer a question no single tool was built for. You build the tool you need from parts rather than looking for one that already exists.",
+      ),
+    ],
+    "Filesystem Hierarchy": [
+      card(
+        "Why are /tmp, /var/tmp and /dev/shm the first directories to check on a host?",
+        "They are world-writable, so any user can drop tooling there with no privilege needed — which is exactly why attackers use them. Recent files in these three are high-value triage targets.",
+      ),
+      card(
+        "How can you recover a running binary that has been deleted from disk?",
+        "From /proc/<pid>/exe, which references the executable even after the file is unlinked, as long as the process runs. Attackers delete their binary to hide it, but the running process gives it away.",
+      ),
+    ],
+    "Files, Links & Hidden Data": [
+      card(
+        "Why does a leading dot on a filename provide no security?",
+        "It only tells listing tools to hide the file by default. Anyone using ls -a or find sees it exactly as any other file, so it is a display convention rather than access control.",
+      ),
+      card(
+        "What makes a statically linked binary notable when found in a temp directory?",
+        "It carries its own libraries, so it runs anywhere regardless of what is installed — convenient for an attacker dropping tooling onto an unknown host, and a small tell when found somewhere it should not be.",
+      ),
+    ],
+    "Reading Permissions": [
+      card(
+        "How do you read the ten-character Linux permission string?",
+        "The first character is the type; the next three are the owner's read/write/execute, then the group's, then everyone else's. Read it in groups of three: owner, group, others.",
+      ),
+      card(
+        "Why does SSH refuse to use a private key with 644 permissions?",
+        "At 644 every local user can read the key, which is enough to impersonate its owner. A private key must be readable only by its owner — 600 — and SSH enforces this because looser makes it worthless.",
+      ),
+    ],
+    "chmod, chown & SUID": [
+      card(
+        "What does the setuid bit do, and why is it a security concern?",
+        "A setuid program runs with the privileges of the file's owner rather than whoever launched it. When the owner is root, any user running it operates as root — so every setuid-root binary is a potential escalation.",
+      ),
+      card(
+        "Why is an unexpected setuid-root binary such as find a critical finding?",
+        "Programs that can run commands or read and write files become root-level tools when setuid root — find can spawn a shell, giving an instant root prompt. Enumerating setuid binaries is a first step for both sides.",
+      ),
+    ],
+    "Inspecting Processes": [
+      card(
+        "Why can a parent-child process relationship be wrong when neither process is individually?",
+        "nginx is fine, a shell is fine, curl is fine — but a web server spawning a shell that spawns a downloader is a hallmark of a web exploit. The relationship is the anomaly, not any single process.",
+      ),
+      card(
+        "Why is the PPID column so valuable when reading a process list?",
+        "It reveals lineage — what started what. A flat list of process names hides that nginx launched a shell; the parent-child links expose the sequence an attacker's activity leaves behind.",
+      ),
+    ],
+    "Services, systemd & Cron": [
+      card(
+        "Why are services and scheduled tasks the places to hunt for persistence?",
+        "Getting code to run once is not enough for an attacker — a reboot ends it. The mechanisms that legitimately start programs automatically, like cron and systemd, are exactly where persistence lives.",
+      ),
+      card(
+        "Why is a host not clean after removing one malicious cron job?",
+        "Persistence is deliberately redundant. A systemd service, an authorized_keys entry or a .bashrc line can each re-establish access, so every mechanism must be enumerated before any is removed.",
+      ),
+    ],
+    "Inspecting Network Connections": [
+      card(
+        "What turns a suspicious network connection into an actionable finding?",
+        "The process that owns the socket, revealed by ss -p and traceable through /proc. A connection to a bad address is a lead; the program making it is what you investigate, contain and remove.",
+      ),
+      card(
+        "Why is a process that both listens and connects out a classic backdoor shape?",
+        "It takes commands on the listening port and reports back on the outbound connection — the dual role of receiving instructions and exfiltrating or beaconing that a backdoor needs.",
+      ),
+    ],
+    "Firewalls & SSH Hardening": [
+      card(
+        "Why is disabling SSH password authentication more valuable than changing the port?",
+        "Key-only authentication removes password guessing entirely — there is no secret left to guess. Moving the port is obscurity that a scanner defeats quickly, leaving the underlying weakness untouched.",
+      ),
+      card(
+        "Why does outbound firewall filtering matter on a server?",
+        "A server that only needs to reach a package mirror and a database has no reason to connect anywhere else. Restricting egress is what catches command-and-control after a compromise.",
+      ),
+    ],
+    "Hardening Principles": [
+      card(
+        "What is the single idea underneath every specific hardening step?",
+        "Anything that is not there cannot be attacked. A service not running, an account that does not exist, a package not installed — most hardening is subtraction of attack surface.",
+      ),
+      card(
+        "How does a captured baseline help detect compromise?",
+        "Recording the intended state — services, packages, ports, users — makes divergence visible. A new listening port or unexpected setuid binary stands out against a known baseline where it would otherwise be invisible.",
+      ),
+    ],
+    "Users, sudo & Auditing": [
+      card(
+        "Why is NOPASSWD: ALL in sudoers effectively granting root?",
+        "It lets the account run any command as root without a password, so a web process compromised while running as it inherits full root. Scoping sudo to specific commands limits the blast radius.",
+      ),
+      card(
+        "What is the security value of logging privileged actions, beyond after-the-fact detection?",
+        "The knowledge that actions are recorded changes behaviour, and the record is what lets you reconstruct what a compromised account actually did — turning an opaque incident into a reconstructable one.",
+      ),
+    ],
+    "Common Escalation Paths": [
+      card(
+        "Why does most Linux privilege escalation being misconfiguration matter for defence?",
+        "If most paths are misconfigurations rather than exploits, auditing sudo rules, setuid binaries and file permissions closes the majority — no patch required. The same enumeration an attacker runs is the defender's audit.",
+      ),
+      card(
+        "Why is `sudo -l` the first thing checked in an escalation attempt?",
+        "It lists exactly what the current account may run as another user, which is the cleanest escalation when something exploitable is permitted and the fastest category to rule out when it is not.",
+      ),
+    ],
+    "Mini Assessment: Find the Escalation": [
+      card(
+        "Why must a defender who finds one escalation path keep enumerating?",
+        "An attacker needs only one working path, so a defender must close all of them. Fixing a setuid vim while leaving a world-writable root cron job leaves the host just as escalatable.",
+      ),
+      card(
+        "Why is a world-writable file in /etc/cron.d a route to root?",
+        "Cron jobs there run as root, so if an unprivileged user can edit the file they can change what root executes on a schedule — running their own code with root's privileges.",
+      ),
+    ],
+    "Applied Investigation": [
+      card(
+        "How can a single reported connection uncover a full host compromise?",
+        "Tying the connection to its process, seeing through a faked process name via /proc, tracing back to the web exploit that spawned it and forward through escalation to persistence — each artefact points at the next.",
+      ),
+      card(
+        "Why check every persistence location before removing any during host cleanup?",
+        "Attackers plant redundant persistence — cron, a systemd service, an SSH key, all calling the same address. Remove one and the others restore access, so all must be enumerated and removed together.",
+      ),
+    ],
+  },
 };
