@@ -10,11 +10,22 @@
 
 import { PrismaClient } from "@prisma/client";
 import { tierForRating } from "../src/lib/ranking";
+import { recomputeSeasonRanks } from "../src/lib/seasons";
+import { simulateSeason } from "../src/lib/ladder-simulation";
+
+/** Fixed so the seeded ladder is reproducible rather than different each run. */
+const SIM_SEED = 20260727;
 
 const db = new PrismaClient();
 
 /** A season runs for 12 weeks from the start of the current week. */
 const SEASON_WEEKS = 12;
+
+function addWeeks(from: Date, weeks: number): Date {
+  const d = new Date(from);
+  d.setUTCDate(d.getUTCDate() + weeks * 7);
+  return d;
+}
 
 function startOfCurrentWeekUTC(): Date {
   const now = new Date();
@@ -33,7 +44,13 @@ async function main() {
       role: { not: "ADMIN" },
       organizationMemberships: { none: { isLead: true } },
       hidden: false,
-      email: { not: { endsWith: "@example.com" } },
+      // Integration tests create accounts under both domains. Six @test.com
+      // users had reached the top of the live ladder because only one domain
+      // was filtered here.
+      AND: [
+        { email: { not: { endsWith: "@example.com" } } },
+        { email: { not: { endsWith: "@test.com" } } },
+      ],
     },
     select: { id: true, email: true, displayName: true },
     take: 24,
@@ -49,54 +66,92 @@ async function main() {
   console.log(`Found ${users.length} users\n`);
 
   // ── Season ───────────────────────────────────────────────────────────────
-  const startsAt = startOfCurrentWeekUTC();
-  const endsAt = new Date(startsAt);
-  endsAt.setUTCDate(endsAt.getUTCDate() + SEASON_WEEKS * 7);
-
-  const slug = `season-${startsAt.getUTCFullYear()}-${startsAt.getUTCMonth() + 1}`;
-
-  const season = await db.season.upsert({
-    where: { slug },
-    create: {
-      slug,
-      name: `Season ${startsAt.getUTCFullYear()}.${Math.floor(startsAt.getUTCMonth() / 3) + 1}`,
-      startsAt,
-      endsAt,
-      active: true,
-    },
-    update: { active: true, startsAt, endsAt },
+  //
+  // Reuse a live season if there is one. The slug is derived from the month
+  // while the dates are anchored to the current week, so re-running in a later
+  // month used to mint a second season and leave both active — which is how
+  // production ended up with two, one of them holding stale ratings.
+  const existing = await db.season.findFirst({
+    where: { active: true, concludedAt: null },
+    orderBy: { startsAt: "desc" },
   });
+
+  const startsAt = existing?.startsAt ?? startOfCurrentWeekUTC();
+  const endsAt = existing?.endsAt ?? addWeeks(startsAt, SEASON_WEEKS);
+  const slug =
+    existing?.slug ?? `season-${startsAt.getUTCFullYear()}-${startsAt.getUTCMonth() + 1}`;
+
+  const season = existing
+    ? existing
+    : await db.season.create({
+        data: {
+          slug,
+          name: `Season ${startsAt.getUTCFullYear()}.${Math.floor(startsAt.getUTCMonth() / 3) + 1}`,
+          startsAt,
+          endsAt,
+          active: true,
+        },
+      });
+
+  // Exactly one season may be live at a time. getActiveSeason takes the newest
+  // of whatever is active, so a stray second one is invisible on the ladder
+  // while still being reachable elsewhere.
+  const strays = await db.season.updateMany({
+    where: { active: true, id: { not: season.id } },
+    data: { active: false },
+  });
+  if (strays.count > 0) {
+    console.log(`Deactivated ${strays.count} other season(s) that were still marked live`);
+  }
+
   console.log(
     `Season "${season.name}" ${startsAt.toISOString().slice(0, 10)} -> ${endsAt
       .toISOString()
-      .slice(0, 10)} [LIVE]`,
+      .slice(0, 10)} [LIVE]${existing ? " (reused)" : ""}`,
   );
 
-  // ── Ratings spread across tiers ──────────────────────────────────────────
+  // ── Ratings, played out rather than assigned ─────────────────────────────
+  //
+  // The previous version picked a rating and a win/loss record from two
+  // independent formulas — rating rising with the index, wins falling with it.
+  // The result was a ladder whose top-rated player had one win and eleven
+  // losses. Any two hand-written sequences drift apart like that eventually,
+  // because nothing forces them to agree.
+  //
+  // So this plays a season instead. Each player gets a hidden skill, matches
+  // are decided by that skill, and every result goes through the same
+  // applyMatchResult the live ladder uses. Rating, record, events played and
+  // peak then agree because one process produced all four.
+  const standings = simulateSeason(users.length, { seed: SIM_SEED });
+
   let rated = 0;
   for (const [i, user] of users.entries()) {
-    // Deterministic spread from ~900 to ~2100 so every tier is represented.
-    const rating = 900 + Math.round((i / Math.max(users.length - 1, 1)) * 1200);
-    const wins = Math.max(0, 12 - i);
-    const losses = Math.min(12, i);
+    const s = standings[i];
+    const row = {
+      rating: s.rating,
+      peakRating: s.peakRating,
+      tier: tierForRating(s.rating),
+      wins: s.wins,
+      losses: s.losses,
+      eventsPlayed: s.wins + s.losses,
+    };
 
     await db.seasonRating.upsert({
       where: { seasonId_userId: { seasonId: season.id, userId: user.id } },
-      create: {
-        seasonId: season.id,
-        userId: user.id,
-        rating,
-        peakRating: rating,
-        tier: tierForRating(rating),
-        wins,
-        losses,
-        eventsPlayed: wins + losses,
-      },
-      update: {},
+      create: { seasonId: season.id, userId: user.id, ...row },
+      // Written on update too. With an empty update this script could never
+      // correct a row it had already got wrong, which is how the inverted
+      // ladder survived every re-run.
+      update: row,
     });
     rated++;
   }
-  console.log(`Rated ${rated} players across the tier ladder`);
+
+  const best = [...standings].sort((a, b) => b.rating - a.rating)[0];
+  console.log(
+    `Rated ${rated} players across the tier ladder ` +
+      `(top: ${best.rating}, ${best.wins}W/${best.losses}L)`,
+  );
 
   // ── Squads ───────────────────────────────────────────────────────────────
   const SQUADS = [
@@ -158,18 +213,14 @@ async function main() {
   }
   console.log(`Created ${squadCount} squads, placed ${placed} additional members`);
 
-  // Squad season points so the squad ladder is not empty.
+  // Squad season points so the squad ladder is not empty. Points fall as the
+  // record worsens, so the ordering matches the reason for it.
   for (const [i, squadId] of squadIds.entries()) {
+    const stat = { points: 500 - i * 120, wins: 8 - i * 2, losses: i * 2 };
     await db.squadSeasonStat.upsert({
       where: { squadId_seasonId: { squadId, seasonId: season.id } },
-      create: {
-        squadId,
-        seasonId: season.id,
-        points: 500 - i * 120,
-        wins: 8 - i * 2,
-        losses: i * 2,
-      },
-      update: {},
+      create: { squadId, seasonId: season.id, ...stat },
+      update: stat,
     });
   }
 
@@ -217,6 +268,13 @@ async function main() {
     `Tournament "${tournament.name}" open for registration with ${entered} entrants` +
       " (11 entrants pads to a 16 bracket, exercising byes)",
   );
+
+  // Store the ladder placements now rather than leaving `rank` NULL until the
+  // nightly cron happens to run. getSeasonLeaderboard falls back to array
+  // position when rank is null, so a broken rank column looks completely
+  // normal on the page — worth closing here rather than trusting the schedule.
+  const ranked = await recomputeSeasonRanks(season.id);
+  console.log(`Stored ladder placements for ${ranked} players`);
 
   console.log("\nPhase 3 seed complete.\n");
   await db.$disconnect();
