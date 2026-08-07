@@ -107,6 +107,13 @@ export function Console({
     }
     setDone((d) => [...d, phase]);
     if (body.nextPhase) {
+      // Clear the outgoing phase's payload before switching, so the render
+      // between setPhase and the reload does not hand the next phase's
+      // component the previous phase's data. Each payload is shaped for one
+      // phase only — a triage payload has no `records` for Investigation to
+      // filter — so a mismatched render throws.
+      setData(null);
+      setLoading(true);
       setPhase(body.nextPhase as OzhPhase);
     } else {
       router.push("/operations/zero-hour/result");
@@ -199,7 +206,11 @@ export function Console({
           </Card>
         )}
 
-        {!loading && phase && data && (
+        {/* Render a phase's component only against that phase's own payload.
+            `data.phase` is the payload's discriminant; gating on it means a
+            stale or mismatched payload shows the loading card instead of
+            crashing the component that expected different fields. */}
+        {!loading && phase && data && (data as { phase?: string }).phase === phase && (
           <PhaseBody phase={phase} data={data} onSubmit={onSubmit} submitting={submitting} />
         )}
       </div>
