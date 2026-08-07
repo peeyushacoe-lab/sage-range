@@ -25,10 +25,12 @@ export function Console({
   initialSecondsRemaining,
   initialPhase,
   completedPhases,
+  preview = false,
 }: {
   initialSecondsRemaining: number;
   initialPhase: OzhPhase | null;
   completedPhases: OzhPhase[];
+  preview?: boolean;
 }) {
   const router = useRouter();
   const [remaining, setRemaining] = useState(initialSecondsRemaining);
@@ -126,6 +128,14 @@ export function Console({
     <main className="min-h-screen bg-zinc-950 text-white">
       {/* Console header. Sticky because the countdown is the one thing that
           must never scroll out of view. */}
+      {preview && (
+        <div className="border-b border-purple-500/30 bg-purple-500/10 px-6 py-1.5 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-purple-300">
+            Preview run — not scored on the leaderboard
+          </p>
+        </div>
+      )}
+
       <header className="sticky top-0 z-20 border-b border-white/10 bg-zinc-950/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
           <div>

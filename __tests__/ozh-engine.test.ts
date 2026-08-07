@@ -28,6 +28,7 @@ import {
   type ReportKey,
   type OzhPhase,
 } from "@/lib/ozh-engine";
+import { parsePreviewEmails, isPreviewer } from "@/lib/ozh-preview";
 
 describe("phase points", () => {
   it("sums to the advertised maximum", () => {
@@ -407,6 +408,48 @@ describe("decideAwards", () => {
       { userId: "a", score: 0, accuracy: 0, elapsedSeconds: 100, phaseScores: zero },
     ]);
     expect(awards.find((a) => a.kind === "CHAMPION")).toBeUndefined();
+  });
+});
+
+describe("preview allowlist", () => {
+  it("grants nobody access when unset or empty", () => {
+    // A misconfigured deploy must fail closed. If this ever inverts, the
+    // competition opens early for everyone.
+    for (const raw of [undefined, "", "   ", ",", " , ; "]) {
+      expect(parsePreviewEmails(raw)).toEqual([]);
+      expect(isPreviewer("peeyush@cybersage.uk", raw as string | undefined)).toBe(false);
+    }
+  });
+
+  it("matches an allowlisted address regardless of case or padding", () => {
+    const raw = "peeyush@cybersage.uk";
+    expect(isPreviewer("peeyush@cybersage.uk", raw)).toBe(true);
+    expect(isPreviewer("Peeyush@CyberSage.uk", raw)).toBe(true);
+    expect(isPreviewer("  peeyush@cybersage.uk  ", raw)).toBe(true);
+  });
+
+  it("does not match an address that is merely similar", () => {
+    const raw = "peeyush@cybersage.uk";
+    expect(isPreviewer("peeyush@cybersage.com", raw)).toBe(false);
+    expect(isPreviewer("notpeeyush@cybersage.uk", raw)).toBe(false);
+    expect(isPreviewer("peeyush@cybersage.uk.evil.com", raw)).toBe(false);
+    expect(isPreviewer("", raw)).toBe(false);
+    expect(isPreviewer(null, raw)).toBe(false);
+  });
+
+  it("accepts several addresses separated by commas, spaces or semicolons", () => {
+    const raw = "peeyush@cybersage.uk, second@example.com; third@example.org";
+    expect(parsePreviewEmails(raw)).toHaveLength(3);
+    expect(isPreviewer("second@example.com", raw)).toBe(true);
+    expect(isPreviewer("third@example.org", raw)).toBe(true);
+    expect(isPreviewer("fourth@example.org", raw)).toBe(false);
+  });
+
+  it("discards entries that are not addresses", () => {
+    // Guards against a stray value like "true" or "*" being read as a wildcard.
+    expect(parsePreviewEmails("true")).toEqual([]);
+    expect(parsePreviewEmails("*")).toEqual([]);
+    expect(isPreviewer("anyone@anywhere.com", "*")).toBe(false);
   });
 });
 

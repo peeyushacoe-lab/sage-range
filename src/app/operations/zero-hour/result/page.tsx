@@ -45,6 +45,11 @@ export default async function ZeroHourResultPage() {
               Time expired — graded on phases submitted
             </Badge>
           )}
+          {result.preview && (
+            <Badge tone="purple" className="mt-4 ml-2">
+              Preview run — excluded from the leaderboard
+            </Badge>
+          )}
         </div>
 
         <div className="mb-8 grid grid-cols-3 gap-3">

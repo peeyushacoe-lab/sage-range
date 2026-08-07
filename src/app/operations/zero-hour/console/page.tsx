@@ -28,6 +28,7 @@ export default async function ConsolePage() {
       initialSecondsRemaining={state.secondsRemaining}
       initialPhase={state.currentPhase}
       completedPhases={state.completedPhases.map((p) => p.phase)}
+      preview={state.preview}
     />
   );
 }

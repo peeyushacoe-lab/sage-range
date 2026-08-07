@@ -16,9 +16,11 @@ import {
   lastFullRunStart,
 } from "@/lib/ozh-engine";
 import { formatIST } from "@/lib/ozh-format";
+import { isPreviewer } from "@/lib/ozh-preview";
 import { Navbar } from "@/components/navbar";
 import { Card, Badge, StatCard, buttonVariants } from "@/components/ui";
 import { StartOperation } from "./_components/start-operation";
+import { ResetPreview } from "./_components/reset-preview";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Operation Zero Hour · Sage Vault" };
@@ -31,6 +33,7 @@ export default async function ZeroHourBriefingPage() {
   const now = new Date();
   const state = windowStateAt(now);
   const run = await getRunState(user.id, now);
+  const preview = isPreviewer(user.email);
 
   // A finished run has nothing left to brief — send them to their result.
   if (run && run.status !== "IN_PROGRESS") redirect("/operations/zero-hour/result");
@@ -49,6 +52,27 @@ export default async function ZeroHourBriefingPage() {
             Individual incident response competition
           </p>
         </div>
+
+        {preview && (
+          <Card className="mb-6 border-purple-500/35 bg-purple-500/[0.06] p-5">
+            <Badge tone="purple" className="mb-2">
+              Preview access
+            </Badge>
+            <p className="text-sm font-semibold text-purple-200">
+              This account can run the operation before it opens.
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-400">
+              Your run is marked as a dry run: it never appears on the leaderboard, cannot win an
+              award, and can be discarded and restarted as often as you like. The evidence,
+              scoring and timer are otherwise identical to what the interns will get.
+            </p>
+            {run && (
+              <div className="mt-4">
+                <ResetPreview />
+              </div>
+            )}
+          </Card>
+        )}
 
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard label="Duration" value={`${RUN_MINUTES / 60}h`} sub="once you start" />
@@ -169,13 +193,14 @@ export default async function ZeroHourBriefingPage() {
         </div>
 
         <div className="flex flex-col items-center gap-4">
-          {state === "BEFORE" && (
+          {state === "BEFORE" && !preview && (
             <Card className="w-full p-5 text-center">
               <p className="text-sm text-zinc-400">
                 The operation opens {formatIST(OZH_OPENS_AT)} IST.
               </p>
             </Card>
           )}
+          {state === "BEFORE" && preview && <StartOperation resuming={!!run} preview />}
           {state === "CLOSED" && (
             <Card className="w-full p-5 text-center">
               <p className="text-sm text-zinc-400">This operation has closed.</p>
@@ -187,7 +212,7 @@ export default async function ZeroHourBriefingPage() {
               </Link>
             </Card>
           )}
-          {state === "OPEN" && <StartOperation resuming={!!run} />}
+          {state === "OPEN" && <StartOperation resuming={!!run} preview={preview} />}
 
           <Link
             href="/operations/zero-hour/leaderboard"

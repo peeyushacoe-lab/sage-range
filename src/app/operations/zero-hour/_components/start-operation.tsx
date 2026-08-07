@@ -12,7 +12,13 @@ import { Button } from "@/components/ui";
  * existing run skips the confirmation — the clock is already running and
  * making them confirm again only wastes it.
  */
-export function StartOperation({ resuming }: { resuming: boolean }) {
+export function StartOperation({
+  resuming,
+  preview = false,
+}: {
+  resuming: boolean;
+  preview?: boolean;
+}) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -36,6 +42,20 @@ export function StartOperation({ resuming }: { resuming: boolean }) {
       <div className="w-full text-center">
         <Button size="lg" onClick={go} disabled={busy} className="w-full sm:w-auto">
           {busy ? "Opening console…" : "Resume operation"}
+        </Button>
+        {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+      </div>
+    );
+  }
+
+  // A preview run is discardable, so the one-way-door confirmation would be a
+  // lie — and training someone to click through a warning that does not apply
+  // makes the real one weaker.
+  if (preview) {
+    return (
+      <div className="w-full text-center">
+        <Button size="lg" onClick={go} disabled={busy} className="w-full sm:w-auto">
+          {busy ? "Opening console…" : "Start preview run"}
         </Button>
         {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
       </div>

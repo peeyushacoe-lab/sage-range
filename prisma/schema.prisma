@@ -3312,6 +3312,11 @@ model OzhRun {
 
   status OzhRunStatus @default(IN_PROGRESS)
 
+  // A dry run by an allowlisted organiser, taken before the window opened.
+  // Excluded from the leaderboard and from awards, and deletable — so checking
+  // the console does not spend the reviewer's single real attempt.
+  preview Boolean @default(false)
+
   startedAt DateTime  @default(now())
   // Set when the run is submitted, times out, or is closed by the deadline.
   endedAt   DateTime?
@@ -3339,6 +3344,7 @@ model OzhRun {
   @@unique([userId, slug])
   @@index([slug, status])
   @@index([slug, score])
+  @@index([slug, preview])
 }
 
 model OzhPhaseSubmission {

@@ -74,10 +74,15 @@ export type PhaseAnswer =
  * Refuses outside the competition window, and refuses a second attempt. A run
  * that already exists is returned rather than recreated, so a refreshed
  * browser resumes instead of burning the single attempt.
+ *
+ * `preview` lets an allowlisted organiser start before the window opens. It
+ * only relaxes the BEFORE gate — a preview run cannot be started after the
+ * competition has closed, since by then the board is final and a new run would
+ * have nothing to be checked against.
  */
-export async function startRun(userId: string, now: Date = new Date()) {
+export async function startRun(userId: string, now: Date = new Date(), preview = false) {
   const state = windowStateAt(now);
-  if (state === "BEFORE") {
+  if (state === "BEFORE" && !preview) {
     return fail("Operation Zero Hour has not opened yet", 409);
   }
   if (state === "CLOSED") {
@@ -97,10 +102,12 @@ export async function startRun(userId: string, now: Date = new Date()) {
 
   try {
     const run = await db.ozhRun.create({
-      data: { userId, slug: OZH_SLUG, startedAt: now },
+      // Marked at creation, not at grading. A run that begins as a dry run
+      // must never be reclassified into the real field afterwards.
+      data: { userId, slug: OZH_SLUG, startedAt: now, preview },
       select: { id: true, status: true },
     });
-    await log(run.id, "RUN_STARTED", null, null);
+    await log(run.id, "RUN_STARTED", null, { preview });
     return { success: true as const, data: { runId: run.id, resumed: false, status: run.status } };
   } catch {
     // Lost a race against a concurrent start; the other one won, so use it.
@@ -166,6 +173,7 @@ export async function getRunState(userId: string, now: Date = new Date()) {
   return {
     runId: run.id,
     status: run.status,
+    preview: run.preview,
     startedAt: run.startedAt,
     endedAt: run.endedAt,
     deadline: effectiveDeadline(run.startedAt),
@@ -357,6 +365,30 @@ export async function expireRun(runId: string, now: Date = new Date()) {
 }
 
 /**
+ * Discard a preview run so the reviewer can start again.
+ *
+ * Guarded on `preview: true` in the query itself rather than in a branch above
+ * it. A real competitor's run must not be deletable by any path, including a
+ * mistaken call from an admin screen — so the filter that protects it is part
+ * of the delete, not a check that precedes it.
+ */
+export async function resetPreviewRun(userId: string) {
+  const run = await db.ozhRun.findUnique({
+    where: { userId_slug: { userId, slug: OZH_SLUG } },
+    select: { id: true, preview: true },
+  });
+  if (!run) return fail("No run to reset", 404);
+  if (!run.preview) return fail("Only preview runs can be reset", 403);
+
+  const deleted = await db.ozhRun.deleteMany({
+    where: { id: run.id, preview: true },
+  });
+  if (deleted.count === 0) return fail("Only preview runs can be reset", 403);
+
+  return { success: true as const, data: { reset: true } };
+}
+
+/**
  * Close every run still open past its deadline.
  *
  * Called by the leaderboard and by the cron. Without it, a run abandoned in
@@ -423,6 +455,7 @@ export async function getResult(userId: string) {
   return {
     finished: true as const,
     status: run.status,
+    preview: run.preview,
     score: run.score ?? 0,
     maxScore: MAX_SCORE,
     accuracy: run.accuracy ?? 0,
@@ -441,7 +474,13 @@ export async function getLeaderboard(limit = 100, now: Date = new Date()) {
   await sweepExpiredRuns(now);
 
   const runs = await db.ozhRun.findMany({
-    where: { slug: OZH_SLUG, status: { in: ["SUBMITTED", "EXPIRED"] }, user: { hidden: false } },
+    where: {
+      slug: OZH_SLUG,
+      status: { in: ["SUBMITTED", "EXPIRED"] },
+      user: { hidden: false },
+      // Dry runs by organisers never appear on the board they are checking.
+      preview: false,
+    },
     include: { user: { select: { id: true, displayName: true, email: true, university: true } } },
   });
 
@@ -480,7 +519,13 @@ export async function concludeCompetition(now: Date = new Date()) {
   await sweepExpiredRuns(now);
 
   const runs = await db.ozhRun.findMany({
-    where: { slug: OZH_SLUG, status: { in: ["SUBMITTED", "EXPIRED"] }, user: { hidden: false } },
+    where: {
+      slug: OZH_SLUG,
+      status: { in: ["SUBMITTED", "EXPIRED"] },
+      user: { hidden: false },
+      // A dry run must not be able to win Champion.
+      preview: false,
+    },
     select: { id: true, userId: true, score: true, accuracy: true, elapsedSeconds: true, phaseScores: true },
   });
   if (runs.length === 0) return { success: true as const, data: { ranked: 0, awarded: 0 } };
