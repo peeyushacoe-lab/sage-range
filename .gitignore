@@ -27,3 +27,9 @@ ui-ux-pro-max-skill/
 
 # TypeScript incremental build cache — regenerated on every build
 tsconfig.tsbuildinfo
+
+# Ad/promo media and its authoring assets — never commit (owner request).
+# Large binaries and separate marketing work, not app code.
+cybersage-ad-*.mp4
+ad-script-*.md
+scripts/ad/
