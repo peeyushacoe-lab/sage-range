@@ -151,76 +151,70 @@ export default async function ModuleDetail({
           <h1 className="text-2xl font-bold tracking-tight">{mod.title}</h1>
         </header>
 
+        {/* Slots, not a render prop: this is a Server Component, and passing a
+            function to a client component is not serialisable — it throws
+            during render and takes the whole route down with a 500. */}
         <ModuleTabs
-          hasQuiz={!!mod.quiz}
-          hasAssessment={!!mod.assessment}
-        >
-          {(tab) => (
-            <>
-              {tab === "overview" && (
-                <div className="prose prose-invert prose-sm max-w-none">
-                  <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                    {mod.overview}
-                  </div>
-                </div>
-              )}
-
-              {tab === "reading" && (
-                <div className="prose prose-invert prose-sm max-w-none">
-                  <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                    {mod.readingMaterial}
-                  </div>
-                </div>
-              )}
-
-              {tab === "resources" && (
-                <div>
-                  {mod.resources.length === 0 ? (
-                    <p className="text-sm text-zinc-500">No resources added yet.</p>
-                  ) : (
-                    <div className="flex flex-col gap-3">
-                      {mod.resources.map((r) => (
-                        <a
-                          key={r.id}
-                          href={r.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-4 rounded-xl border border-white/8 p-4 hover:border-sage-500/40 hover:bg-sage-500/5 transition group"
-                        >
-                          <Icon name={RESOURCE_ICONS[r.type] ?? "link"} size={22} className="shrink-0" />
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm group-hover:text-sage-400 transition truncate">{r.title}</p>
-                            <p className="text-xs text-zinc-500 mt-0.5">{RESOURCE_LABELS[r.type] ?? r.type}</p>
-                          </div>
-                          <svg className="w-4 h-4 shrink-0 text-zinc-600 group-hover:text-sage-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </a>
-                      ))}
+          overview={
+            <div className="prose prose-invert prose-sm max-w-none">
+              <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                {mod.overview}
+              </div>
+            </div>
+          }
+          reading={
+            <div className="prose prose-invert prose-sm max-w-none">
+              <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                {mod.readingMaterial}
+              </div>
+            </div>
+          }
+          resources={
+            mod.resources.length === 0 ? (
+              <p className="text-sm text-zinc-500">No resources added yet.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {mod.resources.map((r) => (
+                  <a
+                    key={r.id}
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 rounded-xl border border-white/8 p-4 hover:border-sage-500/40 hover:bg-sage-500/5 transition group"
+                  >
+                    <Icon name={RESOURCE_ICONS[r.type] ?? "link"} size={22} className="shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm group-hover:text-sage-400 transition truncate">{r.title}</p>
+                      <p className="text-xs text-zinc-500 mt-0.5">{RESOURCE_LABELS[r.type] ?? r.type}</p>
                     </div>
-                  )}
-                </div>
-              )}
-
-              {tab === "quiz" && quizForClient && (
-                <QuizSection
-                  moduleId={moduleId}
-                  quiz={quizForClient as Parameters<typeof QuizSection>[0]["quiz"]}
-                  priorAttempt={priorAttemptForClient as Parameters<typeof QuizSection>[0]["priorAttempt"]}
-                />
-              )}
-
-              {tab === "assessment" && mod.assessment && (
-                <AssessmentSection
-                  moduleId={moduleId}
-                  assessmentId={mod.assessment.id}
-                  instructions={mod.assessment.instructions}
-                  existingSubmission={submissionForClient as Parameters<typeof AssessmentSection>[0]["existingSubmission"]}
-                />
-              )}
-            </>
-          )}
-        </ModuleTabs>
+                    <svg className="w-4 h-4 shrink-0 text-zinc-600 group-hover:text-sage-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                ))}
+              </div>
+            )
+          }
+          quiz={
+            quizForClient ? (
+              <QuizSection
+                moduleId={moduleId}
+                quiz={quizForClient as Parameters<typeof QuizSection>[0]["quiz"]}
+                priorAttempt={priorAttemptForClient as Parameters<typeof QuizSection>[0]["priorAttempt"]}
+              />
+            ) : null
+          }
+          assessment={
+            mod.assessment ? (
+              <AssessmentSection
+                moduleId={moduleId}
+                assessmentId={mod.assessment.id}
+                instructions={mod.assessment.instructions}
+                existingSubmission={submissionForClient as Parameters<typeof AssessmentSection>[0]["existingSubmission"]}
+              />
+            ) : null
+          }
+        />
 
         {/* Prev / Next navigation */}
         <div className="mt-12 pt-6 border-t border-white/8 flex items-center justify-between gap-4">
