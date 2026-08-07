@@ -107,6 +107,35 @@ describe.each(ATTACK_CHAINS.map((c) => [c.key, c] as const))("chain %s", (_key, 
     // Chains that reference the user must vary; chains that do not are fine.
     if (a.includes(ctx.user)) expect(a).not.toBe(b);
   });
+
+  /**
+   * Indicators are derived from the company domain, so a different company
+   * must produce different evidence — every chain, no exceptions. Without
+   * this, a chain whose artifacts happen to reference nothing derived would
+   * quietly reintroduce the shared-answer-key problem.
+   */
+  it("derives different evidence for a different company", () => {
+    const other: ChainContext = { ...ctx, company: "Other Org", domain: "other-org.uk" };
+    const a = chain.artifacts(ctx).map((x) => x.content).join("");
+    const b = chain.artifacts(other).map((x) => x.content).join("");
+    expect(a).not.toBe(b);
+  });
+
+  it("has at least one answer that varies between companies", () => {
+    const other: ChainContext = { ...ctx, company: "Other Org", domain: "other-org.uk" };
+    const a = chain.tasks(ctx).map((t) => t.correctAnswer);
+    const b = chain.tasks(other).map((t) => t.correctAnswer);
+    expect(
+      a.some((answer, n) => answer !== b[n]),
+      `${chain.key}: every answer is identical across companies, so solving one incident solves them all`,
+    ).toBe(true);
+  });
+
+  /** Derivation must be pure — artifacts() and tasks() are called separately. */
+  it("derives the same indicators on every call", () => {
+    expect(chain.artifacts(ctx)).toEqual(chain.artifacts(ctx));
+    expect(chain.tasks(ctx)).toEqual(chain.tasks(ctx));
+  });
 });
 
 describe("incident catalogue", () => {
@@ -159,6 +188,59 @@ describe("incident catalogue", () => {
     // A learner working through the catalogue should meet nearly every bucket
     // the board can show, or the heatmap stays permanently half-empty.
     expect(tactics.size).toBeGreaterThanOrEqual(5);
+  });
+
+  /**
+   * The check this catalogue block exists for.
+   *
+   * Five companies pair with the ransomware chain and two with most others.
+   * When indicators were constants those incidents shared one answer key, so
+   * solving St. Agnes handed a player Harrow, BrightCart, Lakeshore and
+   * Ironforge for free — 7,000 points from one investigation.
+   */
+  it("never gives two incidents from the same chain the same answer key", () => {
+    const seen = new Map<string, string>();
+    for (const entry of catalogue) {
+      const key = `${entry.chain.key}::${entry.chain
+        .tasks(entry.context)
+        .map((t) => t.correctAnswer)
+        .join("|")}`;
+      const clash = seen.get(key);
+      expect(clash, `${entry.slug} has the same answer key as ${clash}`).toBeUndefined();
+      seen.set(key, entry.slug);
+    }
+  });
+
+  it("never gives two incidents from the same chain the same evidence", () => {
+    const seen = new Map<string, string>();
+    for (const entry of catalogue) {
+      const key = `${entry.chain.key}::${entry.chain
+        .artifacts(entry.context)
+        .map((a) => a.content)
+        .join("|")}`;
+      const clash = seen.get(key);
+      expect(clash, `${entry.slug} shows the same evidence as ${clash}`).toBeUndefined();
+      seen.set(key, entry.slug);
+    }
+  });
+
+  /**
+   * Answers are typed into a free-text box, so an indicator carrying a
+   * character a learner cannot reasonably reproduce is a wrong answer waiting
+   * to happen.
+   */
+  it("keeps every free-text answer typeable", () => {
+    for (const entry of catalogue) {
+      for (const t of entry.chain.tasks(entry.context)) {
+        if (t.answerType !== "FREE_TEXT") continue;
+        expect(t.correctAnswer.trim(), `${entry.slug}/${t.title}`).toBe(t.correctAnswer);
+        expect(t.correctAnswer.length, `${entry.slug}/${t.title}`).toBeGreaterThan(0);
+        expect(
+          /^[\w@./\\:,\-+ ]+$/.test(t.correctAnswer),
+          `${entry.slug}/${t.title}: answer "${t.correctAnswer}" contains characters a learner would struggle to type`,
+        ).toBe(true);
+      }
+    }
   });
 
   it("titles each incident with its chain and company", () => {

@@ -6,9 +6,17 @@
  *
  * Idempotent on slug. Tasks and artifacts are replaced wholesale on an update
  * rather than diffed: they are authored content with no user data attached,
- * and a partial diff risks leaving orphaned tasks behind. Player progress
- * references tasks by id, so existing incidents are left alone by default —
- * pass --refresh to rewrite them.
+ * and a partial diff risks leaving orphaned tasks behind. Existing incidents
+ * are left alone by default — pass --refresh to rewrite them.
+ *
+ * --refresh discards player progress on the incidents it touches, and that is
+ * deliberate. Answers are derived per (chain, company) in
+ * src/content/incident-indicators.ts, so a refresh that rewrote artifacts but
+ * kept the old task rows would leave every incident showing new evidence and
+ * grading against stale answers — unsolvable, and silently so. Deleting the
+ * tasks cascades IncidentSimProgress, which means anyone who had solved one
+ * replays it against the new indicators. That is the correct outcome: their
+ * old answers no longer describe the incident in front of them.
  *
  * Also clears "Test Company" fixtures left in production by an integration
  * test run.
@@ -51,6 +59,7 @@ async function main() {
   let created = 0;
   let refreshed = 0;
   let skipped = 0;
+  let clearedProgress = 0;
   const missingCompanies = new Set<string>();
 
   for (const entry of catalogue) {
@@ -75,10 +84,17 @@ async function main() {
     const tasks = chain.tasks(context);
 
     if (existing) {
-      // Replace authored content wholesale, leaving the simulation row — and
-      // therefore any player progress pointing at it — in place.
+      // Count before deleting: IncidentSimProgress cascades from the task, so
+      // once the tasks are gone there is nothing left to report on.
+      clearedProgress += await db.incidentSimProgress.count({
+        where: { simulationId: existing.id },
+      });
+
+      // Replace authored content wholesale, leaving the simulation row itself
+      // in place so learning paths and reports keep resolving by slug.
       await db.$transaction([
         db.incidentSimArtifact.deleteMany({ where: { simulationId: existing.id } }),
+        db.incidentSimTask.deleteMany({ where: { simulationId: existing.id } }),
         db.incidentSimulation.update({
           where: { id: existing.id },
           data: {
@@ -100,6 +116,18 @@ async function main() {
           content: a.content,
           order: i + 1,
           tactic: a.tactic ?? null,
+        })),
+      });
+      await db.incidentSimTask.createMany({
+        data: tasks.map((t, i) => ({
+          simulationId: existing.id,
+          order: i + 1,
+          title: t.title,
+          prompt: t.prompt,
+          answerType: t.answerType,
+          correctAnswer: t.correctAnswer,
+          options: t.options ?? [],
+          points: t.points,
         })),
       });
       refreshed++;
@@ -159,6 +187,11 @@ async function main() {
     `\n${created} created, ${refreshed} refreshed, ${skipped} already present` +
       (REFRESH ? "" : " (pass --refresh to rewrite)"),
   );
+  if (clearedProgress > 0) {
+    console.log(
+      `${clearedProgress} task completions cleared — refreshed incidents have new answers.`,
+    );
+  }
   console.log(`${total} published incidents, ${withTasks} with tasks.\n`);
 
   await db.$disconnect();
