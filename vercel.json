@@ -11,6 +11,7 @@
     { "path": "/api/cron/mentor-hint-quality", "schedule": "30 3 * * *" },
     { "path": "/api/cron/season-ranks", "schedule": "0 4 * * *" },
     { "path": "/api/cron/portfolio-aggregation", "schedule": "*/5 * * * *" },
-    { "path": "/api/cron/championship-rollover", "schedule": "15 0 * * *" }
+    { "path": "/api/cron/championship-rollover", "schedule": "15 0 * * *" },
+    { "path": "/api/cron/ozh-conclude", "schedule": "*/10 * * * *" }
   ]
 }

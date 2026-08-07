@@ -160,6 +160,10 @@ model User {
   scenarioReportsFiled    ScenarioReport[]         @relation("ScenarioReportsFiled")
   scenarioReportsReviewed ScenarioReport[]         @relation("ScenarioReportsReviewed")
 
+  // ── Operation Zero Hour ──
+  ozhRuns   OzhRun[]
+  ozhAwards OzhAward[]
+
   @@index([skillScore])
   @@index([coins])
 }
@@ -3289,4 +3293,134 @@ enum ReportStatus {
   OPEN
   UPHELD
   DISMISSED
+}
+
+// ── Operation Zero Hour ─────────────────────────────────────────────────────
+// Individual, one-attempt, six-phase incident response competition. Scenario
+// content is authored in src/content/ozh-*.ts and evidence is derived per user
+// at request time, so nothing about the scenario is stored — only the run.
+//
+// Self-contained rather than layered onto Championship: that model is keyed by
+// calendar month and built from lab slugs, neither of which applies here.
+
+model OzhRun {
+  id     String @id @default(cuid())
+  userId String
+  // Soft reference to the authored scenario, so a second operation can be run
+  // later without a schema change.
+  slug   String @default("operation-zero-hour")
+
+  status OzhRunStatus @default(IN_PROGRESS)
+
+  startedAt DateTime  @default(now())
+  // Set when the run is submitted, times out, or is closed by the deadline.
+  endedAt   DateTime?
+  // Seconds from start to submission. Stored rather than recomputed so the
+  // leaderboard's third sort key cannot drift if the deadline is ever moved.
+  elapsedSeconds Int?
+
+  // Written at finish. Null while the run is live.
+  score      Int?
+  accuracy   Int?
+  rank       Int?
+  // Per-phase points, keyed by OzhPhase. Kept as JSON because it is only ever
+  // read whole, for the debrief and the per-phase awards.
+  phaseScores Json?
+  // Debrief material: what they got right and what they missed.
+  debrief     Json?
+
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissions OzhPhaseSubmission[]
+  actions     OzhActionLog[]
+  awards      OzhAward[]
+
+  // One attempt per person per operation. This unique constraint IS the
+  // "cannot be reset" rule — it is not enforced in application code alone.
+  @@unique([userId, slug])
+  @@index([slug, status])
+  @@index([slug, score])
+}
+
+model OzhPhaseSubmission {
+  id    String   @id @default(cuid())
+  runId String
+  phase OzhPhase
+
+  // Exactly what the intern submitted, unmodified. Retained so a disputed
+  // score can be re-graded against the same input.
+  answer Json
+
+  points      Int
+  maxPoints   Int
+  // Individually graded decisions, for the accuracy figure.
+  correct     Int
+  total       Int
+  submittedAt DateTime @default(now())
+
+  run OzhRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  // A phase locks on submission; the unique constraint makes a second submit
+  // impossible rather than merely refused.
+  @@unique([runId, phase])
+  @@index([runId])
+}
+
+model OzhActionLog {
+  id     String @id @default(cuid())
+  runId  String
+  // PHASE_OPENED, EVIDENCE_VIEWED, ANSWER_SUBMITTED, PHASE_SUBMITTED, ...
+  action String
+  phase  OzhPhase?
+  // Free-form context: which record was opened, which answer was given.
+  detail Json?
+
+  at DateTime @default(now())
+
+  run OzhRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, at])
+}
+
+model OzhAward {
+  id     String       @id @default(cuid())
+  runId  String
+  userId String
+  kind   OzhAwardKind
+  // Public verification code, e.g. OZH-2026-1-K7QR4M.
+  certCode String     @unique
+  issuedAt DateTime   @default(now())
+
+  run  OzhRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  user User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Re-running the conclusion must not mint a second certificate.
+  @@unique([runId, kind])
+  @@index([userId, issuedAt])
+}
+
+enum OzhRunStatus {
+  IN_PROGRESS
+  SUBMITTED
+  // Ran past the three-hour budget or the competition deadline without a
+  // final submission; graded on whatever phases were completed.
+  EXPIRED
+}
+
+enum OzhPhase {
+  TRIAGE
+  INVESTIGATION
+  HUNT
+  RECONSTRUCTION
+  RESPONSE
+  REPORT
+}
+
+enum OzhAwardKind {
+  CHAMPION
+  TOP_THREAT_HUNTER
+  BEST_INCIDENT_RESPONDER
+  BEST_INVESTIGATOR
+  BEST_TECHNICAL_REPORT
+  FASTEST_ANALYST
+  MOST_ACCURATE_ANALYST
 }

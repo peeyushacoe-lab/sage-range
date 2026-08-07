@@ -4,8 +4,10 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { listChampionships, getActiveChampionship } from "@/lib/championships";
 import { Navbar } from "@/components/navbar";
-import { PageHeader, Card, Badge, StatCard, EmptyState } from "@/components/ui";
+import { PageHeader, Card, Badge, StatCard, EmptyState, buttonVariants } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
+import { OZH_OPENS_AT, OZH_CLOSES_AT, windowStateAt } from "@/lib/ozh-engine";
+import { formatIST } from "@/lib/ozh-format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Monthly Championship · Sage Vault" };
@@ -19,6 +21,42 @@ const TIER_TONE = {
 
 function daysLeft(endsAt: Date): number {
   return Math.max(0, Math.ceil((endsAt.getTime() - Date.now()) / 86_400_000));
+}
+
+/**
+ * Operation Zero Hour banner.
+ *
+ * It runs on its own three-day window rather than the monthly cycle, so it
+ * needs its own surface here — otherwise a limited-window event would be
+ * invisible on the page interns actually check for competitions.
+ */
+function OzhFeature() {
+  const state = windowStateAt(new Date());
+  if (state === "CLOSED") return null;
+
+  return (
+    <Card className="mb-8 border-red-500/25 bg-gradient-to-br from-red-500/[0.07] to-transparent p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <Badge tone={state === "OPEN" ? "red" : "blue"} className="mb-3">
+            {state === "OPEN" ? "⚠ Live now" : "Opens soon"}
+          </Badge>
+          <p className="text-2xl font-black tracking-tight">OPERATION ZERO HOUR</p>
+          <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-zinc-400">
+            A single three-hour incident, investigated alone. Six phases, 1,000 points, one
+            attempt — and the evidence you are given is not the evidence anyone else gets.
+          </p>
+          <p className="mt-3 text-xs text-zinc-500">
+            {state === "OPEN" ? "Closes" : "Opens"}{" "}
+            {formatIST(state === "OPEN" ? OZH_CLOSES_AT : OZH_OPENS_AT)} IST
+          </p>
+        </div>
+        <Link href="/operations/zero-hour" className={buttonVariants({ variant: "primary" })}>
+          {state === "OPEN" ? "Enter the operation" : "Read the briefing"}
+        </Link>
+      </div>
+    </Card>
+  );
 }
 
 export default async function ChampionshipHubPage() {
@@ -53,6 +91,9 @@ export default async function ChampionshipHubPage() {
           title="Monthly Championship"
           subtitle="One challenge set, one month, one leaderboard. The podium and top finalists earn a verifiable certificate."
         />
+
+        <OzhFeature />
+
 
         <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard
