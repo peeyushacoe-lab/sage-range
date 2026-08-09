@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { coinsForPoints } from "@/lib/soc-league";
+import { recordEvidence } from "@/lib/evidence";
 
 const TACTICS = [
   "INITIAL_ACCESS",
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
   const accuracyPct = Math.round(((categorizationAccuracy + timelineAccuracy) / 2) * 100);
   const score = categorizationCorrect * 60 + timelineCorrect * 20;
 
-  await db.$transaction([
+  const [board] = await db.$transaction([
     db.incidentSimEvidenceBoard.upsert({
       where: { userId_simulationId: { userId: user.id, simulationId } },
       update: { categorization, timelineOrder, score, accuracyPct, completedAt: new Date() },
@@ -72,6 +73,23 @@ export async function POST(req: Request) {
       data: { skillScore: { increment: Math.round(score / 4) }, coins: { increment: coinsForPoints(score) } },
     }),
   ]);
+
+  // Evidence spine — skillPoints mirrors the score/4 that hit skillScore, so
+  // labs and this activity stay at parity with the live number.
+  try {
+    await recordEvidence({
+      userId: user.id,
+      activity: "INCIDENT",
+      sourceId: board.id,
+      result: accuracyPct >= 50 ? "SOLVED" : "PARTIAL",
+      skillPoints: Math.round(score / 4),
+      title: "Evidence board",
+      score,
+      attempts: 1,
+    });
+  } catch {
+    // additive telemetry
+  }
 
   return NextResponse.json({ score, accuracyPct, categorizationCorrect, taggedTotal: taggedArtifacts.length, timelineCorrect, perItem });
 }

@@ -18,6 +18,7 @@
  */
 
 import { db } from "@/lib/db";
+import { recordEvidence } from "@/lib/evidence";
 import { buildAnswerKey, buildPhasePayload, OZH_SLUG } from "@/content/ozh-scenario";
 import {
   PHASE_ORDER,
@@ -346,6 +347,30 @@ async function concludeRun(runId: string, status: "SUBMITTED" | "EXPIRED", now: 
   await log(runId, status === "SUBMITTED" ? "RUN_SUBMITTED" : "RUN_EXPIRED", null, {
     score: totals.score,
   });
+
+  // Evidence spine — a submitted run is a real competition result and now
+  // counts toward the skill profile, which competitions never did. Preview
+  // runs are excluded here exactly as they are from the leaderboard: a dry run
+  // must not inflate a reviewer's profile.
+  if (status === "SUBMITTED" && !run.preview) {
+    try {
+      await recordEvidence({
+        userId: run.userId,
+        activity: "COMPETITION",
+        sourceId: run.id,
+        result: "SOLVED",
+        skillPoints: totals.score,
+        slug: OZH_SLUG,
+        title: "Operation Zero Hour",
+        score: totals.score,
+        maxScore: 1000,
+        timeSec: elapsedSeconds,
+      });
+    } catch {
+      // additive telemetry
+    }
+  }
+
   return totals;
 }
 

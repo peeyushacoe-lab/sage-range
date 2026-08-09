@@ -6,6 +6,7 @@ import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 import { coinsForPoints } from "@/lib/soc-league";
 import { checkDailyHuntCompletion } from "@/lib/daily-hunt";
 import { awardAfterPenalty, weightedPoints } from "@/lib/scoring";
+import { recordEvidence, labTacticsAndTechniques } from "@/lib/evidence";
 
 const Body = z.object({
   labId: z.string().min(1),
@@ -150,7 +151,7 @@ export async function POST(req: Request) {
         const wrongAttempts = existing?.wrongAttempts ?? 0;
         const awardPoints =
           user.role === "STUDENT" ? awardAfterPenalty(facePoints, wrongAttempts) : 0;
-        await db.$transaction([
+        const [solvedAttempt] = await db.$transaction([
           db.attempt.upsert({
             where: { userId_labId: { userId: user.id, labId: lab.id } },
             create: { userId: user.id, labId: lab.id, status: "SOLVED", score: awardPoints, labVersion: lab.version, startedAt, solvedAt: now, timeTakenSec },
@@ -165,6 +166,30 @@ export async function POST(req: Request) {
             },
           }),
         ]);
+
+        // Evidence spine — same LAB shape as the flag path, keyed on the
+        // attempt so a lab solved either way records one row.
+        try {
+          const { tactics, techniques } = labTacticsAndTechniques(lab.slug);
+          await recordEvidence({
+            userId: user.id,
+            activity: "LAB",
+            sourceId: solvedAttempt.id,
+            result: "SOLVED",
+            skillPoints: awardPoints,
+            slug: lab.slug,
+            title: lab.title,
+            difficulty: lab.difficulty,
+            score: awardPoints,
+            maxScore: facePoints,
+            attempts: wrongAttempts + 1,
+            timeSec: timeTakenSec,
+            tactics,
+            techniques,
+          });
+        } catch {
+          // additive telemetry
+        }
 
         // Daily Hunt bonus — best-effort, never blocks the main solve path
         try {

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { coinsForPoints } from "@/lib/soc-league";
 import { audit } from "@/lib/audit";
+import { recordEvidence } from "@/lib/evidence";
 
 const Body = z.object({ attemptId: z.string().min(1) });
 
@@ -42,6 +43,24 @@ export async function POST(req: Request) {
       },
     }),
   ]);
+
+  // Evidence spine — best-effort. SOC Shift accuracy is exactly the kind of
+  // blue-team signal the skill profile should carry.
+  try {
+    await recordEvidence({
+      userId: user.id,
+      activity: "SOC_SHIFT",
+      sourceId: attempt.id,
+      result: accuracyPct >= 50 ? "SOLVED" : "PARTIAL",
+      skillPoints: score,
+      title: "SOC Shift",
+      score,
+      maxScore: totalAlerts * 50,
+      attempts: 1,
+    });
+  } catch {
+    // additive telemetry
+  }
 
   audit({
     actorId: user.id,

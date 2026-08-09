@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { coinsForPoints } from "@/lib/soc-league";
 import { buildTokenMap, applyTokens, simSeed } from "@/lib/incident-randomizer";
+import { recordEvidence } from "@/lib/evidence";
 
 const Body = z.object({
   taskId: z.string().min(1),
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
 
   const awardPoints = user.role === "STUDENT" ? task.points : 0;
 
-  await db.$transaction([
+  const [progress] = await db.$transaction([
     db.incidentSimProgress.create({
       data: { userId: user.id, simulationId: task.simulationId, taskId: task.id },
     }),
@@ -77,6 +78,23 @@ export async function POST(req: Request) {
       },
     }),
   ]);
+
+  // Evidence spine — best-effort, never blocks the task path.
+  try {
+    await recordEvidence({
+      userId: user.id,
+      activity: "INCIDENT",
+      sourceId: progress.id,
+      result: "SOLVED",
+      skillPoints: awardPoints,
+      slug: task.simulation.slug,
+      title: task.title,
+      score: awardPoints,
+      maxScore: task.points,
+    });
+  } catch {
+    // additive telemetry
+  }
 
   audit({ actorId: user.id, action: "INCIDENT_TASK_SUBMIT", target: task.id,
     req, meta: { correct: true, points: awardPoints, simulationId: task.simulationId } });

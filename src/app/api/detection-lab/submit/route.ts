@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { coinsForPoints } from "@/lib/soc-league";
 import { evaluateRule, isPassing, type DatasetEvent, type Rule } from "@/lib/detection-engine";
+import { recordEvidence } from "@/lib/evidence";
 
 const Body = z.object({
   challengeId: z.string().min(1),
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
     where: { userId: user.id, challengeId: challenge.id, passed: true },
   });
 
-  await db.detectionSubmission.create({
+  const submission = await db.detectionSubmission.create({
     data: {
       userId: user.id,
       challengeId: challenge.id,
@@ -85,6 +86,26 @@ export async function POST(req: Request) {
       },
     });
     audit({ actorId: user.id, action: "DETECTION_CHALLENGE_SUBMIT", target: challenge.id, req, meta: { passed, score } });
+
+    // Evidence spine — best-effort. Detection quality (F1) rode only skillScore
+    // before; now it is first-class evidence tagged to the Defense Evasion side
+    // of the house via the challenge, when tagged.
+    try {
+      await recordEvidence({
+        userId: user.id,
+        activity: "DETECTION",
+        sourceId: submission.id,
+        result: "SOLVED",
+        skillPoints: score,
+        slug: challenge.slug,
+        title: challenge.title,
+        difficulty: challenge.difficulty,
+        score,
+        maxScore: challenge.points,
+      });
+    } catch {
+      // additive telemetry
+    }
 
     // Award competition points for any active competition that lists this
     // challenge's slug — same pattern as /api/labs/submit/route.ts, just

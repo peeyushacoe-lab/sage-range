@@ -5,6 +5,7 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { coinsForPoints } from "@/lib/soc-league";
+import { recordEvidence } from "@/lib/evidence";
 
 const REPORT_COMPLETION_BONUS = 250;
 
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
 
   const data = { ...fields, submittedAt: submit ? new Date() : null };
 
-  await db.incidentSimReport.upsert({
+  const report = await db.incidentSimReport.upsert({
     where: { userId_simulationId: { userId: user.id, simulationId } },
     update: data,
     create: { userId: user.id, simulationId, ...data },
@@ -77,6 +78,21 @@ export async function POST(req: Request) {
         coins: { increment: coinsForPoints(awardPoints) },
       },
     });
+    // Evidence spine — best-effort, never blocks the report path.
+    try {
+      await recordEvidence({
+        userId: user.id,
+        activity: "INCIDENT",
+        sourceId: report.id,
+        result: "SOLVED",
+        skillPoints: awardPoints,
+        title: "Incident report",
+        score: awardPoints,
+        maxScore: REPORT_COMPLETION_BONUS,
+      });
+    } catch {
+      // additive telemetry
+    }
     audit({ actorId: user.id, action: "INCIDENT_REPORT_SUBMIT", target: simulationId, req, meta: { points: awardPoints } });
   }
 

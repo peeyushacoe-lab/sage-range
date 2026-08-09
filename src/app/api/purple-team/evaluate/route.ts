@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { coinsForPoints } from "@/lib/soc-league";
 import { evaluateRule, isPassing, type DatasetEvent, type Rule } from "@/lib/detection-engine";
+import { recordEvidence } from "@/lib/evidence";
 
 const Body = z.object({
   replayId: z.string().min(1),
@@ -92,6 +93,24 @@ export async function POST(req: Request) {
       },
     });
     audit({ actorId: user.id, action: "PURPLE_TEAM_REPLAY_COMPLETE", target: replay.id, req, meta: { f1: evalResult.f1, awardedPoints } });
+
+    // Evidence spine — best-effort. Purple-team work fed the skill profile by
+    // zero before; now a completed replay is evidence like anything else.
+    try {
+      await recordEvidence({
+        userId: user.id,
+        activity: "PURPLE_TEAM",
+        sourceId: session.id,
+        result: "SOLVED",
+        skillPoints: awardedPoints,
+        slug: replay.slug,
+        title: replay.title,
+        score: awardedPoints,
+        maxScore: replay.points,
+      });
+    } catch {
+      // additive telemetry
+    }
   }
 
   const matched = cumulativeEvents
