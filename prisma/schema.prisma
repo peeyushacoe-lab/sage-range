@@ -115,6 +115,7 @@ model User {
   academyQuizAttempts       AcademyQuizAttempt[]
   academyCertificates       AcademyCertificate[]
   academyCardReviews        AcademyCardReview[]
+  evidence                  Evidence[]
   dailyHuntAttempts         DailyHuntAttempt[]
   incidentSimProgress       IncidentSimProgress[]
   socShiftAttempts          SocShiftAttempt[]
@@ -3429,4 +3430,76 @@ enum OzhAwardKind {
   BEST_TECHNICAL_REPORT
   FASTEST_ANALYST
   MOST_ACCURATE_ANALYST
+}
+
+// ── Evidence spine ──────────────────────────────────────────────────────────
+// One row per graded activity a learner completes, across every activity type.
+//
+// Vault had no shared skill layer: nine endpoints each incremented User.skillScore
+// on their own scale, three different "skill" views each read a different subset
+// of ~21 progress tables, and competitions fed none of it. This table is the
+// spine those views were missing — every activity emits one Evidence row, and
+// skill score, MITRE coverage and gap analysis derive from it in
+// src/lib/skill-engine.ts rather than each recomputing from raw progress.
+//
+// Introduced additively: activities keep their own progress rows and their
+// existing scoring untouched, and skillPoints here mirrors the award the
+// activity already gave, so nothing a learner sees changes. Normalising scales
+// and making skillScore itself derived are deliberate later steps.
+
+enum EvidenceActivity {
+  LAB
+  INCIDENT
+  SIMULATION
+  SOC_SHIFT
+  DETECTION
+  PURPLE_TEAM
+  COMPETITION
+  ASSESSMENT
+  HUNT
+}
+
+enum EvidenceResult {
+  SOLVED
+  PARTIAL
+  FAILED
+}
+
+model Evidence {
+  id       String           @id @default(cuid())
+  userId   String
+  activity EvidenceActivity
+  // The source progress row (Attempt.id, IncidentSimProgress.id, …). The write
+  // is upserted on it, so re-grading the same activity instance updates one row
+  // rather than double-counting.
+  sourceId String
+  slug     String?
+  title    String?
+
+  result     EvidenceResult
+  difficulty String?
+  // Canonical skill contribution. Equal to the activity's existing award for
+  // now; the single place a future normalisation will change.
+  skillPoints Int    @default(0)
+  score       Int?
+  maxScore    Int?
+
+  // The "how", not just the "whether" — the behavioural signal skill scoring
+  // was throwing away.
+  attempts  Int?
+  hintsUsed Int?
+  timeSec   Int?
+
+  // MITRE tactics/techniques demonstrated, by tactic name (matching LAB_TECHNIQUES).
+  tactics    String[]
+  techniques String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activity, sourceId])
+  @@index([userId, activity])
+  @@index([userId, createdAt])
 }

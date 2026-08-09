@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { coinsForPoints } from "@/lib/soc-league";
 import { checkDailyHuntCompletion } from "@/lib/daily-hunt";
+import { recordEvidence, labTacticsAndTechniques } from "@/lib/evidence";
 
 const Body = z.object({
   labSlug: z.string().min(1),
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
   const timeTakenSec = Math.floor((solvedAt.getTime() - startedAt.getTime()) / 1000);
   const awardPoints = user.role === "STUDENT" ? matched.points : 0;
 
-  await db.$transaction([
+  const [attempt] = await db.$transaction([
     db.attempt.upsert({
       where: { userId_labId: { userId: user.id, labId: lab.id } },
       create: {
@@ -93,6 +94,32 @@ export async function POST(req: Request) {
       },
     }),
   ]);
+
+  // Emit evidence for the unified skill spine — best-effort, never blocks the
+  // flag path. skillPoints mirrors the award already granted above, so the
+  // profile derived in src/lib/skill-engine.ts matches the live skillScore
+  // while the spine is validated before anything is switched to derive from it.
+  try {
+    const { tactics, techniques } = labTacticsAndTechniques(lab.slug);
+    await recordEvidence({
+      userId: user.id,
+      activity: "LAB",
+      sourceId: attempt.id,
+      result: "SOLVED",
+      skillPoints: awardPoints,
+      slug: lab.slug,
+      title: lab.title,
+      difficulty: lab.difficulty,
+      score: awardPoints,
+      maxScore: matched.points,
+      attempts: (existing?.wrongAttempts ?? 0) + 1,
+      timeSec: timeTakenSec,
+      tactics,
+      techniques,
+    });
+  } catch {
+    // Additive telemetry — a failure here must not fail the solve.
+  }
 
   // Daily Hunt bonus — best-effort, never blocks the main flag-submission path
   try {
