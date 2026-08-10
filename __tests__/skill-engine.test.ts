@@ -264,3 +264,92 @@ describe("skill engine — purity", () => {
     expect(JSON.stringify(skillMatrix(records))).toBe(JSON.stringify(skillMatrix(records)));
   });
 });
+
+// ── Recommendation engine (the action end of the loop) ──────────────────────
+
+import { recommendActivities, type ActivityRef, type Weakness } from "@/lib/skill-engine";
+
+const act = (over: Partial<ActivityRef> = {}): ActivityRef => ({
+  slug: "lab-a",
+  title: "Lab A",
+  href: "/labs/lab-a",
+  activity: "LAB",
+  difficulty: "MEDIUM",
+  tactics: ["Discovery"],
+  ...over,
+});
+
+const weak = (tactic: string, score: number, untouched = false): Weakness =>
+  ({ tactic, score, untouched } as Weakness);
+
+describe("skill engine — recommendations", () => {
+  it("recommends only activities that train a weak tactic", () => {
+    const weakest = [weak("Discovery", 20)];
+    const catalogue = [
+      act({ slug: "trains-it", tactics: ["Discovery"] }),
+      act({ slug: "irrelevant", tactics: ["Impact"] }),
+    ];
+    const recs = recommendActivities(weakest, catalogue, new Set());
+    expect(recs.map((r) => r.activity.slug)).toEqual(["trains-it"]);
+    expect(recs[0].addresses).toEqual(["Discovery"]);
+  });
+
+  it("never recommends an activity the learner has already completed", () => {
+    const recs = recommendActivities(
+      [weak("Discovery", 20)],
+      [act({ slug: "done", tactics: ["Discovery"] })],
+      new Set(["done"]),
+    );
+    expect(recs).toHaveLength(0);
+  });
+
+  it("ranks an activity covering more and weaker gaps higher", () => {
+    const weakest = [weak("Discovery", 10), weak("Impact", 60)];
+    const catalogue = [
+      act({ slug: "covers-both", tactics: ["Discovery", "Impact"] }),
+      act({ slug: "covers-mild", tactics: ["Impact"] }),
+    ];
+    const recs = recommendActivities(weakest, catalogue, new Set());
+    expect(recs[0].activity.slug).toBe("covers-both");
+  });
+
+  it("weighs an untouched gap above a merely weak one", () => {
+    const weakest = [weak("Discovery", 40, false), weak("Impact", 40, true)];
+    const catalogue = [
+      act({ slug: "for-weak", tactics: ["Discovery"] }),
+      act({ slug: "for-untouched", tactics: ["Impact"] }),
+    ];
+    const recs = recommendActivities(weakest, catalogue, new Set());
+    expect(recs[0].activity.slug).toBe("for-untouched");
+  });
+
+  it("breaks ties toward the easier activity", () => {
+    const weakest = [weak("Discovery", 20)];
+    const catalogue = [
+      act({ slug: "hard", tactics: ["Discovery"], difficulty: "HARD" }),
+      act({ slug: "easy", tactics: ["Discovery"], difficulty: "EASY" }),
+    ];
+    const recs = recommendActivities(weakest, catalogue, new Set());
+    expect(recs[0].activity.slug).toBe("easy");
+  });
+
+  it("respects the limit", () => {
+    const weakest = [weak("Discovery", 20)];
+    const catalogue = Array.from({ length: 10 }, (_, i) =>
+      act({ slug: `lab-${i}`, tactics: ["Discovery"] }),
+    );
+    expect(recommendActivities(weakest, catalogue, new Set(), { limit: 3 })).toHaveLength(3);
+  });
+
+  it("returns nothing when there are no gaps to close", () => {
+    expect(recommendActivities([], [act()], new Set())).toHaveLength(0);
+  });
+
+  it("does not mutate its inputs", () => {
+    const weakest = [weak("Discovery", 20)];
+    const catalogue = [act({ tactics: ["Discovery"] })];
+    const snap = JSON.stringify({ weakest, catalogue });
+    recommendActivities(weakest, catalogue, new Set());
+    expect(JSON.stringify({ weakest, catalogue })).toBe(snap);
+  });
+});

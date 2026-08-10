@@ -250,3 +250,72 @@ export function weakestTactics(
     })
     .slice(0, limit);
 }
+
+// ── Recommendation (the action end of the loop) ─────────────────────────────
+
+/** An activity that could be recommended, tagged with the tactics it trains. */
+export type ActivityRef = {
+  slug: string;
+  title: string;
+  href: string;
+  activity: EvidenceActivity;
+  difficulty?: string | null;
+  tactics: string[];
+};
+
+export type Recommendation = {
+  activity: ActivityRef;
+  /** The learner's weak tactics this activity would train. */
+  addresses: Tactic[];
+  /** Ranking weight — higher means it closes more, and weaker, gaps. */
+  relevance: number;
+};
+
+/** How much a single weakness is worth closing. Untouched gaps weigh most. */
+function weaknessWeight(w: Weakness, mastered: number): number {
+  return w.untouched ? mastered + 30 : Math.max(1, mastered - w.score);
+}
+
+/**
+ * Recommend what to do next, from the learner's gaps and the activity
+ * catalogue — the step that turns a skill profile into a training plan.
+ *
+ * An activity is a candidate only if the learner has not already completed it
+ * and it trains at least one of their weak tactics; recommending mastered
+ * ground or finished work is noise. Candidates are ranked by how much weakness
+ * they close, and ties broken toward the easier activity so a struggling
+ * learner gets a foothold rather than a wall.
+ */
+export function recommendActivities(
+  weakest: readonly Weakness[],
+  catalogue: readonly ActivityRef[],
+  completedSlugs: ReadonlySet<string>,
+  opts: { limit?: number; mastered?: number } = {},
+): Recommendation[] {
+  const limit = opts.limit ?? 5;
+  const mastered = opts.mastered ?? 70;
+
+  const weightByTactic = new Map<string, number>();
+  for (const w of weakest) weightByTactic.set(w.tactic, weaknessWeight(w, mastered));
+
+  const DIFF_ORDER: Record<string, number> = { EASY: 0, MEDIUM: 1, HARD: 2, INSANE: 3 };
+
+  const recs: Recommendation[] = [];
+  for (const ref of catalogue) {
+    if (completedSlugs.has(ref.slug)) continue;
+    const addresses = ref.tactics.filter((t) => weightByTactic.has(t)) as Tactic[];
+    if (addresses.length === 0) continue;
+    const relevance = addresses.reduce((sum, t) => sum + (weightByTactic.get(t) ?? 0), 0);
+    recs.push({ activity: ref, addresses, relevance });
+  }
+
+  return recs
+    .sort((a, b) => {
+      if (b.relevance !== a.relevance) return b.relevance - a.relevance;
+      const da = DIFF_ORDER[a.activity.difficulty ?? ""] ?? 1;
+      const db = DIFF_ORDER[b.activity.difficulty ?? ""] ?? 1;
+      if (da !== db) return da - db;
+      return a.activity.title.localeCompare(b.activity.title);
+    })
+    .slice(0, limit);
+}

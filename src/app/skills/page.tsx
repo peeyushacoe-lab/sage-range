@@ -1,33 +1,41 @@
 import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { computeSkillRadar } from "@/lib/insights/skills";
+import { getSkillProfile } from "@/lib/evidence";
 import { SkillRadarChart, SkillBreakdownCards } from "@/components/insights/skill-radar-chart";
+import { SkillProfileSection } from "@/components/insights/skill-profile";
 import { Navbar } from "@/components/navbar";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Skill Radar · Sage Vault" };
+export const metadata = { title: "Skills · Sage Vault" };
 
 export default async function SkillsPage() {
   const me = await getOrCreateAppUser();
   if (!me) redirect("/sign-in");
 
-  const { skills, overallScore } = await computeSkillRadar(me.id);
+  const [{ skills, overallScore }, profile] = await Promise.all([
+    computeSkillRadar(me.id),
+    getSkillProfile(me.id),
+  ]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+      <main className="max-w-4xl mx-auto px-6 py-8 space-y-10">
 
-        {/* Header */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        {/* Evidence-derived profile + the adaptive loop — the primary view. */}
+        <SkillProfileSection profile={profile} />
+
+        {/* Legacy activity radar — a complementary lens on the same learner. */}
+        <div className="flex flex-wrap items-start justify-between gap-4 border-t border-white/8 pt-8">
           <div>
-            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Skill Analysis</p>
-            <h1 className="text-2xl font-bold">Skill Radar</h1>
-            <p className="text-sm text-zinc-500 mt-1">Your capability profile across 6 core dimensions</p>
+            <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Activity Radar</p>
+            <h2 className="text-xl font-bold">Capability across 6 dimensions</h2>
+            <p className="text-sm text-zinc-500 mt-1">A complementary view weighted by activity type and speed</p>
           </div>
           <div className="text-right">
             <p className="text-3xl font-black tabular-nums">{overallScore}</p>
-            <p className="text-xs text-zinc-500 mt-0.5">overall skill index</p>
+            <p className="text-xs text-zinc-500 mt-0.5">activity index</p>
           </div>
         </div>
 
