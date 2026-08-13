@@ -495,6 +495,81 @@ export async function getResult(userId: string) {
   };
 }
 
+/**
+ * The full judging report — every real run, ranked, with each phase broken out.
+ *
+ * For organisers deciding the winner: it carries the per-phase points, the
+ * correct/total decision counts behind them, elapsed time and how much evidence
+ * each analyst actually opened — enough to spot an efficient run from a lucky
+ * one. Admin-gated at the route; nothing here is safe to show a competitor.
+ */
+export type JudgingRow = {
+  userId: string;
+  rank: number;
+  name: string;
+  email: string;
+  university: string | null;
+  status: string;
+  score: number;
+  accuracy: number;
+  elapsedSeconds: number;
+  evidenceViews: number;
+  phases: { phase: OzhPhase; points: number; maxPoints: number; correct: number; total: number }[];
+};
+
+export async function getJudgingReport(now: Date = new Date()): Promise<JudgingRow[]> {
+  await sweepExpiredRuns(now);
+
+  const runs = await db.ozhRun.findMany({
+    where: {
+      slug: OZH_SLUG,
+      status: { in: ["SUBMITTED", "EXPIRED"] },
+      preview: false,
+      user: { hidden: false },
+    },
+    include: {
+      user: { select: { id: true, displayName: true, email: true, university: true } },
+      submissions: true,
+      actions: { where: { action: "EVIDENCE_VIEWED" }, select: { id: true } },
+    },
+  });
+
+  const ranked = rankRuns(
+    runs.map((r) => ({
+      userId: r.userId,
+      score: r.score ?? 0,
+      accuracy: r.accuracy ?? 0,
+      elapsedSeconds: r.elapsedSeconds ?? Number.MAX_SAFE_INTEGER,
+    })),
+  );
+  const rankByUser = new Map(ranked.map((r) => [r.userId, r.rank]));
+
+  return runs
+    .map((r) => ({
+      userId: r.userId,
+      rank: rankByUser.get(r.userId) ?? 0,
+      name: r.user.displayName || r.user.email.split("@")[0],
+      email: r.user.email,
+      university: r.user.university,
+      status: r.status,
+      score: r.score ?? 0,
+      accuracy: r.accuracy ?? 0,
+      elapsedSeconds: r.elapsedSeconds ?? 0,
+      evidenceViews: r.actions.length,
+      phases: PHASE_ORDER.map((phase) => {
+        const s = r.submissions.find((x) => x.phase === phase);
+        return {
+          phase,
+          points: s?.points ?? 0,
+          maxPoints: PHASE_POINTS[phase],
+          correct: s?.correct ?? 0,
+          total: s?.total ?? 0,
+        };
+      }),
+    }))
+    .sort((a, b) => a.rank - b.rank);
+}
+
 export async function getLeaderboard(limit = 100, now: Date = new Date()) {
   await sweepExpiredRuns(now);
 

@@ -1,11 +1,13 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { NewCompetitionForm } from "../_components/new-competition-form";
 import { CompetitionToggle } from "../_components/competition-toggle";
+import { getJudgingReport } from "@/lib/ozh";
 
 export const dynamic = "force-dynamic";
 
 export default async function CompetitionsPage() {
-  const [competitions, publishedLabs, organizations, cohorts] = await Promise.all([
+  const [competitions, publishedLabs, organizations, cohorts, ozh] = await Promise.all([
     db.competition.findMany({
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { entries: true } } },
@@ -13,7 +15,9 @@ export default async function CompetitionsPage() {
     db.lab.findMany({ where: { published: true }, select: { id: true, slug: true, title: true }, orderBy: { title: "asc" } }),
     db.organization.findMany({ where: { active: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
     db.cohort.findMany({ where: { published: true }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    getJudgingReport(),
   ]);
+  const ozhChampion = ozh[0] ?? null;
 
   const now = new Date();
 
@@ -30,6 +34,28 @@ export default async function CompetitionsPage() {
           cohorts={cohorts}
         />
       </div>
+
+      {/* Operation Zero Hour — the solo IR event lives outside the generic
+          Competition model, so it gets its own entry point into the judging view. */}
+      <Link
+        href="/admin/competitions/zero-hour"
+        className="mb-8 flex items-center justify-between gap-4 rounded-xl border border-emerald-500/25 bg-gradient-to-r from-emerald-950/40 to-zinc-900/40 p-5 transition hover:border-emerald-500/40"
+      >
+        <div>
+          <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-400">
+            Operation Zero Hour
+          </p>
+          <p className="font-semibold text-zinc-100">Judging &amp; results</p>
+          <p className="mt-0.5 text-sm text-zinc-500">
+            {ozh.length > 0
+              ? `${ozh.length} analyst${ozh.length === 1 ? "" : "s"} · leader ${ozhChampion?.name} (${ozhChampion?.score})`
+              : "No submitted runs yet"}
+          </p>
+        </div>
+        <span className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500">
+          Open judging →
+        </span>
+      </Link>
 
       {competitions.length === 0 ? (
         <div className="rounded-xl border border-white/8 flex flex-col items-center justify-center py-20 text-center">
