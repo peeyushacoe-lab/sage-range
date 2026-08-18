@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/ui/icon";
-import { checkPractice, feedbackFor, type PracticeSpec } from "@/lib/practice-check";
 
 /**
  * A construct-the-answer exercise, sitting between the reading and the quiz.
@@ -12,33 +11,63 @@ import { checkPractice, feedbackFor, type PracticeSpec } from "@/lib/practice-ch
  * escalates: a count first, then one missing element, then everything. The
  * struggle before the hint is the part that teaches.
  *
- * Nothing is scored or sent anywhere — practice is formative. Getting it wrong
- * four times should cost a learner nothing but time.
+ * The required elements and the worked solution stay on the server. They used
+ * to be handed to this component with the page, which meant `requires` — a list
+ * of every part the answer needs — was in devtools before the learner had
+ * written anything. Marking happens in /api/academy/blocks/[blockId], which
+ * releases the solution only once the learner has genuinely tried.
+ *
+ * Nothing is scored or sent anywhere for credit — practice is formative.
+ * Getting it wrong four times should cost a learner nothing but time.
  */
-export function PracticeBlock({ content }: { content: Record<string, unknown> }) {
-  const task = String(content.task ?? "");
-  const solution = String(content.solution ?? "");
-  const explanation = String(content.explanation ?? "");
-  const setup = content.setup as { label: string; code: string } | undefined;
+type Feedback = {
+  status: "correct" | "wrong-approach" | "incomplete" | "empty";
+  message: string;
+  hints: string[];
+  offerSolution: boolean;
+  progress: number;
+  solution?: string;
+  explanation?: string;
+};
 
-  const spec: PracticeSpec = {
-    requires: (content.requires as string[] | undefined) ?? [],
-    forbids: (content.forbids as string[] | undefined) ?? [],
-  };
+export function PracticeBlock({
+  blockId,
+  content,
+}: {
+  blockId: string;
+  content: Record<string, unknown>;
+}) {
+  const task = String(content.task ?? "");
+  const setup = content.setup as { label: string; code: string } | undefined;
+  const requiredCount = Number(content.requiredCount ?? 0);
 
   const [answer, setAnswer] = useState("");
   const [attempts, setAttempts] = useState(0);
-  const [feedback, setFeedback] = useState<ReturnType<typeof feedbackFor> | null>(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [showSolution, setShowSolution] = useState(false);
+  const [checking, setChecking] = useState(false);
 
   const solved = feedback?.status === "correct";
-  const progress = checkPractice(answer, spec).progress;
+  const progress = feedback?.progress ?? 0;
+  const solution = feedback?.solution ?? "";
+  const explanation = feedback?.explanation ?? "";
 
-  function submit() {
-    if (solved) return;
+  async function submit() {
+    if (solved || checking) return;
     const next = answer.trim().length === 0 ? attempts : attempts + 1;
     setAttempts(next);
-    setFeedback(feedbackFor(answer, spec, next));
+    setChecking(true);
+    try {
+      const res = await fetch(`/api/academy/blocks/${blockId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answer, attempts: next }),
+      });
+      if (!res.ok) return;
+      setFeedback((await res.json()) as Feedback);
+    } finally {
+      setChecking(false);
+    }
   }
 
   return (
@@ -79,7 +108,7 @@ export function PracticeBlock({ content }: { content: Record<string, unknown> })
               // genuinely multi-line.
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                submit();
+                void submit();
               }
             }}
             disabled={solved}
@@ -94,7 +123,7 @@ export function PracticeBlock({ content }: { content: Record<string, unknown> })
           />
           {/* How much of the required shape is present, live. Deliberately not
               itemised — the count nudges without giving the parts away. */}
-          {!solved && answer.trim().length > 0 && spec.requires.length > 0 && (
+          {!solved && answer.trim().length > 0 && requiredCount > 0 && (
             <div className="absolute right-2 bottom-2 flex items-center gap-1.5 pointer-events-none">
               <div className="w-14 h-1 bg-zinc-800 rounded-full overflow-hidden">
                 <div
@@ -109,7 +138,7 @@ export function PracticeBlock({ content }: { content: Record<string, unknown> })
         {!solved && (
           <div className="flex items-center gap-2 mt-3">
             <button
-              onClick={submit}
+              onClick={() => void submit()}
               className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition"
             >
               Check

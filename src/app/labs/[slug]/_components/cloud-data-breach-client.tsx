@@ -1,18 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const POLICY_HISTORY = `Bucket policy change history — s3://acme-customer-records:
 2026-04-30  Config change deployed: "public-read" ACL accidentally enabled
 2026-05-02  First external (non-corporate IP) GetObject requests observed
 2026-06-14  Misconfiguration discovered during unrelated security review (45 days later)`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function CloudDataBreachClient({
   labId,
@@ -22,6 +17,7 @@ export function CloudDataBreachClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -32,44 +28,40 @@ export function CloudDataBreachClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{2_d4ys_t0_f1rst_3xt3rn4l_4cc3ss}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare the config change date against the first external access date.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "There was no automated monitoring/alerting for public bucket exposure, leaving the misconfiguration undetected for over a month") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what a 45-day detection gap says about the organization's monitoring.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Breach notification to affected customers and relevant regulators, since unauthorized access to personal data was confirmed") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about the legal obligations that follow confirmed unauthorized access to personal data.");
     }
   }
@@ -93,7 +85,7 @@ export function CloudDataBreachClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — external downloads began 2 days after the misconfiguration was introduced. Flag: SAGE&#123;2_d4ys_t0_f1rst_3xt3rn4l_4cc3ss&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — external downloads began 2 days after the misconfiguration was introduced. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -121,7 +113,7 @@ export function CloudDataBreachClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — no automated exposure monitoring existed, letting a critical misconfiguration sit unnoticed for over a month. Flag: SAGE&#123;n0_4ut0m4t3d_3xp0sur3_m0n1t0r1ng&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — no automated exposure monitoring existed, letting a critical misconfiguration sit unnoticed for over a month. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -151,7 +143,7 @@ export function CloudDataBreachClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — confirmed unauthorized access to personal data typically requires notifying affected customers and regulators.
-            Flag: SAGE&#123;br34ch_n0t1f1c4t10n_r3qu1r3d&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -160,9 +152,9 @@ export function CloudDataBreachClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;2_d4ys_t0_f1rst_3xt3rn4l_4cc3ss&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;n0_4ut0m4t3d_3xp0sur3_m0n1t0r1ng&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;br34ch_n0t1f1c4t10n_r3qu1r3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

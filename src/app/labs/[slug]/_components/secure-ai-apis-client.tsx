@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const BUNDLE = `// main.bundle.js — shipped to every visitor's browser
@@ -13,11 +13,6 @@ fetch("https://api.openai.com/v1/chat/completions", {
 const COST_SCENARIO = `Billing alert: $4,200 in LLM inference charges in the last 6 hours
 Traffic: 40,000 requests from a single account, no rate limiting configured`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function SecureAiApisClient({
   labId,
   completedStages: initial,
@@ -26,6 +21,7 @@ export function SecureAiApisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -36,44 +32,40 @@ export function SecureAiApisClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{4p1_k3y_s3rv3r_s1d3_0nly}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Think about who can read a browser-shipped JS bundle.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Per-user rate limiting and request quotas on the LLM endpoint") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what would cap the damage a single account can do.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Input validation and output filtering, since the API sits between untrusted users and a model that can be manipulated") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Rate limiting alone doesn't address manipulated inputs or unsafe outputs.");
     }
   }
@@ -97,7 +89,7 @@ export function SecureAiApisClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the key must live server-side only, never in code shipped to the browser. Flag: SAGE&#123;4p1_k3y_s3rv3r_s1d3_0nly&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the key must live server-side only, never in code shipped to the browser. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -128,7 +120,7 @@ export function SecureAiApisClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — per-user rate limiting and quotas cap what any single account can spend. Flag: SAGE&#123;r4t3_l1m1t_pr3v3nts_c0st_d0s&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — per-user rate limiting and quotas cap what any single account can spend. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -158,7 +150,7 @@ export function SecureAiApisClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — validate every input and filter every output, since the model itself can be manipulated.
-            Flag: SAGE&#123;v4l1d4t3_1nput_f1lt3r_0utput&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -167,9 +159,9 @@ export function SecureAiApisClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;4p1_k3y_s3rv3r_s1d3_0nly&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;r4t3_l1m1t_pr3v3nts_c0st_d0s&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;v4l1d4t3_1nput_f1lt3r_0utput&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

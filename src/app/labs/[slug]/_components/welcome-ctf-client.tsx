@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 import { Icon } from "@/components/ui/icon";
@@ -23,24 +23,17 @@ export function WelcomeCtfClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
     router.refresh();
   }
 
-  function checkFlag(stage: "task_1" | "task_2" | "task_3", value: string, expected: string) {
-    const strip = (s: string) =>
-      s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-    if (strip(value) === strip(expected)) {
+  async function submitFlag(stage: "task_1" | "task_2" | "task_3", value: string) {
+    const verdict = await verifyStage(labId, stage, value);
+    if (verdict.correct) {
       setErrors((p) => ({ ...p, [stage]: "" }));
-      void saveStage(stage);
+      markDone(stage);
     } else {
-      reportWrong(labId, stage);
       setErrors((p) => ({ ...p, [stage]: "Incorrect flag. Try again." }));
     }
   }
@@ -62,7 +55,7 @@ export function WelcomeCtfClient({
           <AnswerRow
             value={answers.t1}
             onChange={(v) => setAnswers((p) => ({ ...p, t1: v }))}
-            onSubmit={() => checkFlag("task_1", answers.t1, "SAGE{w3lc0me_t0_th3_r4nge}")}
+            onSubmit={() => void submitFlag("task_1", answers.t1)}
             error={errors["task_1"]}
           />
         )}
@@ -87,7 +80,7 @@ export function WelcomeCtfClient({
           <AnswerRow
             value={answers.t2}
             onChange={(v) => setAnswers((p) => ({ ...p, t2: v }))}
-            onSubmit={() => checkFlag("task_2", answers.t2, "SAGE{b4se64_is_n0t_encrypti0n}")}
+            onSubmit={() => void submitFlag("task_2", answers.t2)}
             error={errors["task_2"]}
           />
         )}
@@ -113,7 +106,7 @@ export function WelcomeCtfClient({
           <AnswerRow
             value={answers.t3}
             onChange={(v) => setAnswers((p) => ({ ...p, t3: v }))}
-            onSubmit={() => checkFlag("task_3", answers.t3, "SAGE{h4rdc0d3d_s3cr3ts_l34k}")}
+            onSubmit={() => void submitFlag("task_3", answers.t3)}
             error={errors["task_3"]}
           />
         )}

@@ -1,17 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const FEEDS = `Feed A: IP 45.33.10.12            Confidence: High    Age: 2 days
 Feed B: IP 45.33.10.12            Confidence: Low     Age: 45 days
 Feed C: Domain cdn-edge-01[.]net  Confidence: Medium  Age: 6 hours`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function IocFeedIntegrationClient({
   labId,
@@ -21,6 +16,7 @@ export function IocFeedIntegrationClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -31,44 +27,40 @@ export function IocFeedIntegrationClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{h1gh_c0nf1d3nc3_r3c3nt_4g3_w1ns}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Weigh both the confidence level and how recently each feed saw the indicator.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Add it to a monitoring/alerting watchlist first, not an auto-block list, until it's corroborated") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. One medium-confidence source alone shouldn't drive an enforcement action.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "High confidence AND corroborated by multiple independent feeds, minimizing false-positive blocking risk") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about the bar that minimizes the risk of blocking something legitimate.");
     }
   }
@@ -92,7 +84,7 @@ export function IocFeedIntegrationClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the more recent, higher-confidence report should win over an older, lower-confidence one. Flag: SAGE&#123;h1gh_c0nf1d3nc3_r3c3nt_4g3_w1ns&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the more recent, higher-confidence report should win over an older, lower-confidence one. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -120,7 +112,7 @@ export function IocFeedIntegrationClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — monitor it first; a single medium-confidence source isn't a strong enough bar for automatic enforcement. Flag: SAGE&#123;m0n1t0r_f1rst_n0t_4ut0_bl0ck&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — monitor it first; a single medium-confidence source isn't a strong enough bar for automatic enforcement. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -150,7 +142,7 @@ export function IocFeedIntegrationClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — requiring both high confidence and multi-feed corroboration keeps auto-blocking safe from single-source false positives.
-            Flag: SAGE&#123;h1gh_c0nf_multi_f33d_4ut0bl0ck&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -159,9 +151,9 @@ export function IocFeedIntegrationClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;h1gh_c0nf1d3nc3_r3c3nt_4g3_w1ns&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;m0n1t0r_f1rst_n0t_4ut0_bl0ck&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;h1gh_c0nf_multi_f33d_4ut0bl0ck&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

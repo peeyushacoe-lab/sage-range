@@ -1,18 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SPN_LIST = `Account       SPN                          Ticket Encryption
 svc_backup    MSSQLSvc/backup01:1433       AES256
 svc_sql       MSSQLSvc/sqlprod01:1433      RC4
 svc_web       HTTP/webapp01                AES256`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function KerberoastingClient({
   labId,
@@ -22,6 +17,7 @@ export function KerberoastingClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -32,44 +28,40 @@ export function KerberoastingClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{svc_sql_rc4_crack4bl3}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare the encryption type used by each SPN account's ticket.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Their passwords are often set once, never rotated, and rarely subject to the same complexity/expiry policy as user accounts") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about how service account passwords are typically managed in practice.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Use long random passwords (or managed service accounts) for SPN accounts and enforce AES-only ticket encryption") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The fix should address both the password strength and the ticket encryption in use.");
     }
   }
@@ -93,7 +85,7 @@ export function KerberoastingClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — svc_sql's ticket uses weak RC4 encryption, crackable offline. Flag: SAGE&#123;svc_sql_rc4_crack4bl3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — svc_sql's ticket uses weak RC4 encryption, crackable offline. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -121,7 +113,7 @@ export function KerberoastingClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — stale, rarely-rotated passwords make service accounts prime Kerberoasting targets. Flag: SAGE&#123;st4l3_s3rv1c3_4cc0unt_pw&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — stale, rarely-rotated passwords make service accounts prime Kerberoasting targets. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -151,7 +143,7 @@ export function KerberoastingClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — long random passwords (or gMSAs) plus AES-only tickets closes off Kerberoasting.
-            Flag: SAGE&#123;4es_0nly_l0ng_r4nd0m_pw&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -160,9 +152,9 @@ export function KerberoastingClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;svc_sql_rc4_crack4bl3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;st4l3_s3rv1c3_4cc0unt_pw&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;4es_0nly_l0ng_r4nd0m_pw&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

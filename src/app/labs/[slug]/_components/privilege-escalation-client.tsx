@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 
 import { Icon } from "@/components/ui/icon";
 const SUID_OUTPUT = `/usr/bin/passwd
@@ -24,17 +24,6 @@ root@target:~# id
 uid=0(root) gid=0(root) groups=0(root)
 root@target:~# `;
 
-function checkVimCommand(value: string): boolean {
-  const v = value.toLowerCase();
-  return v.includes("vim") && (v.includes(":!sh") || v.includes(":!/bin/sh") || v.includes(":shell") || v.includes(":!bash"));
-}
-
-function checkReadCommand(value: string): boolean {
-  const v = value.toLowerCase().trim();
-  return (v.includes("cat") || v.includes("less") || v.includes("more") || v.includes("strings")) &&
-         v.includes("/root/flag.txt");
-}
-
 export function PrivilegeEscalationClient({
   labId,
   completedStages: initial,
@@ -43,6 +32,7 @@ export function PrivilegeEscalationClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -53,44 +43,40 @@ export function PrivilegeEscalationClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "find") {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Which binary has a GTFOBins entry for SUID abuse?");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (checkVimCommand(t2Answer)) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about vim's built-in command execution. Try: sudo vim, then :!sh");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (checkReadCommand(t3Answer)) {
+    const verdict = await verifyStage(labId, "task_3", t3Answer);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Provide the full command including the path to the flag file.");
     }
   }

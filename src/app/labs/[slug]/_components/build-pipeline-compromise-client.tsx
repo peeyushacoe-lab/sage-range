@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -73,9 +73,6 @@ const REGISTRY = `Published artefact — release 2.8.0
   Signed by       : ci-linux-07 (valid)
   Reproducible    : NO — rebuild from 8f3c1a2 yields b1e77c3f...`;
 
-function normalise(v: string): string {
-  return v.trim().toLowerCase().replace(/^sage\{/, "").replace(/\}$/, "");
-}
 
 export function BuildPipelineCompromiseClient({
   labId,
@@ -85,6 +82,7 @@ export function BuildPipelineCompromiseClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1, setT1] = useState("");
   const [e1, setE1] = useState("");
   const [t2, setT2] = useState("");
@@ -94,47 +92,40 @@ export function BuildPipelineCompromiseClient({
 
   const done = (s: string) => completed.includes(s);
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitOne(e: React.FormEvent) {
+  async function submitOne(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t1);
-    if (v === "post-build-optimise" || v === "post build optimise") {
+    const verdict = await verifyStage(labId, "task_1", t1);
+    if (verdict.correct) {
       setE1("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setE1("Compare the build log against the committed pipeline definition. Name the step that should not exist.");
     }
   }
 
-  function submitTwo(e: React.FormEvent) {
+  async function submitTwo(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t2).replace(/@9\.9\.9$/, "");
-    if (v === "@corp/telemetry" || v === "corp/telemetry") {
+    const verdict = await verifyStage(labId, "task_2", t2);
+    if (verdict.correct) {
       setE2("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setE2("An internal package was resolved from a public registry at a version that does not exist internally.");
     }
   }
 
-  function submitThree(e: React.FormEvent) {
+  async function submitThree(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t3);
-    if (v.startsWith("b1e77c3f")) {
+    const verdict = await verifyStage(labId, "task_3", t3);
+    if (verdict.correct) {
       setE3("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setE3("Which hash represents the artefact the source actually produces?");
     }
   }

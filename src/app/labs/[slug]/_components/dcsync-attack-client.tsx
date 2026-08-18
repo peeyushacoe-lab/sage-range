@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ACL = `Object: DC=corp,DC=local
@@ -11,11 +11,6 @@ Permissions granted: Replicating Directory Changes, Replicating Directory Change
 Trustee: Domain Admins
 Permissions granted: Replicating Directory Changes, Replicating Directory Changes All (expected)`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function DcsyncAttackClient({
   labId,
   completedStages: initial,
@@ -24,6 +19,7 @@ export function DcsyncAttackClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -34,44 +30,40 @@ export function DcsyncAttackClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{r3pl1c4t1ng_d1r3ct0ry_ch4ng3s_4ll}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look for the permission granted to a non-DC, non-admin account on the domain object.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "It rides the legitimate domain replication protocol, so it looks like normal DC-to-DC traffic rather than an obvious file access") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare this to directly copying NTDS.dit off a domain controller's disk.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Remove the replication permission from the non-DC account and audit for any other accounts with the same unnecessary grant") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about the permission itself, and whether other accounts might have the same issue.");
     }
   }
@@ -95,7 +87,7 @@ export function DcsyncAttackClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — svc_reporting has "Replicating Directory Changes All" — the permission that enables DCSync. Flag: SAGE&#123;r3pl1c4t1ng_d1r3ct0ry_ch4ng3s_4ll&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — svc_reporting has "Replicating Directory Changes All" — the permission that enables DCSync. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -123,7 +115,7 @@ export function DcsyncAttackClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — it blends in as normal DC replication traffic rather than an obvious file-access event. Flag: SAGE&#123;l00ks_l1k3_l3g1t_r3pl1c4t10n&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — it blends in as normal DC replication traffic rather than an obvious file-access event. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -153,7 +145,7 @@ export function DcsyncAttackClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — revoke the replication permission and audit the domain for any other accounts holding it unnecessarily.
-            Flag: SAGE&#123;r3v0k3_r3pl_perm_4ud1t_0th3rs&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -162,9 +154,9 @@ export function DcsyncAttackClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;r3pl1c4t1ng_d1r3ct0ry_ch4ng3s_4ll&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;l00ks_l1k3_l3g1t_r3pl1c4t10n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;r3v0k3_r3pl_perm_4ud1t_0th3rs&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

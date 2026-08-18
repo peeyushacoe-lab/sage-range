@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const REQUESTS = `GET /api/invoices/1001          -> 200 { "owner": "you@corp.com", "total": 240.00 }
@@ -19,11 +19,6 @@ Body: { "role": "admin" }
 Auth: session belongs to user 482 (a normal STUDENT account)
 Response: 200 { "id": 482, "role": "admin" }`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function IdorHuntingClient({
   labId,
   completedStages: initial,
@@ -32,6 +27,7 @@ export function IdorHuntingClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -42,44 +38,40 @@ export function IdorHuntingClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{pr1y4_18400_1nv0ic3_l34k}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the other user's email and their invoice total, in the flag format.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "The endpoint never verifies the invoice belongs to the requesting user") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Re-read the code comment — what check is explicitly missing?");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Mass assignment / broken function-level authorization — a user can escalate their own role") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about who is being modified, and by whom — and what field is being changed.");
     }
   }
@@ -107,7 +99,7 @@ export function IdorHuntingClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — invoice 1002 belongs to priya@otherco.com, totalling $18,400, fully exposed by changing the ID. Flag: SAGE&#123;pr1y4_18400_1nv0ic3_l34k&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — invoice 1002 belongs to priya@otherco.com, totalling $18,400, fully exposed by changing the ID. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -139,7 +131,7 @@ export function IdorHuntingClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — requireLogin only checks that SOMEONE is logged in, not that THIS invoice belongs to them. That missing ownership check is the entire bug. Flag: SAGE&#123;m1ss1ng_0wn3rsh1p_ch3ck&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — requireLogin only checks that SOMEONE is logged in, not that THIS invoice belongs to them. That missing ownership check is the entire bug. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -175,7 +167,7 @@ export function IdorHuntingClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — the endpoint let user 482 modify their own "role" field with no server-side check on which
-            fields are safe to self-edit, letting any student self-promote to admin. Flag: SAGE&#123;s3lf_pr0m0t3_4dm1n_r0l3&#125;
+            fields are safe to self-edit, letting any student self-promote to admin. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -184,9 +176,9 @@ export function IdorHuntingClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;pr1y4_18400_1nv0ic3_l34k&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;m1ss1ng_0wn3rsh1p_ch3ck&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;s3lf_pr0m0t3_4dm1n_r0l3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

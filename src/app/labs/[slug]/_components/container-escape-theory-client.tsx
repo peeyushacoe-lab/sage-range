@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const MODEL = `Virtual Machines:
@@ -12,11 +12,6 @@ Containers:
 - All containers on a host share that host's single kernel
 - Isolation boundary: namespaces, cgroups, and the container runtime — all running atop the shared kernel`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function ContainerEscapeTheoryClient({
   labId,
   completedStages: initial,
@@ -25,6 +20,7 @@ export function ContainerEscapeTheoryClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -35,44 +31,40 @@ export function ContainerEscapeTheoryClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{sh4r3d_h0st_k3rn3l}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Compare what a hypervisor separates for VMs versus what containers run on top of.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "A vulnerability in the shared kernel or container runtime that lets a process break out of its namespace/cgroup isolation") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what a process would need to break to escape its isolation boundary.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "A separate VM (or gVisor/Kata-style sandboxed runtime) rather than a standard container, since containers share the kernel attack surface") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Given the shared kernel, what actually gives hostile workloads a real boundary?");
     }
   }
@@ -96,7 +88,7 @@ export function ContainerEscapeTheoryClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — all containers on a host share that host's single kernel, unlike VMs which each get their own. Flag: SAGE&#123;sh4r3d_h0st_k3rn3l&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — all containers on a host share that host's single kernel, unlike VMs which each get their own. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -124,7 +116,7 @@ export function ContainerEscapeTheoryClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — an escape exploits a kernel or runtime vulnerability to break out of namespace/cgroup isolation. Flag: SAGE&#123;3xpl01t_k3rn3l_0r_runt1m3_bug&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — an escape exploits a kernel or runtime vulnerability to break out of namespace/cgroup isolation. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -154,7 +146,7 @@ export function ContainerEscapeTheoryClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — a VM or a sandboxed runtime gives a real boundary that standard containers, sharing the kernel, can't provide.
-            Flag: SAGE&#123;vm_b0und4ry_f0r_untrust3d_w0rkl04ds&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -163,9 +155,9 @@ export function ContainerEscapeTheoryClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;sh4r3d_h0st_k3rn3l&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;3xpl01t_k3rn3l_0r_runt1m3_bug&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;vm_b0und4ry_f0r_untrust3d_w0rkl04ds&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

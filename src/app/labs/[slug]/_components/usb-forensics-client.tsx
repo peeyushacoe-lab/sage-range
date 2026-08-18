@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const LNK_FILES = `Q4_Financials.xlsx.lnk    Target: E:\\Confidential\\Q4_Financials.xlsx   Created: 2026-06-14 18:02
@@ -9,11 +9,6 @@ Client_List.xlsx.lnk      Target: E:\\Confidential\\Client_List.xlsx    Created:
 vacation_photos.jpg.lnk   Target: E:\\Personal\\vacation_photos.jpg     Created: 2026-05-02 09:11`;
 
 const CONTEXT = `Employee's last working day: 2026-06-14`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function UsbForensicsClient({
   labId,
@@ -23,6 +18,7 @@ export function UsbForensicsClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -33,44 +29,40 @@ export function UsbForensicsClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{2_c0nf1d3nt14l_f1l3s_jun14}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Filter the LNK files by both the drive letter and the employee's last working day.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "It shows the E: drive was used before too, but only the June 14 files matter for the exfiltration timeline") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about which files are actually relevant to this specific investigation.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Treat this as strong circumstantial evidence, secure it for HR/Legal, and attempt to recover the physical device if still on-site") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what LNK evidence proves on its own, versus what it doesn't.");
     }
   }
@@ -97,7 +89,7 @@ export function UsbForensicsClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 2 confidential files were accessed from E: on June 14, the last working day. Flag: SAGE&#123;2_c0nf1d3nt14l_f1l3s_jun14&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 2 confidential files were accessed from E: on June 14, the last working day. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -125,7 +117,7 @@ export function UsbForensicsClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — it's prior, unrelated device use; stay focused on the June 14 confidential file access for this timeline. Flag: SAGE&#123;f0cus_0n_r3l3v4nt_t1m3fr4m3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — it's prior, unrelated device use; stay focused on the June 14 confidential file access for this timeline. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -155,7 +147,7 @@ export function UsbForensicsClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — LNK evidence is strong circumstantial support, not a smoking gun on its own; preserve it properly and try to recover the physical device.
-            Flag: SAGE&#123;pr3s3rv3_4s_c1rcumst4nt14l_3v1d3nc3&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -164,9 +156,9 @@ export function UsbForensicsClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;2_c0nf1d3nt14l_f1l3s_jun14&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;f0cus_0n_r3l3v4nt_t1m3fr4m3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;pr3s3rv3_4s_c1rcumst4nt14l_3v1d3nc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

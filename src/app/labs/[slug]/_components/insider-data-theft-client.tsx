@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const DLP_ALERT = `DLP Alert — 2026-06-12 22:14
@@ -13,11 +13,6 @@ const ACCESS_LOG = `File access log for m.torres:
 2026-06-09  Accessed \\shared\\R&D\\prototype-specs (last accessed 8 months prior)
 2026-06-12  Uploaded 15.2 GB to personal cloud storage`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function InsiderDataTheftClient({
   labId,
   completedStages: initial,
@@ -26,6 +21,7 @@ export function InsiderDataTheftClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -36,44 +32,40 @@ export function InsiderDataTheftClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{15gb_p3rs0n4l_dr1v3_upl04d}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the size and destination of the upload, and its timing relative to the resignation.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "The employee likely staged the data by first locating and gathering files they didn't normally need, ahead of the exfiltration") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Consider why the employee suddenly accessed a folder untouched for 8 months, right before the upload.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Immediately restrict/revoke access to sensitive systems and preserve their account and device for forensic imaging") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about both stopping further access and keeping evidence intact for the investigation.");
     }
   }
@@ -97,7 +89,7 @@ export function InsiderDataTheftClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a 15GB upload to personal Google Drive, 2 days before resignation, is a clear red flag. Flag: SAGE&#123;15gb_p3rs0n4l_dr1v3_upl04d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a 15GB upload to personal Google Drive, 2 days before resignation, is a clear red flag. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -128,7 +120,7 @@ export function InsiderDataTheftClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — accessing an untouched folder just before the upload suggests deliberate staging of the data. Flag: SAGE&#123;st4g1ng_4cc3ss_b3f0r3_3xf1l&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — accessing an untouched folder just before the upload suggests deliberate staging of the data. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -158,7 +150,7 @@ export function InsiderDataTheftClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — restrict access now and preserve the account/device for forensics rather than waiting or destroying evidence.
-            Flag: SAGE&#123;r3v0k3_4cc3ss_pr3s3rv3_f0r3ns1cs&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -167,9 +159,9 @@ export function InsiderDataTheftClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;15gb_p3rs0n4l_dr1v3_upl04d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;st4g1ng_4cc3ss_b3f0r3_3xf1l&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;r3v0k3_4cc3ss_pr3s3rv3_f0r3ns1cs&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

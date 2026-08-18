@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const CLOUDTRAIL_EVENTS = `{"eventTime":"2026-05-09T02:14:11Z","eventName":"GetCallerIdentity","userIdentity":{"accessKeyId":"AKIAEXAMPLE1"},"sourceIPAddress":"103.22.14.9"}
@@ -15,11 +15,6 @@ const NORMAL_LOCATION = `Known-good access pattern for AKIAEXAMPLE1 (last 90 day
   Typical actions: ListBuckets, GetObject, PutObject (S3 data pipeline role)
   Never before seen: CreateUser, AttachUserPolicy, CreateAccessKey`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function CloudtrailAnalysisClient({
   labId,
   completedStages: initial,
@@ -28,6 +23,7 @@ export function CloudtrailAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -38,44 +34,40 @@ export function CloudtrailAnalysisClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{b4ckup_svc2_4dm1n_b4ckd00r}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the new username created, and the policy attached to it, together.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "The source IP is outside the known-good office VPN range entirely") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare the sourceIPAddress in the events against the known-good access pattern.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Delete the rogue user, revoke/rotate the compromised access key, and review CloudTrail for further abuse") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. What must happen to both the leaked credential AND the backdoor account it created?");
     }
   }
@@ -100,7 +92,7 @@ export function CloudtrailAnalysisClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — "backup-svc2" was created and immediately granted full AdministratorAccess, then given its own access key — a textbook cloud persistence backdoor. Flag: SAGE&#123;b4ckup_svc2_4dm1n_b4ckd00r&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — "backup-svc2" was created and immediately granted full AdministratorAccess, then given its own access key — a textbook cloud persistence backdoor. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -132,7 +124,7 @@ export function CloudtrailAnalysisClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 103.22.14.9 is nowhere near the 10.40.0.0/16 office VPN range this key normally uses, combined with actions it has never performed before. Strong compromise signal. Flag: SAGE&#123;s0urc3_1p_4n0m4ly&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 103.22.14.9 is nowhere near the 10.40.0.0/16 office VPN range this key normally uses, combined with actions it has never performed before. Strong compromise signal. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -164,7 +156,7 @@ export function CloudtrailAnalysisClient({
           <p className="text-sm font-mono text-sage-400">
             Correct — you must close both doors: revoke/rotate the leaked original key (root cause) AND delete the
             backdoor account it created (persistence), then audit the rest of CloudTrail for anything else this
-            access enabled. Flag: SAGE&#123;r3v0k3_4nd_d3l3t3_b4ckd00r&#125;
+            access enabled. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -173,9 +165,9 @@ export function CloudtrailAnalysisClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;b4ckup_svc2_4dm1n_b4ckd00r&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;s0urc3_1p_4n0m4ly&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;r3v0k3_4nd_d3l3t3_b4ckd00r&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

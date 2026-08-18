@@ -1,17 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ALERTS = `Alert 1: Single failed login on a low-privilege marketing account, no follow-up activity
 Alert 2: Domain admin account logged in from a new country at 3 AM, followed by AD replication changes
 Alert 3: Antivirus quarantined a known adware sample on a kiosk PC, no further activity`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function IncidentSeverityClassificationClient({
   labId,
@@ -21,6 +16,7 @@ export function IncidentSeverityClassificationClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -31,44 +27,40 @@ export function IncidentSeverityClassificationClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{4l3rt_2_d0m41n_4dm1n_cr1t1c4l}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Weigh privilege, anomaly, and impact for each alert.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Privileged account, plus anomalous access pattern, plus high-impact action together push it to critical") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. No single factor alone makes it critical — think about the combination.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Both are low severity — routine monitoring is sufficient, and they shouldn't compete with the critical alert for response time") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Neither of the other two alerts shows privilege escalation or high-impact follow-on activity.");
     }
   }
@@ -92,7 +84,7 @@ export function IncidentSeverityClassificationClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — Alert 2's domain admin logon from a new country, followed by AD replication changes, is critical. Flag: SAGE&#123;4l3rt_2_d0m41n_4dm1n_cr1t1c4l&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — Alert 2's domain admin logon from a new country, followed by AD replication changes, is critical. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -120,7 +112,7 @@ export function IncidentSeverityClassificationClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — it's the combination of privilege, anomaly, and impact together, not any single factor alone. Flag: SAGE&#123;pr1v_4cc3ss_4n0m4ly_1mp4ct&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — it's the combination of privilege, anomaly, and impact together, not any single factor alone. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -150,7 +142,7 @@ export function IncidentSeverityClassificationClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — both are low severity; routine monitoring covers them without pulling response resources away from the actual critical incident.
-            Flag: SAGE&#123;l0w_s3v_r0ut1n3_m0n1t0r1ng&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -159,9 +151,9 @@ export function IncidentSeverityClassificationClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;4l3rt_2_d0m41n_4dm1n_cr1t1c4l&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;pr1v_4cc3ss_4n0m4ly_1mp4ct&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;l0w_s3v_r0ut1n3_m0n1t0r1ng&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

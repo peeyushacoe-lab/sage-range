@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const PHISHING_ALERT = `Email: From "IT-Support@acmecorp-helpdesk.info" Subject "Mandatory Password Reset - Action Required"
@@ -19,11 +19,6 @@ All files on this network have been encrypted with military-grade encryption.
 Contact us at decrypt-support@darkmail.onion within 72 hours or the price doubles.
 Extension: .lockbit3`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function RansomwareIncidentClient({
   labId,
   completedStages: initial,
@@ -32,6 +27,7 @@ export function RansomwareIncidentClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -42,44 +38,40 @@ export function RansomwareIncidentClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{macr0_3n4bl3d_x1sm_ph1sh1ng}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the delivery mechanism — what was the attachment and what did opening it spawn?");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "They reused a cached domain admin credential to access the file server's admin share directly") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Look at exactly what let a single workstation reach the file server's admin share.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Isolate FS01 and WKSTN-ACC-09 from the network immediately, then restore from the last known-good backup — do not pay or negotiate first") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Two hosts are actively compromised right now — think about correct ordering: contain, then recover.");
     }
   }
@@ -103,7 +95,7 @@ export function RansomwareIncidentClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a macro-enabled spreadsheet, opened from a spoofed helpdesk email, spawned encoded PowerShell the moment it was opened. Flag: SAGE&#123;macr0_3n4bl3d_x1sm_ph1sh1ng&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a macro-enabled spreadsheet, opened from a spoofed helpdesk email, spawned encoded PowerShell the moment it was opened. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -134,7 +126,7 @@ export function RansomwareIncidentClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a cached domain admin token on the compromised workstation let the attacker connect straight to FS01's admin$ share, no exploit needed. Flag: SAGE&#123;c4ch3d_d0m41n_4dm1n_r3us3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a cached domain admin token on the compromised workstation let the attacker connect straight to FS01's admin$ share, no exploit needed. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -168,7 +160,7 @@ export function RansomwareIncidentClient({
           <p className="text-sm font-mono text-sage-400">
             Correct — isolate both compromised hosts first so the encryption can't spread further, then recover from backup.
             Engaging the ransom note is never the first move.
-            Flag: SAGE&#123;1s0l4t3_r3st0r3_d0nt_p4y_f1rst&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -177,9 +169,9 @@ export function RansomwareIncidentClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Incident Closed</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;macr0_3n4bl3d_x1sm_ph1sh1ng&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;c4ch3d_d0m41n_4dm1n_r3us3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;1s0l4t3_r3st0r3_d0nt_p4y_f1rst&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 function Bubble({ from, children }: { from: "user" | "bot" | "system"; children: React.ReactNode }) {
@@ -43,6 +43,7 @@ export function PromptInjectionClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -53,44 +54,40 @@ export function PromptInjectionClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "Direct prompt injection") {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. The customer typed the malicious instruction straight into the chat, and the bot obeyed it verbatim.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Answer.toLowerCase().includes("refund_tool") && t2Answer.toLowerCase().includes("iban-attacker")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Look inside the HTML comment hidden in the ticket body — quote the exact tool call it instructs.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Treat fetched content as data only, and gate sensitive tools behind human approval") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Adding more instructions to the system prompt doesn't reliably stop this — the fix has to be architectural.");
     }
   }
@@ -125,7 +122,7 @@ export function PromptInjectionClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the user directly told the model to ignore its instructions, and it complied, leaking its system prompt and an internal webhook URL. Flag: SAGE&#123;d1r3ct_pr0mpt_1nj3ct10n&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the user directly told the model to ignore its instructions, and it complied, leaking its system prompt and an internal webhook URL. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -154,7 +151,7 @@ export function PromptInjectionClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — instructions hidden inside untrusted content (an HTML comment in the ticket body) were followed by the agent even though no human typed them. This is indirect prompt injection. Flag: SAGE&#123;1nd1r3ct_1nj3ct10n_v1a_t1ck3t&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — instructions hidden inside untrusted content (an HTML comment in the ticket body) were followed by the agent even though no human typed them. This is indirect prompt injection. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -189,7 +186,7 @@ export function PromptInjectionClient({
           <p className="text-sm font-mono text-sage-400">
             Correct — prompt-level warnings are advisory, not enforced; a sufficiently crafted injection can still override them.
             The reliable fix is architectural: never let externally-sourced text be interpreted as instructions, and require
-            explicit approval (or strict allow-listing) before any high-impact tool call like a refund executes. Flag: SAGE&#123;architectur4l_m1t1g4t10n&#125;
+            explicit approval (or strict allow-listing) before any high-impact tool call like a refund executes. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -198,9 +195,9 @@ export function PromptInjectionClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d1r3ct_pr0mpt_1nj3ct10n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;1nd1r3ct_1nj3ct10n_v1a_t1ck3t&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;architectur4l_m1t1g4t10n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

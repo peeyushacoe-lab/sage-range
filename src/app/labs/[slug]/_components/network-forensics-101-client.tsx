@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 
 const PACKETS = [
   { no: 1,  time: "0.000000",   src: "192.168.1.10",   dst: "8.8.8.8",        proto: "DNS",   info: "Standard query A google.com",
@@ -118,12 +118,6 @@ function PacketTable({
   );
 }
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) =>
-    s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function NetworkForensics101Client({
   labId,
   completedStages: initial,
@@ -132,6 +126,7 @@ export function NetworkForensics101Client({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -145,45 +140,40 @@ export function NetworkForensics101Client({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{185.220.101.47}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look for the IP with repeated beaconing to port 4444.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Metasploit") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Examine the User-Agent string for tool-specific identifiers.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    const norm = t3Answer.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/\s+/g, "_");
-    if (norm === "pe_executable" || norm === "pe") {
+    const verdict = await verifyStage(labId, "task_3", t3Answer);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The first two bytes (4D 5A / MZ) identify a well-known file format.");
     }
   }
@@ -275,7 +265,7 @@ export function NetworkForensics101Client({
         )}
         {done("task_2") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — Meterpreter beacon confirmed. Flag: SAGE&#123;m3t3rpr3t3r_b34c0n&#125;
+            Correct — Meterpreter beacon confirmed. Flag: {revealed.task_2 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -310,7 +300,7 @@ export function NetworkForensics101Client({
         )}
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — MZ header identifies a PE executable. Flag: SAGE&#123;PE_executable&#125;
+            Correct — MZ header identifies a PE executable. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -319,9 +309,9 @@ export function NetworkForensics101Client({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;185.220.101.47&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;m3t3rpr3t3r_b34c0n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;PE_executable&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

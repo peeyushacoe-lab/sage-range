@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const NORMAL_REQUEST = `POST /api/import HTTP/1.1
@@ -28,11 +28,6 @@ Content-Type: application/xml
 const SERVER_RESPONSE = `200 OK
 { "item": "root:x:0:0:root:/root:/bin/bash\\ndaemon:x:1:1:daemon:...", "qty": 4 }`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function XxeInjectionClient({
   labId,
   completedStages: initial,
@@ -41,6 +36,7 @@ export function XxeInjectionClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -51,44 +47,40 @@ export function XxeInjectionClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "A custom entity that loads the contents of a local file") {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at what <!ENTITY xxe SYSTEM ...> declares, and how &xxe; is used inside the XML body.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t2Answer, "SAGE{3tc_p4sswd_d1scl0s3d}")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Which local file's contents were leaked back in the response? Format as a flag.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Disable external entity and DTD processing in the XML parser configuration") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. What specific parser feature is responsible for resolving external entities like this?");
     }
   }
@@ -126,7 +118,7 @@ export function XxeInjectionClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a DOCTYPE-declared external entity pointing at a file:// URI tells a vulnerable parser to read that file and substitute its contents wherever &xxe; is referenced. Flag: SAGE&#123;3xt3rn4l_3nt1ty_d3cl4r3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a DOCTYPE-declared external entity pointing at a file:// URI tells a vulnerable parser to read that file and substitute its contents wherever &xxe; is referenced. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -148,7 +140,7 @@ export function XxeInjectionClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the "item" field now contains the contents of /etc/passwd instead of a product name. Flag: SAGE&#123;3tc_p4sswd_d1scl0s3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the "item" field now contains the contents of /etc/passwd instead of a product name. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -180,7 +172,7 @@ export function XxeInjectionClient({
           <p className="text-sm font-mono text-sage-400">
             Correct — most XML libraries process external entities and DTDs by default; explicitly disabling that
             feature (e.g. libxml2's LIBXML_NOENT/resolve_entities settings) closes the vulnerability at its source,
-            unlike keyword blacklisting which is easily bypassed. Flag: SAGE&#123;d1s4bl3_3xt3rn4l_3nt1ti3s&#125;
+            unlike keyword blacklisting which is easily bypassed. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -189,9 +181,9 @@ export function XxeInjectionClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;3xt3rn4l_3nt1ty_d3cl4r3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;3tc_p4sswd_d1scl0s3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;d1s4bl3_3xt3rn4l_3nt1ti3s&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

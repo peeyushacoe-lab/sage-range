@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const BUCKET_POLICY = `{
@@ -35,11 +35,6 @@ const IAM_POLICY = `{
 }
 Attached to: IAM User "ci-deploy-bot" (used by a CI/CD pipeline, long-lived access key)`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function CloudIamMisconfigurationClient({
   labId,
   completedStages: initial,
@@ -48,6 +43,7 @@ export function CloudIamMisconfigurationClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -58,43 +54,40 @@ export function CloudIamMisconfigurationClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === '"Principal": "*" grants access to literally anyone on the internet, not just your account') {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
       setT1Error('Incorrect. What does the wildcard "*" mean in the Principal field specifically?');
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t2Answer, "SAGE{48000_r3c0rds_p11_3xp0s3d}")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Flag the total number of customer records exposed by this public bucket.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "It grants unrestricted access to every AWS action on every resource — full account takeover if the key leaks") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Read the Action and Resource fields literally — what do wildcards on BOTH mean together?");
     }
   }
@@ -129,7 +122,7 @@ export function CloudIamMisconfigurationClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — Principal: "*" combined with s3:GetObject means anyone on the internet, with no AWS account required, can read every object in this bucket. Flag: SAGE&#123;publ1c_pr1nc1p4l_w1ldc4rd&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — Principal: "*" combined with s3:GetObject means anyone on the internet, with no AWS account required, can read every object in this bucket. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -151,7 +144,7 @@ export function CloudIamMisconfigurationClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 48,000+ customer records including PII and partial card numbers, readable by anyone with the URL, with zero authentication. Flag: SAGE&#123;48000_r3c0rds_p11_3xp0s3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 48,000+ customer records including PII and partial card numbers, readable by anyone with the URL, with zero authentication. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -188,7 +181,7 @@ export function CloudIamMisconfigurationClient({
           <p className="text-sm font-mono text-sage-400">
             Correct — Action: "*" and Resource: "*" together mean this identity can do anything to anything in the
             account. Attached to a long-lived CI/CD access key, a single leaked credential (e.g. in a public repo)
-            means total account compromise. Flag: SAGE&#123;4dm1n_st4r_st4r_1am_p0l1cy&#125;
+            means total account compromise. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -197,9 +190,9 @@ export function CloudIamMisconfigurationClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;publ1c_pr1nc1p4l_w1ldc4rd&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;48000_r3c0rds_p11_3xp0s3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;4dm1n_st4r_st4r_1am_p0l1cy&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

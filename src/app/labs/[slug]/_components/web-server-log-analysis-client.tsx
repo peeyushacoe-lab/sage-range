@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ACCESS_LOG = `203.0.113.8 - - [14/Aug/2026:02:11:03 +0000] "GET /search?q=widget HTTP/1.1" 200 1822
@@ -31,11 +31,6 @@ const UPLOAD_LOG = `192.0.2.77 - - [14/Aug/2026:02:41:12 +0000] "POST /upload.ph
 192.0.2.77 - - [14/Aug/2026:02:41:26 +0000] "GET /uploads/shell.php.jpg?cmd=whoami HTTP/1.1" 200 8
   Response body: www-data`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function WebServerLogAnalysisClient({
   labId,
   completedStages: initial,
@@ -44,6 +39,7 @@ export function WebServerLogAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -54,44 +50,40 @@ export function WebServerLogAnalysisClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "Automated SQL Injection scan (sqlmap)") {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the query-string payloads and the User-Agent string for this source IP.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t2Answer, "SAGE{p4th_tr4v3rsal_c0nfig_php}")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. The 403 was bypassed with URL-encoding, and a sensitive file was ultimately read — name the technique + file in the flag.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Unrestricted file upload (web shell)") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. A file with a double extension was uploaded, then executed as PHP by the server.");
     }
   }
@@ -128,7 +120,7 @@ export function WebServerLogAnalysisClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the sqlmap User-Agent plus classic UNION/SLEEP payloads confirm an automated SQLi scan. Flag: SAGE&#123;sqlm4p_sc4n_d3t3ct3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the sqlmap User-Agent plus classic UNION/SLEEP payloads confirm an automated SQLi scan. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -153,7 +145,7 @@ export function WebServerLogAnalysisClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — URL-encoding the slashes (%2f) bypassed the naive filter, exposing config.php. Flag: SAGE&#123;p4th_tr4v3rsal_c0nfig_php&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — URL-encoding the slashes (%2f) bypassed the naive filter, exposing config.php. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -182,7 +174,7 @@ export function WebServerLogAnalysisClient({
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the double extension (.php.jpg) tricked a weak filter; the server executed it as PHP. Flag: SAGE&#123;w3bsh3ll_upl04d3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the double extension (.php.jpg) tricked a weak filter; the server executed it as PHP. Flag: {revealed.task_3 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -190,9 +182,9 @@ export function WebServerLogAnalysisClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;sqlm4p_sc4n_d3t3ct3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;p4th_tr4v3rsal_c0nfig_php&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;w3bsh3ll_upl04d3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

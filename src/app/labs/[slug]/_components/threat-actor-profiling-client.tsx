@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const TTPS = `Observed TTPs:
@@ -9,11 +9,6 @@ const TTPS = `Observed TTPs:
 - Cobalt Strike beacon deployed post-execution
 - Targets exclusively APAC-region finance sector organizations
 - Dwell time before objective: 3+ months (no rush to monetize)`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function ThreatActorProfilingClient({
   labId,
@@ -23,6 +18,7 @@ export function ThreatActorProfilingClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -33,44 +29,40 @@ export function ThreatActorProfilingClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{t4rg3t3d_4pt_styl3_1ntrus10n}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Consider the tailored targeting and patient dwell time here.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "It lets defenders anticipate likely next moves and apply relevant known mitigations, even under attribution uncertainty") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about the practical defensive value of a profile match, not naming rights.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "TTPs can be copied or shared between groups, so overlap alone isn't proof of the same actor") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider how unique any single technique really is across different threat groups.");
     }
   }
@@ -94,7 +86,7 @@ export function ThreatActorProfilingClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — tailored targeting, patient dwell time, and sector focus point to a targeted APT-style intrusion. Flag: SAGE&#123;t4rg3t3d_4pt_styl3_1ntrus10n&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — tailored targeting, patient dwell time, and sector focus point to a targeted APT-style intrusion. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -122,7 +114,7 @@ export function ThreatActorProfilingClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — profile matching helps anticipate next moves and apply known mitigations, even under uncertainty. Flag: SAGE&#123;4nt1c1p4t3_n3xt_m0v3s_fr0m_pr0f1l3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — profile matching helps anticipate next moves and apply known mitigations, even under uncertainty. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -152,7 +144,7 @@ export function ThreatActorProfilingClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — TTP overlap alone isn't proof, since techniques and tools can be shared or copied between groups.
-            Flag: SAGE&#123;ttp_0v3rl4p_n0t_pr00f&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -161,9 +153,9 @@ export function ThreatActorProfilingClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;t4rg3t3d_4pt_styl3_1ntrus10n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;4nt1c1p4t3_n3xt_m0v3s_fr0m_pr0f1l3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;ttp_0v3rl4p_n0t_pr00f&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

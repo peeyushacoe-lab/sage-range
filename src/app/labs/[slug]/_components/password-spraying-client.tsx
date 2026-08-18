@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const AUTH_ATTEMPTS = `[10:00:01] user=jsmith     pass=Winter2026!   FAILED
@@ -17,11 +17,6 @@ const LOCKOUT_POLICY = `Corp Password Policy:
   Lockout observation window: 30 minutes
   Attacker's request rate: 1 attempt / 2 seconds, ONE password per user per pass`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function PasswordSprayingClient({
   labId,
   completedStages: initial,
@@ -30,6 +25,7 @@ export function PasswordSprayingClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -40,44 +36,40 @@ export function PasswordSprayingClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "Password spraying (one password, many usernames)") {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at what stays constant across attempts, and what varies.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "It stays under the per-account lockout threshold by only trying once per user") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Compare the number of attempts per individual account against the lockout threshold.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Detect by failed-login volume across many accounts sharing the same password/timing, not per-account count") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Per-account lockout thresholds are exactly what this attack is designed to slip under — think about detecting the pattern differently.");
     }
   }
@@ -112,7 +104,7 @@ export function PasswordSprayingClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — one common password (a seasonal guess) tried against 100 different usernames is password spraying. Flag: SAGE&#123;p4ssw0rd_spr4y_1d3nt1f13d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — one common password (a seasonal guess) tried against 100 different usernames is password spraying. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -146,7 +138,7 @@ export function PasswordSprayingClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — with a 5-attempt threshold per account and only 1 attempt per account, the attacker stays invisible to per-account lockout controls entirely. Flag: SAGE&#123;l0ck0ut_thr3sh0ld_3v4ded&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — with a 5-attempt threshold per account and only 1 attempt per account, the attacker stays invisible to per-account lockout controls entirely. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -179,7 +171,7 @@ export function PasswordSprayingClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — spray detection needs to correlate failures ACROSS accounts within a time window, since
-            per-account thresholds are exactly what this technique is built to slip under. Flag: SAGE&#123;cr0ss_4cc0unt_c0rr3l4t10n&#125;
+            per-account thresholds are exactly what this technique is built to slip under. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -188,9 +180,9 @@ export function PasswordSprayingClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;p4ssw0rd_spr4y_1d3nt1f13d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;l0ck0ut_thr3sh0ld_3v4ded&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;cr0ss_4cc0unt_c0rr3l4t10n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

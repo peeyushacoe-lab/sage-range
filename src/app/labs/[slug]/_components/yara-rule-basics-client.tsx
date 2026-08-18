@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const STRINGS_OUTPUT = `$ strings suspicious.exe | grep -i -E "http|cmd|reg"
@@ -27,11 +27,6 @@ const YARA_SKELETON = `rule Suspicious_C2_Beacon
         uint16(0) == 0x5A4D and 2 of them
 }`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function YaraRuleBasicsClient({
   labId,
   completedStages: initial,
@@ -40,6 +35,7 @@ export function YaraRuleBasicsClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -50,44 +46,40 @@ export function YaraRuleBasicsClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{185_220_101_9_gate_php}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Find the C2 URL in the strings output and format it as a flag (dots and slashes → underscores).");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "0x5A4D — the 'MZ' magic bytes identifying a Windows PE file") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. This check happens at offset 0 of every file — what do all Windows executables start with?");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "MD5 is trivial to change by altering a single byte — pair YARA with behavioral rules") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about how easy it is for malware authors to defeat a single hash-based indicator.");
     }
   }
@@ -115,7 +107,7 @@ export function YaraRuleBasicsClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the binary calls home to 185.220.101.9/gate.php. Flag: SAGE&#123;185_220_101_9_gate_php&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the binary calls home to 185.220.101.9/gate.php. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -149,7 +141,7 @@ export function YaraRuleBasicsClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 0x5A4D is the little-endian encoding of "MZ", the DOS header magic bytes every Windows PE file starts with. Flag: SAGE&#123;mz_h34d3r_p3_ch3ck&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 0x5A4D is the little-endian encoding of "MZ", the DOS header magic bytes every Windows PE file starts with. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -183,7 +175,7 @@ export function YaraRuleBasicsClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — a single changed byte produces a completely different hash, but YARA string/pattern rules
-            still match the underlying C2 URL and persistence logic. Flag: SAGE&#123;h4sh_1s_fr4g1l3&#125;
+            still match the underlying C2 URL and persistence logic. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -192,9 +184,9 @@ export function YaraRuleBasicsClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;185_220_101_9_gate_php&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;mz_h34d3r_p3_ch3ck&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;h4sh_1s_fr4g1l3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

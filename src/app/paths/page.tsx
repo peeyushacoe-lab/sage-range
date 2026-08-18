@@ -4,13 +4,14 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
 import { Navbar } from "@/components/navbar";
-import { EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { EmptyState, PageHeader, StatCard, Card, Badge, ProgressBar } from "@/components/ui";
+import { Icon } from "@/components/ui/icon";
 
-const DIFF_COLORS: Record<string, string> = {
-  EASY:   "text-sage-500",
-  MEDIUM: "text-amber-400",
-  HARD:   "text-orange-400",
-  INSANE: "text-red-400",
+const DIFF_TONE: Record<string, "emerald" | "amber" | "red" | "purple"> = {
+  EASY: "emerald",
+  MEDIUM: "amber",
+  HARD: "red",
+  INSANE: "purple",
 };
 
 export default async function PathsIndex() {
@@ -51,15 +52,15 @@ export default async function PathsIndex() {
     <main className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="mx-auto max-w-5xl px-6 py-8">
         <PageHeader
           className="mb-6"
           title="Learning Paths"
-          subtitle="Structured courses with certificates. Complete all labs to earn your certificate."
+          subtitle="Structured courses with certificates. Complete all labs in a path to earn your certificate."
         />
 
         {paths.length > 0 && (
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="mb-8 grid grid-cols-3 gap-4">
             <StatCard label="Total Paths" value={paths.length} />
             <StatCard label="Completed" value={completedPathsCount} sub="certificates earned" />
             <StatCard label="In Progress" value={startedPathsCount} />
@@ -74,7 +75,7 @@ export default async function PathsIndex() {
             action={{ label: "Browse Labs", href: "/labs" }}
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {paths.map((path) => {
               const userProgress = path.progress[0] ?? null;
               const isStarted = !!userProgress;
@@ -94,58 +95,55 @@ export default async function PathsIndex() {
 
               const progressPct = totalLabs > 0 ? Math.round((labsDone / totalLabs) * 100) : 0;
 
-              let borderClass = "border-white/8 hover:border-sage-500/40 hover:bg-white/3";
-              if (isCompleted) borderClass = "border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/10";
-              else if (isStarted) borderClass = "border-sage-500/40 bg-sage-500/5 hover:bg-sage-500/10";
+              const accent = isCompleted
+                ? "border-amber-500/40 bg-amber-500/[0.06]"
+                : isStarted
+                  ? "border-sage-500/40 bg-sage-500/[0.06]"
+                  : "";
+              const tileTint = isCompleted ? "text-amber-400 bg-amber-500/10" : "text-sage-500 bg-sage-500/10";
 
               return (
-                <Link
-                  key={path.id}
-                  href={`/paths/${path.slug}`}
-                  className={`rounded-xl border p-4 transition flex flex-col gap-3 ${borderClass}`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex flex-wrap gap-1">
-                      <span className="text-xs border border-white/10 rounded-full px-2 py-0.5 text-zinc-400">
+                <Link key={path.id} href={`/paths/${path.slug}`} className="group block">
+                  <Card interactive className={`flex h-full flex-col gap-3 p-5 ${accent}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${tileTint}`}>
+                        <Icon name={isCompleted ? "certificates" : "recon"} size={17} />
+                      </div>
+                      {isCompleted ? (
+                        <Badge tone="amber"><Icon name="certificates" size={12} className="mr-0.5 inline-block" />Certificate</Badge>
+                      ) : isStarted ? (
+                        <Badge tone="emerald">{progressPct}%</Badge>
+                      ) : null}
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold leading-snug text-zinc-100 transition group-hover:text-white">{path.title}</h3>
+                      <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-zinc-500">{path.description}</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      <span className="rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-zinc-400">
                         {totalLabs} lab{totalLabs !== 1 ? "s" : ""}
                       </span>
                       {difficulties.map((d) => (
-                        <span
-                          key={d}
-                          className={`text-xs border border-white/10 rounded-full px-2 py-0.5 ${DIFF_COLORS[d as string] ?? "text-zinc-400"}`}
-                        >
+                        <Badge key={d} tone={DIFF_TONE[d as string] ?? "zinc"}>
                           {d.charAt(0) + d.slice(1).toLowerCase()}
-                        </span>
+                        </Badge>
                       ))}
                     </div>
-                    {isCompleted && (
-                      <span className="shrink-0 text-xs font-semibold text-amber-400 border border-amber-500/40 rounded-full px-2 py-0.5">
-                        Certificate
-                      </span>
-                    )}
-                  </div>
 
-                  <div>
-                    <h3 className="font-semibold">{path.title}</h3>
-                    <p className="text-sm text-zinc-400 mt-1 line-clamp-2">{path.description}</p>
-                  </div>
-
-                  <div className="mt-auto pt-1">
-                    <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5">
-                      <span>{labsDone} / {totalLabs} labs</span>
-                      <span>{progressPct}%</span>
+                    <div className="mt-auto pt-1">
+                      <div className="mb-1.5 flex items-center justify-between text-[11px] text-zinc-500">
+                        <span>{labsDone} / {totalLabs} labs</span>
+                        <span className="tabular-nums">{progressPct}%</span>
+                      </div>
+                      <ProgressBar value={progressPct} tone={isCompleted ? "amber" : "emerald"} className="h-1.5" />
                     </div>
-                    <div className="h-1.5 rounded-full bg-zinc-800">
-                      <div
-                        className="h-full rounded-full bg-sage-500 transition-all"
-                        style={{ width: `${progressPct}%` }}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="text-xs font-semibold text-sage-500">
-                    {isCompleted ? "View Certificate →" : isStarted ? "Continue →" : "Start Path →"}
-                  </div>
+                    <div className="text-xs font-semibold text-sage-500">
+                      {isCompleted ? "View Certificate →" : isStarted ? "Continue →" : "Start Path →"}
+                    </div>
+                  </Card>
                 </Link>
               );
             })}

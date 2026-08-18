@@ -378,10 +378,10 @@ function BlockRenderer({ block }: { block: Block }) {
   if (block.type === "TERMINAL") return <TerminalReplay content={c} />;
   if (block.type === "WALKTHROUGH") return <WalkthroughBlock content={c} />;
   if (block.type === "DIAGRAM") return <ChainDiagram content={c} />;
-  if (block.type === "PRACTICE") return <PracticeBlock content={c} />;
+  if (block.type === "PRACTICE") return <PracticeBlock blockId={block.id} content={c} />;
 
   if (block.type === "KNOWLEDGE_CHECK") {
-    return <KnowledgeCheckBlock content={c} />;
+    return <KnowledgeCheckBlock blockId={block.id} content={c} />;
   }
 
   // CALLOUT
@@ -402,25 +402,49 @@ function BlockRenderer({ block }: { block: Block }) {
   );
 }
 
-function KnowledgeCheckBlock({ content }: { content: Record<string, unknown> }) {
+function KnowledgeCheckBlock({ blockId, content }: { blockId: string; content: Record<string, unknown> }) {
   const [selected, setSelected] = useState<string | null>(null);
-  const [revealed, setRevealed] = useState(false);
+  const [verdict, setVerdict] = useState<{ correct: boolean; correctOption: string; explanation: string | null } | null>(null);
+  const [checking, setChecking] = useState(false);
 
   const question = String(content.question ?? "");
   const options = (content.options as KCOption[] | undefined) ?? [];
-  const correct = String(content.correct ?? "");
-  const explanation = content.explanation ? String(content.explanation) : null;
 
-  const isCorrect = selected === correct;
+  const revealed = verdict !== null;
+  const correct = verdict?.correctOption ?? "";
+  const explanation = verdict?.explanation ?? null;
+  const isCorrect = verdict?.correct ?? false;
 
   function choose(id: string) {
     if (revealed) return;
     setSelected(id);
   }
 
-  function reveal() {
-    if (!selected) return;
-    setRevealed(true);
+  /**
+   * Ask the server whether this was the right option.
+   *
+   * The answer used to travel with the page and be compared here, which meant
+   * it was in devtools before the learner had picked anything.
+   */
+  async function reveal() {
+    if (!selected || checking) return;
+    setChecking(true);
+    try {
+      const res = await fetch(`/api/academy/blocks/${blockId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answer: selected }),
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        correct: boolean;
+        correctOption: string;
+        explanation: string | null;
+      };
+      setVerdict(data);
+    } finally {
+      setChecking(false);
+    }
   }
 
   return (
@@ -459,11 +483,11 @@ function KnowledgeCheckBlock({ content }: { content: Record<string, unknown> }) 
 
         {!revealed && (
           <button
-            onClick={reveal}
-            disabled={!selected}
+            onClick={() => void reveal()}
+            disabled={!selected || checking}
             className="mt-4 w-full py-2 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs font-semibold transition"
           >
-            {selected ? "Check Answer" : "Select an answer first"}
+            {checking ? "Checking…" : selected ? "Check Answer" : "Select an answer first"}
           </button>
         )}
 

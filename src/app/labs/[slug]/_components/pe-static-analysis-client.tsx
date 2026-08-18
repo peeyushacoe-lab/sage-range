@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -52,9 +52,6 @@ const STRINGS = `Printable strings (length >= 6), deduplicated:
   schtasks.exe /create /tn
   %APPDATA%\\Roaming\\svc\\host.dat`;
 
-function normalise(v: string): string {
-  return v.trim().toLowerCase().replace(/^sage\{/, "").replace(/\}$/, "");
-}
 
 export function PeStaticAnalysisClient({
   labId,
@@ -64,6 +61,7 @@ export function PeStaticAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1, setT1] = useState("");
   const [e1, setE1] = useState("");
   const [t2, setT2] = useState("");
@@ -73,46 +71,40 @@ export function PeStaticAnalysisClient({
 
   const done = (s: string) => completed.includes(s);
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitOne(e: React.FormEvent) {
+  async function submitOne(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t1);
-    if (v === "upx1" || v === "upx") {
+    const verdict = await verifyStage(labId, "task_1", t1);
+    if (verdict.correct) {
       setE1("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setE1("Which section has entropy near the theoretical maximum of 8?");
     }
   }
 
-  function submitTwo(e: React.FormEvent) {
+  async function submitTwo(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t2).replace(/\(\)$/, "");
-    if (v === "getprocaddress" || v === "loadlibrarya") {
+    const verdict = await verifyStage(labId, "task_2", t2);
+    if (verdict.correct) {
       setE2("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setE2("Which import lets a packed binary resolve APIs at runtime, hiding them from the import table?");
     }
   }
 
-  function submitThree(e: React.FormEvent) {
+  async function submitThree(e: React.FormEvent) {
     e.preventDefault();
-    if (normalise(t3) === "cdn-telemetry-sync.net") {
+    const verdict = await verifyStage(labId, "task_3", t3);
+    if (verdict.correct) {
       setE3("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setE3("One string is a network destination. Give the domain.");
     }
   }

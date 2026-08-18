@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 type DnsRow = { id: number; time: string; query: string; type: string; len: number };
@@ -34,11 +34,6 @@ function hexToAscii(hex: string): string {
   }
 }
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function DnsExfiltrationDetectionClient({
   labId,
   completedStages: initial,
@@ -47,6 +42,7 @@ export function DnsExfiltrationDetectionClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
@@ -58,44 +54,40 @@ export function DnsExfiltrationDetectionClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "DNS tunneling / exfiltration") {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the subdomain labels of the TXT queries — they aren't normal hostnames.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Answer.trim().toLowerCase().includes("join this secure sql data")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. The subdomain label is hex-encoded — decode it (e.g. 4a='J', 6f='o'...) to reveal the exfiltrated text fragment.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t3Answer, "SAGE{dns_3xfil_txt_tunn3l}")) {
+    const verdict = await verifyStage(labId, "task_3", t3Answer);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider the record type used, the abnormal query volume, and the fact this is a covert channel out of the network.");
     }
   }
@@ -166,7 +158,7 @@ export function DnsExfiltrationDetectionClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — hex-encoded data stuffed into TXT query subdomains is a classic DNS tunneling signature. Flag: SAGE&#123;dns_tunn3l_sp0tt3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — hex-encoded data stuffed into TXT query subdomains is a classic DNS tunneling signature. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -214,7 +206,7 @@ export function DnsExfiltrationDetectionClient({
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">Correct — DNS is nearly always allowed outbound, making TXT-record tunneling an effective covert exfil channel. Flag: SAGE&#123;dns_3xfil_txt_tunn3l&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — DNS is nearly always allowed outbound, making TXT-record tunneling an effective covert exfil channel. Flag: {revealed.task_3 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -222,9 +214,9 @@ export function DnsExfiltrationDetectionClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;dns_tunn3l_sp0tt3d&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
             <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">Decoded: &quot;Join this secure SQL data&quot;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;dns_3xfil_txt_tunn3l&#125;</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

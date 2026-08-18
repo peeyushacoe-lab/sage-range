@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const USERASSIST_KEY = `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\UserAssist
@@ -28,11 +28,6 @@ function rot13(s: string): string {
   });
 }
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function WindowsRegistryAnalysisClient({
   labId,
   completedStages: initial,
@@ -41,6 +36,7 @@ export function WindowsRegistryAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -51,44 +47,40 @@ export function WindowsRegistryAnalysisClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Answer.trim().toLowerCase().includes("evil_toolkit.exe")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Decode the ROT13 values — Windows obfuscates UserAssist entries this way by default.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "ShimCache timestamps reflect file modification time, corroborating when the binary first appeared") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. What does the ShimCache modified timestamp actually tell an investigator?");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t3Answer, "SAGE{cmtm0n_s1l3nt_runmru_p3rs1st3nc3}")) {
+    const verdict = await verifyStage(labId, "task_3", t3Answer);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Decode the ROT13 name from Task 1's third entry, then match it against the RunMRU key — flag the binary and the flag it ran with.");
     }
   }
@@ -116,7 +108,7 @@ export function WindowsRegistryAnalysisClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — ROT13 decodes to evil_toolkit.exe, run once right before the main exploration tool. Flag: SAGE&#123;3v1l_t00lk1t_ex3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — ROT13 decodes to evil_toolkit.exe, run once right before the main exploration tool. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -151,7 +143,7 @@ export function WindowsRegistryAnalysisClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — ShimCache doesn't prove execution alone, but its modified timestamp (matching UserAssist's LastRun almost exactly) strongly corroborates when the file was dropped onto disk. Flag: SAGE&#123;sh1mc4ch3_c0rr0b0r4t3s_t1m3l1n3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — ShimCache doesn't prove execution alone, but its modified timestamp (matching UserAssist's LastRun almost exactly) strongly corroborates when the file was dropped onto disk. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -176,7 +168,7 @@ export function WindowsRegistryAnalysisClient({
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">Correct — cmtmon.exe was launched via the Run dialog with /silent, a strong indicator of an attacker manually staging a background persistence tool. Flag: SAGE&#123;cmtm0n_s1l3nt_runmru_p3rs1st3nc3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — cmtmon.exe was launched via the Run dialog with /silent, a strong indicator of an attacker manually staging a background persistence tool. Flag: {revealed.task_3 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -184,9 +176,9 @@ export function WindowsRegistryAnalysisClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;3v1l_t00lk1t_ex3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;sh1mc4ch3_c0rr0b0r4t3s_t1m3l1n3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;cmtm0n_s1l3nt_runmru_p3rs1st3nc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

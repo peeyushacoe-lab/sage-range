@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { LessonViewer, type BlockType } from "./_components/lesson-viewer";
+import { blockContentForLearner } from "@/lib/academy/block-grading";
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +100,10 @@ export default async function LearnLessonPage({
           id:      b.id,
           type:    b.type as BlockType,
           order:   b.order,
-          content: b.content as Record<string, unknown>,
+          // Knowledge-check answers and worked practice solutions are stripped
+          // here — they used to travel in the page payload, where devtools
+          // showed them before the learner had answered anything.
+          content: blockContentForLearner(b.type, b.content as Record<string, unknown>),
         })),
         flashcards: lesson.flashcards.map(c => ({
           id:    c.id,

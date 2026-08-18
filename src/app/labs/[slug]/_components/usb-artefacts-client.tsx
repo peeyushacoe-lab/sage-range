@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const USBSTOR_ENTRY = `USBSTOR\\Disk&Ven_SanDisk&Prod_Cruzer&Rev_1.00\\4C530001A1B2C3D4&0
@@ -16,11 +16,6 @@ const SHELLBAG_ENTRY = `Shellbag entry — Explorer folder view state:
 
 const DLP_LOG = `DLP Alert: 3.4 GB copied to E:\\ (removable media) — 2026-04-09 17:41:02 to 17:44:01`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function UsbArtefactsClient({
   labId,
   completedStages: initial,
@@ -29,6 +24,7 @@ export function UsbArtefactsClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -39,44 +35,40 @@ export function UsbArtefactsClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{4c530001a1b2c3d4_l4st_c0nn_apr9}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. The USBSTOR entry lists both the serial number and last-connected time directly.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Files were browsed/accessed on that exact USB device, not just plugged in") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what shellbags actually record versus what a registry connection entry alone proves.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "This device exfiltrated 3.4GB of data; image the device and preserve it as evidence before returning it") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about both the conclusion AND the correct evidence-handling next step.");
     }
   }
@@ -100,7 +92,7 @@ export function UsbArtefactsClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — serial 4C530001A1B2C3D4, last connected April 9. Flag: SAGE&#123;4c530001a1b2c3d4_l4st_c0nn_apr9&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — serial 4C530001A1B2C3D4, last connected April 9. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -131,7 +123,7 @@ export function UsbArtefactsClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — shellbags prove the folder was actively browsed on that specific device, going beyond a mere connection record. Flag: SAGE&#123;sh3llb4gs_c0nf1rm_4cc3ss&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — shellbags prove the folder was actively browsed on that specific device, going beyond a mere connection record. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -164,7 +156,7 @@ export function UsbArtefactsClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — the registry, shellbag, and DLP evidence together confirm exfiltration; image and preserve the physical device before anything else touches it.
-            Flag: SAGE&#123;1m4g3_pr3s3rv3_3v1d3nc3&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -173,9 +165,9 @@ export function UsbArtefactsClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;4c530001a1b2c3d4_l4st_c0nn_apr9&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;sh3llb4gs_c0nf1rm_4cc3ss&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;1m4g3_pr3s3rv3_3v1d3nc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

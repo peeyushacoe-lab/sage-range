@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SIGNIN = `Azure AD Sign-in Logs:
@@ -12,11 +12,6 @@ const ACTIVITY = `Azure Activity Log:
 09:16:03  j.rivera@corp.com  "Add member to role" — assigned self to Global Administrator
 09:16:40  j.rivera@corp.com  "Create service principal" — new app registration created`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function AzureLogsAnalysisClient({
   labId,
   completedStages: initial,
@@ -25,6 +20,7 @@ export function AzureLogsAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -35,44 +31,40 @@ export function AzureLogsAnalysisClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{1mp0ss1bl3_tr4v3l_d3t3ct3d}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Consider whether someone could physically travel between these two locations in 15 minutes.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Immediately revoke the newly created admin role assignment and force session/token revocation for the account") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. The account just granted itself Global Admin — what's the most urgent thing to undo?");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Sign-in logs show who authenticated when; activity logs show what actions were taken — together they reconstruct the full attack chain") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what each log type shows that the other doesn't.");
     }
   }
@@ -96,7 +88,7 @@ export function AzureLogsAnalysisClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — Warsaw to Jakarta in 15 minutes is physically impossible: classic impossible travel. Flag: SAGE&#123;1mp0ss1bl3_tr4v3l_d3t3ct3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — Warsaw to Jakarta in 15 minutes is physically impossible: classic impossible travel. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -127,7 +119,7 @@ export function AzureLogsAnalysisClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — revoke the admin role and force token revocation immediately to cut off further access. Flag: SAGE&#123;r3v0k3_4dm1n_r0l3_4nd_t0k3ns&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — revoke the admin role and force token revocation immediately to cut off further access. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -157,7 +149,7 @@ export function AzureLogsAnalysisClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — combining who-authenticated-when with what-actions-followed reconstructs the full attack chain.
-            Flag: SAGE&#123;c0mb1n3_s1gn1n_4nd_4ct1v1ty_l0gs&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -166,9 +158,9 @@ export function AzureLogsAnalysisClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;1mp0ss1bl3_tr4v3l_d3t3ct3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;r3v0k3_4dm1n_r0l3_4nd_t0k3ns&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;c0mb1n3_s1gn1n_4nd_4ct1v1ty_l0gs&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

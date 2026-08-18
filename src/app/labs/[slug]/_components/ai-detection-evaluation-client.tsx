@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const VENDOR_CLAIM = `Vendor pitch: "Our AI detection engine achieves 98% accuracy!"
@@ -16,11 +16,6 @@ const RESULTS = `Vendor engine results on your test set:
 - False positives: 8,200 benign events flagged as attacks
 - Analysts must review every flagged event manually`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function AiDetectionEvaluationClient({
   labId,
   completedStages: initial,
@@ -29,6 +24,7 @@ export function AiDetectionEvaluationClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -39,44 +35,40 @@ export function AiDetectionEvaluationClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{4ccur4cy_m1sl34d1ng_1mb4l4nc3d_d4t4}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. What would a trivial 'always predict benign' model score on this same dataset?");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Precision and recall, since they account for the imbalance that accuracy alone hides") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. You need metrics that specifically account for the rare positive (attack) class.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Analyst alert fatigue, which causes real alerts to get missed or ignored over time") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what happens to a SOC team drowning in false alarms.");
     }
   }
@@ -100,7 +92,7 @@ export function AiDetectionEvaluationClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — on this imbalanced dataset, even a trivial always-benign model beats 98% accuracy. Flag: SAGE&#123;4ccur4cy_m1sl34d1ng_1mb4l4nc3d_d4t4&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — on this imbalanced dataset, even a trivial always-benign model beats 98% accuracy. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -128,7 +120,7 @@ export function AiDetectionEvaluationClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — precision and recall surface what accuracy hides on imbalanced data. Flag: SAGE&#123;prec1s10n_4nd_rec4ll_m4tt3r&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — precision and recall surface what accuracy hides on imbalanced data. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -161,7 +153,7 @@ export function AiDetectionEvaluationClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — 8,200 false positives a day drives alert fatigue, and real attacks start slipping through the noise.
-            Flag: SAGE&#123;4l3rt_f4t1gu3_fr0m_f4ls3_p0s1t1v3s&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -170,9 +162,9 @@ export function AiDetectionEvaluationClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;4ccur4cy_m1sl34d1ng_1mb4l4nc3d_d4t4&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;prec1s10n_4nd_rec4ll_m4tt3r&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;4l3rt_f4t1gu3_fr0m_f4ls3_p0s1t1v3s&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

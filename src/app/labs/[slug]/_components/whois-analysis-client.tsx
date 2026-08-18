@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const WHOIS = `Domain: secure-firstnatlonal-bank.com
@@ -15,11 +15,6 @@ const PIVOT = `Two more domains found sharing the same nameservers:
 - firstnatlonal-secureupdate.com
 Both registered within the same 48-hour window as the original domain.`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function WhoisAnalysisClient({
   labId,
   completedStages: initial,
@@ -28,6 +23,7 @@ export function WhoisAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -38,44 +34,40 @@ export function WhoisAnalysisClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{d0m41n_r3g1st3r3d_3_d4ys_4g0}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. A legitimate bank portal doesn't get freshly registered days ago.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "The domains likely belong to the same actor or campaign, letting you pivot from one IOC to find more") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what shared nameservers and a tight registration window suggest.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "WHOIS privacy services and spoofed registration details are trivial to use, so WHOIS alone is weak evidence without corroboration") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Consider how easy it is to hide or fake WHOIS registration details.");
     }
   }
@@ -99,7 +91,7 @@ export function WhoisAnalysisClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a domain registered only 3 days ago claiming to be an established bank portal is highly suspicious. Flag: SAGE&#123;d0m41n_r3g1st3r3d_3_d4ys_4g0&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a domain registered only 3 days ago claiming to be an established bank portal is highly suspicious. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -130,7 +122,7 @@ export function WhoisAnalysisClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — shared nameservers and a tight registration window let you pivot from one domain to the whole campaign. Flag: SAGE&#123;sh4r3d_1nfr4_p1v0t_c4mp41gn&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — shared nameservers and a tight registration window let you pivot from one domain to the whole campaign. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -160,7 +152,7 @@ export function WhoisAnalysisClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — spoofable, privacy-protected WHOIS data is weak evidence on its own and needs corroboration.
-            Flag: SAGE&#123;wh01s_4l0n3_w34k_3v1d3nc3&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -169,9 +161,9 @@ export function WhoisAnalysisClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d0m41n_r3g1st3r3d_3_d4ys_4g0&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;sh4r3d_1nfr4_p1v0t_c4mp41gn&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;wh01s_4l0n3_w34k_3v1d3nc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

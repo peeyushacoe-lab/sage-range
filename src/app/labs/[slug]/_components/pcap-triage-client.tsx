@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -57,9 +57,6 @@ Response codes: NXDOMAIN 1,899 | NOERROR 3
 Query type distribution: A 100%
 Average label length before .updates-cdn.info : 8 characters, hex charset only`;
 
-function normalise(value: string): string {
-  return value.trim().toLowerCase().replace(/^sage\{/, "").replace(/\}$/, "");
-}
 
 export function PcapTriageClient({
   labId,
@@ -69,6 +66,7 @@ export function PcapTriageClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [expanded, setExpanded] = useState<number | null>(null);
 
   const [t1, setT1] = useState("");
@@ -80,45 +78,41 @@ export function PcapTriageClient({
 
   const done = (s: string) => completed.includes(s);
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitOne(e: React.FormEvent) {
+  async function submitOne(e: React.FormEvent) {
     e.preventDefault();
     // The beaconing flow: tiny payloads, enormous duration, high packet count.
-    if (normalise(t1) === "4" || normalise(t1) === "flow 4" || normalise(t1) === "185.244.25.171") {
+    const verdict = await verifyStage(labId, "task_1", t1);
+    if (verdict.correct) {
       setE1("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setE1("Not that one. Look for volume that does not match duration.");
     }
   }
 
-  function submitTwo(e: React.FormEvent) {
+  async function submitTwo(e: React.FormEvent) {
     e.preventDefault();
-    if (normalise(t2) === "60") {
+    const verdict = await verifyStage(labId, "task_2", t2);
+    if (verdict.correct) {
       setE2("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setE2("Read the inter-arrival times — they barely vary. Answer in seconds.");
     }
   }
 
-  function submitThree(e: React.FormEvent) {
+  async function submitThree(e: React.FormEvent) {
     e.preventDefault();
-    if (normalise(t3) === "updates-cdn.info") {
+    const verdict = await verifyStage(labId, "task_3", t3);
+    if (verdict.correct) {
       setE3("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setE3("Give the parent domain only, without the changing label.");
     }
   }

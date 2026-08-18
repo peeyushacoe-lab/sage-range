@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) =>
-    s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 
 const DOMAIN_USERS = [
   { name: "svc_sqlserver", desc: "SQL Server service account" },
@@ -41,6 +35,7 @@ export function ActiveDirectory101Client({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Selected, setT1Selected] = useState<Set<string>>(new Set());
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -51,13 +46,9 @@ export function ActiveDirectory101Client({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
   function toggleT1(name: string) {
@@ -69,41 +60,38 @@ export function ActiveDirectory101Client({
     });
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
     const hasRequired = t1Selected.has("svc_sqlserver") && t1Selected.has("svc_backup");
-    const hasWrong = t1Selected.has("john.doe") || t1Selected.has("jane.smith");
-    if (hasRequired && !hasWrong) {
+    const verdict = await verifyStage(labId, "task_1", [...t1Selected].join(", "));
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else if (!hasRequired) {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Select both service accounts — look for the svc_ prefix pattern.");
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. john.doe and jane.smith are regular user accounts, not service accounts.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Impacket GetUserSPNs") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Look at the tool shown in the output — it requests Kerberos TGS tickets.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    const lower = t3Answer.toLowerCase();
-    if (checkFlag(t3Answer, "SAGE{p4ss_th3_h4sh_4dm1n}") || lower.includes("psexec")) {
+    const verdict = await verifyStage(labId, "task_3", t3Answer);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think of the Impacket script that spawns a remote shell using NTLM hashes.");
     }
   }
@@ -152,7 +140,7 @@ export function ActiveDirectory101Client({
         )}
         {done("task_1") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — svc_sqlserver and svc_backup are service accounts. Flag: SAGE&#123;d0m41n_3num3r4t10n_c0mpl3t3&#125;
+            Correct — svc_sqlserver and svc_backup are service accounts. Flag: {revealed.task_1 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -191,7 +179,7 @@ export function ActiveDirectory101Client({
         )}
         {done("task_2") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — Impacket&apos;s GetUserSPNs.py requests roastable TGS tickets. Flag: SAGE&#123;k3rb3r04st1ng_svc_4cc0unt&#125;
+            Correct — Impacket&apos;s GetUserSPNs.py requests roastable TGS tickets. Flag: {revealed.task_2 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -226,7 +214,7 @@ export function ActiveDirectory101Client({
         )}
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — psexec.py spawns a SYSTEM shell using NTLM pass-the-hash. Flag: SAGE&#123;p4ss_th3_h4sh_4dm1n&#125;
+            Correct — psexec.py spawns a SYSTEM shell using NTLM pass-the-hash. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -235,9 +223,9 @@ export function ActiveDirectory101Client({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d0m41n_3num3r4t10n_c0mpl3t3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;k3rb3r04st1ng_svc_4cc0unt&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;p4ss_th3_h4sh_4dm1n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

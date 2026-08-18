@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 
 // Each header row — suspicious ones must be clicked/examined before answer unlocks
 const EMAIL_HEADERS = [
@@ -51,6 +51,7 @@ export function PhishingAnalysisClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [examinedIds, setExaminedIds] = useState<Set<string>>(new Set());
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
@@ -62,45 +63,40 @@ export function PhishingAnalysisClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "Three — SPF fail, Reply-To mismatch, and PhishKit X-Mailer") {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Not quite. Examine all the highlighted headers — each one is a separate, distinct indicator.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    const lower = t2Answer.toLowerCase().replace(/\s/g, "");
-    if (lower.includes("malicious-domain")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Strip the defanging notation (hxxps, [.]) and identify the actual malicious domain.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Registry Run Key") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Look at the reg add command — which registry key provides persistence?");
     }
   }
@@ -193,7 +189,7 @@ export function PhishingAnalysisClient({
 
         {done("task_1") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — all three indicators confirm spoofing. Flag: SAGE&#123;sp00f3d_3m41l_h34d3rs&#125;
+            Correct — all three indicators confirm spoofing. Flag: {revealed.task_1 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -233,7 +229,7 @@ export function PhishingAnalysisClient({
         )}
         {done("task_2") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — malicious-domain.ru is the attacker-controlled host. Flag: SAGE&#123;d3obfusc4t3d_ph1sh1ng_url&#125;
+            Correct — malicious-domain.ru is the attacker-controlled host. Flag: {revealed.task_2 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -279,7 +275,7 @@ End Sub`}</pre>
         )}
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
-            Correct — HKCU\...\Run executes payload.exe at every login. Flag: SAGE&#123;m4cr0_r3g1stry_p3rs1st3nc3&#125;
+            Correct — HKCU\...\Run executes payload.exe at every login. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -288,9 +284,9 @@ End Sub`}</pre>
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;sp00f3d_3m41l_h34d3rs&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;d3obfusc4t3d_ph1sh1ng_url&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;m4cr0_r3g1stry_p3rs1st3nc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

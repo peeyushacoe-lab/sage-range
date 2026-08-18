@@ -3,6 +3,8 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { TASK_STAGES } from "@/app/labs/[slug]/_content";
+import { checkStageAnswer } from "@/lib/labs/stage-answers";
+import { rateLimit } from "@/lib/rate-limit";
 import { coinsForPoints } from "@/lib/soc-league";
 import { checkDailyHuntCompletion } from "@/lib/daily-hunt";
 import { awardAfterPenalty, weightedPoints } from "@/lib/scoring";
@@ -14,6 +16,18 @@ const Body = z.object({
   response: z.string().min(1).max(10000),
 });
 
+/**
+ * Marking a stage complete used to be the browser's call: the lab component
+ * compared the learner's answer against a flag compiled into its own bundle and,
+ * if it liked the result, posted `response: "correct"` here. Both halves of that
+ * were readable and forgeable from devtools.
+ *
+ * The answer key now lives in src/lib/labs/stage-answers.ts, which is never
+ * bundled for the client, and this route is the only thing that grades. A wrong
+ * answer records an attempt and returns { correct: false } — nothing is stored,
+ * no points move.
+ */
+
 export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "bad_request" }, { status: 400 });
@@ -23,6 +37,35 @@ export async function POST(req: Request) {
 
   const lab = await db.lab.findUnique({ where: { id: parsed.data.labId } });
   if (!lab || !lab.published) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+  // Same budget as flag submission: enough for honest retries, not enough to
+  // walk a wordlist through the grader.
+  const rl = await rateLimit(`stage:${user.id}:${lab.slug}:${parsed.data.stage}`, { max: 20, windowSec: 600 });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many attempts. Wait a few minutes before trying again." },
+      { status: 429, headers: { "Retry-After": "600" } }
+    );
+  }
+
+  const verdict = checkStageAnswer(lab.slug, parsed.data.stage, parsed.data.response);
+  if (!verdict.correct) {
+    // Same accounting POST /api/labs/wrong-attempt used to do from the browser,
+    // now that the server is the one that knows an answer was wrong. Replaying a
+    // solved lab is practice and stays unpunished.
+    const prior = await db.attempt.findUnique({
+      where: { userId_labId: { userId: user.id, labId: lab.id } },
+      select: { status: true },
+    });
+    if (prior?.status !== "SOLVED") {
+      await db.attempt.upsert({
+        where: { userId_labId: { userId: user.id, labId: lab.id } },
+        create: { userId: user.id, labId: lab.id, status: "IN_PROGRESS", labVersion: lab.version, wrongAttempts: 1 },
+        update: { wrongAttempts: { increment: 1 } },
+      });
+    }
+    return NextResponse.json({ correct: false, fields: verdict.fields });
+  }
 
   // Check if this stage was already completed before the upsert (guards against double competition award)
   const existingStageResponse = await db.labResponse.findUnique({
@@ -201,7 +244,7 @@ export async function POST(req: Request) {
     }
   }
 
-  return NextResponse.json({ id: labResponse.id });
+  return NextResponse.json({ id: labResponse.id, correct: true, reveal: verdict.reveal, fields: verdict.fields });
 }
 
 export async function GET(req: Request) {

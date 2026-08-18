@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const IOC_FEED = `Threat Intel Bulletin — APT "SILENT MAGPIE" campaign
@@ -20,10 +20,6 @@ WKSTN-IT-14   | Registry key HKLM\\SOFTWARE\\Classes\\CLSID\\{9BA05972-F6A8-11CF
 DEV-BOX-33    | No matches
 SRV-DC01      | No matches`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function IocHuntingClient({
   labId,
@@ -33,6 +29,7 @@ export function IocHuntingClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -43,44 +40,40 @@ export function IocHuntingClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{2_hosts_c2_infected}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Count the endpoints that matched the network-based IOCs (IP and domain) specifically.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t2Answer, "SAGE{wkstn_it_14_registry_only}")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. One host only matched the registry IOC, not the network ones — name it in the flag format.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Prioritize WKSTN-HR-07 — it matches multiple independent IOCs, strongest confidence") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Which host has the most independent, corroborating pieces of evidence?");
     }
   }
@@ -110,7 +103,7 @@ export function IocHuntingClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — only WKSTN-HR-07 shows both network IOCs (IP and domain), confirming active C2 contact. Flag: SAGE&#123;2_hosts_c2_infected&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — only WKSTN-HR-07 shows both network IOCs (IP and domain), confirming active C2 contact. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -132,7 +125,7 @@ export function IocHuntingClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — WKSTN-IT-14 matched only the registry indicator, which alone is weaker evidence and needs corroboration before declaring a confirmed compromise. Flag: SAGE&#123;wkstn_it_14_registry_only&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — WKSTN-IT-14 matched only the registry indicator, which alone is weaker evidence and needs corroboration before declaring a confirmed compromise. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -164,7 +157,7 @@ export function IocHuntingClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — prioritize by strength of evidence: multiple independent, corroborating IOC matches on one host
-            is a far stronger signal than a role-based guess. Flag: SAGE&#123;pr10r1t1z3_by_3v1d3nc3&#125;
+            is a far stronger signal than a role-based guess. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -173,9 +166,9 @@ export function IocHuntingClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;2_hosts_c2_infected&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;wkstn_it_14_registry_only&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;pr10r1t1z3_by_3v1d3nc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

@@ -4,6 +4,7 @@ import { PrintBtn } from "./_components/print-btn";
 import { CertificateFrame, type SidebarStat } from "@/components/certificate/certificate-frame";
 import { certificateQrSvg } from "@/components/certificate/qr";
 import { formatDuration } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -65,9 +66,9 @@ export default async function CertificatePage({ params }: { params: Promise<{ ce
           verify={verify}
         />
 
-        <div className="flex justify-center gap-4 mt-6 print:hidden">
+        <div className="mt-6 flex justify-center gap-3 print:hidden">
           <PrintBtn />
-          <a href="/academy" className="text-sm text-zinc-400 border border-white/10 px-4 py-2 rounded-xl hover:text-white transition">
+          <a href="/academy" className={buttonVariants({ variant: "secondary", size: "sm" })}>
             Back to Academy
           </a>
         </div>

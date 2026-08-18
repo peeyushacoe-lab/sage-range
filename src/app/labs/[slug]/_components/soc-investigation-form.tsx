@@ -126,17 +126,13 @@ export function SocInvestigationForm({
         }),
       });
       if (res.ok) {
-        const data = (await res.json()) as { id: string };
+        // Which findings are right is decided server-side. Grading them here put
+        // the C2 address, the access vector, the process and the account name
+        // into the bundle, where anyone could read them before investigating.
+        const data = (await res.json()) as { id: string; fields?: Record<string, boolean> };
         setResponseId(data.id);
         setSubmitted(true);
-
-        const normalizedIp = ip.trim().replace(/^sage\{|\}$/gi, "");
-        setResults({
-          ip:      normalizedIp === "198.51.100.71",
-          access:  accessVector === "spear_phishing",
-          process: processName.trim().toLowerCase().includes("winword"),
-          account: compromisedAccount.trim().toLowerCase().replace(/^corp\\/, "").includes("finance.user"),
-        });
+        setResults(data.fields ?? null);
       }
     } finally {
       setIsPending(false);

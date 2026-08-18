@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -59,9 +59,6 @@ Hexdump — PID 1120 @ 0x1d8c40000
 4d 5a 90 00 03 00 00 00  04 00 00 00 ff ff 00 00   MZ..............
 b8 00 00 00 00 00 00 00  40 00 00 00 00 00 00 00   ........@.......`;
 
-function normalise(v: string): string {
-  return v.trim().toLowerCase().replace(/^sage\{/, "").replace(/\}$/, "");
-}
 
 export function MemoryProcessHuntClient({
   labId,
@@ -71,6 +68,7 @@ export function MemoryProcessHuntClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1, setT1] = useState("");
   const [e1, setE1] = useState("");
   const [t2, setT2] = useState("");
@@ -80,45 +78,40 @@ export function MemoryProcessHuntClient({
 
   const done = (s: string) => completed.includes(s);
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitOne(e: React.FormEvent) {
+  async function submitOne(e: React.FormEvent) {
     e.preventDefault();
-    if (normalise(t1) === "3288") {
+    const verdict = await verifyStage(labId, "task_1", t1);
+    if (verdict.correct) {
       setE1("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setE1("svchost.exe should descend from services.exe. One does not. Give its PID.");
     }
   }
 
-  function submitTwo(e: React.FormEvent) {
+  async function submitTwo(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t2).replace(/\\/g, "\\");
-    if (v.includes("temp") && v.includes("svchost.exe")) {
+    const verdict = await verifyStage(labId, "task_2", t2);
+    if (verdict.correct) {
       setE2("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setE2("Compare the image paths of PID 3288 and PID 2440. Give the anomalous full path.");
     }
   }
 
-  function submitThree(e: React.FormEvent) {
+  async function submitThree(e: React.FormEvent) {
     e.preventDefault();
-    if (normalise(t3) === "1120" || normalise(t3) === "lsass.exe") {
+    const verdict = await verifyStage(labId, "task_3", t3);
+    if (verdict.correct) {
       setE3("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setE3("Which process has unbacked RWX memory beginning with an MZ header?");
     }
   }

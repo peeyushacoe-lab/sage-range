@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+
 import { NoCopy } from "@/components/ui/no-copy";
 
 // Shared presentational components used by lab client components
@@ -106,16 +108,70 @@ export function SubmitBtn({ label = "Submit" }: { label?: string }) {
 }
 
 /**
- * Report a wrong submission to the server.
+ * Submit one task stage for marking.
  *
- * Lab answers are checked in the browser, so without this the server only ever
- * sees successes and cannot tell a reasoned solve from a brute-forced one.
- * Fire-and-forget: a failure here must never block the learner.
+ * The answer key lives on the server (src/lib/labs/stage-answers.ts) and the
+ * grading happens there, so a lab component never knows the answer and cannot
+ * be talked into recording a completion it did not earn. Wrong attempts are
+ * counted server-side too, which is why there is no separate call for them.
+ *
+ * Returns the verdict, plus the canonical flag once the answer is right so the
+ * UI can echo it back without having shipped it.
  */
-export function reportWrong(labId: string, stage: string): void {
-  void fetch("/api/labs/wrong-attempt", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ labId, stage }),
-  }).catch(() => {});
+export async function verifyStage(
+  labId: string,
+  stage: string,
+  answer: string,
+): Promise<{ correct: boolean; reveal?: string; fields?: Record<string, boolean> }> {
+  try {
+    const res = await fetch("/api/labs/response", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ labId, stage, response: answer }),
+    });
+    if (!res.ok) return { correct: false };
+    const data = (await res.json()) as {
+      correct?: boolean;
+      reveal?: string;
+      fields?: Record<string, boolean>;
+    };
+    return { correct: data.correct === true, reveal: data.reveal, fields: data.fields };
+  } catch {
+    return { correct: false };
+  }
+}
+
+/**
+ * Flags a learner has already earned on this lab.
+ *
+ * Completion messages used to hard-code the flag they reveal, which put every
+ * one of them in the bundle for anyone who opened devtools. They are fetched
+ * instead, and the server only returns the ones whose stage this user has
+ * actually completed. `addReveal` folds in a flag earned during this session so
+ * the message appears immediately rather than after a reload.
+ */
+export function useRevealedFlags(
+  labId: string,
+): [Record<string, string>, (stage: string, flag?: string) => void] {
+  const [flags, setFlags] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let live = true;
+    void fetch(`/api/labs/reveals?labId=${encodeURIComponent(labId)}`)
+      .then((res) => (res.ok ? res.json() : { flags: {} }))
+      .then((data: { flags?: Record<string, string> }) => {
+        if (live) setFlags(data.flags ?? {});
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [labId]);
+
+  const addReveal = useCallback((stage: string, flag?: string) => {
+    if (!flag) return;
+    setFlags((prev) => ({ ...prev, [stage]: flag }));
+  }, []);
+
+  return [flags, addReveal];
 }

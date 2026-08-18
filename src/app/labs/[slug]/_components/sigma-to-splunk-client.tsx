@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, QueryDisplay, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, QueryDisplay, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SIGMA_RULE = `title: Suspicious LSASS Access
@@ -22,11 +22,6 @@ const SPL_OPTIONS = [
   "index=* | stats count by src_ip",
 ];
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function SigmaToSplunkClient({
   labId,
   completedStages: initial,
@@ -35,6 +30,7 @@ export function SigmaToSplunkClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -45,44 +41,40 @@ export function SigmaToSplunkClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === SPL_OPTIONS[0]) {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Match every field in the Sigma detection block (TargetImage, GrantedAccess) to the SPL query.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t2Answer, "SAGE{sysm0n_3v3nt_10_pr0c3ss_4cc3ss}")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Which Sysmon Event ID logs process-access events (like one process opening a handle to another)? Format as a flag.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Field names and log sources differ between SIEMs — a rule is only as good as the mapping to the actual schema") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about why the exact same Sigma rule needed different field names for the SPL query.");
     }
   }
@@ -114,7 +106,7 @@ export function SigmaToSplunkClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the SPL query maps TargetImage and GrantedAccess exactly, scoped to the Sysmon index and Event ID 10. Flag: SAGE&#123;spl_qu3ry_m4pp3d&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the SPL query maps TargetImage and GrantedAccess exactly, scoped to the Sysmon index and Event ID 10. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -136,7 +128,7 @@ export function SigmaToSplunkClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — Sysmon Event ID 10 (ProcessAccess) logs one process opening a handle to another, which is exactly what LSASS credential-dumping tools trigger. Flag: SAGE&#123;sysm0n_3v3nt_10_pr0c3ss_4cc3ss&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — Sysmon Event ID 10 (ProcessAccess) logs one process opening a handle to another, which is exactly what LSASS credential-dumping tools trigger. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -169,7 +161,7 @@ export function SigmaToSplunkClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — Sigma is a generic, vendor-neutral format precisely because every SIEM indexes and names fields
-            differently; the actual value comes from the field mapping ("backend"), not the rule logic itself. Flag: SAGE&#123;s13m_f13ld_m4pp1ng_v4r13s&#125;
+            differently; the actual value comes from the field mapping ("backend"), not the rule logic itself. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -178,9 +170,9 @@ export function SigmaToSplunkClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;spl_qu3ry_m4pp3d&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;sysm0n_3v3nt_10_pr0c3ss_4cc3ss&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;s13m_f13ld_m4pp1ng_v4r13s&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

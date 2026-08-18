@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const SCENARIO = `Timeline reconstructed by IR:
@@ -9,11 +9,6 @@ const SCENARIO = `Timeline reconstructed by IR:
 - Attacker dumped a specific account's NTLM hash during that compromise
 - This week: attacker authenticates as "ceo_assistant" — an account that was deleted 3 weeks ago
 - All affected user passwords were reset yesterday; attacker access continues unaffected`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function GoldenTicketAttackClient({
   labId,
@@ -23,6 +18,7 @@ export function GoldenTicketAttackClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -33,44 +29,40 @@ export function GoldenTicketAttackClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{krbtgt_4cc0unt_h4sh_st0l3n}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Think about which single account's hash can forge tickets for anyone, even deleted users.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "The forged ticket is signed with the KRBTGT hash itself, not tied to any individual user's password") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Consider what cryptographically signs a Golden Ticket.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Reset the KRBTGT password twice (to flush both current and previous hash versions), not just individual user passwords") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Individual user password resets, as seen in the scenario, clearly didn't stop the access.");
     }
   }
@@ -94,7 +86,7 @@ export function GoldenTicketAttackClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the KRBTGT account's hash was stolen, letting the attacker forge tickets for any identity. Flag: SAGE&#123;krbtgt_4cc0unt_h4sh_st0l3n&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the KRBTGT account's hash was stolen, letting the attacker forge tickets for any identity. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -122,7 +114,7 @@ export function GoldenTicketAttackClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the ticket is signed by KRBTGT's hash, completely independent of the impersonated user's own password. Flag: SAGE&#123;s1gn3d_by_krbtgt_n0t_us3r_pw&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the ticket is signed by KRBTGT's hash, completely independent of the impersonated user's own password. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -152,7 +144,7 @@ export function GoldenTicketAttackClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — resetting KRBTGT twice flushes both hash versions, invalidating every forged ticket.
-            Flag: SAGE&#123;r3s3t_krbtgt_tw1c3&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -161,9 +153,9 @@ export function GoldenTicketAttackClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;krbtgt_4cc0unt_h4sh_st0l3n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;s1gn3d_by_krbtgt_n0t_us3r_pw&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;r3s3t_krbtgt_tw1c3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

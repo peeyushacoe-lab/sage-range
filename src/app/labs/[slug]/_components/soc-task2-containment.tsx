@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import { HintPanel } from "./hint-panel";
+import { verifyStage } from "./lab-ui";
 
 import { Icon } from "@/components/ui/icon";
 const CONTAINMENT_STEPS = [
-  { id: "preserve", label: "Preserve forensic evidence — export SIEM/EDR logs before any changes", required: true },
-  { id: "block_c2", label: "Block identified C2 server at perimeter firewall — terminate active beacon", required: true },
-  { id: "isolate", label: "Isolate finance-ws01 from the network — quarantine the compromised host", required: true },
-  { id: "reset_creds", label: "Reset finance.user credentials — invalidate compromised account", required: true },
-  { id: "notify", label: "Notify CISO and legal — mandatory for potential data breach", required: true },
-  { id: "reimage", label: "Reimage finance-ws01 immediately without forensic capture", required: false },
-  { id: "shutdown", label: "Shut down all company systems — halt all business operations", required: false },
+  { id: "preserve", label: "Preserve forensic evidence — export SIEM/EDR logs before any changes" },
+  { id: "block_c2", label: "Block identified C2 server at perimeter firewall — terminate active beacon" },
+  { id: "isolate", label: "Isolate finance-ws01 from the network — quarantine the compromised host" },
+  { id: "reset_creds", label: "Reset finance.user credentials — invalidate compromised account" },
+  { id: "notify", label: "Notify CISO and legal — mandatory for potential data breach" },
+  { id: "reimage", label: "Reimage finance-ws01 immediately without forensic capture" },
+  { id: "shutdown", label: "Shut down all company systems — halt all business operations" },
 ] as const;
 
 type StepId = (typeof CONTAINMENT_STEPS)[number]["id"];
@@ -33,23 +34,19 @@ export function SocTask2Containment({ labId, alreadyDone }: { labId: string; alr
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const missed = CONTAINMENT_STEPS.filter((s) => s.required && !selected.has(s.id)).map((s) => s.id);
-    const wrongPicks = CONTAINMENT_STEPS.filter((s) => !s.required && selected.has(s.id)).map((s) => s.label);
-
-    if (missed.length > 0 || wrongPicks.length > 0) {
-      setWrong(wrongPicks.length > 0 ? wrongPicks : ["You missed required containment steps. Review the options."]);
-      return;
-    }
-
     setPending(true);
     try {
-      await fetch("/api/labs/response", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ labId, stage: "task_2", response: JSON.stringify([...selected]) }),
-      });
-      setSubmitted(true);
-      setWrong([]);
+      // Which steps are the right ones is decided on the server. Marking them
+      // `required: true` in this array put the answer in the page for anyone who
+      // opened devtools, and posting the completion straight afterwards meant a
+      // wrong plan could be recorded as a right one.
+      const verdict = await verifyStage(labId, "task_2", [...selected].join(", "));
+      if (verdict.correct) {
+        setSubmitted(true);
+        setWrong([]);
+      } else {
+        setWrong(["That plan isn't right yet — you have either missed a required step or included one that destroys evidence or halts the business unnecessarily."]);
+      }
     } finally {
       setPending(false);
     }

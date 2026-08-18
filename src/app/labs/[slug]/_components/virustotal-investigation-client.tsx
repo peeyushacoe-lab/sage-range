@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const VT_REPORT = `Hash: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
@@ -19,11 +19,6 @@ const RELATION_TAB = `Contacted Domains (VirusTotal Relations tab):
   mail-relay-secure.info    — also flagged by 41/71 vendors, same registrar as above
 Communicating Files: 14 other samples also contact cdn-update-service.net`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function VirustotalInvestigationClient({
   labId,
   completedStages: initial,
@@ -32,6 +27,7 @@ export function VirustotalInvestigationClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -42,44 +38,40 @@ export function VirustotalInvestigationClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{3m0t3t_52_0f_71_v3nd0rs}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the malware family name and detection ratio from the report.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "A domain registered only 4 days before the malware sample first appeared") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Look at the registration date relative to when the sample was first seen.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Block both domains and hunt your own environment's logs for any historical contact with them") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Threat intel is only useful if you act on it — what's the two-part action here?");
     }
   }
@@ -104,7 +96,7 @@ export function VirustotalInvestigationClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 52 of 71 vendors identified this as Emotet, a well-known banking trojan/downloader. Flag: SAGE&#123;3m0t3t_52_0f_71_v3nd0rs&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 52 of 71 vendors identified this as Emotet, a well-known banking trojan/downloader. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -136,7 +128,7 @@ export function VirustotalInvestigationClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — legitimate infrastructure is rarely registered days before malware starts using it; freshly-registered domains tightly clustered with malware activity are a strong indicator of purpose-built attacker infrastructure. Flag: SAGE&#123;fr3shly_r3g1st3r3d_c2&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — legitimate infrastructure is rarely registered days before malware starts using it; freshly-registered domains tightly clustered with malware activity are a strong indicator of purpose-built attacker infrastructure. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -167,7 +159,7 @@ export function VirustotalInvestigationClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — proactively blocking the indicators prevents future contact, and retro-hunting your own DNS/proxy
-            logs confirms whether you were already compromised before this investigation began. Flag: SAGE&#123;bl0ck_4nd_r3tr0_hunt&#125;
+            logs confirms whether you were already compromised before this investigation began. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -176,9 +168,9 @@ export function VirustotalInvestigationClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;3m0t3t_52_0f_71_v3nd0rs&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;fr3shly_r3g1st3r3d_c2&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;bl0ck_4nd_r3tr0_hunt&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

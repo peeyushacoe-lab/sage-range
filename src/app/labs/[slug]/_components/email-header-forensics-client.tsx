@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 /**
@@ -59,9 +59,6 @@ const LEGIT = `For reference — the genuine supplier domain on file:
   SPF record                      : v=spf1 include:_spf.northwind-finance.com -all
   DKIM                            : selector nw2024, always signed`;
 
-function normalise(v: string): string {
-  return v.trim().toLowerCase().replace(/^sage\{/, "").replace(/\}$/, "");
-}
 
 export function EmailHeaderForensicsClient({
   labId,
@@ -71,6 +68,7 @@ export function EmailHeaderForensicsClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1, setT1] = useState("");
   const [e1, setE1] = useState("");
   const [t2, setT2] = useState("");
@@ -80,46 +78,40 @@ export function EmailHeaderForensicsClient({
 
   const done = (s: string) => completed.includes(s);
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitOne(e: React.FormEvent) {
+  async function submitOne(e: React.FormEvent) {
     e.preventDefault();
-    if (normalise(t1) === "198.51.100.203") {
+    const verdict = await verifyStage(labId, "task_1", t1);
+    if (verdict.correct) {
       setE1("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setE1("Read the Received chain from the bottom up — the earliest hop is the origin.");
     }
   }
 
-  function submitTwo(e: React.FormEvent) {
+  async function submitTwo(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t2).replace(/^\./, "");
-    if (v === "northwind-finance.co" || v === ".co" || v === "co") {
+    const verdict = await verifyStage(labId, "task_2", t2);
+    if (verdict.correct) {
       setE2("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setE2("Compare the sending domain against the genuine one, character by character.");
     }
   }
 
-  function submitThree(e: React.FormEvent) {
+  async function submitThree(e: React.FormEvent) {
     e.preventDefault();
-    const v = normalise(t3);
-    if (v === "reply-to" || v === "replyto" || v === "reply to") {
+    const verdict = await verifyStage(labId, "task_3", t3);
+    if (verdict.correct) {
       setE3("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setE3("Which header would silently redirect the victim's reply elsewhere?");
     }
   }

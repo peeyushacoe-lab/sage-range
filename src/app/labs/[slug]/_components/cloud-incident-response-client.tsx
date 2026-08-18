@@ -1,17 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const LIVE_ALERT = `LIVE ALERT: GetObject calls on s3://acme-customer-data/
 Volume: 40,000 objects downloaded in the last 10 minutes (baseline: ~50/day)
 Credentials used: IAM access key belonging to a decommissioned CI/CD pipeline`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function CloudIncidentResponseClient({
   labId,
@@ -21,6 +16,7 @@ export function CloudIncidentResponseClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -31,44 +27,40 @@ export function CloudIncidentResponseClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{r3v0k3_cr3d3nt14ls_1mm3d14t3ly}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Data is leaving right now — what stops the flow fastest without wiping evidence?");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "That would destroy volatile evidence and logs needed to understand scope and root cause") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what you'd lose forever by tearing everything down immediately.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Reviewing CloudTrail/audit logs for every action the compromised credentials performed across all services, not just the one bucket") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The credentials were valid — think about everywhere they could have been used, not just where you noticed first.");
     }
   }
@@ -92,7 +84,7 @@ export function CloudIncidentResponseClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — revoking the compromised credentials immediately stops the exfiltration in progress. Flag: SAGE&#123;r3v0k3_cr3d3nt14ls_1mm3d14t3ly&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — revoking the compromised credentials immediately stops the exfiltration in progress. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -120,7 +112,7 @@ export function CloudIncidentResponseClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — tearing down resources destroys the volatile evidence needed to scope the incident and find root cause. Flag: SAGE&#123;pr3s3rv3_3v1d3nc3_b3f0r3_t34rd0wn&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — tearing down resources destroys the volatile evidence needed to scope the incident and find root cause. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -150,7 +142,7 @@ export function CloudIncidentResponseClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — the credentials were valid everywhere, so you must audit every action they took across all services.
-            Flag: SAGE&#123;4ud1t_4ll_4ct10ns_n0t_just_0n3_s3rv1c3&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -159,9 +151,9 @@ export function CloudIncidentResponseClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;r3v0k3_cr3d3nt14ls_1mm3d14t3ly&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;pr3s3rv3_3v1d3nc3_b3f0r3_t34rd0wn&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;4ud1t_4ll_4ct10ns_n0t_just_0n3_s3rv1c3&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

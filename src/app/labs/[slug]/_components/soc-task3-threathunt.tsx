@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { HintPanel } from "./hint-panel";
+import { verifyStage } from "./lab-ui";
 
 import { Icon } from "@/components/ui/icon";
 const HUNT_LOGS = `2026-05-09 14:08:45  Sysmon EventID 3   it-ws-admin
@@ -42,27 +43,28 @@ export function SocTask3ThreatHunt({ labId, alreadyDone }: { labId: string; alre
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const errs: string[] = [];
-    const host = pivotHost.trim().toUpperCase().replace(/^\\\\/, "");
-    const tool = lateralTool.trim().toLowerCase();
-
-    if (host !== "FINANCE-SERVER01") errs.push("Incorrect target host. Which server spawned an encoded PowerShell process via remote execution? Cross-reference DNS and DLP events.");
-    if (tool !== "wmi") errs.push("Incorrect technique. Review the command line used for remote process creation — what protocol does that tool use?");
-
-    if (errs.length > 0) {
-      setErrors(errs);
-      return;
-    }
-
     setPending(true);
     try {
-      await fetch("/api/labs/response", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ labId, stage: "task_3", response: JSON.stringify({ pivotHost, lateralTool }) }),
-      });
-      setSubmitted(true);
-      setErrors([]);
+      // The host and technique are checked server-side — naming them here put
+      // both answers in the bundle.
+      const verdict = await verifyStage(
+        labId,
+        "task_3",
+        JSON.stringify({ pivotHost, lateralTool }),
+      );
+      if (verdict.correct) {
+        setSubmitted(true);
+        setErrors([]);
+      } else {
+        const errs: string[] = [];
+        if (verdict.fields?.pivotHost === false) {
+          errs.push("Incorrect target host. Which server spawned an encoded PowerShell process via remote execution? Cross-reference DNS and DLP events.");
+        }
+        if (verdict.fields?.lateralTool === false) {
+          errs.push("Incorrect technique. Review the command line used for remote process creation — what protocol does that tool use?");
+        }
+        setErrors(errs.length > 0 ? errs : ["That is not the right pivot host and technique yet."]);
+      }
     } finally {
       setPending(false);
     }

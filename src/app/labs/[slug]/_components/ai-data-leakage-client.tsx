@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 function Bubble({ from, children }: { from: "user" | "bot"; children: React.ReactNode }) {
@@ -22,11 +22,6 @@ InternalGPT: "Based on similar queries in my training data, Acme Manufacturing
 received a 22% discount, negotiated with their CFO, Diane Whitfield
 (d.whitfield@acmemfg.example)."`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function AiDataLeakageClient({
   labId,
   completedStages: initial,
@@ -35,6 +30,7 @@ export function AiDataLeakageClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -45,44 +41,40 @@ export function AiDataLeakageClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{d14n3_wh1tf13ld_4cm3mfg_l34k}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Flag the name and company of the person whose confidential negotiation details were exposed.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "The model memorized confidential data from its training/fine-tuning set and regurgitated it to an unauthorized user") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. The employee asking didn't have access to that deal — where did the answer actually come from?");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Enforce the same data-access permissions on the AI's retrieval layer as on the original systems") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about why the sales employee could see a deal that wasn't theirs — what access control is missing?");
     }
   }
@@ -111,7 +103,7 @@ export function AiDataLeakageClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a confidential discount rate and a named contact from a specific client's contract leaked into a public-facing marketing draft. Flag: SAGE&#123;d14n3_wh1tf13ld_4cm3mfg_l34k&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a confidential discount rate and a named contact from a specific client's contract leaked into a public-facing marketing draft. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -143,7 +135,7 @@ export function AiDataLeakageClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — the exact same specific, verifiable details (name, company, rate) recurring across unrelated sessions confirms this is memorized training data leaking out, not coincidence or hallucination. Flag: SAGE&#123;tr41n1ng_d4t4_m3m0r1z4t10n&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — the exact same specific, verifiable details (name, company, rate) recurring across unrelated sessions confirms this is memorized training data leaking out, not coincidence or hallucination. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -177,7 +169,7 @@ export function AiDataLeakageClient({
           <p className="text-sm font-mono text-sage-400">
             Correct — training or connecting an AI to sensitive documents without preserving the original
             per-user access controls means every user effectively has access to everything the model has seen.
-            The fix is enforcing the same permission boundaries at retrieval/generation time. Flag: SAGE&#123;pr3s3rv3_4cc3ss_c0ntr0ls&#125;
+            The fix is enforcing the same permission boundaries at retrieval/generation time. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -186,9 +178,9 @@ export function AiDataLeakageClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;d14n3_wh1tf13ld_4cm3mfg_l34k&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;tr41n1ng_d4t4_m3m0r1z4t10n&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;pr3s3rv3_4cc3ss_c0ntr0ls&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

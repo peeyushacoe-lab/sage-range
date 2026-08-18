@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const ALERT_STATS = `Rule: "Multiple Failed Logins Followed By Success"
@@ -26,11 +26,6 @@ picks up the new password.
 Genuine brute-force attempts in the sample came from unfamiliar
 IPs/devices never seen for that account before.`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function DetectionTuningClient({
   labId,
   completedStages: initial,
@@ -39,6 +34,7 @@ export function DetectionTuningClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -49,44 +45,40 @@ export function DetectionTuningClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{8_p3rc3nt_tru3_p0s1t1v3}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Calculate the percentage of the sample that were confirmed real attacks.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Password reset events cause old cached credentials to auto-retry, matching the same pattern") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Read the helpdesk context again — what routine IT process produces the exact same log pattern?");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Suppress alerts within N minutes of a known password-reset event for that account") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. The rule's core logic isn't wrong — it's missing one piece of context. What context would filter out the noise without missing real attacks?");
     }
   }
@@ -111,7 +103,7 @@ export function DetectionTuningClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 4 of 50 (8%) were real attacks; the other 92% is noise drowning out the signal and causing alert fatigue. Flag: SAGE&#123;8_p3rc3nt_tru3_p0s1t1v3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 4 of 50 (8%) were real attacks; the other 92% is noise drowning out the signal and causing alert fatigue. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -146,7 +138,7 @@ export function DetectionTuningClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a routine, entirely benign IT process (password resets) produces logs that are structurally identical to a real brute-force success, without any context to distinguish them. Flag: SAGE&#123;p4ssw0rd_r3s3t_n0is3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a routine, entirely benign IT process (password resets) produces logs that are structurally identical to a real brute-force success, without any context to distinguish them. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -179,7 +171,7 @@ export function DetectionTuningClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — correlating against the password-reset event log (a piece of context the original rule ignored)
-            filters out the known-benign pattern while leaving genuine brute-force detection fully intact. Flag: SAGE&#123;c0nt3xt_4w4r3_suppr3ss10n&#125;
+            filters out the known-benign pattern while leaving genuine brute-force detection fully intact. Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -188,9 +180,9 @@ export function DetectionTuningClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;8_p3rc3nt_tru3_p0s1t1v3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;p4ssw0rd_r3s3t_n0is3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;c0nt3xt_4w4r3_suppr3ss10n&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

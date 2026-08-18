@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const PROXY_LOG = `08:00:01  WKSTN-DEV-02 -> cdn-metrics-sync.info:443
@@ -14,11 +14,6 @@ const PROXY_LOG = `08:00:01  WKSTN-DEV-02 -> cdn-metrics-sync.info:443
 const SPL_DRAFT = `index=proxy dest_port=443
 | stats count by dest`;
 
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
-
 export function SplunkDetectionHuntClient({
   labId,
   completedStages: initial,
@@ -27,6 +22,7 @@ export function SplunkDetectionHuntClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -37,44 +33,40 @@ export function SplunkDetectionHuntClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{60s_1nt3rv4l_b34c0n1ng}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at the gap between successive requests to cdn-metrics-sync.info.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "stats on time deltas between requests to the same destination, filtering for low variance/regular intervals") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. A simple count-by-destination query won't isolate the regular-interval pattern.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "Pivot on that domain across ALL other hosts' proxy logs to find any other infected machines") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. One infected host is rarely the entire compromise footprint.");
     }
   }
@@ -98,7 +90,7 @@ export function SplunkDetectionHuntClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — requests to that domain recur roughly every 60 seconds, a classic beacon interval. Flag: SAGE&#123;60s_1nt3rv4l_b34c0n1ng&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — requests to that domain recur roughly every 60 seconds, a classic beacon interval. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -129,7 +121,7 @@ export function SplunkDetectionHuntClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — computing time deltas per destination and filtering for low variance surfaces regular-interval beacons that a plain count would miss. Flag: SAGE&#123;t1m3_d3lt4_v4r14nc3_4n4lys1s&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — computing time deltas per destination and filtering for low variance surfaces regular-interval beacons that a plain count would miss. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -159,7 +151,7 @@ export function SplunkDetectionHuntClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — pivoting the confirmed indicator across the whole fleet's logs is how you find the full blast radius, not just the host you started with.
-            Flag: SAGE&#123;p1v0t_4cr0ss_4ll_h0sts&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -168,9 +160,9 @@ export function SplunkDetectionHuntClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;60s_1nt3rv4l_b34c0n1ng&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;t1m3_d3lt4_v4r14nc3_4n4lys1s&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;p1v0t_4cr0ss_4ll_h0sts&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}

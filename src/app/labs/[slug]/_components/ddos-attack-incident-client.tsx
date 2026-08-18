@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TaskShell, MonoInput, SubmitBtn, reportWrong } from "./lab-ui";
+import { TaskShell, MonoInput, SubmitBtn, verifyStage, useRevealedFlags } from "./lab-ui";
 import { HintPanel } from "./hint-panel";
 
 const TRAFFIC = `Traffic graph, /login endpoint:
@@ -9,11 +9,6 @@ Normal baseline:      ~200 requests/min
 Current inbound:       10,100 requests/min (50x baseline)
 Distinct source IPs:   6,200+ unique addresses
 All requests target the same single endpoint`;
-
-function checkFlag(value: string, expected: string): boolean {
-  const strip = (s: string) => s.trim().replace(/^SAGE\{/i, "").replace(/\}$/, "").toLowerCase().replace(/[01345789@$]/g, (c) => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g", "@": "a", "$": "s" }[c] ?? c));
-  return strip(value) === strip(expected);
-}
 
 export function DdosAttackIncidentClient({
   labId,
@@ -23,6 +18,7 @@ export function DdosAttackIncidentClient({
   completedStages: string[];
 }) {
   const [completed, setCompleted] = useState<string[]>(initial);
+  const [revealed, addReveal] = useRevealedFlags(labId);
   const [t1Answer, setT1Answer] = useState("");
   const [t1Error, setT1Error] = useState("");
   const [t2Choice, setT2Choice] = useState("");
@@ -33,44 +29,40 @@ export function DdosAttackIncidentClient({
   const done = (s: string) => completed.includes(s);
   const allDone = done("task_1") && done("task_2") && done("task_3");
 
-  async function saveStage(stage: string) {
-    await fetch("/api/labs/response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ labId, stage, response: "correct" }),
-    });
-    setCompleted((p) => [...p, stage]);
+  function markDone(stage: string, reveal?: string) {
+    setCompleted((p) => (p.includes(stage) ? p : [...p, stage]));
+    addReveal(stage, reveal);
   }
 
-  function submitT1(e: React.FormEvent) {
+  async function submitT1(e: React.FormEvent) {
     e.preventDefault();
-    if (checkFlag(t1Answer, "SAGE{50x_b4s3l1n3_thous4nds_0f_1ps}")) {
+    const verdict = await verifyStage(labId, "task_1", t1Answer);
+    if (verdict.correct) {
       setT1Error("");
-      void saveStage("task_1");
+      markDone("task_1", verdict.reveal);
     } else {
-      reportWrong(labId, "task_1");
       setT1Error("Incorrect. Look at how far above baseline this is, and how many distinct sources are involved.");
     }
   }
 
-  function submitT2(e: React.FormEvent) {
+  async function submitT2(e: React.FormEvent) {
     e.preventDefault();
-    if (t2Choice === "Route traffic through a DDoS scrubbing/mitigation service or CDN that can absorb and filter the volume before it reaches your origin") {
+    const verdict = await verifyStage(labId, "task_2", t2Choice);
+    if (verdict.correct) {
       setT2Error("");
-      void saveStage("task_2");
+      markDone("task_2", verdict.reveal);
     } else {
-      reportWrong(labId, "task_2");
       setT2Error("Incorrect. Think about what can absorb this volume before it ever hits your own servers.");
     }
   }
 
-  function submitT3(e: React.FormEvent) {
+  async function submitT3(e: React.FormEvent) {
     e.preventDefault();
-    if (t3Choice === "A DDoS can also be cover for a credential stuffing attempt hidden inside the traffic flood, so endpoint-level limits still matter") {
+    const verdict = await verifyStage(labId, "task_3", t3Choice);
+    if (verdict.correct) {
       setT3Error("");
-      void saveStage("task_3");
+      markDone("task_3", verdict.reveal);
     } else {
-      reportWrong(labId, "task_3");
       setT3Error("Incorrect. Think about what else could be happening inside a flood of login-endpoint traffic.");
     }
   }
@@ -94,7 +86,7 @@ export function DdosAttackIncidentClient({
           </form>
         )}
         {done("task_1") && (
-          <p className="text-sm font-mono text-sage-400">Correct — 50x normal baseline traffic from thousands of distinct IPs confirms a DDoS. Flag: SAGE&#123;50x_b4s3l1n3_thous4nds_0f_1ps&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — 50x normal baseline traffic from thousands of distinct IPs confirms a DDoS. Flag: {revealed.task_1 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -122,7 +114,7 @@ export function DdosAttackIncidentClient({
           </form>
         )}
         {done("task_2") && (
-          <p className="text-sm font-mono text-sage-400">Correct — a scrubbing service or CDN can absorb and filter the volume before your origin ever sees it. Flag: SAGE&#123;scrubb1ng_s3rv1c3_4bs0rbs_v0lum3&#125;</p>
+          <p className="text-sm font-mono text-sage-400">Correct — a scrubbing service or CDN can absorb and filter the volume before your origin ever sees it. Flag: {revealed.task_2 ?? "SAGE{…}"}</p>
         )}
       </TaskShell>
 
@@ -152,7 +144,7 @@ export function DdosAttackIncidentClient({
         {done("task_3") && (
           <p className="text-sm font-mono text-sage-400">
             Correct — a flood can mask a credential stuffing attempt hiding inside it, so endpoint-level limits still matter.
-            Flag: SAGE&#123;d0s_c4n_h1d3_cr3d_stuff1ng&#125;
+            Flag: {revealed.task_3 ?? "SAGE{…}"}
           </p>
         )}
       </TaskShell>
@@ -161,9 +153,9 @@ export function DdosAttackIncidentClient({
         <div className="rounded-lg border border-sage-500/40 bg-sage-500/5 p-5 space-y-3">
           <h3 className="font-bold text-sage-400 text-base">Room Complete</h3>
           <ul className="space-y-1 font-mono text-sm">
-            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">SAGE&#123;50x_b4s3l1n3_thous4nds_0f_1ps&#125;</span></li>
-            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">SAGE&#123;scrubb1ng_s3rv1c3_4bs0rbs_v0lum3&#125;</span></li>
-            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">SAGE&#123;d0s_c4n_h1d3_cr3d_stuff1ng&#125;</span></li>
+            <li><span className="text-zinc-500">Task 1 —</span> <span className="text-sage-400">{revealed.task_1 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 2 —</span> <span className="text-sage-400">{revealed.task_2 ?? "SAGE{…}"}</span></li>
+            <li><span className="text-zinc-500">Task 3 —</span> <span className="text-sage-400">{revealed.task_3 ?? "SAGE{…}"}</span></li>
           </ul>
         </div>
       )}
