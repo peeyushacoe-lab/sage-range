@@ -138,9 +138,17 @@ export function tierForRank(rank: number, totalEntrants: number): ChampionshipTi
   return "COMPETITOR";
 }
 
-/** Whether a tier earns a certificate. Bare participation does not. */
+/**
+ * Whether a tier earns a certificate.
+ *
+ * The podium only. FINALIST used to qualify too, which in a field of forty
+ * minted four extra certificates a month for placings nobody announces — a
+ * credential handed to the top 10% is a credential worth less to the top 3.
+ * The tier itself is still computed and still shown on the board; it simply
+ * does not come with a certificate.
+ */
 export function tierEarnsCertificate(tier: ChampionshipTier): boolean {
-  return tier !== "COMPETITOR";
+  return tier === "CHAMPION" || tier === "MEDALLIST";
 }
 
 /**

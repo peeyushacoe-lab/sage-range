@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
-import { listChampionships, getActiveChampionship } from "@/lib/championships";
+import { getActiveChampionship } from "@/lib/championships";
+import { listPastEvents, type PastEvent } from "@/lib/past-events";
 import { Navbar } from "@/components/navbar";
 import { PageHeader, Card, Badge, StatCard, EmptyState, buttonVariants } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
@@ -63,9 +64,9 @@ export default async function ChampionshipHubPage() {
   const user = await getOrCreateAppUser();
   if (!user) redirect("/sign-in");
 
-  const [active, past, myAwards] = await Promise.all([
+  const [active, pastEvents, myAwards] = await Promise.all([
     getActiveChampionship(),
-    listChampionships(12),
+    listPastEvents(12),
     db.championshipAward.findMany({
       where: { userId: user.id },
       include: { championship: { select: { title: true, slug: true } } },
@@ -78,8 +79,6 @@ export default async function ChampionshipHubPage() {
         where: { championshipId_userId: { championshipId: active.id, userId: user.id } },
       })
     : null;
-
-  const concluded = past.filter((c) => c.status === "CONCLUDED");
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -107,7 +106,7 @@ export default async function ChampionshipHubPage() {
             sub={myActiveEntry ? `${myActiveEntry.solved} solved` : "not entered"}
           />
           <StatCard label="Certificates" value={myAwards.length} sub="earned" />
-          <StatCard label="Past events" value={concluded.length} sub="concluded" />
+          <StatCard label="Past events" value={pastEvents.length} sub="concluded" />
         </div>
 
         {/* ── Current ── */}
@@ -186,32 +185,89 @@ export default async function ChampionshipHubPage() {
           </section>
         )}
 
-        {/* ── Past ── */}
-        {concluded.length > 0 && (
+        {/* ── Past ──
+            Every concluded competition, whatever model it runs on. Zero Hour
+            used to disappear from this page the moment its window closed. */}
+        {pastEvents.length > 0 && (
           <section>
             <h2 className="mb-3 text-[11px] font-bold uppercase tracking-widest text-emerald-500">
-              Past championships
+              Past events
             </h2>
-            <Card className="divide-y divide-white/5 p-0">
-              {concluded.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/championship/${c.slug}`}
-                  className="flex items-center justify-between gap-4 px-5 py-3 transition-colors hover:bg-white/3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-zinc-200">{c.title}</p>
-                    <p className="text-xs text-zinc-600">
-                      {c._count.entries} entrant{c._count.entries === 1 ? "" : "s"}
-                    </p>
-                  </div>
-                  <Icon name="chevronRight" size={16} />
-                </Link>
+            <div className="space-y-3">
+              {pastEvents.map((event) => (
+                <PastEventCard key={event.key} event={event} />
               ))}
-            </Card>
+            </div>
           </section>
         )}
       </div>
     </main>
+  );
+}
+
+const MEDAL = ["🥇", "🥈", "🥉"];
+
+/**
+ * One concluded event with its podium.
+ *
+ * The old list showed a title and an entrant count, which told a returning
+ * learner nothing about who won or where they placed. Ranks and names are the
+ * whole reason to look back at a finished competition.
+ */
+function PastEventCard({ event }: { event: PastEvent }) {
+  return (
+    <Card className="p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="mb-1.5 flex flex-wrap items-center gap-2">
+            <Link href={event.href} className="text-base font-semibold hover:text-emerald-400">
+              {event.title}
+            </Link>
+            <Badge tone={event.kind === "OPERATION" ? "red" : "zinc"}>
+              {event.kind === "OPERATION" ? "Operation" : "Championship"}
+            </Badge>
+          </div>
+          <p className="max-w-xl text-xs leading-relaxed text-zinc-500">{event.blurb}</p>
+          <p className="mt-2 text-[11px] text-zinc-600">
+            {event.entrants} entrant{event.entrants === 1 ? "" : "s"}
+            {event.concludedAt && (
+              <> · concluded {event.concludedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</>
+            )}
+          </p>
+        </div>
+        <Link href={event.href} className={buttonVariants({ variant: "secondary", size: "sm" })}>
+          Full board
+        </Link>
+      </div>
+
+      {event.podium.length > 0 ? (
+        <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {event.podium.map((p, i) => (
+            <div
+              key={p.userId}
+              className={`rounded-xl border px-3 py-2.5 ${
+                i === 0 ? "border-amber-500/35 bg-amber-500/[0.07]" : "border-white/8 bg-white/[0.02]"
+              }`}
+            >
+              <div className="flex items-baseline gap-2">
+                <span className="text-base leading-none">{MEDAL[i] ?? `#${p.rank}`}</span>
+                <span className="truncate text-sm font-semibold text-zinc-100">{p.displayName}</span>
+              </div>
+              <p className="mt-1 font-mono text-sm font-bold tabular-nums text-zinc-300">
+                {p.score}
+                {event.scoreSuffix && <span className="text-xs text-zinc-600">{event.scoreSuffix}</span>}
+              </p>
+              {p.detail && <p className="truncate text-[11px] text-zinc-600">{p.detail}</p>}
+            </div>
+          ))}
+        </div>
+      ) : (
+        // A concluded event with no podium has not had its ranks written yet —
+        // say so rather than rendering an empty row that looks like a bug.
+        <p className="mt-4 rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs text-amber-200/90">
+          Results for this event have not been finalised yet.
+        </p>
+      )}
+    </Card>
   );
 }

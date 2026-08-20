@@ -178,11 +178,22 @@ describe("tierForRank", () => {
 });
 
 describe("tierEarnsCertificate", () => {
-  it("issues for the podium and finalists but not bare participation", () => {
+  it("issues for the podium only", () => {
     expect(tierEarnsCertificate("CHAMPION")).toBe(true);
     expect(tierEarnsCertificate("MEDALLIST")).toBe(true);
-    expect(tierEarnsCertificate("FINALIST")).toBe(true);
     expect(tierEarnsCertificate("COMPETITOR")).toBe(false);
+  });
+
+  // FINALIST used to earn one. In a field of forty that minted four extra
+  // certificates a month for placings nobody announces.
+  it("does not issue below the podium", () => {
+    expect(tierEarnsCertificate("FINALIST")).toBe(false);
+  });
+
+  // The tier still exists and still shows on the board; it just carries no
+  // certificate, so rank 4 in a large field is not silently retiered.
+  it("still ranks finalists as finalists", () => {
+    expect(tierForRank(4, 40)).toBe("FINALIST");
   });
 });
 

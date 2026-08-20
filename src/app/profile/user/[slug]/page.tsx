@@ -6,6 +6,8 @@ import { Icon } from "@/components/ui/icon";
 import { StatsCards } from "../../_components/stats-cards";
 import { MitreHeatmap } from "../../_components/mitre-heatmap";
 import { AchievementGrid } from "../../_components/achievement-grid";
+import { TrophyCase } from "@/components/profile/trophy-case";
+import { getTrophyCase } from "@/lib/trophy-case";
 import { PortfolioEditorClient } from "./_components/portfolio-editor-client";
 import { VisitorStatsServer } from "./_components/visitor-stats-server";
 
@@ -67,6 +69,14 @@ export default async function PortfolioPage({
 
   const isOwnProfile = currentUser?.id === portfolio.userId;
   const user = portfolio.user;
+
+  // Competition badges: what this person won across operations and monthly
+  // championships. Awards existed in two tables and appeared on neither the
+  // profile nor anywhere a recruiter would look, which made them worth little.
+  const trophies = await getTrophyCase(
+    { userId: portfolio.userId, email: user.email },
+    currentUser?.id ?? null,
+  );
 
   // Parse MITRE heatmap data
   const mitreData = (portfolio.mitreCoverage?.heatmap as Record<string, number>) || {};
@@ -133,6 +143,11 @@ export default async function PortfolioPage({
                 data={mitreData}
                 topTactics={portfolio.mitreTopTactics}
               />
+            </div>
+
+            {/* Competition badges */}
+            <div>
+              <TrophyCase trophies={trophies} />
             </div>
 
             {/* Achievements */}
