@@ -613,6 +613,7 @@ export function rankRuns(runs: readonly RankableRun[]): RankedRun[] {
 }
 
 export type OzhAwardKind =
+  | "KNIGHT"
   | "CHAMPION"
   | "TOP_THREAT_HUNTER"
   | "BEST_INCIDENT_RESPONDER"
@@ -622,6 +623,7 @@ export type OzhAwardKind =
   | "MOST_ACCURATE_ANALYST";
 
 export const AWARD_LABEL: Record<OzhAwardKind, string> = {
+  KNIGHT: "Zero Hour Knight",
   CHAMPION: "Operation Zero Hour Champion",
   TOP_THREAT_HUNTER: "Top Threat Hunter",
   BEST_INCIDENT_RESPONDER: "Best Incident Responder",
@@ -690,4 +692,83 @@ export function ozhCertCode(rank: number, random: () => number = Math.random): s
   let suffix = "";
   for (let i = 0; i < 6; i++) suffix += alphabet[Math.floor(random() * alphabet.length)];
   return `OZH-2026-${rank}-${suffix}`;
+}
+
+// ── The Knight badge ────────────────────────────────────────────────────────
+// The seven awards above are competitive: one winner each, and everybody else
+// walks away with nothing to show for three hours of work. The Knight badge is
+// the other half — every analyst who actually scored in the operation earns
+// one, permanently, graded by how they did.
+//
+// It is deliberately not a participation trophy: a run that submitted nothing
+// and scored zero earns no badge, because a credential that cannot be failed
+// tells a recruiter nothing.
+
+export type OzhKnightTier = "GOLD" | "SILVER" | "BRONZE" | "IRON";
+
+/**
+ * Minimum share of the maximum score for each tier above IRON.
+ *
+ * Expressed as fractions rather than raw points so the bands survive a change
+ * to MAX_SCORE — the phase weightings have already moved once.
+ */
+export const KNIGHT_TIER_MIN_FRACTION: Record<"GOLD" | "SILVER" | "BRONZE", number> = {
+  GOLD: 0.85,
+  SILVER: 0.65,
+  BRONZE: 0.4,
+};
+
+export const KNIGHT_TIER_LABEL: Record<OzhKnightTier, string> = {
+  GOLD: "Gold Knight",
+  SILVER: "Silver Knight",
+  BRONZE: "Bronze Knight",
+  IRON: "Iron Knight",
+};
+
+/** Matches the rank palette in cyber-identity.ts so badges read as one system. */
+export const KNIGHT_TIER_COLOR: Record<OzhKnightTier, string> = {
+  GOLD: "#f59e0b",
+  SILVER: "#94a3b8",
+  BRONZE: "#f97316",
+  IRON: "#71717a",
+};
+
+/** One line for the result card and the results email. */
+export const KNIGHT_TIER_BLURB: Record<OzhKnightTier, string> = {
+  GOLD: "Handled the intrusion end to end with only minor gaps.",
+  SILVER: "Read the intrusion correctly and responded soundly.",
+  BRONZE: "Got the core of the intrusion, with ground left uncovered.",
+  IRON: "Stood the watch and scored — the debrief is where to go next.",
+};
+
+/**
+ * The tier a score earns, or null when the run earned no badge at all.
+ *
+ * Takes the score rather than the run so the leaderboard, the result page and
+ * the email all derive the tier the same way instead of each re-deciding it.
+ */
+export function knightTier(score: number, maxScore: number = MAX_SCORE): OzhKnightTier | null {
+  if (!Number.isFinite(score) || score <= 0 || maxScore <= 0) return null;
+  const share = score / maxScore;
+  if (share >= KNIGHT_TIER_MIN_FRACTION.GOLD) return "GOLD";
+  if (share >= KNIGHT_TIER_MIN_FRACTION.SILVER) return "SILVER";
+  if (share >= KNIGHT_TIER_MIN_FRACTION.BRONZE) return "BRONZE";
+  return "IRON";
+}
+
+/**
+ * Every Knight badge owed for a field of runs.
+ *
+ * Kept separate from decideAwards because the two answer different questions:
+ * decideAwards picks winners and must see the whole field to do it, while this
+ * grades each run on its own and would give the same answer for a field of one.
+ */
+export function decideKnightBadges(
+  runs: readonly { userId: string; score: number }[],
+  maxScore: number = MAX_SCORE,
+): Array<{ userId: string; tier: OzhKnightTier }> {
+  return runs.flatMap((r) => {
+    const tier = knightTier(r.score, maxScore);
+    return tier ? [{ userId: r.userId, tier }] : [];
+  });
 }

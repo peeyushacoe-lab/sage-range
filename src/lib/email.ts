@@ -179,3 +179,77 @@ export async function sendLabAssignedEmail(
     html,
   });
 }
+
+/**
+ * Operation Zero Hour results.
+ *
+ * NOT CURRENTLY WIRED UP. concludeCompetition announces results through in-app
+ * notifications and a site-wide announcement only. This is kept ready for the
+ * moment RESEND_API_KEY is configured — call it from announceResults in
+ * src/lib/ozh.ts, which already has the per-analyst loop it needs.
+ *
+ * Sent once per analyst when the competition concludes. Deliberately leads with
+ * the Knight badge rather than the rank: most of the field did not place, and a
+ * mail whose first line is "you came 14th" is one nobody opens next time.
+ */
+export async function sendZeroHourResultEmail(args: {
+  to: string;
+  name: string;
+  score: number;
+  maxScore: number;
+  rank: number | null;
+  fieldSize: number;
+  knightTier: string | null;
+  knightLabel: string | null;
+  knightBlurb: string | null;
+}) {
+  if (!resend) return;
+
+  const { to, name, score, maxScore, rank, fieldSize, knightTier, knightLabel, knightBlurb } = args;
+
+  const tierColor =
+    knightTier === "GOLD" ? "#f59e0b"
+    : knightTier === "SILVER" ? "#94a3b8"
+    : knightTier === "BRONZE" ? "#f97316"
+    : "#71717a";
+
+  const badgeBlock = knightLabel
+    ? `
+    <div style="text-align:center;margin:8px 0 24px;">
+      <div style="display:inline-block;border:1px solid ${tierColor}55;background:${tierColor}14;border-radius:14px;padding:18px 28px;">
+        <span style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:#71717a;">Badge earned</span>
+        <span style="display:block;font-size:20px;font-weight:700;color:${tierColor};margin-top:6px;">${knightLabel}</span>
+      </div>
+    </div>
+    <p style="text-align:center;">${knightBlurb ?? ""}</p>`
+    : `<p>You started the operation but did not score on any phase, so no badge was issued this time. The full debrief is still on your result card — it walks through the intrusion end to end.</p>`;
+
+  const html = wrap(`
+    <h1>Operation Zero Hour — results are in</h1>
+    <p>Hi ${name},</p>
+    ${badgeBlock}
+    <div style="text-align:center;margin:24px 0;">
+      <span class="stat">
+        <span class="stat-val">${score}<span style="font-size:14px;color:#52525b;">/${maxScore}</span></span>
+        <span class="stat-label">Score</span>
+      </span>
+      <span class="stat">
+        <span class="stat-val">${rank ? `#${rank}` : "—"}</span>
+        <span class="stat-label">${rank ? `of ${fieldSize}` : "Unranked"}</span>
+      </span>
+    </div>
+    <p>Your result card breaks the run down phase by phase — what you got right, what you missed, and the intrusion resolved in full so you can check your reasoning against what actually happened.</p>
+    <a href="https://www.cybersagevault.uk/operations/zero-hour/result" class="btn">View your report card →</a>
+    <a href="https://www.cybersagevault.uk/operations/zero-hour/leaderboard" style="display:inline-block;padding:12px 24px;border:1px solid rgba(255,255,255,0.15);color:#a1a1aa;font-size:14px;border-radius:10px;text-decoration:none;margin:4px 0 16px 8px;">Final leaderboard</a>
+    <p style="font-size:12px;color:#52525b;">Thanks for standing the watch. — The Sage Vault team</p>
+  `, "Operation Zero Hour results");
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: knightLabel
+      ? `Zero Hour results — you earned ${knightLabel}`
+      : `Operation Zero Hour — your results`,
+    html,
+  });
+}

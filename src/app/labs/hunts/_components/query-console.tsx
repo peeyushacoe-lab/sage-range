@@ -6,10 +6,13 @@ import { Icon } from "@/components/ui/icon";
 import { QueryResults } from "./query-results";
 import { QueryHistory } from "./query-history";
 
+/** Mirrors POST /api/hunts/[sessionId]/query. See query-results.tsx on why no artifacts are returned. */
 interface QueryResult {
   rows: string[];
+  resultCount: number;
+  truncated: boolean;
   executionTime: number;
-  matchedArtifacts: Array<{ lineIndex: number; artifactType: string; value: string }>;
+  isEffective: boolean;
 }
 
 type QueryLanguage = "GREP" | "REGEX" | "KQL" | "SQL_LITE" | "NATURAL_LANGUAGE";
@@ -61,8 +64,8 @@ export function QueryConsole({ sessionId }: { sessionId: string }) {
       }
 
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || "Query execution failed");
+        const data = await res.json().catch(() => null);
+        setError(data?.message || data?.error || "Query execution failed");
         return;
       }
 

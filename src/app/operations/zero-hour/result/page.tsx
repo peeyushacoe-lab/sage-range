@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { getResult } from "@/lib/ozh";
 import { SKILLS_DEMONSTRATED } from "@/content/ozh-scenario";
-import { PHASE_LABEL, AWARD_LABEL, type OzhPhase, type OzhAwardKind } from "@/lib/ozh-engine";
+import { PHASE_LABEL, type OzhPhase, type OzhAwardKind, type OzhKnightTier } from "@/lib/ozh-engine";
+import { KnightBadge, AwardRow } from "@/components/ozh/knight-badge";
 import { formatElapsed } from "@/lib/ozh-format";
 import { Navbar } from "@/components/navbar";
 import { Card, Badge, StatCard, ProgressBar, buttonVariants } from "@/components/ui";
@@ -21,6 +22,12 @@ export default async function ZeroHourResultPage() {
 
   const { score, maxScore, accuracy, elapsedSeconds, rank, fieldSize, breakdown, awards, evidence } =
     result;
+
+  // The Knight badge is every finisher's, so it gets its own slot above the
+  // seven competitive awards rather than being buried in a list most people's
+  // is the only entry in.
+  const knight = awards.find((a) => a.kind === "KNIGHT");
+  const competitive = awards.filter((a) => a.kind !== "KNIGHT");
 
   // Split the debrief into what held up and what did not. Listing only the
   // misses reads as a punishment; listing only the wins teaches nothing.
@@ -62,17 +69,20 @@ export default async function ZeroHourResultPage() {
           <StatCard label="Time" value={formatElapsed(elapsedSeconds)} sub="elapsed" />
         </div>
 
-        {awards.length > 0 && (
+        {knight?.tier && (
+          <KnightBadge
+            tier={knight.tier as OzhKnightTier}
+            certCode={knight.certCode}
+            className="mb-8"
+          />
+        )}
+
+        {competitive.length > 0 && (
           <Card className="mb-8 border-amber-500/30 bg-amber-500/[0.04] p-5">
             <p className="mb-3 text-[10px] uppercase tracking-widest text-amber-400/80">Awards</p>
             <div className="space-y-2">
-              {awards.map((a) => (
-                <div key={a.certCode} className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-amber-200">
-                    {AWARD_LABEL[a.kind as OzhAwardKind]}
-                  </span>
-                  <span className="font-mono text-[11px] text-zinc-500">{a.certCode}</span>
-                </div>
+              {competitive.map((a) => (
+                <AwardRow key={a.certCode} kind={a.kind as OzhAwardKind} certCode={a.certCode} />
               ))}
             </div>
           </Card>

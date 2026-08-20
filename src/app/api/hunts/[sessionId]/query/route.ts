@@ -56,6 +56,8 @@ export async function POST(
     );
   }
 
+  const startedAt = Date.now();
+
   try {
     // Execute query against dataset
     const result = await executeHuntQuery(
@@ -64,6 +66,16 @@ export async function POST(
       language,
       session.dataset.expectedArtifacts
     );
+
+    // Effectiveness is measured against what THIS session has already surfaced,
+    // not against the query in isolation. Re-running a productive query should
+    // not keep reading as a fresh discovery.
+    const priorQueries = await db.huntQuery.findMany({
+      where: { sessionId: session.id },
+      select: { matchedIocs: true },
+    });
+    const alreadySeen = new Set(priorQueries.flatMap((q) => q.matchedIocs));
+    const newLeads = result.matchedIocs.filter((ioc) => !alreadySeen.has(ioc));
 
     // Mask sensitive data in results
     const maskedResults = result.sampleResults.map((r) => ({
@@ -79,7 +91,7 @@ export async function POST(
         language,
         resultCount: result.resultCount,
         matchedIocs: result.matchedIocs,
-        isEffective: result.matchedIocs.length > 0,
+        isEffective: newLeads.length > 0,
       },
     });
 
@@ -104,12 +116,20 @@ export async function POST(
       },
     });
 
+    // matchedIocs is deliberately NOT in this response.
+    //
+    // expectedArtifacts are strings like "IP:10.0.0.5" and "PROCESS:rundll32.exe"
+    // — the answer key. Returning them meant one broad query handed a hunter
+    // every indicator to paste straight into /report-artifact. What ships now is
+    // the rows and whether the query opened new ground; spotting the indicator
+    // inside the rows is the exercise.
     return NextResponse.json({
       queryId: huntQuery.id,
       resultCount: result.resultCount,
-      matchedIocs: result.matchedIocs,
-      results: maskedResults,
-      isEffective: result.matchedIocs.length > 0,
+      rows: maskedResults.map((r) => r.content),
+      truncated: result.resultCount > maskedResults.length,
+      executionTime: Date.now() - startedAt,
+      isEffective: newLeads.length > 0,
       executedAt: huntQuery.executedAt,
     });
   } catch (error) {

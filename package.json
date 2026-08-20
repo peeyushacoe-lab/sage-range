@@ -36,7 +36,8 @@
     "seed:modules": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-path-modules.ts",
     "seed:templates": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-scenario-templates.ts",
     "seed:academy-courses": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-academy-courses.ts",
-    "seed:academy-content": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-academy-content.ts"
+    "seed:academy-content": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed-academy-content.ts",
+    "ozh:conclude": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/ozh-conclude.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

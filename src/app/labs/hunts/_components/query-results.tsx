@@ -4,10 +4,20 @@ import { useState } from "react";
 import { Button, Card } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
 
+/**
+ * Mirrors POST /api/hunts/[sessionId]/query.
+ *
+ * There is no matchedArtifacts field, and there must not be one. It used to be
+ * declared here and rendered as green pills reading "IP: 10.0.0.5" beside the
+ * matching row — the answer key, printed next to the evidence. The API no
+ * longer sends it. Finding the indicator in the rows is the exercise.
+ */
 interface QueryResult {
   rows: string[];
+  resultCount: number;
+  truncated: boolean;
   executionTime: number;
-  matchedArtifacts: Array<{ lineIndex: number; artifactType: string; value: string }>;
+  isEffective: boolean;
 }
 
 export function QueryResults({ results }: { results: QueryResult }) {
@@ -38,27 +48,23 @@ export function QueryResults({ results }: { results: QueryResult }) {
     URL.revokeObjectURL(url);
   };
 
-  const artifactsByLine = new Map<number, typeof results.matchedArtifacts>(
-    results.matchedArtifacts.reduce(
-      (acc, artifact) => {
-        if (!acc.has(artifact.lineIndex)) {
-          acc.set(artifact.lineIndex, []);
-        }
-        acc.get(artifact.lineIndex)!.push(artifact);
-        return acc;
-      },
-      new Map() as Map<number, typeof results.matchedArtifacts>
-    )
-  );
-
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex-shrink-0 border-b border-white/8 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="text-sm text-zinc-400">
-            <span className="font-semibold text-white">{results.rows.length}</span> rows
+            <span className="font-semibold text-white">{results.resultCount}</span>{" "}
+            {results.resultCount === 1 ? "row" : "rows"}
           </div>
+          {results.isEffective && (
+            <span
+              className="rounded border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400"
+              title="This query surfaced something the session had not seen yet. What it is, is for you to spot."
+            >
+              New ground
+            </span>
+          )}
           <div className="text-sm text-zinc-400">
             Execution: <span className="font-semibold text-white">{results.executionTime}ms</span>
           </div>
@@ -68,6 +74,7 @@ export function QueryResults({ results }: { results: QueryResult }) {
           size="sm"
           onClick={exportAsCSV}
           disabled={results.rows.length === 0}
+          title="Exports the rows shown, not the full match set"
         >
           <Icon name="download" size={16} />
           Export
@@ -78,8 +85,7 @@ export function QueryResults({ results }: { results: QueryResult }) {
       <div className="flex-1 overflow-y-auto">
         {results.rows.length > 0 ? (
           <div className="divide-y divide-white/8">
-            {results.rows.slice(0, 100).map((row, idx) => {
-              const artifacts = artifactsByLine.get(idx) || [];
+            {results.rows.map((row, idx) => {
               const isExpanded = expandedRows.has(idx);
               const truncatedRow = row.length > 120 ? row.substring(0, 120) + "..." : row;
 
@@ -113,20 +119,6 @@ export function QueryResults({ results }: { results: QueryResult }) {
                           </button>
                         </div>
                       </div>
-
-                      {/* Matched Artifacts */}
-                      {artifacts.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {artifacts.map((artifact, aidx) => (
-                            <span
-                              key={aidx}
-                              className="text-xs px-2 py-1 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-mono"
-                            >
-                              {artifact.artifactType}: {artifact.value}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -140,9 +132,10 @@ export function QueryResults({ results }: { results: QueryResult }) {
         )}
       </div>
 
-      {results.rows.length > 100 && (
+      {results.truncated && (
         <div className="flex-shrink-0 border-t border-white/8 px-4 py-2 text-xs text-zinc-500">
-          Showing first 100 of {results.rows.length} results
+          Showing the first {results.rows.length} of {results.resultCount} matches — narrow the
+          query to see the rest.
         </div>
       )}
     </div>

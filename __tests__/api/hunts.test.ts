@@ -283,7 +283,10 @@ describe("Threat Hunt Sandbox API", () => {
       }
     });
 
-    it("should track matched IoCs", async () => {
+    // The expected artifacts are the answer key. They are still recorded on the
+    // HuntQuery row for scoring, but returning them let one broad query hand a
+    // hunter every indicator to paste into /report-artifact.
+    it("must never return the answer key to the client", async () => {
       const response = await fetch(`http://localhost:3000/api/hunts/${testSessionId}/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -292,7 +295,23 @@ describe("Threat Hunt Sandbox API", () => {
 
       if (response.status === 200) {
         const data = await response.json();
-        expect(Array.isArray(data.matchedIocs)).toBe(true);
+        expect(data.matchedIocs).toBeUndefined();
+        expect(data.matchedArtifacts).toBeUndefined();
+        expect(Array.isArray(data.rows)).toBe(true);
+        expect(typeof data.isEffective).toBe("boolean");
+      }
+    });
+
+    it("credits nothing for a query that returns the whole dataset", async () => {
+      const response = await fetch(`http://localhost:3000/api/hunts/${testSessionId}/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: ".", language: "REGEX" }),
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        expect(data.isEffective).toBe(false);
       }
     });
 

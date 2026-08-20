@@ -35,3 +35,7 @@ export async function POST(req: Request) {
   }
   return NextResponse.json({ phase: "concluded", swept, ...concluded.data });
 }
+
+// Vercel Cron invokes schedules with GET; keep POST for manual triggers.
+// Its absence here is why this job — alone among the seven — never ran.
+export const GET = POST;

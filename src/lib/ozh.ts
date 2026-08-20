@@ -19,6 +19,7 @@
 
 import { db } from "@/lib/db";
 import { recordEvidence } from "@/lib/evidence";
+import { createBulkNotifications } from "@/lib/notifications";
 import { buildAnswerKey, buildPhasePayload, OZH_SLUG } from "@/content/ozh-scenario";
 import {
   PHASE_ORDER,
@@ -38,7 +39,10 @@ import {
   totalRun,
   rankRuns,
   decideAwards,
+  decideKnightBadges,
   ozhCertCode,
+  type OzhAwardKind,
+  type OzhKnightTier,
   type OzhPhase,
   type PhaseScore,
   type TriageAnswer,
@@ -488,7 +492,7 @@ export async function getResult(userId: string) {
     rank: mine?.rank ?? null,
     fieldSize: ranked.length,
     breakdown,
-    awards: run.awards.map((a) => ({ kind: a.kind, certCode: a.certCode })),
+    awards: run.awards.map((a) => ({ kind: a.kind, tier: a.tier, certCode: a.certCode })),
     // Named so the debrief can say "the C2 was X" without the reader having to
     // cross-reference their own evidence set.
     evidence: key.evidence,
@@ -628,7 +632,12 @@ export async function concludeCompetition(now: Date = new Date()) {
     },
     select: { id: true, userId: true, score: true, accuracy: true, elapsedSeconds: true, phaseScores: true },
   });
-  if (runs.length === 0) return { success: true as const, data: { ranked: 0, awarded: 0 } };
+  if (runs.length === 0) {
+    return {
+      success: true as const,
+      data: { ranked: 0, awarded: 0, knighted: 0, notified: 0, announced: false },
+    };
+  }
 
   const ranked = rankRuns(
     runs.map((r) => ({
@@ -659,8 +668,21 @@ export async function concludeCompetition(now: Date = new Date()) {
   );
 
   const runByUser = new Map(runs.map((r) => [r.userId, r]));
+
+  // The seven competitive awards, then a Knight badge for everyone who scored.
+  // Both go through the same unique (runId, kind) guard, so a re-run mints
+  // nothing new.
+  const knights = decideKnightBadges(runs.map((r) => ({ userId: r.userId, score: r.score ?? 0 })));
+  const knightTierByUser = new Map(knights.map((k) => [k.userId, k.tier]));
+
+  const toIssue: Array<{ userId: string; kind: OzhAwardKind; tier: OzhKnightTier | null }> = [
+    ...awards.map((a) => ({ userId: a.userId, kind: a.kind, tier: null })),
+    ...knights.map((k) => ({ userId: k.userId, kind: "KNIGHT" as const, tier: k.tier })),
+  ];
+
   let awarded = 0;
-  for (const award of awards) {
+  let knighted = 0;
+  for (const award of toIssue) {
     const run = runByUser.get(award.userId);
     if (!run) continue;
     const existing = await db.ozhAward.findUnique({
@@ -668,18 +690,113 @@ export async function concludeCompetition(now: Date = new Date()) {
       select: { id: true },
     });
     if (existing) continue;
-    await db.ozhAward.create({
-      data: {
-        runId: run.id,
-        userId: award.userId,
-        kind: award.kind,
-        certCode: ozhCertCode(rankByUser.get(award.userId) ?? 1),
-      },
-    });
-    awarded++;
+    const rank = rankByUser.get(award.userId) ?? 1;
+    let created = false;
+    for (let attempt = 0; attempt < 5 && !created; attempt++) {
+      try {
+        await db.ozhAward.create({
+          data: {
+            runId: run.id,
+            userId: award.userId,
+            kind: award.kind,
+            tier: award.tier,
+            certCode: ozhCertCode(rank),
+          },
+        });
+        created = true;
+      } catch (error) {
+        // P2002 is a unique-constraint violation: either the code collided, in
+        // which case another draw fixes it, or a concurrent invocation already
+        // issued this exact award, in which case there is nothing left to do.
+        const code = (error as { code?: string }).code;
+        if (code !== "P2002") throw error;
+        const now = await db.ozhAward.findUnique({
+          where: { runId_kind: { runId: run.id, kind: award.kind } },
+          select: { id: true },
+        });
+        if (now) break;
+      }
+    }
+    if (!created) continue;
+    if (award.kind === "KNIGHT") knighted++;
+    else awarded++;
   }
 
-  return { success: true as const, data: { ranked: ranked.length, awarded } };
+  const announced = await announceResults(runs, knightTierByUser);
+
+  return {
+    success: true as const,
+    data: { ranked: ranked.length, awarded, knighted, ...announced },
+  };
+}
+
+/**
+ * Tell the field the results are out.
+ *
+ * Two channels: an in-app notification per participant, and one site-wide
+ * announcement. Email is deliberately not wired up — sendZeroHourResultEmail in
+ * src/lib/email.ts is written and ready, but RESEND_API_KEY is unset, and a
+ * send path that silently no-ops is worse than no send path at all.
+ *
+ * Keyed off OzhRun.notifiedAt rather than off award creation. concludeCompetition
+ * is explicitly safe to run repeatedly, and awards are already deduped, so
+ * without a separate marker every re-run would notify the whole field again.
+ */
+async function announceResults(
+  runs: readonly { id: string; userId: string }[],
+  knightTierByUser: ReadonlyMap<string, OzhKnightTier>,
+) {
+  const pending = await db.ozhRun.findMany({
+    where: { id: { in: runs.map((r) => r.id) }, notifiedAt: null },
+    select: { id: true, userId: true },
+  });
+  if (pending.length === 0) return { notified: 0, announced: false };
+
+  const fieldSize = runs.length;
+
+  // Split by whether a badge was actually earned. A zero-scoring run getting a
+  // "badge earned" notification would be a small lie, and the bell styles by
+  // type — so the copy and the type both have to match what happened.
+  const withBadge = pending.filter((r) => knightTierByUser.has(r.userId)).map((r) => r.userId);
+  const withoutBadge = pending.filter((r) => !knightTierByUser.has(r.userId)).map((r) => r.userId);
+
+  await createBulkNotifications(
+    withBadge,
+    "badge_earned",
+    "Operation Zero Hour results are out",
+    "Your rank, your phase-by-phase breakdown and your Knight badge are on your result card.",
+    "/operations/zero-hour/result",
+  );
+  await createBulkNotifications(
+    withoutBadge,
+    "announcement",
+    "Operation Zero Hour results are out",
+    "The final board is up, and your debrief walks through the intrusion end to end.",
+    "/operations/zero-hour/result",
+  );
+
+  // One announcement for the whole platform, not one per conclude. Matching on
+  // href keeps a re-run from stacking duplicates on the dashboard.
+  const existingAnnouncement = await db.announcement.findFirst({
+    where: { href: "/operations/zero-hour/leaderboard" },
+    select: { id: true },
+  });
+  if (!existingAnnouncement) {
+    await db.announcement.create({
+      data: {
+        title: "Operation Zero Hour — final results",
+        body: `The board is final. ${fieldSize} ${fieldSize === 1 ? "analyst" : "analysts"} ran the operation. Every analyst who scored has earned a Zero Hour Knight badge, and the seven awards have been issued.`,
+        href: "/operations/zero-hour/leaderboard",
+      },
+    });
+  }
+
+  await db.ozhRun.updateMany({
+    where: { id: { in: pending.map((r) => r.id) } },
+    data: { notifiedAt: new Date() },
+  });
+
+  return { notified: pending.length, announced: !existingAnnouncement };
 }
 
 /** Public award lookup for the certificate page. */

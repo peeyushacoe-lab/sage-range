@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { getLeaderboard } from "@/lib/ozh";
-import { OZH_CLOSES_AT, MAX_SCORE, windowStateAt } from "@/lib/ozh-engine";
+import { OZH_CLOSES_AT, MAX_SCORE, windowStateAt, knightTier } from "@/lib/ozh-engine";
+import { KnightChip } from "@/components/ozh/knight-badge";
 import { formatIST, formatElapsed } from "@/lib/ozh-format";
 import { Navbar } from "@/components/navbar";
 import { Card, Badge, PageHeader, EmptyState, buttonVariants } from "@/components/ui";
@@ -69,6 +70,10 @@ export default async function ZeroHourLeaderboardPage() {
                         {mine && <span className="ml-1.5 align-middle text-[10px] font-normal text-emerald-400">you</span>}
                       </p>
                       {e.university && <p className="truncate text-[11px] text-zinc-600">{e.university}</p>}
+                      {(() => {
+                        const tier = knightTier(e.score);
+                        return tier ? <KnightChip tier={tier} className="mt-2" /> : null;
+                      })()}
                       <p className={`mt-2 font-mono text-2xl font-bold tabular-nums ${i === 0 ? "text-amber-400" : "text-zinc-200"}`}>
                         {e.score}<span className="text-sm text-zinc-600">/{MAX_SCORE}</span>
                       </p>
@@ -110,6 +115,10 @@ export default async function ZeroHourLeaderboardPage() {
                           {e.displayName}
                           {mine && <span className="ml-2 text-[10px] text-zinc-500">you</span>}
                         </span>
+                        {(() => {
+                          const tier = knightTier(e.score);
+                          return tier ? <KnightChip tier={tier} className="ml-2 align-middle" /> : null;
+                        })()}
                         {e.university && (
                           <span className="block text-[11px] text-zinc-600">{e.university}</span>
                         )}

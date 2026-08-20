@@ -3335,6 +3335,12 @@ model OzhRun {
   // Debrief material: what they got right and what they missed.
   debrief     Json?
 
+  // Set the first time this run's results were announced. Conclude is designed
+  // to be safe to re-run, so the notification step keys off this rather than
+  // off award creation — otherwise a second invocation would re-notify the
+  // whole field.
+  notifiedAt DateTime?
+
   user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   submissions OzhPhaseSubmission[]
   actions     OzhActionLog[]
@@ -3393,6 +3399,9 @@ model OzhAward {
   runId  String
   userId String
   kind   OzhAwardKind
+  // Grade band, set only for KNIGHT. The seven competitive awards are won
+  // outright and carry no tier, so this stays null for them.
+  tier   OzhKnightTier?
   // Public verification code, e.g. OZH-2026-1-K7QR4M.
   certCode String     @unique
   issuedAt DateTime   @default(now())
@@ -3423,6 +3432,10 @@ enum OzhPhase {
 }
 
 enum OzhAwardKind {
+  // Earned by everyone who finished the operation, graded by OzhKnightTier.
+  // Unlike the seven below it is not competitive — it is the permanent record
+  // that this analyst ran Zero Hour and how well.
+  KNIGHT
   CHAMPION
   TOP_THREAT_HUNTER
   BEST_INCIDENT_RESPONDER
@@ -3430,6 +3443,15 @@ enum OzhAwardKind {
   BEST_TECHNICAL_REPORT
   FASTEST_ANALYST
   MOST_ACCURATE_ANALYST
+}
+
+// Grade bands for the Knight badge, by share of the 1000-point maximum.
+// Prisma schemas take // and /// comments only — no block comments.
+enum OzhKnightTier {
+  GOLD
+  SILVER
+  BRONZE
+  IRON
 }
 
 // ── Evidence spine ──────────────────────────────────────────────────────────
