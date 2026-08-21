@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { listChampionships, getActiveChampionship } from "@/lib/championships";
+import { getRunState } from "@/lib/ozh";
 import { Navbar } from "@/components/navbar";
 import { PageHeader, Card, Badge, StatCard, EmptyState, buttonVariants } from "@/components/ui";
 import { Icon } from "@/components/ui/icon";
@@ -29,10 +30,35 @@ function daysLeft(endsAt: Date): number {
  * It runs on its own three-day window rather than the monthly cycle, so it
  * needs its own surface here — otherwise a limited-window event would be
  * invisible on the page interns actually check for competitions.
+ *
+ * Stays visible after the window closes rather than disappearing — the
+ * result, debrief, and awards are exactly what people come looking for once
+ * it's over, and this is the page they check for that.
  */
-function OzhFeature() {
+function OzhFeature({ hasResult }: { hasResult: boolean }) {
   const state = windowStateAt(new Date());
-  if (state === "CLOSED") return null;
+
+  if (state === "CLOSED") {
+    return (
+      <Card className="mb-8 border-white/8 bg-white/[0.02] p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <Badge tone="zinc" className="mb-3">Concluded</Badge>
+            <p className="text-2xl font-black tracking-tight">OPERATION ZERO HOUR</p>
+            <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-zinc-400">
+              The operation has concluded. Ranks, awards, and every analyst's debrief are final.
+            </p>
+          </div>
+          <Link
+            href={hasResult ? "/operations/zero-hour/result" : "/operations/zero-hour/leaderboard"}
+            className={buttonVariants({ variant: "primary" })}
+          >
+            {hasResult ? "View your result" : "View final leaderboard"}
+          </Link>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="mb-8 border-red-500/25 bg-gradient-to-br from-red-500/[0.07] to-transparent p-6">
@@ -63,9 +89,10 @@ export default async function ChampionshipHubPage() {
   const user = await getOrCreateAppUser();
   if (!user) redirect("/sign-in");
 
-  const [active, past, myAwards] = await Promise.all([
+  const [active, past, ozhRun, myAwards] = await Promise.all([
     getActiveChampionship(),
     listChampionships(12),
+    getRunState(user.id),
     db.championshipAward.findMany({
       where: { userId: user.id },
       include: { championship: { select: { title: true, slug: true } } },
@@ -92,7 +119,7 @@ export default async function ChampionshipHubPage() {
           subtitle="One challenge set, one month, one leaderboard. The podium and top finalists earn a verifiable certificate."
         />
 
-        <OzhFeature />
+        <OzhFeature hasResult={!!ozhRun && ozhRun.status !== "IN_PROGRESS"} />
 
 
         <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">

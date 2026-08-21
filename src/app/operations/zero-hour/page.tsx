@@ -35,8 +35,13 @@ export default async function ZeroHourBriefingPage() {
   const run = await getRunState(user.id, now);
   const preview = isPreviewer(user.email);
 
-  // A finished run has nothing left to brief — send them to their result.
-  if (run && run.status !== "IN_PROGRESS") redirect("/operations/zero-hour/result");
+  // A finished real run has nothing left to brief — send them to their
+  // result. A previewer's finished *preview* run is the exception: they land
+  // here instead, where the reset button below can discard it and let them
+  // walk the console again.
+  if (run && run.status !== "IN_PROGRESS" && !(preview && run.preview)) {
+    redirect("/operations/zero-hour/result");
+  }
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
