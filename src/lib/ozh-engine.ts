@@ -11,6 +11,8 @@
  * service layer derives it server-side from the run's seed.
  */
 
+import type { IconName } from "@/components/ui/icon";
+
 export type OzhPhase =
   | "TRIAGE"
   | "INVESTIGATION"
@@ -629,6 +631,16 @@ export const AWARD_LABEL: Record<OzhAwardKind, string> = {
   BEST_TECHNICAL_REPORT: "Best Technical Report",
   FASTEST_ANALYST: "Fastest Analyst",
   MOST_ACCURATE_ANALYST: "Most Accurate Analyst",
+};
+
+export const AWARD_ICON: Record<OzhAwardKind, IconName> = {
+  CHAMPION: "ozhChampion",
+  TOP_THREAT_HUNTER: "ozhThreatHunter",
+  BEST_INCIDENT_RESPONDER: "ozhIncidentResp",
+  BEST_INVESTIGATOR: "ozhInvestigator",
+  BEST_TECHNICAL_REPORT: "ozhTechReport",
+  FASTEST_ANALYST: "ozhFastest",
+  MOST_ACCURATE_ANALYST: "ozhAccurate",
 };
 
 export type AwardableRun = RankableRun & {

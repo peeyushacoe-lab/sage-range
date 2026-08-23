@@ -3,9 +3,10 @@ import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { getResult } from "@/lib/ozh";
 import { SKILLS_DEMONSTRATED } from "@/content/ozh-scenario";
-import { PHASE_LABEL, AWARD_LABEL, type OzhPhase, type OzhAwardKind } from "@/lib/ozh-engine";
+import { PHASE_LABEL, AWARD_LABEL, AWARD_ICON, type OzhPhase, type OzhAwardKind } from "@/lib/ozh-engine";
 import { formatElapsed } from "@/lib/ozh-format";
 import { Navbar } from "@/components/navbar";
+import { Icon } from "@/components/ui/icon";
 import { Card, Badge, StatCard, ProgressBar, buttonVariants } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
@@ -68,7 +69,8 @@ export default async function ZeroHourResultPage() {
             <div className="space-y-2">
               {awards.map((a) => (
                 <div key={a.certCode} className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-amber-200">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-amber-200">
+                    <Icon name={AWARD_ICON[a.kind as OzhAwardKind]} size={22} />
                     {AWARD_LABEL[a.kind as OzhAwardKind]}
                   </span>
                   <span className="font-mono text-[11px] text-zinc-500">{a.certCode}</span>

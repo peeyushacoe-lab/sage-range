@@ -2,10 +2,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { getLeaderboard } from "@/lib/ozh";
-import { OZH_CLOSES_AT, MAX_SCORE, windowStateAt } from "@/lib/ozh-engine";
+import { OZH_CLOSES_AT, MAX_SCORE, windowStateAt, AWARD_LABEL, AWARD_ICON, type OzhAwardKind } from "@/lib/ozh-engine";
 import { formatIST, formatElapsed } from "@/lib/ozh-format";
 import { Navbar } from "@/components/navbar";
 import { Card, Badge, PageHeader, EmptyState, buttonVariants } from "@/components/ui";
+import { Icon } from "@/components/ui/icon";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zero Hour Leaderboard · Sage Vault" };
@@ -52,6 +53,7 @@ export default async function ZeroHourLeaderboardPage() {
                 <tr className="border-b border-white/10 text-[10px] uppercase tracking-widest text-zinc-500">
                   <th className="px-4 py-3 font-medium">#</th>
                   <th className="px-4 py-3 font-medium">Analyst</th>
+                  <th className="px-4 py-3 font-medium">Awards</th>
                   <th className="px-4 py-3 text-right font-medium">Score</th>
                   <th className="px-4 py-3 text-right font-medium">Accuracy</th>
                   <th className="px-4 py-3 text-right font-medium">Time</th>
@@ -77,6 +79,19 @@ export default async function ZeroHourLeaderboardPage() {
                         </span>
                         {e.university && (
                           <span className="block text-[11px] text-zinc-600">{e.university}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {e.awards.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {e.awards.map((kind) => (
+                              <span key={kind} title={AWARD_LABEL[kind as OzhAwardKind]}>
+                                <Icon name={AWARD_ICON[kind as OzhAwardKind]} size={20} />
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-zinc-700">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right font-mono tabular-nums text-zinc-200">

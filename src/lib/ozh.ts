@@ -581,7 +581,10 @@ export async function getLeaderboard(limit = 100, now: Date = new Date()) {
       // Dry runs by organisers never appear on the board they are checking.
       preview: false,
     },
-    include: { user: { select: { id: true, displayName: true, email: true, university: true } } },
+    include: {
+      user: { select: { id: true, displayName: true, email: true, university: true } },
+      awards: { select: { kind: true } },
+    },
   });
 
   const ranked = rankRuns(
@@ -602,6 +605,7 @@ export async function getLeaderboard(limit = 100, now: Date = new Date()) {
       // visitor might reach.
       displayName: run.user.displayName || run.user.email.split("@")[0],
       university: run.user.university,
+      awards: run.awards.map((a) => a.kind),
     };
   });
 }

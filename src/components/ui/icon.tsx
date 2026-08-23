@@ -79,6 +79,16 @@ const PRODUCT_ICONS = {
   forensics:     { base: FingerprintPattern, accent: Search,         tone: "purple"  },
   reports:       { base: FileText,           accent: ChartColumnBig, tone: "slate"   },
   settings:      { base: Settings,           accent: Hexagon,        tone: "slate"   },
+
+  // Operation Zero Hour awards — one distinct composition per award kind so
+  // they read at a glance on the leaderboard, result page, and profile.
+  ozhChampion:      { base: Trophy,     accent: Crown,       tone: "gold"    },
+  ozhThreatHunter:  { base: Crosshair,  accent: Search,      tone: "orange"  },
+  ozhIncidentResp:  { base: Shield,     accent: Siren,       tone: "blue"    },
+  ozhInvestigator:  { base: Microscope, accent: Search,      tone: "purple"  },
+  ozhTechReport:    { base: FileText,   accent: PenLine,     tone: "cyan"    },
+  ozhFastest:       { base: Zap,        accent: Clock,       tone: "gold"    },
+  ozhAccurate:      { base: Target,     accent: CircleCheck, tone: "emerald" },
 } satisfies Record<string, IconDef>;
 
 /**

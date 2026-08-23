@@ -9,6 +9,7 @@ import { computeBadges, TIER_STYLE } from "@/lib/badges";
 import { CyberAvatar } from "@/components/cyber-avatar";
 import { getRankInfo, computeRoleBadge, computeSkillEmblems } from "@/lib/cyber-identity";
 import { EmptyState } from "@/components/ui";
+import { AWARD_LABEL, AWARD_ICON, type OzhAwardKind } from "@/lib/ozh-engine";
 
 import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
@@ -27,6 +28,28 @@ const RATING_STYLE = {
   DEVELOPING:  { card: "border-zinc-700 bg-zinc-900",             text: "text-zinc-400",    bar: "bg-zinc-600" },
 } as const;
 
+/** Operation Zero Hour badges — permanent once earned, shown wherever the rest of the badge set is. */
+function OzhAwardsSection({ awards }: { awards: { kind: string; certCode: string }[] }) {
+  if (awards.length === 0) return null;
+  return (
+    <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.03] p-4">
+      <p className="text-xs uppercase tracking-widest text-amber-400/80 mb-3">Operation Zero Hour Awards</p>
+      <div className="flex flex-wrap gap-2">
+        {awards.map((a) => (
+          <div
+            key={a.certCode}
+            title={`${AWARD_LABEL[a.kind as OzhAwardKind]} · ${a.certCode}`}
+            className="flex items-center gap-1.5 text-xs border border-amber-500/25 bg-amber-500/8 text-amber-200 rounded-full pl-1.5 pr-2.5 py-1"
+          >
+            <Icon name={AWARD_ICON[a.kind as OzhAwardKind]} size={18} />
+            <span className="font-semibold">{AWARD_LABEL[a.kind as OzhAwardKind]}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function ProfilePage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
   const me = await getOrCreateAppUser();
@@ -34,7 +57,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
 
   // Any logged-in user can view any profile
 
-  const [target, simSessions] = await Promise.all([
+  const [target, simSessions, ozhAwards] = await Promise.all([
     db.user.findUnique({
       where: { id: userId },
       include: {
@@ -49,6 +72,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
       orderBy: { score: "desc" },
       take: 10,
     }),
+    db.ozhAward.findMany({ where: { userId }, orderBy: { issuedAt: "asc" } }),
   ]);
   if (!target) notFound();
 
@@ -56,7 +80,26 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
   const solved = target.attempts.filter((a) => a.status === "SOLVED");
   const bestSimScore = simSessions.length > 0 ? simSessions[0].score : null;
   const rank = getRankInfo(target.skillScore);
-  const badges = computeBadges({ attempts: target.attempts, simSessions, skillScore: target.skillScore, hasCert: !!target.certification });
+
+  // Founder showcase account: sees every badge design on their own profile
+  // (nothing is actually earned — no stats are touched), but everyone else
+  // still sees this account's real, mostly-empty badge state.
+  const isFounderShowcase = target.email === "peeyush@cybersage.uk";
+  const badges = isFounderShowcase && isOwnProfile
+    ? computeBadges({
+        attempts: [
+          ...Array(8).fill({ status: "SOLVED", lab: { type: "CTF" } }),
+          ...Array(8).fill({ status: "SOLVED", lab: { type: "BLUE_TEAM" } }),
+          ...Array(8).fill({ status: "SOLVED", lab: { type: "RED_TEAM" } }),
+        ],
+        simSessions: Array(5).fill({ score: 100 }),
+        skillScore: 999_999,
+        hasCert: true,
+      })
+    : computeBadges({ attempts: target.attempts, simSessions, skillScore: target.skillScore, hasCert: !!target.certification });
+  // The 7 real Zero Hour awards on this account were a manual grant, not
+  // earned play — visible to the founder viewing their own profile only.
+  const visibleOzhAwards = isFounderShowcase && !isOwnProfile ? [] : ozhAwards;
   const roleBadge = computeRoleBadge(solved.map((a) => a.lab.type));
   const skillEmblems = computeSkillEmblems(
     solved.map((a) => ({
@@ -260,6 +303,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
                 </div>
               )}
 
+              <OzhAwardsSection awards={visibleOzhAwards} />
+
               {/* Simulation runs */}
               {simSessions.length > 0 && (
                 <div className="rounded-xl border border-white/8 bg-zinc-900/40 p-4">
@@ -396,6 +441,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
               </div>
             </div>
           )}
+
+          <OzhAwardsSection awards={visibleOzhAwards} />
 
           {/* Labs + Sims */}
           {(solved.length > 0 || simSessions.length > 0) && (
@@ -614,6 +661,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
             </div>
           </div>
         )}
+
+        <OzhAwardsSection awards={visibleOzhAwards} />
 
         {/* Activity: labs + sims */}
         {target.role === "STUDENT" && (solved.length > 0 || simSessions.length > 0) && (
