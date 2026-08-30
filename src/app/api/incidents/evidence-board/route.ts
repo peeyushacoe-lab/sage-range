@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { coinsForPoints } from "@/lib/soc-league";
 import { recordEvidence } from "@/lib/evidence";
+import { getCurrentWeeklyCase, updateWeeklyLeaderboardEntry } from "@/lib/weekly-incidents";
 
 const TACTICS = [
   "INITIAL_ACCESS",
@@ -30,10 +31,10 @@ export async function POST(req: Request) {
 
   const { simulationId, categorization, timelineOrder } = parsed.data;
 
-  const artifacts = await db.incidentSimArtifact.findMany({
-    where: { simulationId },
-    orderBy: { order: "asc" },
-  });
+  const [artifacts, sim] = await Promise.all([
+    db.incidentSimArtifact.findMany({ where: { simulationId }, orderBy: { order: "asc" } }),
+    db.incidentSimulation.findUnique({ where: { id: simulationId }, select: { slug: true } }),
+  ]);
   if (artifacts.length === 0) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const taggedArtifacts = artifacts.filter((a) => a.tactic !== null);
@@ -89,6 +90,22 @@ export async function POST(req: Request) {
     });
   } catch {
     // additive telemetry
+  }
+
+  // If this incident is this week's featured case, feed its evidence-board
+  // score into WeeklyIncidentLeaderboard — nothing did before, so the
+  // leaderboard/certificate cron (which does run correctly every Monday)
+  // never had anything to rank. Not a completion by itself: the report is
+  // what marks completedAt.
+  if (sim) {
+    try {
+      const weeklyCase = await getCurrentWeeklyCase();
+      if (weeklyCase && weeklyCase.incidentSlug === sim.slug) {
+        await updateWeeklyLeaderboardEntry(user.id, weeklyCase.id, { evidenceBoardScore: score });
+      }
+    } catch {
+      // additive — never blocks the evidence-board score itself
+    }
   }
 
   return NextResponse.json({ score, accuracyPct, categorizationCorrect, taggedTotal: taggedArtifacts.length, timelineCorrect, perItem });

@@ -18,6 +18,7 @@ import {
   championshipCertCode,
   type ChampionshipTier,
 } from "@/lib/championship-scoring";
+import { recordEvidence } from "@/lib/evidence";
 
 export type ChampionshipResult<T> =
   | { success: true; data: T }
@@ -237,10 +238,11 @@ export async function concludeChampionship(
 
   const entries = await db.championshipEntry.findMany({
     where: { championshipId, user: { hidden: false } },
-    select: { userId: true, score: true, lastSolvedAt: true },
+    select: { id: true, userId: true, score: true, lastSolvedAt: true },
   });
 
   const ranked = rankEntries(entries);
+  const entryIdByUser = new Map(entries.map((e) => [e.userId, e.id]));
 
   for (const row of ranked) {
     await db.championshipEntry.updateMany({
@@ -277,6 +279,30 @@ export async function concludeChampionship(
     where: { id: championshipId },
     data: { status: "CONCLUDED", concludedAt: new Date() },
   });
+
+  // Evidence spine. skillPoints is 0 — the underlying lab/detection/incident
+  // solves that built this score each already recorded their own LAB/
+  // DETECTION/INCIDENT evidence with real points; a second COMPETITION entry
+  // here would double-count. This exists so a championship placing shows up
+  // in the profile's activity mix and accuracy, same reasoning as ASSESSMENT.
+  for (const row of ranked) {
+    if (row.score <= 0) continue;
+    const entryId = entryIdByUser.get(row.userId);
+    if (!entryId) continue;
+    try {
+      await recordEvidence({
+        userId: row.userId,
+        activity: "COMPETITION",
+        sourceId: entryId,
+        result: "SOLVED",
+        skillPoints: 0,
+        title: championship.title,
+        score: row.score,
+      });
+    } catch {
+      // additive telemetry
+    }
+  }
 
   return { success: true, data: { ranked: ranked.length, awarded, alreadyConcluded: false } };
 }

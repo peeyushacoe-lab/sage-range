@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
 import { coinsForPoints } from "@/lib/soc-league";
 import { recordEvidence } from "@/lib/evidence";
+import { getCurrentWeeklyCase, updateWeeklyLeaderboardEntry } from "@/lib/weekly-incidents";
 
 const REPORT_COMPLETION_BONUS = 250;
 
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
 
   const sim = await db.incidentSimulation.findUnique({
     where: { id: simulationId },
-    select: { published: true },
+    select: { published: true, slug: true },
   });
   if (!sim || !sim.published) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
@@ -93,6 +94,31 @@ export async function POST(req: Request) {
     } catch {
       // additive telemetry
     }
+
+    // The report is what marks a weekly case complete — nothing ever wrote
+    // completedAt/score onto WeeklyIncidentLeaderboard before, so ranks and
+    // certificates had nothing to act on despite the Monday rollover cron
+    // correctly computing both every week.
+    try {
+      const weeklyCase = await getCurrentWeeklyCase();
+      if (weeklyCase && weeklyCase.incidentSlug === sim.slug) {
+        const existing = await db.weeklyIncidentLeaderboard.findUnique({
+          where: { caseId_userId: { caseId: weeklyCase.id, userId: user.id } },
+        });
+        const evidenceBoardScore = existing?.evidenceBoardScore ?? 0;
+        const timeTakenMin = Math.max(0, Math.round((Date.now() - weeklyCase.releaseTime.getTime()) / 60000));
+        await updateWeeklyLeaderboardEntry(user.id, weeklyCase.id, {
+          reportScore: awardPoints,
+          evidenceBoardScore,
+          score: evidenceBoardScore + awardPoints,
+          completedAt: new Date(),
+          timeTakenMin,
+        });
+      }
+    } catch {
+      // additive — never blocks the report submission itself
+    }
+
     audit({ actorId: user.id, action: "INCIDENT_REPORT_SUBMIT", target: simulationId, req, meta: { points: awardPoints } });
   }
 
