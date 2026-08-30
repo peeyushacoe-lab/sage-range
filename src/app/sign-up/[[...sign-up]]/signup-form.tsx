@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import type { PlanRow } from "@/lib/plan-pricing";
-import { PaymentStep } from "./payment-step";
+import { PaymentStep } from "@/components/payment-step";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -86,6 +86,7 @@ function StepBar({ step, maxStep }: { step: number; maxStep: number }) {
 export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: string }) {
   const planMap = Object.fromEntries(plans.map((p) => [p.role, p]));
 
+  const { update } = useSession();
   const [step, setStep] = useState(1);
 
   // Step 1 fields
@@ -213,7 +214,11 @@ export function SignupForm({ plans, nexusUrl }: { plans: PlanRow[]; nexusUrl?: s
 
   // ── Step 3 callback ──────────────────────────────────────────────────────
 
-  function handlePaymentSuccess() {
+  async function handlePaymentSuccess() {
+    // The JWT was minted right after step 2, before payment — hasAccess in it
+    // is still false. Refresh it now so the redirect below doesn't immediately
+    // bounce a paying user back to /complete-payment.
+    await update();
     window.location.href = "/api/user/fix-session";
   }
 

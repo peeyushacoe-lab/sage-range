@@ -26,6 +26,7 @@ function isApi(p: string) { return p.startsWith("/api"); }
 function isPublicApi(p: string) { return PUBLIC_API_PREFIXES.some((prefix) => p.startsWith(prefix)); }
 function isOnboarding(p: string) { return p.startsWith("/onboarding"); }
 function isCompleteProfile(p: string) { return p.startsWith("/complete-profile"); }
+function isCompletePayment(p: string) { return p.startsWith("/complete-payment"); }
 function isAuthPage(p: string) { return AUTH_PAGES.some((prefix) => p.startsWith(prefix)); }
 
 function isStudentBlocked(p: string) {
@@ -50,7 +51,7 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  if (isOnboarding(pathname) || isCompleteProfile(pathname)) return NextResponse.next();
+  if (isOnboarding(pathname) || isCompleteProfile(pathname) || isCompletePayment(pathname)) return NextResponse.next();
 
   // Redirect logged-in users away from sign-in/sign-up
   if (isAuthPage(pathname) && session) {
@@ -68,6 +69,15 @@ export default auth((req) => {
 
     if (!onboarded) {
       return NextResponse.redirect(new URL("/api/user/fix-session", req.url));
+    }
+
+    // Signup used to create a fully working account before payment was ever
+    // checked, so nothing stopped someone from abandoning the wizard after
+    // step 2 and keeping full access forever. hasAccess (grandfathered /
+    // ADMIN / SSO / org-licensed / actually paid) is computed at sign-in —
+    // see src/lib/access-gate.ts.
+    if (isProtected(pathname) && session.user?.hasAccess === false) {
+      return NextResponse.redirect(new URL("/complete-payment", req.url));
     }
 
     // Use role from the signed JWT token — not the client-controllable cookie

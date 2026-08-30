@@ -6,10 +6,11 @@ import { authConfig } from "./auth.config";
 import { autoJoinOrganizationByDomain } from "@/lib/organization";
 import { verifyNexusToken, provisionNexusUser } from "@/lib/nexus-sso";
 import { audit } from "@/lib/audit";
+import { hasProductAccess } from "@/lib/access-gate";
 
 declare module "next-auth" {
   interface Session {
-    user: { id: string; role: string } & DefaultSession["user"];
+    user: { id: string; role: string; hasAccess: boolean } & DefaultSession["user"];
   }
 }
 
@@ -87,17 +88,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (dbUser) {
           token.id = dbUser.id;
           token.role = dbUser.role as string;
+          token.hasAccess = await hasProductAccess(dbUser);
         }
       }
       if (trigger === "update" && typeof token.id === "string") {
         const dbUser = await db.user.findUnique({ where: { id: token.id } });
-        if (dbUser) token.role = dbUser.role as string;
+        if (dbUser) {
+          token.role = dbUser.role as string;
+          // Lets a payment that just succeeded take effect immediately instead
+          // of waiting for the JWT to naturally rotate on the next sign-in.
+          token.hasAccess = await hasProductAccess(dbUser);
+        }
       }
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id as string;
       session.user.role = (token.role as string) ?? "STUDENT";
+      // A session cookie signed before this field existed has no hasAccess
+      // claim at all — default that case to true (not false). The
+      // authoritative check runs fresh on every new sign-in; a token that
+      // predates it should never be treated as "denied" it was never asked.
+      session.user.hasAccess = typeof token.hasAccess === "boolean" ? token.hasAccess : true;
       return session;
     },
   },
