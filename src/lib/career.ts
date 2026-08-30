@@ -13,6 +13,7 @@ import {
   scoreInterview,
   type AssessmentQuestion,
 } from "@/lib/assessment-grading";
+import { recordEvidence } from "@/lib/evidence";
 
 export type CareerResult<T> =
   | { success: true; data: T }
@@ -186,6 +187,31 @@ export async function submitAssessment(params: {
       proctorFlags: (params.proctorFlags ?? {}) as object,
     },
   });
+
+  // Evidence spine. skillPoints is 0 here, deliberately mirroring the reward
+  // this activity actually gives today — passing mints a VerifiedCredential,
+  // not skillScore/xp/coins (nothing in this file ever touches User). The
+  // credential is a stronger signal than points would be anyway; this call
+  // still surfaces the attempt in the profile's accuracy and activity mix.
+  // No MITRE tags either: assessment domains (DETECTION, CLOUD, FORENSICS,
+  // ...) are a different taxonomy from ATT&CK tactic names, and tagging a
+  // tactic never actually verified per-question would be dishonest.
+  try {
+    await recordEvidence({
+      userId: params.userId,
+      activity: "ASSESSMENT",
+      sourceId: attempt.id,
+      result: expired ? "FAILED" : graded.passed ? "SOLVED" : "PARTIAL",
+      skillPoints: 0,
+      slug: assessment.slug,
+      title: assessment.title,
+      difficulty: assessment.difficulty,
+      score: graded.score,
+      maxScore: 100,
+    });
+  } catch {
+    // additive telemetry
+  }
 
   if (!graded.passed) {
     return { success: true, data: { score: graded.score, passed: false } };
