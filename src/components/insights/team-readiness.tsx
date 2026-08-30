@@ -1,9 +1,10 @@
-import type { OrgReadiness } from "@/lib/org-readiness";
+import type { TeamReadiness } from "@/lib/team-readiness";
 
 /**
- * Team-level readiness card for an org lead — the same evidence-derived
- * arithmetic as an individual's Skill Profile (src/components/insights/
- * skill-profile.tsx), averaged across the roster instead of one learner.
+ * Team-level readiness card — the same evidence-derived arithmetic as an
+ * individual's Skill Profile (src/components/insights/skill-profile.tsx),
+ * averaged across a roster instead of one learner. Used by both the
+ * organization dashboard (members) and the classroom dashboard (students).
  */
 
 function barColour(score: number): string {
@@ -19,10 +20,19 @@ function scoreColour(score: number): string {
   return "text-red-400";
 }
 
-export function OrgReadinessSection({ readiness }: { readiness: OrgReadiness }) {
+export function TeamReadinessSection({
+  readiness,
+  memberNoun = "member",
+}: {
+  readiness: TeamReadiness;
+  /** "member" for an org, "student" for a classroom — pluralised automatically. */
+  memberNoun?: string;
+}) {
   const { readinessScore, matrix, weakestTactics, memberCount, activeMemberCount } = readiness;
 
   if (memberCount === 0) return null;
+
+  const plural = (n: number) => `${memberNoun}${n !== 1 ? "s" : ""}`;
 
   return (
     <section className="rounded-xl border border-white/8 bg-zinc-900/50 p-5 space-y-5">
@@ -31,8 +41,8 @@ export function OrgReadinessSection({ readiness }: { readiness: OrgReadiness }) 
           <p className="text-xs uppercase tracking-widest text-emerald-500 mb-1">Team Readiness</p>
           <h2 className="text-lg font-bold">Cyber Skills Readiness</h2>
           <p className="text-sm text-zinc-500 mt-1">
-            Derived from the same evidence spine each member&apos;s own Skill Profile draws from —
-            averaged across {memberCount} member{memberCount !== 1 ? "s" : ""}
+            Derived from the same evidence spine each {memberNoun}&apos;s own Skill Profile draws from —
+            averaged across {memberCount} {plural(memberCount)}
             {activeMemberCount < memberCount ? `, ${memberCount - activeMemberCount} with no graded activity yet` : ""}.
           </p>
         </div>

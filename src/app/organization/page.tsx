@@ -4,8 +4,8 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { getRankInfo, RANK_BADGE_CLASS } from "@/lib/cyber-identity";
 import { RankLegend } from "@/components/insights/rank-legend";
-import { getOrganizationReadiness } from "@/lib/org-readiness";
-import { OrgReadinessSection } from "@/components/insights/org-readiness";
+import { getTeamReadiness } from "@/lib/team-readiness";
+import { TeamReadinessSection } from "@/components/insights/team-readiness";
 import { JoinOrganizationClient } from "./_components/join-organization-client";
 import { Navbar } from "@/components/navbar";
 
@@ -144,7 +144,7 @@ export default async function OrganizationPage() {
       where: { userId: { in: memberIds }, status: "SOLVED" },
       include: { lab: { select: { type: true } } },
     }),
-    getOrganizationReadiness(memberIds),
+    getTeamReadiness(memberIds),
   ]);
 
   // ── Per-member aggregates ────────────────────────────────────────────────────
@@ -257,7 +257,7 @@ export default async function OrganizationPage() {
           ))}
         </div>
 
-        <OrgReadinessSection readiness={orgReadiness} />
+        <TeamReadinessSection readiness={orgReadiness} />
 
         <RankLegend />
 

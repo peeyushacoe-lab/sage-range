@@ -1,18 +1,18 @@
 import { db } from "@/lib/db";
 import { TACTICS, skillMatrix, type Tactic, type EvidenceRecord } from "@/lib/skill-engine";
 
-export type OrgTacticReadiness = {
+export type TeamTacticReadiness = {
   tactic: Tactic;
   avgScore: number;
   /** Members with at least one piece of evidence under this tactic. */
   membersCovering: number;
 };
 
-export type OrgReadiness = {
+export type TeamReadiness = {
   /** 0–100: the average of every tactic's average score across the team. */
   readinessScore: number;
-  matrix: OrgTacticReadiness[];
-  weakestTactics: OrgTacticReadiness[];
+  matrix: TeamTacticReadiness[];
+  weakestTactics: TeamTacticReadiness[];
   memberCount: number;
   /** Members with any graded evidence at all — the rest pull the average down honestly. */
   activeMemberCount: number;
@@ -20,15 +20,17 @@ export type OrgReadiness = {
 
 /**
  * Team-level readiness, aggregated from the same Evidence spine each
- * member's own /skills profile derives from — an org lead sees the same
- * arithmetic each learner sees, just averaged across the roster instead of
- * computed for one person.
+ * member's own /skills profile derives from — an org lead or instructor
+ * sees the same arithmetic each learner sees, just averaged across a
+ * roster instead of computed for one person. Roster-agnostic: an
+ * organization's member list and a classroom's student list are both
+ * just a list of userIds to this function.
  *
  * A member with zero evidence contributes a 0 to every tactic rather than
  * being excluded — an untrained analyst is a real gap in team readiness,
  * not a missing data point to quietly drop.
  */
-export async function getOrganizationReadiness(userIds: string[]): Promise<OrgReadiness> {
+export async function getTeamReadiness(userIds: string[]): Promise<TeamReadiness> {
   if (userIds.length === 0) {
     return { readinessScore: 0, matrix: [], weakestTactics: [], memberCount: 0, activeMemberCount: 0 };
   }
@@ -49,7 +51,7 @@ export async function getOrganizationReadiness(userIds: string[]): Promise<OrgRe
   const activeMemberCount = userIds.filter((uid) => (byUser.get(uid)?.length ?? 0) > 0).length;
   const perMemberMatrices = userIds.map((uid) => skillMatrix(byUser.get(uid) ?? []));
 
-  const matrix: OrgTacticReadiness[] = TACTICS.map((tactic) => {
+  const matrix: TeamTacticReadiness[] = TACTICS.map((tactic) => {
     const scores = perMemberMatrices.map((m) => m.find((t) => t.tactic === tactic)?.score ?? 0);
     const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
     const membersCovering = perMemberMatrices.filter(

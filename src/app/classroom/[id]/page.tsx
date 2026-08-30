@@ -10,6 +10,8 @@ import { AssignScenarioClient } from "./_components/assign-scenario-client";
 import { CopyCodeBtn } from "./_components/copy-code-btn";
 import { Navbar } from "@/components/navbar";
 import { listScenarios } from "@/lib/simulation/runtime/scenarios/manifest";
+import { getTeamReadiness } from "@/lib/team-readiness";
+import { TeamReadinessSection } from "@/components/insights/team-readiness";
 
 import { Icon } from "@/components/ui/icon";
 export const dynamic = "force-dynamic";
@@ -77,7 +79,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
 
     const studentIds = enrollments.map((e) => e.userId);
 
-    const [labResponses, simSessions, activeSims] = await Promise.all([
+    const [labResponses, simSessions, activeSims, readiness] = await Promise.all([
       studentIds.length > 0
         ? db.labResponse.findMany({ where: { userId: { in: studentIds }, labId: { in: assignedIds } }, select: { userId: true, labId: true, stage: true } })
         : Promise.resolve([]),
@@ -87,6 +89,7 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
       studentIds.length > 0
         ? db.simulationSession.findMany({ where: { userId: { in: studentIds }, status: "ACTIVE" }, select: { userId: true, id: true }, orderBy: { startedAt: "desc" } })
         : Promise.resolve([]),
+      getTeamReadiness(studentIds),
     ]);
 
     const progress = new Map<string, Map<string, Set<string>>>();
@@ -155,6 +158,8 @@ export default async function ClassroomDetail({ params }: { params: Promise<{ id
               </div>
             ))}
           </div>
+
+          <TeamReadinessSection readiness={readiness} memberNoun="student" />
 
           {/* Announcements */}
           <section>
