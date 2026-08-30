@@ -4,6 +4,8 @@ import { getOrCreateAppUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { getRankInfo, RANK_BADGE_CLASS } from "@/lib/cyber-identity";
 import { RankLegend } from "@/components/insights/rank-legend";
+import { getOrganizationReadiness } from "@/lib/org-readiness";
+import { OrgReadinessSection } from "@/components/insights/org-readiness";
 import { JoinOrganizationClient } from "./_components/join-organization-client";
 import { Navbar } from "@/components/navbar";
 
@@ -111,7 +113,7 @@ export default async function OrganizationPage() {
 
   const memberIds = members.map((m) => m.user.id);
 
-  const [allAttempts, allSims, recentLabActivity, recentSimActivity, allSolvedFull] = await Promise.all([
+  const [allAttempts, allSims, recentLabActivity, recentSimActivity, allSolvedFull, orgReadiness] = await Promise.all([
     db.attempt.findMany({
       where: { userId: { in: memberIds } },
       select: { userId: true, status: true, startedAt: true, solvedAt: true, score: true },
@@ -142,6 +144,7 @@ export default async function OrganizationPage() {
       where: { userId: { in: memberIds }, status: "SOLVED" },
       include: { lab: { select: { type: true } } },
     }),
+    getOrganizationReadiness(memberIds),
   ]);
 
   // ── Per-member aggregates ────────────────────────────────────────────────────
@@ -253,6 +256,8 @@ export default async function OrganizationPage() {
             </div>
           ))}
         </div>
+
+        <OrgReadinessSection readiness={orgReadiness} />
 
         <RankLegend />
 

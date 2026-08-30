@@ -9,9 +9,11 @@ import { computeSkillRadar } from "@/lib/insights/skills";
 import { computeMitreCoverage } from "@/lib/insights/mitre";
 import { computeAchievements } from "@/lib/insights/achievements";
 import { getUserAcademyProgress } from "@/lib/insights/academy";
+import { getSkillProfile } from "@/lib/evidence";
 import { SkillRadarChart, SkillBreakdownCards } from "@/components/insights/skill-radar-chart";
 import { MitreTacticGrid, MitreCoverageHeader } from "@/components/insights/mitre-tactic-grid";
 import { AchievementsGrid } from "@/components/insights/achievements-grid";
+import { SkillProfileSection } from "@/components/insights/skill-profile";
 import { Navbar } from "@/components/navbar";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +48,7 @@ export default async function OrgMemberPage({ params }: { params: Promise<{ user
   });
   if (!target) notFound();
 
-  const [attempts, simSessions, skillRadar, coverage, achievementsResult, academyProgress] = await Promise.all([
+  const [attempts, simSessions, skillRadar, coverage, achievementsResult, academyProgress, skillProfile] = await Promise.all([
     db.attempt.findMany({ where: { userId }, select: { status: true, startedAt: true } }),
     db.simulationSession.findMany({
       where: { userId, status: { in: ["CONTAINED", "BREACHED"] } },
@@ -56,6 +58,7 @@ export default async function OrgMemberPage({ params }: { params: Promise<{ user
     computeMitreCoverage(userId),
     computeAchievements(userId),
     getUserAcademyProgress(userId),
+    getSkillProfile(userId),
   ]);
 
   const solved = attempts.filter((a) => a.status === "SOLVED");
@@ -107,9 +110,13 @@ export default async function OrgMemberPage({ params }: { params: Promise<{ user
           ))}
         </div>
 
+        {/* Evidence-derived profile — the same primary view the member sees on their own /skills */}
+        <SkillProfileSection profile={skillProfile} />
+
         {/* Skill radar */}
-        <section>
-          <h2 className="text-lg font-bold mb-4">Skill Radar</h2>
+        <section className="border-t border-white/8 pt-8">
+          <p className="text-xs uppercase tracking-widest text-zinc-500 mb-1">Activity Radar</p>
+          <h2 className="text-lg font-bold mb-4">Capability across 6 dimensions</h2>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
             <div className="md:col-span-3 rounded-xl border border-white/8 bg-zinc-900/50 p-4 flex justify-center">
               <SkillRadarChart skills={skillRadar.skills} />
