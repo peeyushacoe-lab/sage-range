@@ -202,43 +202,47 @@ describe("Weekly Incidents API Integration", () => {
     it("should return ranked participants", async () => {
       // Add multiple participants
       const users = [];
-      for (let i = 0; i < 3; i++) {
-        const user = await db.user.create({
-          data: {
-            email: `leaderboard-${i}-${Date.now()}@test.com`,
-            role: "STUDENT",
-            displayName: `Leaderboard User ${i}`,
-          },
+      try {
+        for (let i = 0; i < 3; i++) {
+          const user = await db.user.create({
+            data: {
+              email: `leaderboard-${i}-${Date.now()}@test.com`,
+              role: "STUDENT",
+              displayName: `Leaderboard User ${i}`,
+            },
+          });
+          users.push(user);
+
+          // Create entry with score
+          await db.weeklyIncidentLeaderboard.create({
+            data: {
+              userId: user.id,
+              caseId: testCase.id,
+              score: 1000 - i * 50,
+              timeTakenMin: 30 + i * 10,
+              completedAt: new Date(testCase.releaseTime.getTime() + (30 + i * 10) * 60 * 1000),
+              rank: i + 1,
+            },
+          });
+        }
+
+        // Fetch leaderboard
+        const entries = await db.weeklyIncidentLeaderboard.findMany({
+          where: { caseId: testCase.id, completedAt: { not: null } },
+          include: { user: { select: { id: true, displayName: true, email: true } } },
+          orderBy: [{ rank: { sort: "asc", nulls: "last" } }, { score: "desc" }],
         });
-        users.push(user);
 
-        // Create entry with score
-        await db.weeklyIncidentLeaderboard.create({
-          data: {
-            userId: user.id,
-            caseId: testCase.id,
-            score: 1000 - i * 50,
-            timeTakenMin: 30 + i * 10,
-            completedAt: new Date(testCase.releaseTime.getTime() + (30 + i * 10) * 60 * 1000),
-            rank: i + 1,
-          },
-        });
-      }
-
-      // Fetch leaderboard
-      const entries = await db.weeklyIncidentLeaderboard.findMany({
-        where: { caseId: testCase.id, completedAt: { not: null } },
-        include: { user: { select: { id: true, displayName: true, email: true } } },
-        orderBy: [{ rank: { sort: "asc", nulls: "last" } }, { score: "desc" }],
-      });
-
-      expect(entries.length).toBeGreaterThan(0);
-      expect(entries[0].score).toBeGreaterThanOrEqual(entries[entries.length - 1].score);
-
-      // Cleanup
-      for (const user of users) {
-        await db.weeklyIncidentLeaderboard.deleteMany({ where: { userId: user.id } });
-        await db.user.delete({ where: { id: user.id } });
+        expect(entries.length).toBeGreaterThan(0);
+        expect(entries[0].score).toBeGreaterThanOrEqual(entries[entries.length - 1].score);
+      } finally {
+        // Cleanup — always runs, even if an assertion above threw, so a
+        // failed run can't leave throwaway accounts behind in the database
+        // these integration specs share with the running app.
+        for (const user of users) {
+          await db.weeklyIncidentLeaderboard.deleteMany({ where: { userId: user.id } });
+          await db.user.delete({ where: { id: user.id } }).catch(() => {});
+        }
       }
     });
 
@@ -291,23 +295,25 @@ describe("Weekly Incidents API Integration", () => {
         },
       });
 
-      const lateTime = new Date(testCase.deadlineTime.getTime() + 24 * 60 * 60 * 1000);
+      try {
+        const lateTime = new Date(testCase.deadlineTime.getTime() + 24 * 60 * 60 * 1000);
 
-      await db.weeklyIncidentLeaderboard.create({
-        data: {
-          userId: user.id,
-          caseId: testCase.id,
-          completedAt: lateTime,
-          score: 950,
-        },
-      });
+        await db.weeklyIncidentLeaderboard.create({
+          data: {
+            userId: user.id,
+            caseId: testCase.id,
+            completedAt: lateTime,
+            score: 950,
+          },
+        });
 
-      // User completed after deadline, should not earn certificate
-      expect(lateTime.getTime()).toBeGreaterThan(testCase.deadlineTime.getTime());
-
-      // Cleanup
-      await db.weeklyIncidentLeaderboard.deleteMany({ where: { userId: user.id } });
-      await db.user.delete({ where: { id: user.id } });
+        // User completed after deadline, should not earn certificate
+        expect(lateTime.getTime()).toBeGreaterThan(testCase.deadlineTime.getTime());
+      } finally {
+        // Cleanup — always runs, even if an assertion above threw.
+        await db.weeklyIncidentLeaderboard.deleteMany({ where: { userId: user.id } });
+        await db.user.delete({ where: { id: user.id } }).catch(() => {});
+      }
     });
   });
 
