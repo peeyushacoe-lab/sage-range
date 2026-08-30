@@ -20,6 +20,8 @@ import { getExecDemandsForStage, getExecutivesForTemplate } from "@/lib/simulati
 import type { AttackStage, CompanyProfile, Executive } from "@/lib/simulation/types";
 import { track } from "@/lib/analytics";
 import { userCanAccessSession, getSessionRewardRecipients } from "@/lib/simulation/team-access";
+import { buildDebrief } from "@/lib/simulation/runtime/debrief";
+import { recordEvidence } from "@/lib/evidence";
 
 export async function GET(
   _req: Request,
@@ -169,12 +171,42 @@ export async function GET(
       // see getSessionRewardRecipients for why.
       if (isTerminalBreach) {
         const recipients = await getSessionRewardRecipients(session.id, user.id);
+
+        const breachTactics = new Set<string>();
+        const breachTechniques = new Set<string>();
+        try {
+          const timedEvents = session.events.map((e) => ({
+            id: e.id, type: e.type, actor: e.actor, payload: e.payload,
+            narrative: e.narrative, createdAt: e.createdAt.toISOString(),
+          }));
+          const debrief = buildDebrief(session.template.slug, timedEvents, "BREACHED", breachScore);
+          for (const t of debrief.mitreTechniques) {
+            breachTactics.add(t.tactic);
+            breachTechniques.add(t.id);
+          }
+        } catch {
+          // Best-effort — an unrecognised template just contributes no tactics.
+        }
+
         for (const recipient of recipients) {
           if (recipient.role === "STUDENT") {
             await db.user.update({
               where: { id: recipient.id },
               data: { xp: { increment: breachScore } },
             });
+            recordEvidence({
+              userId: recipient.id,
+              activity: "SIMULATION",
+              sourceId: session.id,
+              result: "PARTIAL",
+              skillPoints: 0,
+              slug: session.template.slug,
+              title: session.template.name,
+              score: breachScore,
+              maxScore: 100,
+              tactics: [...breachTactics],
+              techniques: [...breachTechniques],
+            }).catch(() => null);
           }
         }
         track("simulation.completed", user.id, {

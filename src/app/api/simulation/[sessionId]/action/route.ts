@@ -31,6 +31,8 @@ import { sendSimCertificateEmail } from "@/lib/email";
 import { track } from "@/lib/analytics";
 import { rateLimit } from "@/lib/rate-limit";
 import { userCanAccessSession, getSessionRewardRecipients } from "@/lib/simulation/team-access";
+import { buildDebrief } from "@/lib/simulation/runtime/debrief";
+import { recordEvidence } from "@/lib/evidence";
 
 const Body = z.object({ actionId: z.string().min(1) });
 
@@ -171,12 +173,43 @@ export async function POST(
     const xpGain = finalScore * 3;
     const skillGain = Math.floor(finalScore / 2);
 
+    // Same MITRE extraction the /mitre page already uses for sim coverage —
+    // reused here so a contained session becomes evidence, not just points.
+    const simTactics = new Set<string>();
+    const simTechniques = new Set<string>();
+    try {
+      const timedEvents = session.events.map((e) => ({
+        id: e.id, type: e.type, actor: e.actor, payload: e.payload,
+        narrative: e.narrative, createdAt: e.createdAt.toISOString(),
+      }));
+      const debrief = buildDebrief(session.template.slug, timedEvents, "CONTAINED", finalScore);
+      for (const t of debrief.mitreTechniques) {
+        simTactics.add(t.tactic);
+        simTechniques.add(t.id);
+      }
+    } catch {
+      // Best-effort — an unrecognised template just contributes no tactics.
+    }
+
     for (const recipient of recipients) {
       if (recipient.role === "STUDENT") {
         await db.user.update({
           where: { id: recipient.id },
           data: { xp: { increment: xpGain }, skillScore: { increment: skillGain } },
         });
+        recordEvidence({
+          userId: recipient.id,
+          activity: "SIMULATION",
+          sourceId: session.id,
+          result: "SOLVED",
+          skillPoints: skillGain,
+          slug: session.template.slug,
+          title: session.template.name,
+          score: finalScore,
+          maxScore: 100,
+          tactics: [...simTactics],
+          techniques: [...simTechniques],
+        }).catch(() => null);
       }
       sendSimCertificateEmail(
         recipient.email,
@@ -277,6 +310,30 @@ export async function POST(
             templateSlug: session.template.slug,
             cause: "ransomware",
           });
+          try {
+            const timedEvents = session.events.map((e) => ({
+              id: e.id, type: e.type, actor: e.actor, payload: e.payload,
+              narrative: e.narrative, createdAt: e.createdAt.toISOString(),
+            }));
+            const debrief = buildDebrief(session.template.slug, timedEvents, "BREACHED", finalBreachScore);
+            const breachTactics = [...new Set(debrief.mitreTechniques.map((t) => t.tactic))];
+            const breachTechniques = [...new Set(debrief.mitreTechniques.map((t) => t.id))];
+            recordEvidence({
+              userId: user.id,
+              activity: "SIMULATION",
+              sourceId: session.id,
+              result: "FAILED",
+              skillPoints: 0,
+              slug: session.template.slug,
+              title: session.template.name,
+              score: finalBreachScore,
+              maxScore: 100,
+              tactics: breachTactics,
+              techniques: breachTechniques,
+            }).catch(() => null);
+          } catch {
+            // Best-effort — an unrecognised template just contributes no tactics.
+          }
         }
       }
     }
