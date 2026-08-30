@@ -27,17 +27,42 @@ const STATUS_TONE: Record<string, "emerald" | "blue" | "amber" | "red"> = {
 export function HuntProgress({ session: initialSession }: { session: HuntSession }) {
   const [session, setSession] = useState(initialSession);
   const [elapsedTime, setElapsedTime] = useState(initialSession.elapsedSeconds);
+  const [finishing, setFinishing] = useState(false);
+  const [finishError, setFinishError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ score: number; accuracyPct: number; skillPoints: number } | null>(null);
 
   // Update timer every second
   useEffect(() => {
+    if (session.status !== "ACTIVE") return;
     const interval = setInterval(() => {
       setElapsedTime((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [session.status]);
 
-  // Refresh session data periodically
+  async function finishInvestigation() {
+    setFinishing(true);
+    setFinishError(null);
+    try {
+      const res = await fetch(`/api/hunts/${session.id}/finish`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setFinishError(data.error ?? "Could not finish the investigation. Try again.");
+        setFinishing(false);
+        return;
+      }
+      setResult({ score: data.score, accuracyPct: data.accuracyPct ?? 0, skillPoints: data.skillPoints ?? 0 });
+      setSession((s) => ({ ...s, status: "COMPLETED", score: data.score }));
+    } catch {
+      setFinishError("Network error — try again.");
+    } finally {
+      setFinishing(false);
+    }
+  }
+
+  // Refresh session data periodically, only while still investigating.
   useEffect(() => {
+    if (session.status !== "ACTIVE") return;
     const interval = setInterval(async () => {
       try {
         const res = await fetch(`/api/hunts/${initialSession.id}`, {
@@ -52,7 +77,7 @@ export function HuntProgress({ session: initialSession }: { session: HuntSession
       }
     }, 3000);
     return () => clearInterval(interval);
-  }, [initialSession.id]);
+  }, [initialSession.id, session.status]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -150,6 +175,50 @@ export function HuntProgress({ session: initialSession }: { session: HuntSession
           </div>
         </CardContent>
       </Card>
+
+      {/* Finish / Result */}
+      {session.status === "ACTIVE" ? (
+        <div className="space-y-2">
+          <button
+            onClick={finishInvestigation}
+            disabled={finishing}
+            className="w-full px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-500 disabled:opacity-50 transition"
+          >
+            {finishing ? "Finishing…" : "Finish Investigation"}
+          </button>
+          <p className="text-[11px] text-zinc-500 text-center">
+            Graded on what you&apos;ve found so far — you don&apos;t need every artifact to finish.
+          </p>
+          {finishError && <p className="text-xs text-red-400 text-center">{finishError}</p>}
+        </div>
+      ) : (
+        <Card>
+          <CardHeader>
+            <h3 className="font-semibold flex items-center gap-2">
+              <Icon name="checkCircle" size={16} />
+              Investigation complete
+            </h3>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-400">Final score</span>
+              <span className="text-white font-bold">{result?.score ?? session.score}</span>
+            </div>
+            {result && (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Accuracy</span>
+                  <span className="text-white font-bold">{result.accuracyPct}%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Skill points earned</span>
+                  <span className="text-emerald-400 font-bold">+{result.skillPoints}</span>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Leaderboard Link */}
       <a
