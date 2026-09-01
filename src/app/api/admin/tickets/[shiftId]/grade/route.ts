@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getOrCreateAppUser } from "@/lib/current-user";
-import { gradeTicketTriage } from "@/lib/tickets";
+import { gradeTicketTriage, computeTicketLeaderboardRanks } from "@/lib/tickets";
 import { audit } from "@/lib/audit";
 
 const GradeSchema = z.object({
@@ -85,6 +85,12 @@ export async function POST(
       parsed.data.isCorrect,
       parsed.data.pointsAward,
     );
+
+    // computeTicketLeaderboardRanks has no other caller anywhere — nothing
+    // ever denormalized rank onto TicketQueueLeaderboard rows before. Cheap
+    // enough to just recompute the whole shift's ranking after every grade
+    // rather than trying to patch in one row's position.
+    await computeTicketLeaderboardRanks(shiftId);
 
     // Audit log the grading action
     await audit({
