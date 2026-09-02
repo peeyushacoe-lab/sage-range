@@ -3319,6 +3319,14 @@ model OzhRun {
   // the console does not spend the reviewer's single real attempt.
   preview Boolean @default(false)
 
+  // Integrity ruling made after the fact — e.g. an INVESTIGATION phase graded
+  // correct with zero EVIDENCE_VIEWED entries in OzhActionLog. Excluded from
+  // the leaderboard and from award eligibility the same way preview is, but
+  // stays in the table (unlike preview, which is deletable) so the ruling and
+  // its reason are auditable rather than silently erased.
+  disqualified       Boolean @default(false)
+  disqualifiedReason String?
+
   startedAt DateTime  @default(now())
   // Set when the run is submitted, times out, or is closed by the deadline.
   endedAt   DateTime?

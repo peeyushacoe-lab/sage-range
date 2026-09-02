@@ -580,6 +580,9 @@ export async function getLeaderboard(limit = 100, now: Date = new Date()) {
       user: { hidden: false },
       // Dry runs by organisers never appear on the board they are checking.
       preview: false,
+      // A run ruled disqualified for an integrity issue drops off the board
+      // entirely rather than sitting on it with a strike through it.
+      disqualified: false,
     },
     include: {
       user: { select: { id: true, displayName: true, email: true, university: true } },
@@ -629,6 +632,8 @@ export async function concludeCompetition(now: Date = new Date()) {
       user: { hidden: false },
       // A dry run must not be able to win Champion.
       preview: false,
+      // Nor can a disqualified run rank or win — same exclusion as preview.
+      disqualified: false,
     },
     select: { id: true, userId: true, score: true, accuracy: true, elapsedSeconds: true, phaseScores: true },
   });
