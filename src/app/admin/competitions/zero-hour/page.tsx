@@ -23,12 +23,16 @@ function tier(pct: number): { text: string; bg: string } {
 
 export default async function ZeroHourJudgingPage() {
   const rows = await getJudgingReport();
-  const podium = rows.slice(0, 3);
+  const eligible = rows.filter((r) => !r.disqualified);
+  const disqualifiedRows = rows.filter((r) => r.disqualified);
+  const podium = eligible.slice(0, 3);
 
-  // Best score in each phase, for the "best in phase" strip.
+  // Best score in each phase, for the "best in phase" strip. A disqualified
+  // run cannot win a phase either — that's the same integrity issue as
+  // winning the whole thing.
   const phaseLeaders = PHASE_LABELS.map((label, i) => {
-    const best = Math.max(0, ...rows.map((r) => r.phases[i].points));
-    const winners = rows.filter((r) => r.phases[i].points === best);
+    const best = Math.max(0, ...eligible.map((r) => r.phases[i].points));
+    const winners = eligible.filter((r) => r.phases[i].points === best);
     const max = rows[0]?.phases[i].maxPoints ?? 0;
     return { label, max, best, winners };
   });
@@ -108,10 +112,16 @@ export default async function ZeroHourJudgingPage() {
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <tr key={r.userId} className="hover:bg-white/[0.02]">
+                    <tr key={r.userId} className={`hover:bg-white/[0.02] ${r.disqualified ? "opacity-50" : ""}`}>
                       <td className="border-b border-white/8 px-4 py-2.5 text-left">
-                        <span className="mr-2.5 font-mono text-xs text-zinc-600">{r.rank}</span>
-                        <span className="font-semibold text-zinc-100">{r.name}</span>
+                        {r.disqualified ? (
+                          <span className="mr-2.5 rounded-full border border-red-500/40 bg-red-500/10 px-1.5 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-wide text-red-300">
+                            DQ
+                          </span>
+                        ) : (
+                          <span className="mr-2.5 font-mono text-xs text-zinc-600">{r.rank}</span>
+                        )}
+                        <span className={`font-semibold ${r.disqualified ? "text-zinc-400 line-through decoration-red-400/50" : "text-zinc-100"}`}>{r.name}</span>
                       </td>
                       {r.phases.map((p, i) => {
                         const pct = p.maxPoints > 0 ? p.points / p.maxPoints : 0;
@@ -194,16 +204,28 @@ function Legend({ cls, label }: { cls: string; label: string }) {
 }
 
 function DetailCard({ r }: { r: JudgingRow }) {
-  const flag = r.evidenceViews === 0;
+  // Any run with zero evidence opened is worth a second look even if it was
+  // never formally ruled on; a disqualified run has already had that look and
+  // failed it, so it gets the harder red treatment instead of amber.
+  const flag = !r.disqualified && r.evidenceViews === 0;
   return (
-    <div className={`rounded-2xl border p-5 ${flag ? "border-amber-500/40" : "border-white/10"} bg-zinc-900/40`}>
+    <div
+      className={`rounded-2xl border p-5 ${
+        r.disqualified ? "border-red-500/40 bg-red-500/[0.04]" : flag ? "border-amber-500/40 bg-zinc-900/40" : "border-white/10 bg-zinc-900/40"
+      }`}
+    >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="font-bold">
-          <span className="mr-1.5 font-mono text-xs text-zinc-600">#{r.rank}</span>
+        <p className={`font-bold ${r.disqualified ? "text-zinc-400 line-through decoration-red-400/50" : ""}`}>
+          <span className="mr-1.5 font-mono text-xs text-zinc-600">{r.disqualified ? "DQ" : `#${r.rank}`}</span>
           {r.name}
         </p>
-        <p className={`font-mono text-xl font-bold ${r.rank === 1 ? "text-amber-400" : "text-zinc-100"}`}>{r.score}</p>
+        <p className={`font-mono text-xl font-bold ${r.disqualified ? "text-zinc-500" : r.rank === 1 ? "text-amber-400" : "text-zinc-100"}`}>{r.score}</p>
       </div>
+      {r.disqualified && (
+        <p className="mb-3 rounded-lg border border-red-500/30 bg-red-500/[0.08] px-3 py-2 font-mono text-[11px] leading-relaxed text-red-200/90">
+          <b className="uppercase tracking-wide">Disqualified</b> — {r.disqualifiedReason ?? "Integrity ruling, no reason recorded."}
+        </p>
+      )}
       <div className="mt-2 mb-3.5 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-zinc-500 tabular-nums">
         <span><b className="text-zinc-200">{r.accuracy}%</b> accuracy</span>
         <span><b className="text-zinc-200">{fmtTime(r.elapsedSeconds)}</b> elapsed</span>

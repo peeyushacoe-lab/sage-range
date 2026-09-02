@@ -514,6 +514,8 @@ export type JudgingRow = {
   accuracy: number;
   elapsedSeconds: number;
   evidenceViews: number;
+  disqualified: boolean;
+  disqualifiedReason: string | null;
   phases: { phase: OzhPhase; points: number; maxPoints: number; correct: number; total: number }[];
 };
 
@@ -534,20 +536,25 @@ export async function getJudgingReport(now: Date = new Date()): Promise<JudgingR
     },
   });
 
+  // A disqualified run stays visible to organisers reviewing the call, but it
+  // must not occupy a rank slot or shift anyone else's — rank off the
+  // legitimate subset only, same as the leaderboard and concludeCompetition.
   const ranked = rankRuns(
-    runs.map((r) => ({
-      userId: r.userId,
-      score: r.score ?? 0,
-      accuracy: r.accuracy ?? 0,
-      elapsedSeconds: r.elapsedSeconds ?? Number.MAX_SAFE_INTEGER,
-    })),
+    runs
+      .filter((r) => !r.disqualified)
+      .map((r) => ({
+        userId: r.userId,
+        score: r.score ?? 0,
+        accuracy: r.accuracy ?? 0,
+        elapsedSeconds: r.elapsedSeconds ?? Number.MAX_SAFE_INTEGER,
+      })),
   );
   const rankByUser = new Map(ranked.map((r) => [r.userId, r.rank]));
 
   return runs
     .map((r) => ({
       userId: r.userId,
-      rank: rankByUser.get(r.userId) ?? 0,
+      rank: r.disqualified ? 0 : (rankByUser.get(r.userId) ?? 0),
       name: r.user.displayName || r.user.email.split("@")[0],
       email: r.user.email,
       university: r.user.university,
@@ -556,6 +563,8 @@ export async function getJudgingReport(now: Date = new Date()): Promise<JudgingR
       accuracy: r.accuracy ?? 0,
       elapsedSeconds: r.elapsedSeconds ?? 0,
       evidenceViews: r.actions.length,
+      disqualified: r.disqualified,
+      disqualifiedReason: r.disqualifiedReason,
       phases: PHASE_ORDER.map((phase) => {
         const s = r.submissions.find((x) => x.phase === phase);
         return {
@@ -567,7 +576,13 @@ export async function getJudgingReport(now: Date = new Date()): Promise<JudgingR
         };
       }),
     }))
-    .sort((a, b) => a.rank - b.rank);
+    // Disqualified rows sort after every ranked row, in score order among
+    // themselves, rather than colliding on rank 0 at the top.
+    .sort((a, b) => {
+      if (a.disqualified !== b.disqualified) return a.disqualified ? 1 : -1;
+      if (a.disqualified) return b.score - a.score;
+      return a.rank - b.rank;
+    });
 }
 
 export async function getLeaderboard(limit = 100, now: Date = new Date()) {
