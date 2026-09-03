@@ -62,6 +62,29 @@ export default async function ZeroHourLeaderboardPage() {
               <tbody>
                 {entries.map((e) => {
                   const mine = e.userId === user.id;
+                  if (e.disqualified) {
+                    return (
+                      <tr key={e.userId} className="border-b border-white/5 bg-red-500/[0.04] last:border-0">
+                        <td className="whitespace-nowrap px-4 py-3 font-bold tabular-nums text-zinc-600">—</td>
+                        <td className="px-4 py-3" colSpan={5}>
+                          <div className="flex flex-wrap items-baseline gap-2">
+                            <span className="text-zinc-400 line-through decoration-red-400/50">
+                              {e.displayName}
+                            </span>
+                            <span className="rounded-full border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-300">
+                              Disqualified
+                            </span>
+                            {e.disqualifiedReason && (
+                              <span className="text-[11px] text-zinc-600">{e.disqualifiedReason}</span>
+                            )}
+                          </div>
+                          {e.university && (
+                            <span className="mt-0.5 block text-[11px] text-zinc-600">{e.university}</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  }
                   return (
                     <tr
                       key={e.userId}

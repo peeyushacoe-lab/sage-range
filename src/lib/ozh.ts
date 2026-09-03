@@ -595,9 +595,6 @@ export async function getLeaderboard(limit = 100, now: Date = new Date()) {
       user: { hidden: false },
       // Dry runs by organisers never appear on the board they are checking.
       preview: false,
-      // A run ruled disqualified for an integrity issue drops off the board
-      // entirely rather than sitting on it with a strike through it.
-      disqualified: false,
     },
     include: {
       user: { select: { id: true, displayName: true, email: true, university: true } },
@@ -605,17 +602,22 @@ export async function getLeaderboard(limit = 100, now: Date = new Date()) {
     },
   });
 
+  // A disqualified run doesn't occupy or shift a rank, but stays visible on
+  // the board — labelled, not hidden — so the call is transparent to anyone
+  // checking who placed.
   const ranked = rankRuns(
-    runs.map((r) => ({
-      userId: r.userId,
-      score: r.score ?? 0,
-      accuracy: r.accuracy ?? 0,
-      elapsedSeconds: r.elapsedSeconds ?? Number.MAX_SAFE_INTEGER,
-    })),
+    runs
+      .filter((r) => !r.disqualified)
+      .map((r) => ({
+        userId: r.userId,
+        score: r.score ?? 0,
+        accuracy: r.accuracy ?? 0,
+        elapsedSeconds: r.elapsedSeconds ?? Number.MAX_SAFE_INTEGER,
+      })),
   );
 
   const byUser = new Map(runs.map((r) => [r.userId, r]));
-  return ranked.slice(0, limit).map((r) => {
+  const rankedRows = ranked.slice(0, limit).map((r) => {
     const run = byUser.get(r.userId)!;
     return {
       ...r,
@@ -624,8 +626,30 @@ export async function getLeaderboard(limit = 100, now: Date = new Date()) {
       displayName: run.user.displayName || run.user.email.split("@")[0],
       university: run.user.university,
       awards: run.awards.map((a) => a.kind),
+      disqualified: false as const,
+      disqualifiedReason: null as string | null,
     };
   });
+
+  const disqualifiedRows = runs
+    .filter((r) => r.disqualified)
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+    .map((r) => ({
+      userId: r.userId,
+      rank: 0,
+      score: r.score ?? 0,
+      accuracy: r.accuracy ?? 0,
+      elapsedSeconds: r.elapsedSeconds ?? Number.MAX_SAFE_INTEGER,
+      displayName: r.user.displayName || r.user.email.split("@")[0],
+      university: r.user.university,
+      awards: [] as string[],
+      disqualified: true as const,
+      disqualifiedReason: r.disqualifiedReason,
+    }));
+
+  // Disqualified entries sit after every ranked entry, regardless of score —
+  // this board is ordered by standing, and a DQ'd run has none.
+  return [...rankedRows, ...disqualifiedRows];
 }
 
 /**
