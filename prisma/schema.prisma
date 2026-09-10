@@ -165,6 +165,9 @@ model User {
   ozhRuns   OzhRun[]
   ozhAwards OzhAward[]
 
+  // ── Mission Analyst (immersive incident response) ──
+  missionSessions MissionSession[]
+
   @@index([skillScore])
   @@index([coins])
 }
@@ -3511,4 +3514,86 @@ model Evidence {
   @@unique([userId, activity, sourceId])
   @@index([userId, activity])
   @@index([userId, createdAt])
+}
+
+// ── Mission Analyst ─────────────────────────────────────────────────────────
+// First-person 3D incident-response investigation, at /missionanalyst.
+//
+// V1 foundation only: one scenario, one room, no NPCs/CCTV/decision points/
+// scoring yet — see src/lib/missions.ts for what this covers today and what's
+// deliberately deferred to the next sprint. The one architectural rule that
+// does carry through from day one: the client never holds the truth. It only
+// ever gets a stable `key` to place/render an object; the label, description
+// and whether something is actually critical evidence live here and are
+// resolved server-side when a player interacts with it.
+
+model MissionScenario {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  title       String
+  briefing    String  @db.Text
+  objective   String  @db.Text
+  // Key into the 3D client's environment registry, e.g. "office-v1" — lets a
+  // second scenario reuse a built environment without a schema change.
+  environment String
+  published   Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  evidence MissionEvidence[]
+  sessions MissionSession[]
+}
+
+enum MissionEvidenceKind {
+  PHYSICAL
+  DIGITAL
+}
+
+model MissionEvidence {
+  id         String              @id @default(cuid())
+  scenarioId String
+  // Stable id the 3D client references to place an interactable object.
+  // Carries no meaning by itself — deliberately opaque.
+  key        String
+  label      String
+  description String             @db.Text
+  kind       MissionEvidenceKind
+  isCritical Boolean             @default(false)
+
+  scenario MissionScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  @@unique([scenarioId, key])
+}
+
+enum MissionSessionStatus {
+  IN_PROGRESS
+  SUBMITTED
+}
+
+model MissionSession {
+  id         String               @id @default(cuid())
+  userId     String
+  scenarioId String
+  status     MissionSessionStatus @default(IN_PROGRESS)
+  startedAt  DateTime             @default(now())
+  endedAt    DateTime?
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scenario MissionScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  found    MissionEvidenceFound[]
+
+  // One attempt per person per scenario — same rule, and same reason, as
+  // OzhRun's unique([userId, slug]).
+  @@unique([userId, scenarioId])
+  @@index([scenarioId])
+}
+
+model MissionEvidenceFound {
+  id          String   @id @default(cuid())
+  sessionId   String
+  evidenceKey String
+  foundAt     DateTime @default(now())
+
+  session MissionSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, evidenceKey])
 }

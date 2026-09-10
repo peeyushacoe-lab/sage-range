@@ -40,6 +40,8 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@react-three/drei": "^9.114.3",
+    "@react-three/fiber": "^8.17.10",
     "@sentry/nextjs": "^10.55.0",
     "@stripe/stripe-js": "^9.7.0",
     "@vercel/blob": "^2.4.0",
@@ -56,6 +58,7 @@
     "resend": "^6.12.4",
     "stripe": "^22.2.0",
     "tailwind-merge": "^2.5.4",
+    "three": "^0.169.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -64,6 +67,7 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/three": "^0.169.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
