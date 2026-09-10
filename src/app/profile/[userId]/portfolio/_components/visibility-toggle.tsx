@@ -14,7 +14,7 @@ export function VisibilityToggle({ itemId, isPublic: initialPublic }: Props) {
   async function toggle() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/portfolio/${itemId}/visibility`, {
+      const res = await fetch(`/api/portfolio/item/${itemId}/visibility`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublic: !isPublic }),
