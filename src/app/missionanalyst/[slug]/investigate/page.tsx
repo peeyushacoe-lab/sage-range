@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
 import { getScenario } from "@/lib/missions";
 import { db } from "@/lib/db";
-import { SceneLoader } from "./_components/scene-loader";
+import { InvestigationScene } from "./_components/investigation-scene";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Investigating · Mission Analyst" };
@@ -25,7 +25,7 @@ export default async function InvestigatePage({ params }: { params: Promise<{ sl
   if (session.status !== "IN_PROGRESS") redirect("/missionanalyst");
 
   return (
-    <SceneLoader
+    <InvestigationScene
       sessionId={session.id}
       title={scenario.title}
       objective={scenario.objective}
