@@ -78,28 +78,41 @@ const EVIDENCE: {
   },
 ];
 
+// Public — shown to the player as multiple-choice options. Sarah is the
+// actual insider; the other two exist so picking her means something.
+const SUSPECTS = [
+  { id: "sarah-mitchell", name: "Sarah Mitchell", role: "Finance Analyst" },
+  { id: "david-chen", name: "David Chen", role: "IT Administrator" },
+  { id: "unknown-external", name: "Unknown external actor", role: "No internal identity match" },
+];
+
+const CLASSIFICATIONS = ["Insider Threat", "External Intrusion", "Malware Infection", "Physical Theft"];
+
+const SCENARIO_CONTENT = {
+  title: "IR-001 — The Insider",
+  briefing:
+    "A member of staff reported suspicious activity overnight at CyberSage Technologies. Finance analyst Sarah Mitchell's workstation was found logged in this morning, though she wasn't scheduled to work last night.",
+  objective:
+    "Determine what happened, who was involved, how it happened, and what — if anything — was compromised. Support your conclusion with evidence, not assumption.",
+  environment: "office-v1",
+  published: true,
+  suspects: SUSPECTS,
+  classifications: CLASSIFICATIONS,
+  // Hidden answer key — read only by submitFindings() in src/lib/missions.ts,
+  // never selected by any client-facing query.
+  answerSuspectId: "sarah-mitchell",
+  answerClassification: "Insider Threat",
+  // Data was confirmed to leave the building (the USB), not just accessed —
+  // that's High, one short of Critical (which this scenario reserves for a
+  // breach that's still active or spans multiple systems).
+  answerSeverity: "HIGH" as const,
+};
+
 async function main() {
   const scenario = await db.missionScenario.upsert({
     where: { slug: "the-insider" },
-    update: {
-      title: "IR-001 — The Insider",
-      briefing:
-        "A member of staff reported suspicious activity overnight at CyberSage Technologies. Finance analyst Sarah Mitchell's workstation was found logged in this morning, though she wasn't scheduled to work last night.",
-      objective:
-        "Determine what happened, who was involved, how it happened, and what — if anything — was compromised. Support your conclusion with evidence, not assumption.",
-      environment: "office-v1",
-      published: true,
-    },
-    create: {
-      slug: "the-insider",
-      title: "IR-001 — The Insider",
-      briefing:
-        "A member of staff reported suspicious activity overnight at CyberSage Technologies. Finance analyst Sarah Mitchell's workstation was found logged in this morning, though she wasn't scheduled to work last night.",
-      objective:
-        "Determine what happened, who was involved, how it happened, and what — if anything — was compromised. Support your conclusion with evidence, not assumption.",
-      environment: "office-v1",
-      published: true,
-    },
+    update: SCENARIO_CONTENT,
+    create: { slug: "the-insider", ...SCENARIO_CONTENT },
   });
 
   let created = 0;

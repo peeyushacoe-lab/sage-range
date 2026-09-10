@@ -3539,8 +3539,29 @@ model MissionScenario {
   published   Boolean @default(false)
   createdAt   DateTime @default(now())
 
+  // ── Conclusion step ──
+  // Public option lists the player picks from — [{id, name, role}] and
+  // [string], respectively. Fine to expose; a multiple-choice list isn't the
+  // answer.
+  suspects        Json
+  classifications Json
+
+  // Hidden answer key. Never selected by getScenario/getSessionState or any
+  // client-facing query — only submitFindings() in src/lib/missions.ts reads
+  // these, server-side, at grading time.
+  answerSuspectId String
+  answerClassification String
+  answerSeverity  MissionSeverity
+
   evidence MissionEvidence[]
   sessions MissionSession[]
+}
+
+enum MissionSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
 enum MissionEvidenceKind {
@@ -3576,6 +3597,17 @@ model MissionSession {
   status     MissionSessionStatus @default(IN_PROGRESS)
   startedAt  DateTime             @default(now())
   endedAt    DateTime?
+
+  // ── What they concluded, and how it scored ──
+  // Written once, at submitFindings(); null while the session is IN_PROGRESS.
+  submittedSuspectId       String?
+  submittedClassification  String?
+  submittedSeverity        MissionSeverity?
+  submittedEvidenceKeys    String[]
+  submittedSummary         String?  @db.Text
+  score                    Int?
+  // Per-component breakdown for the debrief screen — {suspect, classification, severity, evidence}.
+  scoreBreakdown            Json?
 
   user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   scenario MissionScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)

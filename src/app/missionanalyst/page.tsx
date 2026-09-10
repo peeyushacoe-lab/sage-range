@@ -45,10 +45,12 @@ export default async function MissionAnalystPage() {
         <Card className="mb-8 border-blue-500/20 bg-blue-500/[0.03] p-6">
           <p className="mb-2 text-[10px] uppercase tracking-widest text-blue-400/80">How this works</p>
           <p className="text-sm leading-relaxed text-zinc-400">
-            No dashboard, no question list. You&apos;re dropped into a 3D room as the first
-            responder. Walk up to anything interactive and press <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px]">E</kbd> to
-            examine it — nothing tells you in advance what matters. Press <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px]">Tab</kbd> at
-            any time for your investigator notebook, which tracks everything you&apos;ve found so far.
+            No dashboard, no question list. You&apos;re dropped into a dark office scene —
+            move your cursor to look around with a flashlight, and click anything it catches to
+            examine it. Nothing tells you in advance what matters. Your investigator notebook
+            tracks everything you&apos;ve found. When you&apos;re ready, you file a conclusion —
+            who was responsible, how you&apos;d classify it, how severe it is, and which evidence
+            actually backs that up — and that&apos;s what gets graded, not just how much you clicked.
           </p>
         </Card>
 
