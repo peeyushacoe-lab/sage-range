@@ -209,10 +209,14 @@ export async function submitFindings(
   const tierGap = Math.abs(answerTier - givenTier);
   const severityScore = tierGap === 0 ? 15 : tierGap === 1 ? 7 : 0;
 
+  // Scaled to this scenario's actual count of critical items, not a fixed
+  // 7.5 — a scenario with 3 critical items and one with 5 must each still
+  // top out at 30 for citing all of them, not 22.5 or 37.5.
   const criticalKeys = new Set(scenario.evidence.filter((e) => e.isCritical).map((e) => e.key));
+  const pointsPerCritical = criticalKeys.size > 0 ? 30 / criticalKeys.size : 0;
   const criticalCited = citedKeys.filter((k) => criticalKeys.has(k)).length;
   const nonCriticalCited = citedKeys.length - criticalCited;
-  const evidenceScore = Math.max(0, Math.round(criticalCited * 7.5 - nonCriticalCited * 5));
+  const evidenceScore = Math.max(0, Math.round(criticalCited * pointsPerCritical - nonCriticalCited * 5));
 
   const score = suspectScore + classificationScore + severityScore + evidenceScore;
   const breakdown = { suspect: suspectScore, classification: classificationScore, severity: severityScore, evidence: evidenceScore };
