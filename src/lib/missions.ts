@@ -1,14 +1,15 @@
 /**
  * Mission Analyst — server logic.
  *
- * V1 foundation. One scenario, one room, no NPCs/CCTV/decision points yet.
- * What exists here is deliberately small but real: a session lifecycle, an
- * evidence-discovery log, and a graded conclusion step — all
- * server-authoritative.
+ * A "case" (an IR) is 2+ MissionScenario rows sharing a caseSlug, ordered by
+ * phaseNumber — a phase is investigate-then-file-findings, same shape as a
+ * single scenario always was; a case is just a chain of them. Phase N+1 is
+ * locked until phase N's session is SUBMITTED for this user, enforced in
+ * startSession, not just hidden in the UI.
  *
  * The rule that matters most and that everything else is built to protect:
  * the client never receives evidence.description, evidence.isCritical, or
- * any of MissionScenario's answer* fields up front. It gets a scenario's
+ * any of MissionScenario's answer* fields up front. It gets a phase's
  * environment key, the list of interactable object keys to place, and the
  * public suspect/classification option lists — meaningless or
  * multiple-choice on their own — and only learns what an object actually is
@@ -35,31 +36,106 @@ const PUBLIC_SCENARIO_SELECT = {
   published: true,
   suspects: true,
   classifications: true,
+  caseSlug: true,
+  caseTitle: true,
+  phaseNumber: true,
+  phaseLabel: true,
+  isFinalPhase: true,
 } as const;
 
 export async function getScenario(slug: string) {
   return db.missionScenario.findUnique({ where: { slug }, select: PUBLIC_SCENARIO_SELECT });
 }
 
-export async function listPublishedScenarios() {
-  return db.missionScenario.findMany({
+/** One row per case (its first phase), for the briefing page's list of cases. */
+export async function listCases() {
+  const phases = await db.missionScenario.findMany({
     where: { published: true },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ caseSlug: "asc" }, { phaseNumber: "asc" }],
     select: PUBLIC_SCENARIO_SELECT,
   });
+  const byCase = new Map<string, typeof phases>();
+  for (const p of phases) {
+    if (!byCase.has(p.caseSlug)) byCase.set(p.caseSlug, []);
+    byCase.get(p.caseSlug)!.push(p);
+  }
+  return [...byCase.values()].map((phases) => ({
+    caseSlug: phases[0].caseSlug,
+    caseTitle: phases[0].caseTitle,
+    briefing: phases[0].briefing,
+    phaseCount: phases.length,
+    phases,
+  }));
 }
 
 /**
- * Start or resume a session. One attempt per person per scenario — enforced
- * by the unique constraint, not just refused in application code, same
- * reasoning as Operation Zero Hour's single attempt.
+ * This user's progress through a case: each phase's session status (or
+ * "LOCKED" if an earlier phase isn't SUBMITTED yet), and which phase slug
+ * they should be sent to right now.
+ */
+export async function getCaseProgress(userId: string, caseSlug: string) {
+  const phases = await db.missionScenario.findMany({
+    where: { caseSlug, published: true },
+    orderBy: { phaseNumber: "asc" },
+    select: PUBLIC_SCENARIO_SELECT,
+  });
+  if (phases.length === 0) return null;
+
+  const sessions = await db.missionSession.findMany({
+    where: { userId, scenarioId: { in: phases.map((p) => p.id) } },
+    select: { scenarioId: true, status: true, score: true },
+  });
+  const sessionByScenario = new Map(sessions.map((s) => [s.scenarioId, s]));
+
+  let unlocked = true;
+  let currentSlug: string | null = null;
+  const rows = phases.map((p) => {
+    const session = sessionByScenario.get(p.id);
+    const status: "LOCKED" | "IN_PROGRESS" | "SUBMITTED" = !unlocked ? "LOCKED" : session ? (session.status as "IN_PROGRESS" | "SUBMITTED") : "IN_PROGRESS";
+    if (status !== "SUBMITTED" && currentSlug === null) currentSlug = p.slug;
+    if (status !== "SUBMITTED") unlocked = false; // next phase locks once we hit the first non-submitted one
+    // Distinct from status "IN_PROGRESS": that also covers an unlocked phase
+    // with no session yet. This tells the UI whether "Resume" or "Enter" is
+    // the accurate label.
+    return { phase: p, status, score: session?.score ?? null, hasSession: !!session };
+  });
+
+  const totalScore = rows.every((r) => r.status === "SUBMITTED")
+    ? Math.round(rows.reduce((sum, r) => sum + (r.score ?? 0), 0) / rows.length)
+    : null;
+
+  return { caseTitle: phases[0].caseTitle, rows, currentSlug, complete: totalScore !== null, totalScore };
+}
+
+/**
+ * Start or resume a session for one phase. One attempt per person per phase
+ * — enforced by the unique constraint, not just refused in application
+ * code, same reasoning as Operation Zero Hour's single attempt.
+ *
+ * Phase 2+ additionally requires the previous phase in the same case to be
+ * SUBMITTED for this user — checked here, not just by the UI hiding the
+ * button, since that's the boundary that actually matters.
  */
 export async function startSession(
   userId: string,
   scenarioSlug: string,
 ): Promise<MissionResult<{ sessionId: string; resumed: boolean }>> {
-  const scenario = await db.missionScenario.findUnique({ where: { slug: scenarioSlug }, select: { id: true, published: true } });
+  const scenario = await db.missionScenario.findUnique({ where: { slug: scenarioSlug } });
   if (!scenario || !scenario.published) return fail("Scenario not found", 404);
+
+  if (scenario.phaseNumber > 1) {
+    const previous = await db.missionScenario.findUnique({
+      where: { caseSlug_phaseNumber: { caseSlug: scenario.caseSlug, phaseNumber: scenario.phaseNumber - 1 } },
+    });
+    if (previous) {
+      const previousSession = await db.missionSession.findUnique({
+        where: { userId_scenarioId: { userId, scenarioId: previous.id } },
+      });
+      if (!previousSession || previousSession.status !== "SUBMITTED") {
+        return fail("Complete the previous phase first", 403);
+      }
+    }
+  }
 
   const existing = await db.missionSession.findUnique({
     where: { userId_scenarioId: { userId, scenarioId: scenario.id } },
@@ -88,6 +164,17 @@ export async function getSessionState(userId: string, sessionId: string) {
   });
   if (!session || session.userId !== userId) return null;
 
+  // Only relevant once this phase is SUBMITTED, to route "Continue" vs
+  // "Case complete" without a second round trip.
+  let nextPhaseSlug: string | null = null;
+  if (session.status === "SUBMITTED" && !session.scenario.isFinalPhase) {
+    const next = await db.missionScenario.findUnique({
+      where: { caseSlug_phaseNumber: { caseSlug: session.scenario.caseSlug, phaseNumber: session.scenario.phaseNumber + 1 } },
+      select: { slug: true },
+    });
+    nextPhaseSlug = next?.slug ?? null;
+  }
+
   return {
     sessionId: session.id,
     status: session.status,
@@ -99,6 +186,10 @@ export async function getSessionState(userId: string, sessionId: string) {
       environment: session.scenario.environment,
       suspects: session.scenario.suspects as { id: string; name: string; role: string }[],
       classifications: session.scenario.classifications as string[],
+      caseTitle: session.scenario.caseTitle,
+      phaseNumber: session.scenario.phaseNumber,
+      phaseLabel: session.scenario.phaseLabel,
+      isFinalPhase: session.scenario.isFinalPhase,
     },
     // Placement data only — no label/description until interacted with.
     objects: session.scenario.evidence.map((e) => ({ key: e.key, kind: e.kind })),
@@ -106,6 +197,7 @@ export async function getSessionState(userId: string, sessionId: string) {
     // Only populated once SUBMITTED — see submitFindings.
     score: session.score,
     scoreBreakdown: session.scoreBreakdown,
+    nextPhaseSlug,
   };
 }
 
@@ -163,22 +255,25 @@ export type SubmitFindingsInput = {
 };
 
 /**
- * Grade and lock in a conclusion. This is the actual assessment — everything
- * before it was gathering the material to make this call correctly.
+ * Grade and lock in a conclusion for this phase. This is the actual
+ * assessment — everything before it was gathering the material to make this
+ * call correctly.
  *
- * Scoring (100 total):
+ * Scoring (100 total per phase):
  *  - Responsible party: 30, all-or-nothing.
  *  - Classification: 25, all-or-nothing.
  *  - Severity: 15 exact, 7 if one tier off, 0 otherwise — a near-miss on
  *    severity is a real skill signal, unlike a near-miss on "who did it."
- *  - Supporting evidence: up to 30, +7.5 per correct critical item cited
- *    (max 4 for this scenario), -5 per non-critical item cited as if it
- *    supported the conclusion, floored at 0 for this component. Citing
- *    something irrelevant as support is graded, not just citing enough.
+ *  - Supporting evidence: up to 30, scaled to however many critical items
+ *    THIS phase actually has (30 / criticalCount per item cited), minus 5
+ *    per non-critical item cited as if it supported the conclusion, floored
+ *    at 0. Citing something irrelevant as support is graded, not just
+ *    citing enough.
  *
  * Only evidence keys the player actually found can be cited — enforced here,
  * not just in the UI, since the UI's disabled state is not the boundary that
- * matters.
+ * matters. A case's overall score is the average of its phases — see
+ * getCaseProgress.
  */
 export async function submitFindings(
   userId: string,
@@ -209,9 +304,6 @@ export async function submitFindings(
   const tierGap = Math.abs(answerTier - givenTier);
   const severityScore = tierGap === 0 ? 15 : tierGap === 1 ? 7 : 0;
 
-  // Scaled to this scenario's actual count of critical items, not a fixed
-  // 7.5 — a scenario with 3 critical items and one with 5 must each still
-  // top out at 30 for citing all of them, not 22.5 or 37.5.
   const criticalKeys = new Set(scenario.evidence.filter((e) => e.isCritical).map((e) => e.key));
   const pointsPerCritical = criticalKeys.size > 0 ? 30 / criticalKeys.size : 0;
   const criticalCited = citedKeys.filter((k) => criticalKeys.has(k)).length;

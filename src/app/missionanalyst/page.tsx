@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
-import { listPublishedScenarios } from "@/lib/missions";
-import { db } from "@/lib/db";
+import { listCases, getCaseProgress } from "@/lib/missions";
 import { Navbar } from "@/components/navbar";
 import { Card, Badge } from "@/components/ui";
 import { StartMission } from "./_components/start-mission";
@@ -10,22 +9,19 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Mission Analyst · Sage Vault" };
 
 /**
- * Mission Analyst briefing — V1.
+ * Mission Analyst briefing.
  *
- * One scenario for now ("The Insider"). This page is the doorway into the
- * 3D investigation: it shows the case brief and starts (or resumes) the
- * player's one attempt, same one-shot rule as Operation Zero Hour.
+ * Each case (an IR) is a chain of phases: investigate, file findings, then
+ * the next phase unlocks — ending in a final phase. This page shows one
+ * card per case with a phase progress strip, and always sends the player to
+ * whichever phase they should be on next.
  */
 export default async function MissionAnalystPage() {
   const user = await getOrCreateAppUser();
   if (!user) redirect("/sign-in");
 
-  const scenarios = await listPublishedScenarios();
-
-  const sessions = await db.missionSession.findMany({
-    where: { userId: user.id, scenarioId: { in: scenarios.map((s) => s.id) } },
-  });
-  const sessionByScenario = new Map(sessions.map((s) => [s.scenarioId, s]));
+  const cases = await listCases();
+  const progressByCase = await Promise.all(cases.map((c) => getCaseProgress(user.id, c.caseSlug)));
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -45,43 +41,65 @@ export default async function MissionAnalystPage() {
         <Card className="mb-8 border-blue-500/20 bg-blue-500/[0.03] p-6">
           <p className="mb-2 text-[10px] uppercase tracking-widest text-blue-400/80">How this works</p>
           <p className="text-sm leading-relaxed text-zinc-400">
-            No dashboard, no question list. You&apos;re dropped into a dark office scene —
-            move your cursor to look around with a flashlight, and click anything it catches to
-            examine it. Nothing tells you in advance what matters. Your investigator notebook
-            tracks everything you&apos;ve found. When you&apos;re ready, you file a conclusion —
-            who was responsible, how you&apos;d classify it, how severe it is, and which evidence
-            actually backs that up — and that&apos;s what gets graded, not just how much you clicked.
+            Each case runs multiple phases. Move your cursor to look around a dark office scene
+            with a flashlight, click anything it catches to examine it, then file your findings —
+            who was responsible, how you&apos;d classify it, how severe it is, which evidence
+            backs that up. Get through the earlier phases and a final phase unlocks with a twist
+            that raises the stakes. Nothing about the answer is ever visible in advance, and each
+            phase is graded on its own, server-side.
           </p>
         </Card>
 
-        {scenarios.length === 0 ? (
+        {cases.length === 0 ? (
           <Card className="p-6 text-center text-sm text-zinc-500">No investigations published yet.</Card>
         ) : (
           <div className="space-y-4">
-            {scenarios.map((s) => {
-              const session = sessionByScenario.get(s.id);
+            {cases.map((c, i) => {
+              const progress = progressByCase[i];
+              if (!progress) return null;
+              const currentRow = progress.rows.find((r) => r.phase.slug === progress.currentSlug);
               return (
-                <Card key={s.id} className="p-6">
+                <Card key={c.caseSlug} className="p-6">
                   <div className="mb-3 flex items-start justify-between gap-4">
                     <div>
                       <p className="text-[10px] uppercase tracking-widest text-zinc-500">Case file</p>
-                      <h2 className="mt-1 text-xl font-bold text-zinc-100">{s.title}</h2>
+                      <h2 className="mt-1 text-xl font-bold text-zinc-100">{c.caseTitle}</h2>
                     </div>
-                    {session && (
-                      <Badge tone={session.status === "SUBMITTED" ? "zinc" : "emerald"}>
-                        {session.status === "SUBMITTED" ? "Submitted" : "In progress"}
+                    {progress.complete ? (
+                      <Badge tone="zinc">Complete — {progress.totalScore}/100</Badge>
+                    ) : (
+                      <Badge tone="emerald">
+                        Phase {currentRow?.phase.phaseNumber ?? 1}/{c.phaseCount}
                       </Badge>
                     )}
                   </div>
-                  <p className="mb-4 text-sm leading-relaxed text-zinc-400">{s.briefing}</p>
-                  <p className="mb-5 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-xs leading-relaxed text-zinc-500">
-                    <span className="font-semibold text-zinc-400">Your objective: </span>
-                    {s.objective}
-                  </p>
-                  {session?.status === "SUBMITTED" ? (
-                    <p className="text-xs text-zinc-600">This investigation is closed — one attempt per case.</p>
+                  <p className="mb-4 text-sm leading-relaxed text-zinc-400">{c.briefing}</p>
+
+                  {/* Phase progress strip */}
+                  <div className="mb-5 flex gap-2">
+                    {progress.rows.map((r) => (
+                      <div
+                        key={r.phase.slug}
+                        className={`flex-1 rounded-lg border px-3 py-2 text-center ${
+                          r.status === "SUBMITTED"
+                            ? "border-emerald-500/40 bg-emerald-500/10"
+                            : r.status === "IN_PROGRESS"
+                              ? "border-amber-500/40 bg-amber-500/10"
+                              : "border-white/10 bg-white/[0.02] opacity-50"
+                        }`}
+                      >
+                        <p className="text-[9px] uppercase tracking-widest text-zinc-500">{r.phase.phaseLabel}</p>
+                        <p className="mt-0.5 text-xs font-semibold text-zinc-300">
+                          {r.status === "SUBMITTED" ? `${r.score}/100` : r.status === "IN_PROGRESS" ? "Current" : "Locked"}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {progress.complete ? (
+                    <p className="text-xs text-zinc-600">Case closed — every phase submitted, one attempt each.</p>
                   ) : (
-                    <StartMission slug={s.slug} resuming={!!session} />
+                    <StartMission slug={progress.currentSlug!} resuming={!!currentRow?.hasSession} />
                   )}
                 </Card>
               );

@@ -55,6 +55,27 @@ export const ENVIRONMENTS: Record<string, { objects: PlacedObject[] }> = {
       { key: "password-reset-log", top: 62, left: 18, appearance: "small" },
       { key: "vpn-log-normal", top: 46, left: 50, appearance: "note" },
       { key: "parking-note", top: 72, left: 50, appearance: "small" },
+
+      // IR-001 Phase 2 — Final Determination
+      { key: "threatening-text", top: 60, left: 18, appearance: "small" },
+      { key: "david-login-overlap", top: 30, left: 82, appearance: "screen" },
+      { key: "change-ticket", top: 40, left: 40, appearance: "note" },
+      { key: "exit-interview-note", top: 46, left: 50, appearance: "note" },
+      { key: "bank-transfer-alert", top: 58, left: 62, appearance: "screen" },
+
+      // IR-002 Phase 2 — Full Scope Assessment
+      { key: "dns-exfil-log", top: 34, left: 14, appearance: "screen" },
+      { key: "hr-share-log", top: 30, left: 82, appearance: "screen" },
+      { key: "legal-share-untouched", top: 40, left: 40, appearance: "screen" },
+      { key: "ransom-note-screenshot", top: 66, left: 28, appearance: "small" },
+      { key: "immutable-backup-confirmation", top: 60, left: 62, appearance: "screen" },
+
+      // IR-003 Phase 2 — Contain the Campaign
+      { key: "payment-hold-log", top: 38, left: 16, appearance: "screen" },
+      { key: "second-phishing-attempt", top: 30, left: 82, appearance: "screen" },
+      { key: "payroll-employee-no-click", top: 46, left: 50, appearance: "note" },
+      { key: "sender-domain-registration", top: 40, left: 40, appearance: "screen" },
+      { key: "bank-account-reused", top: 62, left: 18, appearance: "small" },
     ],
   },
 };

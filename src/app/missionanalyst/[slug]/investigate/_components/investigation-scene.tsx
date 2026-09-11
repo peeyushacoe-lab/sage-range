@@ -17,11 +17,16 @@ type SessionState = {
     environment: string;
     suspects: Suspect[];
     classifications: string[];
+    caseTitle: string;
+    phaseNumber: number;
+    phaseLabel: string;
+    isFinalPhase: boolean;
   };
   objects: { key: string; kind: string }[];
   found: string[];
   score: number | null;
   scoreBreakdown: Record<string, number> | null;
+  nextPhaseSlug: string | null;
 };
 
 type FoundEntry = { key: string; label: string; description: string; kind: string };
@@ -143,9 +148,19 @@ export function InvestigationScene({
   if (state.status === "SUBMITTED") {
     return (
       <Debrief
+        phaseLabel={state.scenario.phaseLabel}
+        isFinalPhase={state.scenario.isFinalPhase}
         score={state.score ?? 0}
         breakdown={state.scoreBreakdown ?? {}}
         onExit={() => router.push("/missionanalyst")}
+        onContinue={
+          state.nextPhaseSlug
+            ? async () => {
+                await fetch(`/api/missions/${state.nextPhaseSlug}/start`, { method: "POST" });
+                router.push(`/missionanalyst/${state.nextPhaseSlug}/investigate`);
+              }
+            : undefined
+        }
       />
     );
   }
@@ -187,7 +202,9 @@ export function InvestigationScene({
         />
 
         <div className="pointer-events-none absolute left-5 top-5 max-w-sm">
-          <p className="text-[10px] uppercase tracking-widest text-zinc-500">{title}</p>
+          <p className="text-[10px] uppercase tracking-widest text-zinc-500">
+            {state.scenario.caseTitle} · Phase {state.scenario.phaseNumber} — {state.scenario.phaseLabel}
+          </p>
           <p className="mt-1 text-xs leading-relaxed text-zinc-400">{objective}</p>
         </div>
         <div className="pointer-events-none absolute right-5 top-5 text-right text-[10px] uppercase tracking-widest text-zinc-600">
@@ -450,14 +467,21 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 function Debrief({
+  phaseLabel,
+  isFinalPhase,
   score,
   breakdown,
   onExit,
+  onContinue,
 }: {
+  phaseLabel: string;
+  isFinalPhase: boolean;
   score: number;
   breakdown: Record<string, number>;
   onExit: () => void;
+  onContinue?: () => void | Promise<void>;
 }) {
+  const [advancing, setAdvancing] = useState(false);
   const rows: [string, number, number][] = [
     ["Responsible party", breakdown.suspect ?? 0, 30],
     ["Classification", breakdown.classification ?? 0, 25],
@@ -467,7 +491,9 @@ function Debrief({
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-6 text-white">
       <div className="w-full max-w-md rounded-xl border border-white/10 bg-zinc-950 p-6">
-        <p className="mb-1 text-[10px] uppercase tracking-widest text-emerald-400">Investigation submitted</p>
+        <p className="mb-1 text-[10px] uppercase tracking-widest text-emerald-400">
+          {phaseLabel} submitted{isFinalPhase ? " — case complete" : ""}
+        </p>
         <p className="mb-5 font-mono text-4xl font-bold tabular-nums">
           {score}
           <span className="text-lg text-zinc-600"> / 100</span>
@@ -483,12 +509,25 @@ function Debrief({
             </div>
           ))}
         </div>
-        <button
-          className="mt-6 w-full rounded-lg bg-white/10 py-2.5 text-sm font-semibold text-white hover:bg-white/15"
-          onClick={onExit}
-        >
-          Back to briefing
-        </button>
+        {onContinue ? (
+          <button
+            className="mt-6 w-full rounded-lg bg-emerald-500/90 py-2.5 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50"
+            disabled={advancing}
+            onClick={async () => {
+              setAdvancing(true);
+              await onContinue();
+            }}
+          >
+            {advancing ? "Loading next phase…" : "Continue to next phase"}
+          </button>
+        ) : (
+          <button
+            className="mt-6 w-full rounded-lg bg-white/10 py-2.5 text-sm font-semibold text-white hover:bg-white/15"
+            onClick={onExit}
+          >
+            Back to briefing
+          </button>
+        )}
       </div>
     </div>
   );

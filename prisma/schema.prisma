@@ -3529,15 +3529,31 @@ model Evidence {
 
 model MissionScenario {
   id          String  @id @default(cuid())
+  // Unique per phase — "the-insider-p1", "the-insider-p2", etc. This is what
+  // a MissionSession actually attaches to.
   slug        String  @unique
+  // This phase's own title, e.g. "Phase 1 — Initial Triage".
   title       String
   briefing    String  @db.Text
   objective   String  @db.Text
-  // Key into the 3D client's environment registry, e.g. "office-v1" — lets a
-  // second scenario reuse a built environment without a schema change.
+  // Key into the client's environment registry, e.g. "office-v1" — lets a
+  // phase reuse a built environment without a schema change.
   environment String
   published   Boolean @default(false)
   createdAt   DateTime @default(now())
+
+  // ── Case grouping ──
+  // A "case" (an IR) is 2+ MissionScenario rows sharing a caseSlug, ordered
+  // by phaseNumber. Phase N+1 is locked until phase N's session is
+  // SUBMITTED — see getCaseProgress/startSession in src/lib/missions.ts.
+  // Kept as plain fields rather than a separate MissionCase table: the case
+  // itself has no state of its own beyond "which of its phases exist," so a
+  // join table would only add a round trip with nothing to store in it.
+  caseSlug     String
+  caseTitle    String
+  phaseNumber  Int     @default(1)
+  phaseLabel   String
+  isFinalPhase Boolean @default(true)
 
   // ── Conclusion step ──
   // Public option lists the player picks from — [{id, name, role}] and
@@ -3555,6 +3571,9 @@ model MissionScenario {
 
   evidence MissionEvidence[]
   sessions MissionSession[]
+
+  @@unique([caseSlug, phaseNumber])
+  @@index([caseSlug])
 }
 
 enum MissionSeverity {

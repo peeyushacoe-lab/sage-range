@@ -20,9 +20,11 @@ export default async function InvestigatePage({ params }: { params: Promise<{ sl
   });
   // No session yet means they skipped the briefing's start button — send them
   // back rather than silently creating one here, so /missionanalyst stays
-  // the single place a session gets created.
+  // the single place a session gets created. A SUBMITTED session, unlike
+  // that, still renders — InvestigationScene shows its debrief for it,
+  // so returning to a finished phase's URL (a refresh, a bookmark) shows
+  // the result instead of bouncing away from it.
   if (!session) redirect("/missionanalyst");
-  if (session.status !== "IN_PROGRESS") redirect("/missionanalyst");
 
   return (
     <InvestigationScene
