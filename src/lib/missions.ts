@@ -330,3 +330,136 @@ export async function submitFindings(
 
   return { success: true, data: { score, breakdown } };
 }
+
+// ── Admin reporting ─────────────────────────────────────────────────────────
+// The one place in this file allowed to read MissionScenario's answer*
+// fields and put them next to a player's own submission. Route-gated to
+// ADMIN only (see /admin/missions) — nothing here is safe to show a player.
+
+export type AdminSessionRow = {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  caseSlug: string;
+  caseTitle: string;
+  phaseSlug: string;
+  phaseNumber: number;
+  phaseLabel: string;
+  status: "IN_PROGRESS" | "SUBMITTED";
+  score: number | null;
+  breakdown: Record<string, number> | null;
+  evidenceFoundCount: number;
+  evidenceTotalCount: number;
+  submitted: {
+    suspectName: string | null;
+    classification: string | null;
+    severity: string | null;
+    evidenceCited: string[]; // labels, not keys
+    summary: string | null;
+  } | null;
+  answer: {
+    suspectName: string;
+    classification: string;
+    severity: string;
+    criticalEvidence: string[]; // labels
+  };
+};
+
+/** Every session across every case/phase, with each player's submission set next to the answer key. */
+export async function getAdminReport(): Promise<AdminSessionRow[]> {
+  const sessions = await db.missionSession.findMany({
+    include: {
+      user: { select: { id: true, displayName: true, email: true } },
+      scenario: { include: { evidence: true } },
+      found: { select: { evidenceKey: true } },
+    },
+    orderBy: [{ scenario: { caseSlug: "asc" } }, { scenario: { phaseNumber: "asc" } }, { score: "desc" }],
+  });
+
+  return sessions.map((s) => {
+    const suspects = s.scenario.suspects as { id: string; name: string; role: string }[];
+    const evidenceByKey = new Map(s.scenario.evidence.map((e) => [e.key, e]));
+    const nameFor = (id: string | null) => (id ? suspects.find((sp) => sp.id === id)?.name ?? id : null);
+
+    return {
+      sessionId: s.id,
+      userId: s.user.id,
+      userName: s.user.displayName || s.user.email.split("@")[0],
+      userEmail: s.user.email,
+      caseSlug: s.scenario.caseSlug,
+      caseTitle: s.scenario.caseTitle,
+      phaseSlug: s.scenario.slug,
+      phaseNumber: s.scenario.phaseNumber,
+      phaseLabel: s.scenario.phaseLabel,
+      status: s.status,
+      score: s.score,
+      breakdown: s.scoreBreakdown as Record<string, number> | null,
+      evidenceFoundCount: s.found.length,
+      evidenceTotalCount: s.scenario.evidence.length,
+      submitted: s.status === "SUBMITTED"
+        ? {
+            suspectName: nameFor(s.submittedSuspectId),
+            classification: s.submittedClassification,
+            severity: s.submittedSeverity,
+            evidenceCited: s.submittedEvidenceKeys.map((k) => evidenceByKey.get(k)?.label ?? k),
+            summary: s.submittedSummary,
+          }
+        : null,
+      answer: {
+        suspectName: nameFor(s.scenario.answerSuspectId) ?? s.scenario.answerSuspectId,
+        classification: s.scenario.answerClassification,
+        severity: s.scenario.answerSeverity,
+        criticalEvidence: s.scenario.evidence.filter((e) => e.isCritical).map((e) => e.label),
+      },
+    };
+  });
+}
+
+export type AdminUserRanking = {
+  userId: string;
+  userName: string;
+  userEmail: string;
+  casesCompleted: number;
+  casesStarted: number;
+  averageScore: number | null;
+  totalScore: number;
+};
+
+/** One row per person who has touched Mission Analyst, for ranking. */
+export async function getAdminRanking(): Promise<AdminUserRanking[]> {
+  const rows = await getAdminReport();
+  const byUser = new Map<string, AdminSessionRow[]>();
+  for (const r of rows) {
+    if (!byUser.has(r.userId)) byUser.set(r.userId, []);
+    byUser.get(r.userId)!.push(r);
+  }
+
+  const rankings: AdminUserRanking[] = [];
+  for (const [userId, userRows] of byUser) {
+    const byCase = new Map<string, AdminSessionRow[]>();
+    for (const r of userRows) {
+      if (!byCase.has(r.caseSlug)) byCase.set(r.caseSlug, []);
+      byCase.get(r.caseSlug)!.push(r);
+    }
+    let casesCompleted = 0;
+    let totalScore = 0;
+    for (const caseRows of byCase.values()) {
+      if (caseRows.every((r) => r.status === "SUBMITTED")) {
+        casesCompleted++;
+        totalScore += Math.round(caseRows.reduce((sum, r) => sum + (r.score ?? 0), 0) / caseRows.length);
+      }
+    }
+    rankings.push({
+      userId,
+      userName: userRows[0].userName,
+      userEmail: userRows[0].userEmail,
+      casesStarted: byCase.size,
+      casesCompleted,
+      totalScore,
+      averageScore: casesCompleted > 0 ? Math.round(totalScore / casesCompleted) : null,
+    });
+  }
+
+  return rankings.sort((a, b) => (b.averageScore ?? -1) - (a.averageScore ?? -1) || b.casesCompleted - a.casesCompleted);
+}
