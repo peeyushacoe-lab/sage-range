@@ -339,6 +339,25 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ── Campus Pilot Program ─────────────────────────────────────────── */}
+      <section className="border-t border-white/6 bg-zinc-900/30">
+        <div className="max-w-4xl mx-auto px-6 py-14 flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <p className="text-xs text-blue-400 uppercase tracking-widest font-mono mb-2">For universities & bootcamps</p>
+            <h2 className="text-2xl font-bold text-zinc-100 mb-1.5">Bring Sage Vault to your students</h2>
+            <p className="text-sm text-zinc-400 max-w-md">
+              We&apos;re onboarding a small number of institutions for the Campus Pilot Program — no cost to apply.
+            </p>
+          </div>
+          <Link
+            href="/campus-pilot"
+            className="shrink-0 rounded-xl border border-blue-500/40 bg-blue-500/10 px-6 py-3 font-semibold text-blue-400 hover:bg-blue-500/20 transition-colors whitespace-nowrap"
+          >
+            Apply for the pilot →
+          </Link>
+        </div>
+      </section>
+
       <MarketingFooter />
     </div>
   );
