@@ -20,9 +20,27 @@
 
 import { db } from "@/lib/db";
 
+/**
+ * This week's assignment window. IST end-of-day Sept 17 2026 — same
+ * IST-deadline convention Operation Zero Hour uses (OZH_CLOSES_AT).
+ *
+ * Single source of truth for both halves of "close the assignment": the
+ * dashboard promo (student-home.tsx) stops showing once this has passed,
+ * and startSession/examineEvidence/submitFindings all refuse once it has
+ * too — so removing the dashboard link and actually closing the mission
+ * happen together, from one constant, not as two separate steps to
+ * remember to do on the day.
+ */
+export const MISSION_ANALYST_CLOSES_AT = new Date("2026-09-17T18:30:00.000Z"); // 2026-09-18 00:00 IST
+
 export type MissionResult<T> = { success: true; data: T } | { success: false; error: string; statusCode: number };
 
 const fail = (error: string, statusCode: number): MissionResult<never> => ({ success: false, error, statusCode });
+
+export function isMissionAnalystClosed(now: Date = new Date()): boolean {
+  return now > MISSION_ANALYST_CLOSES_AT;
+}
+const isClosed = isMissionAnalystClosed;
 
 // Fields safe to hand to a client — everything on MissionScenario except the
 // answer* columns.
@@ -120,6 +138,8 @@ export async function startSession(
   userId: string,
   scenarioSlug: string,
 ): Promise<MissionResult<{ sessionId: string; resumed: boolean }>> {
+  if (isClosed()) return fail("Mission Analyst has closed for this assignment window", 403);
+
   const scenario = await db.missionScenario.findUnique({ where: { slug: scenarioSlug } });
   if (!scenario || !scenario.published) return fail("Scenario not found", 404);
 
@@ -226,6 +246,12 @@ export async function examineEvidence(
   sessionId: string,
   key: string,
 ): Promise<MissionResult<{ label: string; description: string; kind: string; firstDiscovery: boolean }>> {
+  // Gated here too, not just in startSession — a session someone already
+  // has open (reached without going through startSession again, e.g. a
+  // direct/bookmarked URL to an in-progress investigation) must not stay
+  // workable past the deadline just because it already existed.
+  if (isClosed()) return fail("Mission Analyst has closed for this assignment window", 403);
+
   const session = await db.missionSession.findUnique({
     where: { id: sessionId },
     include: { scenario: true },
@@ -293,6 +319,8 @@ export async function submitFindings(
   sessionId: string,
   input: SubmitFindingsInput,
 ): Promise<MissionResult<{ score: number; breakdown: Record<string, number> }>> {
+  if (isClosed()) return fail("Mission Analyst has closed for this assignment window", 403);
+
   const session = await db.missionSession.findUnique({
     where: { id: sessionId },
     include: { scenario: { include: { evidence: true } }, found: true },

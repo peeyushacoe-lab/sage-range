@@ -4,6 +4,8 @@ import { CertProgressCard } from "./cert-progress-card";
 import { JoinClassroomClient } from "@/app/classroom/_components/classroom-hub-client";
 import { buildHomeDashboard, type ContinueLearning } from "@/lib/insights/home-dashboard";
 import type { AppUser } from "@/lib/current-user";
+import { isMissionAnalystClosed, MISSION_ANALYST_CLOSES_AT } from "@/lib/missions";
+import { formatIST } from "@/lib/ozh-format";
 
 import { Icon, type IconName } from "@/components/ui/icon";
 import { IconTile } from "@/components/ui/icon-tile";
@@ -96,6 +98,8 @@ export async function StudentHome({ user }: { user: AppUser }) {
           </div>
         )}
       </div>
+
+      <MissionAnalystPromo />
 
       {/* ── Continue Where You Left ──────────────────────────────────── */}
       <section>
@@ -322,5 +326,35 @@ export async function StudentHome({ user }: { user: AppUser }) {
         </section>
       )}
     </main>
+  );
+}
+
+/**
+ * This week's assignment. Time-gated on MISSION_ANALYST_CLOSES_AT — the
+ * same constant startSession/examineEvidence/submitFindings check, so this
+ * disappearing from the dashboard and the mission actually closing happen
+ * from one source of truth, not two things to remember to turn off.
+ */
+async function MissionAnalystPromo() {
+  if (isMissionAnalystClosed()) return null;
+
+  return (
+    <Link
+      href="/missionanalyst"
+      className="card-hover flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-blue-500/30 bg-blue-500/[0.06] p-5 transition hover:border-blue-500/50"
+    >
+      <div>
+        <p className="mb-1 font-mono text-[10px] uppercase tracking-widest text-blue-400">
+          This week&apos;s assignment · closes {formatIST(MISSION_ANALYST_CLOSES_AT)} IST
+        </p>
+        <p className="text-lg font-bold text-zinc-100">🕵 Mission Analyst</p>
+        <p className="mt-1 text-sm text-zinc-400">
+          First-person incident response — 8 cases, walk the scene, find the evidence, file your findings.
+        </p>
+      </div>
+      <span className="shrink-0 rounded-lg border border-blue-500/40 bg-blue-500/10 px-5 py-2.5 text-sm font-semibold text-blue-400">
+        Start investigating →
+      </span>
+    </Link>
   );
 }

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-user";
-import { listCases, getCaseProgress } from "@/lib/missions";
+import { listCases, getCaseProgress, isMissionAnalystClosed, MISSION_ANALYST_CLOSES_AT } from "@/lib/missions";
+import { formatIST } from "@/lib/ozh-format";
 import { Navbar } from "@/components/navbar";
 import { Card, Badge } from "@/components/ui";
 import { StartMission } from "./_components/start-mission";
@@ -22,6 +23,7 @@ export default async function MissionAnalystPage() {
 
   const cases = await listCases();
   const progressByCase = await Promise.all(cases.map((c) => getCaseProgress(user.id, c.caseSlug)));
+  const closed = isMissionAnalystClosed();
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
@@ -37,6 +39,20 @@ export default async function MissionAnalystPage() {
             Walk the scene. Find the evidence. Draw your own conclusion.
           </p>
         </div>
+
+        {closed ? (
+          <Card className="mb-8 border-red-500/25 bg-red-500/[0.05] p-5 text-center">
+            <Badge tone="red" className="mb-2">Closed</Badge>
+            <p className="text-sm text-zinc-300">
+              This assignment closed {formatIST(MISSION_ANALYST_CLOSES_AT)} IST. No new investigations can be
+              started or submitted.
+            </p>
+          </Card>
+        ) : (
+          <p className="mb-8 text-center text-xs text-zinc-600">
+            This assignment closes {formatIST(MISSION_ANALYST_CLOSES_AT)} IST.
+          </p>
+        )}
 
         <Card className="mb-8 border-blue-500/20 bg-blue-500/[0.03] p-6">
           <p className="mb-2 text-[10px] uppercase tracking-widest text-blue-400/80">How this works</p>
@@ -98,6 +114,8 @@ export default async function MissionAnalystPage() {
 
                   {progress.complete ? (
                     <p className="text-xs text-zinc-600">Case closed — every phase submitted, one attempt each.</p>
+                  ) : closed ? (
+                    <p className="text-xs text-red-400/80">Assignment window closed — this case can no longer be started or continued.</p>
                   ) : (
                     <StartMission slug={progress.currentSlug!} resuming={!!currentRow?.hasSession} />
                   )}
