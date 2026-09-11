@@ -36,7 +36,10 @@ export function PilotForm() {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      setError(err.error === "Too many submissions. Please try again later." ? err.error : "Something went wrong — please try again.");
+      // The API now returns a specific, field-level message (e.g. "Enter
+      // your full name") rather than a bare "invalid_input" — show that
+      // directly instead of a generic failure the form gave no way to act on.
+      setError(typeof err.error === "string" ? err.error : "Something went wrong — please try again.");
       setBusy(false);
       return;
     }
@@ -72,10 +75,10 @@ export function PilotForm() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="University / Institution" name="universityName" required placeholder="e.g. State University" full />
-        <Field label="Your name" name="contactName" required placeholder="Jane Smith" />
+        <Field label="University / Institution" name="universityName" required minLength={2} placeholder="e.g. State University" full />
+        <Field label="Your name" name="contactName" required minLength={2} placeholder="Jane Smith" />
         <Field label="Your email" name="contactEmail" type="email" required placeholder="jane@university.edu" />
-        <Field label="Your role" name="contactRole" required placeholder="Professor, IT Director, ..." />
+        <Field label="Your role" name="contactRole" required minLength={2} placeholder="Professor, IT Director, ..." />
         <Field label="Department" name="department" placeholder="Computer Science (optional)" />
 
         <div>
@@ -129,6 +132,7 @@ function Field({
   name,
   type = "text",
   required,
+  minLength,
   placeholder,
   full,
 }: {
@@ -136,6 +140,7 @@ function Field({
   name: string;
   type?: string;
   required?: boolean;
+  minLength?: number;
   placeholder?: string;
   full?: boolean;
 }) {
@@ -148,6 +153,7 @@ function Field({
         type={type}
         name={name}
         required={required}
+        minLength={minLength}
         placeholder={placeholder}
         className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600"
       />
