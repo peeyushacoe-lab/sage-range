@@ -142,11 +142,24 @@ export async function startSession(
   });
   if (existing) return { success: true, data: { sessionId: existing.id, resumed: true } };
 
-  const created = await db.missionSession.create({
-    data: { userId, scenarioId: scenario.id },
-    select: { id: true },
-  });
-  return { success: true, data: { sessionId: created.id, resumed: false } };
+  // A second request racing this one (a double-click, a retried request)
+  // can lose the findUnique-then-create gap above and hit the unique
+  // constraint on create — that's not a real failure, it just means the
+  // other request already made the session, so fetch and return that one
+  // instead of surfacing a 500.
+  try {
+    const created = await db.missionSession.create({
+      data: { userId, scenarioId: scenario.id },
+      select: { id: true },
+    });
+    return { success: true, data: { sessionId: created.id, resumed: false } };
+  } catch {
+    const wonByRace = await db.missionSession.findUnique({
+      where: { userId_scenarioId: { userId, scenarioId: scenario.id } },
+    });
+    if (wonByRace) return { success: true, data: { sessionId: wonByRace.id, resumed: true } };
+    return fail("Could not start the investigation", 500);
+  }
 }
 
 /**
@@ -289,8 +302,13 @@ export async function submitFindings(
   if (!input.summary.trim()) return fail("An executive summary is required", 400);
 
   const foundKeys = new Set(session.found.map((f) => f.evidenceKey));
-  const citedKeys = input.evidenceKeys.filter((k) => foundKeys.has(k));
-  if (citedKeys.length !== input.evidenceKeys.length) {
+  // Dedupe first — citing the same real evidence key several times must
+  // score the same as citing it once, not inflate the evidence component
+  // past its intended cap (it did, before this: pointsPerCritical was
+  // multiplied by a citedKeys.length that could double-count one key).
+  const uniqueInputKeys = [...new Set(input.evidenceKeys)];
+  const citedKeys = uniqueInputKeys.filter((k) => foundKeys.has(k));
+  if (citedKeys.length !== uniqueInputKeys.length) {
     return fail("You can only cite evidence you actually found", 400);
   }
 
@@ -308,7 +326,7 @@ export async function submitFindings(
   const pointsPerCritical = criticalKeys.size > 0 ? 30 / criticalKeys.size : 0;
   const criticalCited = citedKeys.filter((k) => criticalKeys.has(k)).length;
   const nonCriticalCited = citedKeys.length - criticalCited;
-  const evidenceScore = Math.max(0, Math.round(criticalCited * pointsPerCritical - nonCriticalCited * 5));
+  const evidenceScore = Math.min(30, Math.max(0, Math.round(criticalCited * pointsPerCritical - nonCriticalCited * 5)));
 
   const score = suspectScore + classificationScore + severityScore + evidenceScore;
   const breakdown = { suspect: suspectScore, classification: classificationScore, severity: severityScore, evidence: evidenceScore };
