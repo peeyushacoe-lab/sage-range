@@ -19,6 +19,10 @@ const PUBLIC_API_PREFIXES = [
   // Credential verification: a recruiter checking a candidate has no account.
   // Read-only, keyed by an unguessable code, and returns no email address.
   "/api/career/credentials/",
+  // Campus Pilot sign-up — a university contact filling this out has no
+  // Sage Vault account yet by definition. Rate-limited by IP in the route
+  // itself since it can't rely on a session to key on.
+  "/api/partners/campus-pilot",
 ];
 
 function isProtected(p: string) { return PROTECTED.some((prefix) => p.startsWith(prefix)); }

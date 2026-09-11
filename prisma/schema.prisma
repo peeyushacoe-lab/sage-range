@@ -3648,3 +3648,33 @@ model MissionEvidenceFound {
 
   @@unique([sessionId, evidenceKey])
 }
+
+// ── Campus Pilot Program ─────────────────────────────────────────────────────
+// Public sign-up at /campus-pilot for universities wanting to pilot Sage
+// Vault — no MissionScenario-style client/server split needed here, this
+// is a plain lead-capture form. Reviewed at /admin/campus-pilot.
+
+enum CampusPilotStatus {
+  NEW
+  CONTACTED
+  IN_DISCUSSION
+  APPROVED
+  DECLINED
+}
+
+model CampusPilotSubmission {
+  id             String            @id @default(cuid())
+  universityName String
+  contactName    String
+  contactEmail   String
+  contactRole    String
+  department     String?
+  studentEstimate String?
+  country        String?
+  message        String?           @db.Text
+  heardFrom      String?
+  status         CampusPilotStatus @default(NEW)
+  createdAt      DateTime          @default(now())
+
+  @@index([status, createdAt])
+}
