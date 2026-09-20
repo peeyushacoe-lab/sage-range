@@ -17,6 +17,7 @@ export type AccessCheckUser = {
   createdAt: Date;
   subscriptionStatus: string | null;
   externalId: string | null;
+  complimentaryAccessUntil: Date | null;
 };
 
 /**
@@ -29,6 +30,10 @@ export async function hasProductAccess(user: AccessCheckUser): Promise<boolean> 
   if (user.role === "ADMIN") return true;
   if (user.externalId) return true; // Nexus/SSO — licensed by the provisioning org, not Stripe
   if (user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing") return true;
+  // A manually-granted free period (e.g. a Nexus alum who migrated to a
+  // personal email) — self-expiring, checked live rather than needing
+  // something to flip a status back when it lapses.
+  if (user.complimentaryAccessUntil && user.complimentaryAccessUntil > new Date()) return true;
 
   // Licensed via an organization seat (e.g. a company's own domain-matched
   // team) rather than an individual subscription — this is the intended free

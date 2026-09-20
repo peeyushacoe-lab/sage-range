@@ -74,6 +74,14 @@ model User {
   subscriptionStatus   String? // active | trialing | canceled | past_due
   subscriptionPlan     String? // classroom | enterprise
   trialEndsAt          DateTime?
+  // A manually-granted, self-expiring free period unrelated to Stripe — e.g.
+  // a Nexus intern migrating to a personal email keeps access for a while
+  // after leaving the org. Deliberately separate from subscriptionStatus/
+  // trialEndsAt (Stripe's own fields, written by the webhook) so this can't
+  // collide with or be silently overwritten by real billing events, and so
+  // it expires on its own via a plain date check in hasProductAccess rather
+  // than needing a cron job to flip a status back.
+  complimentaryAccessUntil DateTime?
 
   attempts                  Attempt[]
   writeups                  Writeup[]
@@ -168,8 +176,31 @@ model User {
   // ── Mission Analyst (immersive incident response) ──
   missionSessions MissionSession[]
 
+  accountMigrationRequests AccountMigrationRequest[]
+
   @@index([skillScore])
   @@index([coins])
+}
+
+// ── Account Migration (Nexus alumni -> personal email) ──────────────────────
+// A currently-Nexus-provisioned user (externalId set) moving their existing
+// account to a personal email so they can keep using it after losing Nexus
+// access. This changes User.email in place — same id, same history — rather
+// than creating a second account, which is what would happen if they just
+// signed in with Google using a personal address (email-based account
+// matching in auth.ts would treat that as a brand new user).
+model AccountMigrationRequest {
+  id          String    @id @default(cuid())
+  userId      String
+  newEmail    String
+  token       String    @unique
+  expiresAt   DateTime
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // ── Certificate Approval Workflow ─────────────────────────────────────────────
@@ -1409,6 +1440,8 @@ enum AuditAction {
   TOURNAMENT_START
   TOURNAMENT_MATCH_REPORT
   ADMIN_SCENARIO_MODERATE
+  ACCOUNT_MIGRATION_STARTED
+  ACCOUNT_MIGRATION_COMPLETED
 }
 
 model AuditLog {

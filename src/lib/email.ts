@@ -179,3 +179,34 @@ export async function sendLabAssignedEmail(
     html,
   });
 }
+
+/**
+ * Sent to the NEW personal email during account migration — this is the
+ * actual proof-of-ownership step, not just a notice. If Resend isn't
+ * configured (no RESEND_API_KEY), this silently no-ops same as every other
+ * sender here, which would leave a migration request impossible to
+ * complete — acceptable for local/dev, not for production.
+ */
+export async function sendMigrationVerificationEmail(to: string, { displayName, token }: { displayName: string; token: string }) {
+  if (!resend) return;
+
+  const confirmHref = `https://www.cybersagevault.uk/migrate/confirm?token=${token}`;
+
+  const html = wrap(`
+    <h1>Confirm your new Sage Vault email</h1>
+    <p>Hi ${displayName},</p>
+    <p>You asked to move your Sage Vault account to this email address. Confirming keeps everything you've already
+    built — labs, certificates, skill history — under the same account, just reachable here instead of through
+    Nexus.</p>
+    <a href="${confirmHref}" class="btn">Confirm this email →</a>
+    <p style="font-size:12px;color:#52525b;">This link expires in 24 hours. If you didn't request this, you can
+    safely ignore it — nothing changes on your account until this is confirmed.</p>
+  `, "Confirm your new Sage Vault email");
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: "Confirm your new Sage Vault email",
+    html,
+  });
+}

@@ -23,6 +23,11 @@ const PUBLIC_API_PREFIXES = [
   // Sage Vault account yet by definition. Rate-limited by IP in the route
   // itself since it can't rely on a session to key on.
   "/api/partners/campus-pilot",
+  // Account migration confirm — the mailed token is the proof of ownership,
+  // not a session; confirming from a different device/browser than the one
+  // that started the migration must still work. (The start endpoint stays
+  // behind auth — it's not in this list.)
+  "/api/account/migrate/confirm",
 ];
 
 function isProtected(p: string) { return PROTECTED.some((prefix) => p.startsWith(prefix)); }

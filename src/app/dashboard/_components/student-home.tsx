@@ -99,6 +99,8 @@ export async function StudentHome({ user }: { user: AppUser }) {
         )}
       </div>
 
+      {user.externalId && <MigrationPromo />}
+
       <MissionAnalystPromo />
 
       {/* ── Continue Where You Left ──────────────────────────────────── */}
@@ -354,6 +356,30 @@ async function MissionAnalystPromo() {
       </div>
       <span className="shrink-0 rounded-lg border border-blue-500/40 bg-blue-500/10 px-5 py-2.5 text-sm font-semibold text-blue-400">
         Start investigating →
+      </span>
+    </Link>
+  );
+}
+
+/** Shown only to a currently Nexus-provisioned account (externalId set) — see student-home.tsx's caller. */
+function MigrationPromo() {
+  return (
+    <Link
+      href="/migrate"
+      className="card-hover flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-5 transition hover:border-amber-500/50"
+    >
+      <div>
+        <p className="mb-1 font-mono text-[10px] uppercase tracking-widest text-amber-400">
+          Leaving your organization?
+        </p>
+        <p className="text-lg font-bold text-zinc-100">Keep your Sage Vault account</p>
+        <p className="mt-1 text-sm text-zinc-400">
+          Move to a personal email now and sign in with Google going forward — everything you&apos;ve built stays,
+          plus 6 months of free premium access.
+        </p>
+      </div>
+      <span className="shrink-0 rounded-lg border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-400">
+        Migrate now →
       </span>
     </Link>
   );
