@@ -21,8 +21,15 @@
 import { db } from "@/lib/db";
 
 /**
- * This week's assignment window. IST end-of-day Sept 17 2026 — same
+ * This week's assignment window. IST end-of-day Sept 27 2026 — same
  * IST-deadline convention Operation Zero Hour uses (OZH_CLOSES_AT).
+ *
+ * Extended once already: the original deadline was Sept 17, but several
+ * students missed it, so this was pushed another 7 days from the day of
+ * the extension (Sept 20) rather than tacked onto the already-passed
+ * original date. Reopening only helps students who never finished — anyone
+ * who already SUBMITTED a phase still can't redo it (one attempt each,
+ * enforced independently of this window in submitFindings).
  *
  * Single source of truth for both halves of "close the assignment": the
  * dashboard promo (student-home.tsx) stops showing once this has passed,
@@ -31,7 +38,7 @@ import { db } from "@/lib/db";
  * happen together, from one constant, not as two separate steps to
  * remember to do on the day.
  */
-export const MISSION_ANALYST_CLOSES_AT = new Date("2026-09-17T18:30:00.000Z"); // 2026-09-18 00:00 IST
+export const MISSION_ANALYST_CLOSES_AT = new Date("2026-09-27T18:30:00.000Z"); // 2026-09-28 00:00 IST
 
 export type MissionResult<T> = { success: true; data: T } | { success: false; error: string; statusCode: number };
 
