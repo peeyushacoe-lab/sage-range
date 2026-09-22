@@ -73,12 +73,13 @@ export async function sendWelcomeEmail(to: string, name: string, role: string) {
     <p style="font-size:12px;color:#52525b;">You can change your role anytime from your profile settings.</p>
   `, "Welcome to Sage Vault");
 
-  await resend.emails.send({
+  const res = await resend.emails.send({
     from: FROM,
     to,
     subject: `Welcome to Sage Vault — you're all set`,
     html,
   });
+  if (res.error) console.error("[email] welcome send failed:", res.error);
 }
 
 export async function sendClassroomJoinEmail(
@@ -98,12 +99,13 @@ export async function sendClassroomJoinEmail(
     <a href="https://www.cybersagevault.uk/classroom/${classroomId}" class="btn">Go to classroom →</a>
   `, "You've joined a classroom");
 
-  await resend.emails.send({
+  const res = await resend.emails.send({
     from: FROM,
     to,
     subject: `You've joined: ${classroomName}`,
     html,
   });
+  if (res.error) console.error("[email] classroom join send failed:", res.error);
 }
 
 export async function sendSimCertificateEmail(
@@ -143,12 +145,13 @@ export async function sendSimCertificateEmail(
     </p>
   `, "Your simulation certificate is ready");
 
-  await resend.emails.send({
+  const res = await resend.emails.send({
     from: FROM,
     to,
     subject: `Your simulation certificate — ${scenario} (${rating})`,
     html,
   });
+  if (res.error) console.error("[email] certificate send failed:", res.error);
 }
 
 export async function sendLabAssignedEmail(
@@ -172,12 +175,13 @@ export async function sendLabAssignedEmail(
     <a href="https://www.cybersagevault.uk/classroom/${classroomId}" class="btn">Go to classroom →</a>
   `, "New lab assigned");
 
-  await resend.emails.send({
+  const res = await resend.emails.send({
     from: FROM,
     to,
     subject: `New lab assigned: ${labTitle}`,
     html,
   });
+  if (res.error) console.error("[email] lab assigned send failed:", res.error);
 }
 
 /**
@@ -188,7 +192,7 @@ export async function sendLabAssignedEmail(
  * complete — acceptable for local/dev, not for production.
  */
 export async function sendMigrationVerificationEmail(to: string, { displayName, token }: { displayName: string; token: string }) {
-  if (!resend) return;
+  if (!resend) throw new Error("Email is not configured (RESEND_API_KEY missing) — cannot send migration link");
 
   const confirmHref = `https://www.cybersagevault.uk/migrate/confirm?token=${token}`;
 
@@ -203,10 +207,15 @@ export async function sendMigrationVerificationEmail(to: string, { displayName, 
     safely ignore it — nothing changes on your account until this is confirmed.</p>
   `, "Confirm your new Sage Vault email");
 
-  await resend.emails.send({
+  const res = await resend.emails.send({
     from: FROM,
     to,
     subject: "Confirm your new Sage Vault email",
     html,
   });
+
+  if (res.error) {
+    console.error("[email] migration verification send failed:", res.error);
+    throw new Error("Failed to send migration verification email: " + res.error.message);
+  }
 }

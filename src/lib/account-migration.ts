@@ -63,10 +63,15 @@ export async function startMigration(userId: string, newEmail: string): Promise<
     },
   });
 
-  await sendMigrationVerificationEmail(normalized, {
-    displayName: user.displayName ?? user.email.split("@")[0],
-    token: request.token,
-  });
+  try {
+    await sendMigrationVerificationEmail(normalized, {
+      displayName: user.displayName ?? user.email.split("@")[0],
+      token: request.token,
+    });
+  } catch (err) {
+    console.error("[account-migration] failed to send verification email:", err);
+    return fail("We couldn't send the confirmation email — please try again in a moment", 502);
+  }
 
   await audit({ actorId: userId, action: "ACCOUNT_MIGRATION_STARTED", target: userId, meta: { newEmail: normalized } });
 
